@@ -1,0 +1,31 @@
+
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: ce2_dev
+  pool: 5
+  username: brian
+  password: 3xf51k
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test: &test
+  adapter: postgresql
+  encoding: unicode
+  database: ce2_test
+  pool: 5
+  username: brian
+  password: 3xf51k
+
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: ce2_prod
+  pool: 5
+  username: brian
+  password: 3xf51k
+
+cucumber:
+  <<: *test

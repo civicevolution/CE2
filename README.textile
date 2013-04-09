@@ -21,7 +21,7 @@ Learn more about "Installing Rails":http://railsapps.github.com/installing-rails
 
 h2. Database
 
-This application uses Postgres with ActiveRecord.
+This application uses Postgresql with ActiveRecord.
 
 h2. Development
 
