@@ -15,13 +15,12 @@ app.factory "Comment", ["$resource", ($resource) ->
 		
 	$scope.addComment = ->
 		comment = Comment.save( $scope.newComment )
-		$scope.comments.push($scope.newComment)
+		$scope.comments.push( comment )
 		$scope.newComment = {}
 		
 	$scope.like = ->
-		debugger
 		@comment.liked ?= false
-		@comment.liked = not this.comment.liked
+		@comment.liked = not @comment.liked
 		@comment.$update()
 ]		
 		
