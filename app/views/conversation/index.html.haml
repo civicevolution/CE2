@@ -1,0 +1,22 @@
+%h1 Conversation (HAML)
+
+%div(ng-controller='ConversationCtrl')
+	%form.convo(ng-submit="addComment()"){arb_attr: 'reddish'}
+		%p
+			Name: 
+			%input{type: 'text', 'ng-model' => "newComment.name"}
+
+		%p
+			Message: 
+			%input{type: 'text', 'ng-model' => "newComment.text"}
+			
+		%p
+			%input{type: 'submit', value: 'Add'}  
+		
+	%ul
+		%li(ng-repeat="comment in comments")
+			{{comment.name}} says "{{comment.text}}"
+			%a(ng-show="!comment.liked" ng-click="like()"){href: '#'}
+				Like
+			%a(ng-show="comment.liked" ng-click="like()"){href: '#'}
+				Unlike

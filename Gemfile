@@ -1,13 +1,19 @@
 source 'https://rubygems.org'
 gem 'rails', '3.2.13'
 gem 'pg'
+
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'
   gem 'coffee-rails', '~> 3.2.1'
   gem 'uglifier', '>= 1.0.3'
+  
+  gem 'angularjs-rails'
 end
+
 gem 'jquery-rails'
 gem "thin", ">= 1.5.0", :group => [:development, :test]
+gem 'debugger', :group => :development
+
 gem "unicorn", ">= 4.3.1", :group => :production
 gem "haml-rails", ">= 0.4"
 gem "html2haml", ">= 1.0.1", :group => :development
