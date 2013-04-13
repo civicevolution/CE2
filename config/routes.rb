@@ -1,5 +1,18 @@
+require 'api_constraints'
+
 Ce2::Application.routes.draw do
-  resources :comments
+
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :comments
+    end
+    #scope module: :v2, constraints: ApiConstraints.new(version: 2, default: true) do
+    #  resources :products
+    #end
+  end
+  
+
+  #resources :comments
 
 
   get "conversation/index"
@@ -12,4 +25,6 @@ Ce2::Application.routes.draw do
   
   devise_for :users
   resources :users
+
+
 end
