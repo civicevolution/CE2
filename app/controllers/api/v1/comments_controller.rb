@@ -2,6 +2,7 @@ module Api
   module V1
 
     class CommentsController < Api::BaseController
+      load_and_authorize_resource
       
       def index
         respond_with Comment.all

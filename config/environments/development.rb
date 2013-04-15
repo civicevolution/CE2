@@ -14,24 +14,26 @@ Ce2::Application.configure do
   config.action_controller.perform_caching = false
 
   # ActionMailer Config
-  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
-  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.default_url_options = { :host => 'localhost' }
+  
   # change to true to allow email to be sent during development
-  config.action_mailer.perform_deliveries = false
+  config.action_mailer.perform_deliveries = true
+  # Disable delivery errors, bad email addresses will NOT be ignored
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.default :charset => "utf-8"
 
+  config.action_mailer.logger = ActiveSupport::BufferedLogger.new( "#{Rails.root}/log/mail.sent.log" )
+  
+  config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: "smtp.gmail.com",
-    port: 587,
-    domain: "example.com",
-    authentication: "plain",
-    enable_starttls_auto: true,
-    user_name: ENV["GMAIL_USERNAME"],
-    password: ENV["GMAIL_PASSWORD"]
+    :enable_starttls_auto => true,
+    :address => "smtp.sendgrid.net",
+    :domain => 'civicevolution.org',
+    :port => 587,
+    :user_name => "civicevolution2SFO", 
+    :password	=> "gayjorge2011CANYON",
+    :authentication => :plain, 
   }
-
-
 
   # Print deprecation notices to the Rails logger
   config.active_support.deprecation = :log

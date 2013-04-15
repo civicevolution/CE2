@@ -48,9 +48,6 @@ Ce2::Application.configure do
   # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
   # config.assets.precompile += %w( search.js )
 
-  # Disable delivery errors, bad email addresses will be ignored
-  # config.action_mailer.raise_delivery_errors = false
-
   # Enable threaded mode
   # config.threadsafe!
 
@@ -61,25 +58,27 @@ Ce2::Application.configure do
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
 
-  config.action_mailer.default_url_options = { :host => 'example.com' }
   # ActionMailer Config
-  # Setup for production - deliveries, no errors raised
-  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.default_url_options = { :host => 'civicevolution.org' }
+  
+  # change to true to allow email to be sent during development
   config.action_mailer.perform_deliveries = true
-  config.action_mailer.raise_delivery_errors = false
+  # Disable delivery errors, bad email addresses will NOT be ignored
+  config.action_mailer.raise_delivery_errors = true
   config.action_mailer.default :charset => "utf-8"
 
+  config.action_mailer.logger = ActiveSupport::BufferedLogger.new( "#{Rails.root}/log/mail.sent.log" )
+  
+  config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: "smtp.gmail.com",
-    port: 587,
-    domain: "example.com",
-    authentication: "plain",
-    enable_starttls_auto: true,
-    user_name: ENV["GMAIL_USERNAME"],
-    password: ENV["GMAIL_PASSWORD"]
+    :enable_starttls_auto => true,
+    :address => "smtp.sendgrid.net",
+    :domain => 'civicevolution.org',
+    :port => 587,
+    :user_name => "civicevolution2SFO", 
+    :password	=> "gayjorge2011CANYON",
+    :authentication => :plain, 
   }
-
-
 
   # Log the query plan for queries taking more than this (works
   # with SQLite, MySQL, and PostgreSQL)

@@ -1,0 +1,21 @@
+input.link_button, input.link_button:focus, input.link_button:active {
+    /* Remove all decorations */
+    border: none;
+    display: inline;
+    margin: 0em;
+    padding: 0em;
+    outline: none;
+    outline-offset: 0em;
+    /* Look like a link */
+    background: none;
+    color: blue;
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+		margin-left: 14px;
+}
+/* Remove extra space inside buttons in Firefox */
+input.link_button::-moz-focus-inner {
+    border: none;
+    padding: 0em;
+}

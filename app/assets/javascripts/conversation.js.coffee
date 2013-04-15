@@ -67,12 +67,18 @@ err_func = (error_object) ->
 	reported_error = error_object.data
 	key = ("#{name}" for name, msg of reported_error)[0]
 	errors = reported_error[key]
-	switch key
-		when 'errors'
-			error_message = ("Field: #{field}, Error: #{msg}" for field, msg of errors).join('\n')
-			console.log error_message
-		when 'system_error'
-			console.log "System Error: #{errors}"
+	switch 
+		when error_object.status is 504
+			console.log "504 Gateway Time-out. The server didn't respond in time"
+		
 		else
-			console.log "Don't know how to handle this error"
+			switch key
+				when 'errors'
+					error_message = ("Field: #{field}, Error: #{msg}" for field, msg of errors).join('\n')
+					console.log error_message
+				when 'system_error'
+					console.log "System Error: #{errors}"
+				else
+					console.log "Don't know how to handle this error"
+					debugger
 

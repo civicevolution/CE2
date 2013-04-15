@@ -15,6 +15,7 @@ module Api
     ###
     rescue_from Exception, with: :rescue_generic_exception
     rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
+    rescue_from CanCan::AccessDenied, with: :cancan_denied
     # Add additional errors that I can handle
 
     
@@ -32,13 +33,24 @@ module Api
       logger.error "\n\nError detected: #{e.class.to_s}: #{e.message}"
       notify_airbrake(e) unless Rails.env == 'development'
       #raise e
-      render json: {system_error: e.message}, :status => 500
+      render json: {system_error: e.message}, :status => :internal_server_error
     end
     
     def rescue_not_found(e)
       logger.debug "return something about record not found"
       render json: {system_error: e.message}, :status => :not_found
     end
+    
+    def cancan_denied(e)
+      denied_object = params[:controller].match(/\w+$/)[0]
+      denied_action = case params[:action]
+      when "index" then "view"
+      else params[:action]
+      end
+      msg = "You don't have permission to #{denied_action} #{denied_object}"
+      logger.debug msg
+      render json: {system_error: msg}, :status => :unauthorized
+		end
 
   end
 end  
