@@ -36,3 +36,5 @@ gem "binding_of_caller", ">= 0.7.1", :group => :development, :platforms => [:mri
 
 gem 'active_model_serializers'
 gem 'responders'
+gem 'firebase'
+gem 'firebase_token_generator'
