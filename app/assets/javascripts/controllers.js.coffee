@@ -2,18 +2,25 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
+bootstrap_CE2 = ->
+	#console.log "In bootstrap_CE2"
+	try
+		angular.module('firebase')
+		angular.bootstrap(document,["CE2"])
+	catch error
+		setTimeout bootstrap_CE2, 50
+bootstrap_CE2()
 
-app = angular.module("Conversation", ["ngResource"])
+#console.log("loading controllers.js.coffee")
 
-app.config ($httpProvider) ->
+
+ce2_app = angular.module("CE2", ["ngResource","CE2.services", "firebase"] )
+
+ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
-app.factory "Comment", ["$resource", ($resource) ->
-  $resource("/api/comments/:id", {id: "@id"}, {update: {method: "PUT"}})
-]
-
-@ConversationCtrl = [ "$scope", "Comment", ($scope, Comment) ->	
+ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", ($scope, Comment) ->	
 
 	$scope.comments = Comment.query(ok_func, err_func)
 		
@@ -26,7 +33,34 @@ app.factory "Comment", ["$resource", ($resource) ->
 		@comment.liked ?= false
 		@comment.liked = not @comment.liked
 		@comment.$update( ok_func, err_func)
-]		
+] )		
+
+
+ce2_app.controller( "ChatCtrl", [ "$scope", '$timeout', 'angularFireCollection', ($scope, $timeout, angularFireCollection) ->	
+	
+	el = document.getElementById("messagesDiv")
+	url = 'https://civicevolution.firebaseio.com/issues/7/comments'
+	$scope.messages = angularFireCollection url, ->
+		#debugger
+		$timeout ->
+			el.scrollTop = el.scrollHeight
+
+	
+	$scope.username = 'Guest' + Math.floor(Math.random()*101)
+	$scope.addMessage = ->
+		#debugger
+		$scope.messages.add {from: $scope.username, content: $scope.message}, ->
+			el.scrollTop = el.scrollHeight
+		$scope.message = ""
+
+				
+	$scope.test_link = ->
+		#debugger
+		console.log "I clicked 'test_link'"	
+		
+] )
+
+
 
 ###
 	ok_func(data,resp_headers_fn) 
@@ -41,7 +75,7 @@ ok_func = (data,resp_headers_fn) ->
 
 ###
 	err_func(error_object)
-		error_object.config.data  (The data that was sent, e.g.)
+		error_object.config.data	(The data that was sent, e.g.)
 			Resource {created_at: "2013-04-11T07:05:12Z", id: 18, liked: false, name: "Charley", text: "check it out"…}
 
 		error_object.config.method: "PUT"

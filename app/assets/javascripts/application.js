@@ -13,6 +13,10 @@
 //= require bootstrap
 //= require angular
 //= require angular-resource
+//= require firebase.js
+//= require angularFire.js
+//= require services.js
+//= require directives.js
 //= require_tree .
 
 
