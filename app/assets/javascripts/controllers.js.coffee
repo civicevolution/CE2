@@ -20,9 +20,9 @@ ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
-ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", ($scope, Comment) ->	
+ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", ($scope, Comment, CommentData) ->	
 
-	$scope.comments = Comment.query(ok_func, err_func)
+	$scope.comments = CommentData.comments
 		
 	$scope.addComment = ->
 		comment = Comment.save( $scope.newComment, ok_func, err_func )
@@ -36,27 +36,23 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", ($scope, Comment)
 ] )		
 
 
-ce2_app.controller( "ChatCtrl", [ "$scope", '$timeout', 'angularFireCollection', ($scope, $timeout, angularFireCollection) ->	
+ce2_app.controller( "ChatCtrl", [ "$scope", '$timeout', 'angularFireCollection', "Comment", "$log", "CommentData", ($scope, $timeout, angularFireCollection, Comment, $log, CommentData) ->	
 	
+	$scope.comments = CommentData.comments
 	el = document.getElementById("messagesDiv")
 	url = 'https://civicevolution.firebaseio.com/issues/7/comments'
-	$scope.messages = angularFireCollection url, ->
-		#debugger
-		$timeout ->
-			el.scrollTop = el.scrollHeight
-
+	# don't attach to the view, just initialize it so it will trigger on updates
+	#messages = angularFireCollection url
 	
-	$scope.username = 'Guest' + Math.floor(Math.random()*101)
-	$scope.addMessage = ->
-		#debugger
-		$scope.messages.add {from: $scope.username, content: $scope.message}, ->
-			el.scrollTop = el.scrollHeight
-		$scope.message = ""
-
-				
+	# two way synchronized:
+	#$scope.messages = angularFireCollection url, $scope, 'messages', []
+	# one way synchronized
+	$scope.messages = angularFireCollection url
+	
+			
 	$scope.test_link = ->
-		#debugger
-		console.log "I clicked 'test_link'"	
+		$log.error "Hello from test_link"
+		CommentData.comments.pop()
 		
 ] )
 
@@ -70,7 +66,8 @@ ce2_app.controller( "ChatCtrl", [ "$scope", '$timeout', 'angularFireCollection',
 ###
 
 ok_func = (data,resp_headers_fn) ->
-	#console.log("ok_func");		
+	console.log("ok_func");		
+	temp.data = data;
 
 
 ###

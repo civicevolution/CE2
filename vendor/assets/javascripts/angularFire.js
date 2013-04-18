@@ -104,7 +104,7 @@ function init_angularFire(){
 			// Explicit syncing. Provides a collection object you can modify.
 			// Original code by @petebacondarwin, from:
 			// https://github.com/petebacondarwin/angular-firebase/blob/master/ng-firebase-collection.js
-			angular.module('firebase').factory('angularFireCollection', ['$timeout', function($timeout) {
+			angular.module('firebase').factory('angularFireCollection', ['$timeout', "FirebaseUpdates", function($timeout, FirebaseUpdates) {
 			  function angularFireItem(ref, index) {
 			    this.$ref = ref.ref();
 			    this.$id = ref.name();
@@ -166,6 +166,18 @@ function init_angularFire(){
 			        updateIndexes(index);
 			      });
 			    });
+
+
+					//
+					// report new children to my FirebaseUpdates service
+					// 
+			    collectionRef.on('child_added', function(data, prevId) {
+			      $timeout(function() {
+							FirebaseUpdates.process( new angularFireItem(data, 1) );
+			      });
+			    });
+
+
 
 			    collectionRef.on('child_removed', function(data) {
 			      $timeout(function() {

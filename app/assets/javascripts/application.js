@@ -23,3 +23,6 @@
 // Don't use these for now
 // require jquery
 // require jquery_ujs
+
+
+var temp = { FirebaseUpdates: [] }
