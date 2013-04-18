@@ -11,14 +11,17 @@ services.factory "CommentData", ["$log", "Comment", ($log, Comment) ->
 ]
 
 
-services.factory "FirebaseUpdates", ["$log", "CommentData", ($log, CommentData) ->
+services.factory "FirebaseUpdates", [ "CommentData", ( CommentData) ->
 	process: (data) ->
-		$log.log "process a FirebaseUpdate"
-		temp.FirebaseUpdates.push data
-		CommentData.comments.push
-			id: data.comment.id
-			name: data.comment.name
-			text: data.comment.text
-			liked: data.comment.liked
+		new_com =
+			id: data.data.id
+			name: data.data.name
+			text: data.data.text
+			liked: data.data.liked
 		
+		CommentData.comments.forEach (com, i) ->
+			if com.id == data.data.id
+				CommentData.comments[i] = new_com
+				return new_com = null
+		CommentData.comments.push new_com if new_com
 ]

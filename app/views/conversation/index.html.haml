@@ -1,14 +1,16 @@
 %h1 Conversation (HAML)
 
+%div(ng-controller='AngularFireCtrl')        
+
 %div(ng-controller='ConversationCtrl')
   %form.convo(ng-submit="addComment()"){arb_attr: 'reddish'}
     %p
       Name: 
-      %input{type: 'text', 'ng-model' => "newComment.name"}
+      %input{type: 'text', 'ng-model' => "newComment.name", :placeholder => "Name"}
 
     %p
       Message: 
-      %input{type: 'text', 'ng-model' => "newComment.text"}
+      %input{type: 'text', 'ng-model' => "newComment.text", :placeholder => "Message..."}
       
     %p
       %input{type: 'submit', value: 'Add'}  
@@ -21,19 +23,3 @@
       %a(ng-show="comment.liked" ng-click="like()"){href: '#'}
         Unlike
 
-  
-%div(ng-controller='ChatCtrl')        
-  %a(ng-click="test_link()"){href: '#'}
-    Test link
-  %div
-    <label for="">Your name: </label><input type="text" ng-model="username">
-  %p
-  #messagesDiv{:style => "height:200px;"}
-    %div(ng-cloak ng-repeat="message in messages")
-      %em {{message.name}}: 
-      {{message.text}}
-
-  %form(ng-submit="addMessage()")
-    %input{"ng-model" => "message", :placeholder => "Message...", :type => "text"}/
-    %input#submit{:style => "font-size:24px;", :type => "submit", :value => "Send"}/
-    

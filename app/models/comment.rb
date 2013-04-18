@@ -18,8 +18,10 @@ class Comment < ActiveRecord::Base
     #false
   end
 
-  def as_json_for_firebase
-    as_json root: true, except: [:created_at, :updated_at]
+  def as_json_for_firebase( action = "create" )
+    data = as_json root: false, except: [:created_at, :updated_at]
+    #{ self.class.to_s.to_sym => data, :action => action }
+    { "class" => self.class.to_s, "action" => action, "data" => data, "source" => "RoR-Firebase" }
   end
 
   

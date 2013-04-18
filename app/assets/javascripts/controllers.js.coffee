@@ -20,14 +20,21 @@ ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
-ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", ($scope, Comment, CommentData) ->	
+ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", "FirebaseUpdates", ($scope, Comment, CommentData, FirebaseUpdates) ->	
 
 	$scope.comments = CommentData.comments
 		
 	$scope.addComment = ->
-		comment = Comment.save( $scope.newComment, ok_func, err_func )
-		$scope.comments.push( comment )
-		$scope.newComment = {}
+		Comment.save $scope.newComment, 
+			(data,resp_headers_fn) =>
+				FirebaseUpdates.process {
+					action: "create"
+					class: "Comment"
+					data: data
+					source: "addComment"
+				}
+				$scope.newComment = {}
+			, err_func 
 		
 	$scope.like = ->
 		@comment.liked ?= false
@@ -36,26 +43,11 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", ($
 ] )		
 
 
-ce2_app.controller( "ChatCtrl", [ "$scope", '$timeout', 'angularFireCollection', "Comment", "$log", "CommentData", ($scope, $timeout, angularFireCollection, Comment, $log, CommentData) ->	
-	
-	$scope.comments = CommentData.comments
-	el = document.getElementById("messagesDiv")
+ce2_app.controller( "AngularFireCtrl", [ 'angularFireCollection', (angularFireCollection) ->	
 	url = 'https://civicevolution.firebaseio.com/issues/7/updates'
 	# don't attach to the view, just initialize it so it will trigger on updates
-	#messages = angularFireCollection url
-	
-	# two way synchronized:
-	#$scope.messages = angularFireCollection url, $scope, 'messages', []
-	# one way synchronized
-	$scope.messages = angularFireCollection url
-	
-			
-	$scope.test_link = ->
-		$log.error "Hello from test_link"
-		CommentData.comments.pop()
-		
+	angularFireCollection url
 ] )
-
 
 
 ###
