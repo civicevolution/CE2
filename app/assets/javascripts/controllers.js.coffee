@@ -37,9 +37,27 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", "F
 			, err_func 
 		
 	$scope.like = ->
-		@comment.liked ?= false
-		@comment.liked = not @comment.liked
-		@comment.$update( ok_func, err_func)
+		liked = if @comment.liked? && @comment.liked then false else true
+		Comment.update { id: @comment.id, liked: liked }, (data,resp_headers_fn) =>
+			FirebaseUpdates.process {
+				action: "create"
+				class: "Comment"
+				data: data
+				source: "addComment"
+			}
+		, err_func
+		
+		
+	$scope.delete = ->
+		Comment.delete @comment, (data,resp_headers_fn) =>
+			FirebaseUpdates.process {
+				action: "destroy"
+				class: "Comment"
+				data: data
+				source: "addComment"
+			}
+		, err_func
+	
 ] )		
 
 

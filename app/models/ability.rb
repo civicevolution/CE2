@@ -11,6 +11,7 @@ class Ability
       can :read, :all
       can :update, Comment
       can :create, Comment
+      can :destroy, Comment
     end
     
     # Define abilities for the passed in user here. For example:

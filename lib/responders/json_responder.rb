@@ -8,6 +8,8 @@ module Responders::JsonResponder
     # render resource instead of 204 no content
     elsif put?
       display resource, :status => :ok
+    elsif delete?
+      display resource, :status => :ok
     else
       super
     end

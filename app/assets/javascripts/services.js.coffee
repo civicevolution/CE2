@@ -13,15 +13,21 @@ services.factory "CommentData", ["$log", "Comment", ($log, Comment) ->
 
 services.factory "FirebaseUpdates", [ "CommentData", ( CommentData) ->
 	process: (data) ->
-		new_com =
-			id: data.data.id
-			name: data.data.name
-			text: data.data.text
-			liked: data.data.liked
+		if data.action == "destroy"
+			CommentData.comments.forEach (com, i) ->
+				if com.id == data.data.id
+					return CommentData.comments.splice(i, 1)
+
+		else
+			new_com =
+				id: data.data.id
+				name: data.data.name
+				text: data.data.text
+				liked: data.data.liked
 		
-		CommentData.comments.forEach (com, i) ->
-			if com.id == data.data.id
-				CommentData.comments[i] = new_com
-				return new_com = null
-		CommentData.comments.push new_com if new_com
-]
+			CommentData.comments.forEach (com, i) ->
+				if com.id == data.data.id
+					CommentData.comments[i] = new_com
+					return new_com = null
+			CommentData.comments.push new_com if new_com
+	]

@@ -44,7 +44,8 @@ module Ce2
 
     # Activate observers that should always be running.
     # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
-    config.active_record.observers = :firebase_observer
+    ### Observers are deprecated in Rails 4, so design with callback
+    ##config.active_record.observers = :firebase_observer
 
 
 

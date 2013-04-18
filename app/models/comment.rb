@@ -10,6 +10,8 @@ class Comment < ActiveRecord::Base
     true
   end
   
+  attr_accessor :_is_new_record
+  
   def my_test
     #errors.add(:text, "My text error message")
     #errors.add(:name, "My name error message")
@@ -24,5 +26,17 @@ class Comment < ActiveRecord::Base
     { "class" => self.class.to_s, "action" => action, "data" => data, "source" => "RoR-Firebase" }
   end
 
+
+  before_create { self._is_new_record = true }
+  after_save :send_to_firebase
+  after_destroy :send_to_firebase
+  
+  def send_to_firebase
+    #Firebase.auth = "LHp51r7znXmO09dACFIz4TLPp7zbrdMHPtVkHua2"  
+    action = _is_new_record ? "create" : destroyed? ? "destroy" : "update"
+    Firebase.base_uri = 'https://civicevolution.firebaseio.com/issues/7/updates'  
+    response = Firebase.push '', self.as_json_for_firebase( action )
+  end
+  
   
 end
