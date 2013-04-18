@@ -16,9 +16,9 @@ services.factory "FirebaseUpdates", ["$log", "CommentData", ($log, CommentData) 
 		$log.log "process a FirebaseUpdate"
 		temp.FirebaseUpdates.push data
 		CommentData.comments.push
-			id: data.id
-			name: data.name
-			text: data.text
-			liked: data.liked
+			id: data.comment.id
+			name: data.comment.name
+			text: data.comment.text
+			liked: data.comment.liked
 		
 ]

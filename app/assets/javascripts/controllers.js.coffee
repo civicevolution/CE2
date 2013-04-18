@@ -40,7 +40,7 @@ ce2_app.controller( "ChatCtrl", [ "$scope", '$timeout', 'angularFireCollection',
 	
 	$scope.comments = CommentData.comments
 	el = document.getElementById("messagesDiv")
-	url = 'https://civicevolution.firebaseio.com/issues/7/comments'
+	url = 'https://civicevolution.firebaseio.com/issues/7/updates'
 	# don't attach to the view, just initialize it so it will trigger on updates
 	#messages = angularFireCollection url
 	

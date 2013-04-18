@@ -5,6 +5,11 @@ class Comment < ActiveRecord::Base
   
   validate :my_test
   
+  before_save do |comment|
+    comment.liked ||= false
+    true
+  end
+  
   def my_test
     #errors.add(:text, "My text error message")
     #errors.add(:name, "My name error message")
@@ -12,5 +17,10 @@ class Comment < ActiveRecord::Base
     #errors.add(:text, "must be no longer than #{range[2]} characters") unless length <= range[2].to_i
     #false
   end
+
+  def as_json_for_firebase
+    as_json root: true, except: [:created_at, :updated_at]
+  end
+
   
 end
