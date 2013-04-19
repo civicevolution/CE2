@@ -25,39 +25,17 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", ($
 	$scope.comments = CommentData.comments
 		
 	$scope.addComment = ->
-		Comment.save $scope.newComment, 
-			(data,resp_headers_fn) =>
-				CommentData.process_firebase {
-					action: "create"
-					class: "Comment"
-					data: data
-					source: "addComment"
-				}
-				$scope.newComment = {}
-			, err_func 
+		CommentData.save $scope.newComment, 
+			angular.bind $scope, -> this.newComment = {}
 		
 	$scope.like = ->
 		liked = if @comment.liked? && @comment.liked then false else true
-		Comment.update { id: @comment.id, liked: liked }, (data,resp_headers_fn) =>
-			CommentData.process_firebase {
-				action: "create"
-				class: "Comment"
-				data: data
-				source: "likeComment"
-			}
-		, err_func
-		
+		CommentData.update { id: @comment.id, liked: liked }, -> 
+			console.log "doing the controller's callback for like comment"
 		
 	$scope.delete = ->
-		Comment.delete @comment, (data,resp_headers_fn) =>
-			CommentData.process_firebase {
-				action: "destroy"
-				class: "Comment"
-				data: data
-				source: "deleteComment"
-			}
-		, err_func
-	
+		CommentData.delete @comment
+		
 ] )		
 
 
