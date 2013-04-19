@@ -20,14 +20,14 @@ ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
-ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", "FirebaseUpdates", ($scope, Comment, CommentData, FirebaseUpdates) ->	
+ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", ($scope, Comment, CommentData) ->	
 
 	$scope.comments = CommentData.comments
 		
 	$scope.addComment = ->
 		Comment.save $scope.newComment, 
 			(data,resp_headers_fn) =>
-				FirebaseUpdates.process {
+				CommentData.process_firebase {
 					action: "create"
 					class: "Comment"
 					data: data
@@ -39,7 +39,7 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", "F
 	$scope.like = ->
 		liked = if @comment.liked? && @comment.liked then false else true
 		Comment.update { id: @comment.id, liked: liked }, (data,resp_headers_fn) =>
-			FirebaseUpdates.process {
+			CommentData.process_firebase {
 				action: "create"
 				class: "Comment"
 				data: data
@@ -50,7 +50,7 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", "F
 		
 	$scope.delete = ->
 		Comment.delete @comment, (data,resp_headers_fn) =>
-			FirebaseUpdates.process {
+			CommentData.process_firebase {
 				action: "destroy"
 				class: "Comment"
 				data: data
