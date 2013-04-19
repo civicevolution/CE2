@@ -19,8 +19,9 @@ module Modules
       response = Firebase.push '', self.as_json_for_firebase( action )
     end
 
+    # override as_json_for_firebase in the model as needed
     def as_json_for_firebase( action = "create" )
-      data = as_json root: false, except: [:created_at, :updated_at]
+      data = as_json root: false, except: [:user_id]
       #{ self.class.to_s.to_sym => data, :action => action }
       { "class" => self.class.to_s, "action" => action, "data" => data, "source" => "RoR-Firebase" }
     end

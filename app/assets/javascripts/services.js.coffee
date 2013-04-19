@@ -30,26 +30,28 @@ services.factory "CommentData", ["$log", "Comment", "FirebaseUpdateRec", ($log, 
 
 services.factory "FirebaseUpdateRec", [ ->
 	process: (service, collection_name, data) ->
-		if data.action == "delete"
-			for rec, index in service[collection_name]
-				if rec.id == data.data.id
-					return service[collection_name].splice(index, 1)
-		else
-			new_rec = data.data
-			for rec, index in service[collection_name]
-				if rec.id == new_rec.id
-					service[collection_name][index] = new_rec
-					new_rec = null
-					break
-			service[collection_name].push new_rec if new_rec
-	]
+		if (new Date(data.data.updated_at).getTime() / 1000 ) - _timestamp > 0
+			if data.action == "delete"
+				for rec, index in service[collection_name]
+					if rec.id == data.data.id
+						return service[collection_name].splice(index, 1)
+			else
+				new_rec = data.data
+				for rec, index in service[collection_name]
+					if rec.id == new_rec.id
+						service[collection_name][index] = new_rec
+						new_rec = null
+						break
+				service[collection_name].push new_rec if new_rec
+]
+	
 
 services.factory "FirebaseUpdatesFromAngular", [ "CommentData", ( CommentData ) ->
 	process: (data) ->
 		switch data.class
 			when "Comment" then CommentData.process_firebase data
 			else console.error("FirebaseUpdatesFromAngular doesn't know how to process #{data.class}");
-	]
+]
 
 
 
