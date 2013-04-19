@@ -43,7 +43,7 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", ($
 				action: "create"
 				class: "Comment"
 				data: data
-				source: "addComment"
+				source: "likeComment"
 			}
 		, err_func
 		
@@ -54,7 +54,7 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "Comment", "CommentData", ($
 				action: "destroy"
 				class: "Comment"
 				data: data
-				source: "addComment"
+				source: "deleteComment"
 			}
 		, err_func
 	

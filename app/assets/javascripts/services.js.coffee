@@ -9,7 +9,7 @@ services.factory "Comment", ["$resource", ($resource) ->
 services.factory "CommentData", ["$log", "Comment", "FirebaseUpdateRec", ($log, Comment, FirebaseUpdateRec) ->
 	comments: Comment.query(services.ok_func, services.err_func)
 	process_firebase: (data) -> 
-		console.log("perform process_firebase")
+		#console.log("perform process_firebase")
 		FirebaseUpdateRec.process this, 'comments', data
 ]
 
@@ -17,35 +17,22 @@ services.factory "CommentData", ["$log", "Comment", "FirebaseUpdateRec", ($log, 
 services.factory "FirebaseUpdateRec", [ ->
 	process: (service, collection_name, data) ->
 		if data.action == "destroy"
-			service[collection_name].forEach (rec, i) ->
+			for rec, index in service[collection_name]
 				if rec.id == data.data.id
-					return service[collection_name].splice(i, 1)
+					return service[collection_name].splice(index, 1)
 		else
 			new_rec = data.data
-			service.comments.forEach (rec, i) ->
+			for rec, index in service[collection_name]
 				if rec.id == new_rec.id
-					service[collection_name][i] = new_rec
-					return new_rec = null
+					service[collection_name][index] = new_rec
+					new_rec = null
+					break
 			service[collection_name].push new_rec if new_rec
 	]
 
-services.factory "FirebaseUpdates", [ "CommentData", ( CommentData) ->
+services.factory "FirebaseUpdatesFromAngular", [ "CommentData", ( CommentData ) ->
 	process: (data) ->
-		if data.action == "destroy"
-			CommentData.comments.forEach (com, i) ->
-				if com.id == data.data.id
-					return CommentData.comments.splice(i, 1)
-
-		else
-			new_com =
-				id: data.data.id
-				name: data.data.name
-				text: data.data.text
-				liked: data.data.liked
-
-			CommentData.comments.forEach (com, i) ->
-				if com.id == data.data.id
-					CommentData.comments[i] = new_com
-					return new_com = null
-			CommentData.comments.push new_com if new_com
+		switch data.class
+			when "Comment" then CommentData.process_firebase data
+			else console.error("FirebaseUpdatesFromAngular doesn't know how to process #{data.class}");
 	]
