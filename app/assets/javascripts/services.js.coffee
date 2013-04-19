@@ -7,56 +7,30 @@ services.factory "Comment", ["$resource", ($resource) ->
 ]
 
 services.factory "CommentData", ["$log", "Comment", "FirebaseUpdateRec", ($log, Comment, FirebaseUpdateRec) ->
+	
 	comments: Comment.query(services.ok_func, services.err_func)
+
 	process_firebase: (data) -> 
-		#console.log("perform process_firebase")
 		FirebaseUpdateRec.process this, 'comments', data
-	save: (data, ok_cb, err_cb) ->
+	
+	persist_change_to_ror: (action, data, ok_cb, err_cb) ->
 			_this._ok_cb = ok_cb
 			_this._err_cb = err_cb
-			Comment.save data, (data,resp_headers_fn) =>
+			Comment[action] data, (data,resp_headers_fn) =>
 				_this._ok_cb() if _this._ok_cb
-				_this.process_firebase {
-					action: "create"
+				FirebaseUpdateRec.process _this, 'comments', {
+					action: action
 					class: "Comment"
 					data: data
-					source: "addComment"
+					source: "#{action}Comment"
 				}
 			, err_func 
-		
-	update: (data, ok_cb, err_cb) ->
-		_this._ok_cb = ok_cb
-		_this._err_cb = err_cb
-		Comment.update data, (data,resp_headers_fn) => 
-			_this._ok_cb() if _this._ok_cb
-			this.process_firebase {
-				action: "update"
-				class: "Comment"
-				data: data
-				source: "likeComment"
-			}
-		, err_func
-
-	delete: (data, ok_cb, err_cb) ->
-		_this._ok_cb = ok_cb
-		_this._err_cb = err_cb
-		Comment.delete data, (data,resp_headers_fn) => 
-			_this._ok_cb() if _this._ok_cb
-			this.process_firebase {
-				action: "destroy"
-				class: "Comment"
-				data: data
-				source: "deleteComment"
-			}
-		, err_func
-
-
 ]
 
 
 services.factory "FirebaseUpdateRec", [ ->
 	process: (service, collection_name, data) ->
-		if data.action == "destroy"
+		if data.action == "delete"
 			for rec, index in service[collection_name]
 				if rec.id == data.data.id
 					return service[collection_name].splice(index, 1)
