@@ -17,6 +17,7 @@
 //= require angularFire.js
 //= require services.js
 //= require directives.js
+//= require controllers.js
 //= require_tree .
 
 

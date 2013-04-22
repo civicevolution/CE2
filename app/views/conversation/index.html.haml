@@ -18,9 +18,32 @@
   %ul
     %li(ng-repeat="comment in comments")
       %span(ng-bind-template="{{comment.name}} said \"{{comment.text}}\"")
-      %a(ng-show="!comment.liked" ng-click="like()"){href: '#'}
+      %a(ng-show="!comment.liked" ng-click="like()")
         Like
-      %a(ng-show="comment.liked" ng-click="like()"){href: '#'}
+      %a(ng-show="comment.liked" ng-click="like()")
         Unlike
-      %a(ng-click="delete()"){href: '#'}
+      %a(ng-click="delete()")
         Delete
+
+  %script(type="text/ng-template" id="simple_temps/temp1.html")
+    <h3>Conversation template included in script block</h3>
+    %p 
+      %a(ng-click="test()")
+        Test
+    <p>At #{Time.new.to_i}</p>
+    <p>data1: {{$scope.data1}}
+    <p>With data resolved to my_data: {{my_var}}</p>
+    <p>my_data.name: {{name}}</p>
+  
+  %div
+    %a{href: '/#/convo'}
+      convo
+    %a{href: '/#/convoX'}
+      convoX
+    %a{href: '/#/convoY'}
+      convoY
+    %a{href: '/#/convoZ'}
+      convoZ
+    
+  %div(ng-view)
+    Div ng-view is here
