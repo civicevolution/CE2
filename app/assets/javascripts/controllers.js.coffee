@@ -79,8 +79,8 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
             , 100
           ]
       })
-      .state('state1', {
-        url: '/state1',
+      .state('state_temp_prov', {
+        url: '/state_temp_prov',
         templateProvider:
           [        '$timeout', ($timeout) ->
             $timeout -> 
@@ -88,6 +88,11 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
             , 100
           ]
       })
+      .state('state1', {
+        url: '/state1',
+        templateUrl: '/assets/angular-views/state1.html'
+      })
+      
       .state('state2', {
         url: '/state2',
         templateUrl: '/assets/angular-views/state2.html'
@@ -104,6 +109,25 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
               $state.transitionTo('state2')
             , 2000
       })
+      .state('state4', {
+        url: '/state4',
+        templateUrl: '/assets/angular-views/state4.html'
+        resolve: { resolved_data: -> 
+          title: 'My Contacts' 
+          duration: '1 hour'
+          weight: '5 pounds'
+          height: '22 inches'
+        }
+        controller: ($scope, $state, $timeout, resolved_data) ->
+          $scope.user = 'Brian Sullivan'
+          $scope.data = resolved_data
+          $scope.goto_state1 = ->
+            console.log "hey, I want to go to state1"
+            $state.transitionTo('state1')
+            $timeout ->
+              $state.transitionTo('state2')
+            , 2000
+      })
 
       
   ])
@@ -112,4 +136,5 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', ($rootScope,   $state,   $
   $rootScope.$state = $state
   $rootScope.$stateParams = $stateParams
 ])
+
 
