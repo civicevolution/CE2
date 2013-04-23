@@ -24,26 +24,15 @@
         Unlike
       %a(ng-click="delete()")
         Delete
-
-  %script(type="text/ng-template" id="simple_temps/temp1.html")
-    <h3>Conversation template included in script block</h3>
-    %p 
-      %a(ng-click="test()")
-        Test
-    <p>At #{Time.new.to_i}</p>
-    <p>data1: {{$scope.data1}}
-    <p>With data resolved to my_data: {{my_var}}</p>
-    <p>my_data.name: {{name}}</p>
   
   %div
-    %a{href: '/#/convo'}
-      convo
-    %a{href: '/#/convoX'}
-      convoX
-    %a{href: '/#/convoY'}
-      convoY
-    %a{href: '/#/convoZ'}
-      convoZ
+    %a{href: '/#/state1'}
+      state1
+    %a{href: '/#/state2'}
+      state2
+    %a{href: '/#/state3'}
+      state3
+    %a{href: '/#/state4'}
+      state4
     
-  %div(ng-view)
-    Div ng-view is here
+  %div(ui-view)

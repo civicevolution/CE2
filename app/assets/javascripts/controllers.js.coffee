@@ -12,7 +12,7 @@ bootstrap_CE2 = ->
 bootstrap_CE2()
 
 
-ce2_app = angular.module("CE2", ["ngResource","CE2.services", "firebase"] )
+ce2_app = angular.module("CE2", ["ngResource","CE2.services", "firebase", 'ui.compat'] )
 
 ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
@@ -44,7 +44,6 @@ ce2_app.controller( "AngularFireCtrl", [ 'angularFireCollection', (angularFireCo
 ] )
 
 
-#ce2_app.controller( "TestCtrl", [ "$scope", "resolved_data", ($scope, resolved_data ) ->	
 ce2_app.controller( "TestCtrl", [ "$scope", "resolved_data", ($scope, resolved_data ) ->	
   $scope.name = resolved_data.name
   $scope.my_var = resolved_data.my_var
@@ -52,34 +51,65 @@ ce2_app.controller( "TestCtrl", [ "$scope", "resolved_data", ($scope, resolved_d
       console.log("Hello from test");
 ] )
 
-ce2_app.config ($routeProvider) ->
-	$routeProvider.
-		when('/pizza', {template: 'String of html is served like pizza'}).
-		when('/convo', {templateUrl: '/assets/angular-views/convo.html'}).
-		when('/convoX', {
-		  templateUrl: 'simple_temps/temp1.html',
-		  controller: 'TestCtrl'
-		}).
-		when('/convoY', {
-		  templateUrl: 'simple_temps/temp1.html',
-		  controller: 'TestCtrl',
-		  resolve: {
-  		    resolved_data: ->
-  		      console.log("inside resolve");
-  		      my_var: 'my data from routing convoY' 
-  		      name: 'BrianY (resolved_data)'
-  		}
-		}).
-		when('/convoZ', {
-		  templateUrl: 'simple_temps/temp1.html',
-		  controller: 'TestCtrl',
-		  resolve: {
-  		    resolved_data: ->
-  		      console.log("inside resolve");
-  		      my_var: 'my data from routing convoZ' 
-  		      name: 'BrianZ (resolved_data)'
-  		}
-		}).
-		
-		otherwise( { redirectTo: '/' } )
+
+
+
+ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
+  ($stateProvider,   $routeProvider,   $urlRouterProvider) ->
+    $urlRouterProvider
+      .when('/c?id', '/contacts/:id')
+      .otherwise('/');
+  
+    $routeProvider
+      .when('/user/:id', {
+        redirectTo: '/contacts/:id',
+      })
+      .when('/haha', {
+        template: '<p class="lead">Welcome to the ngStates sample</p><p>Use the menu above to navigate</p>' +
+          '<p>Look at <a href="#/c?id=1">Alice</a> or <a href="#/user/42">Bob</a> to see a URL with a redirect in action.</p>',
+      })
+      
+    $stateProvider
+      .state('about', {
+        url: '/about',
+        templateProvider:
+          [        '$timeout', ($timeout) ->
+            $timeout -> 
+              "Hello <i>world</i>" 
+            , 100
+          ]
+      })
+      .state('state1', {
+        url: '/state1',
+        templateProvider:
+          [        '$timeout', ($timeout) ->
+            $timeout -> 
+              "I am now in state1" 
+            , 100
+          ]
+      })
+      .state('state2', {
+        url: '/state2',
+        templateUrl: '/assets/angular-views/state2.html'
+      })
+      .state('state3', {
+        url: '/state3',
+        templateUrl: '/assets/angular-views/state3.html'
+        controller: ($scope, $state, $timeout) ->
+          $scope.user = 'Brian Sullivan'
+          $scope.goto_state1 = ->
+            console.log "hey, I want to go to state1"
+            $state.transitionTo('state1')
+            $timeout ->
+              $state.transitionTo('state2')
+            , 2000
+      })
+
+      
+  ])
+
+ce2_app.run( ['$rootScope', '$state', '$stateParams', ($rootScope,   $state,   $stateParams) ->
+  $rootScope.$state = $state
+  $rootScope.$stateParams = $stateParams
+])
 
