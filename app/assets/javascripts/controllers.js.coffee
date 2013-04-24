@@ -91,6 +91,11 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
       .state('state1', {
         url: '/state1',
         templateUrl: '/assets/angular-views/state1.html'
+        data:
+          custom_id: 10
+          custom_desc: 'circle'
+        controller: ($state) ->
+          console.log "$state.current.data.custom_desc: #{$state.current.data.custom_desc}"
       })
       
       .state('state2', {
@@ -100,7 +105,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
       .state('state3', {
         url: '/state3',
         templateUrl: '/assets/angular-views/state3.html'
-        controller: ($scope, $state, $timeout) ->
+        controller:  [ "$scope", "$state", "$timeout", ($scope, $state, $timeout) ->
           $scope.user = 'Brian Sullivan'
           $scope.goto_state1 = ->
             console.log "hey, I want to go to state1"
@@ -108,25 +113,34 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
             $timeout ->
               $state.transitionTo('state2')
             , 2000
+        ]
       })
       .state('state4', {
-        url: '/state4',
-        templateUrl: '/assets/angular-views/state4.html'
-        resolve: { resolved_data: -> 
-          title: 'My Contacts' 
-          duration: '1 hour'
-          weight: '5 pounds'
-          height: '22 inches'
-        }
-        controller: ($scope, $state, $timeout, resolved_data) ->
-          $scope.user = 'Brian Sullivan'
-          $scope.data = resolved_data
-          $scope.goto_state1 = ->
-            console.log "hey, I want to go to state1"
-            $state.transitionTo('state1')
-            $timeout ->
-              $state.transitionTo('state2')
-            , 2000
+        url: '/state4/{userID}',
+        views: 
+          "":
+            templateUrl: '/assets/angular-views/state4.html'
+            resolve: { resolved_data: -> 
+              title: 'My Contacts' 
+              duration: '1 hour'
+              weight: '5 pounds'
+              height: '22 inches'
+            }
+            controller: [ "$scope", "$state", "$timeout", "resolved_data", "$stateParams", "$routeParams", "$location", 
+              ($scope, $state, $timeout, resolved_data, $stateParams, $routeParams, $location) ->
+                $scope.user = 'Brian Sullivan'
+                debugger
+                $scope.data = resolved_data
+                $scope.goto_state1 = ->
+                  console.log "hey, I want to go to state4"
+                  $state.transitionTo('state1')
+                  $timeout ->
+                    $state.transitionTo('state2')
+                  , 2000
+            ]
+          
+          "footer":
+            template: "The footer"
       })
 
       
