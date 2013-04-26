@@ -129,7 +129,6 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
             controller: [ "$scope", "$state", "$timeout", "resolved_data", "$stateParams", "$routeParams", "$location", 
               ($scope, $state, $timeout, resolved_data, $stateParams, $routeParams, $location) ->
                 $scope.user = 'Brian Sullivan'
-                debugger
                 $scope.data = resolved_data
                 $scope.goto_state1 = ->
                   console.log "hey, I want to go to state4"

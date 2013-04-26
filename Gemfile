@@ -12,7 +12,9 @@ end
 
 gem 'jquery-rails'
 gem "thin", ">= 1.5.0", :group => [:development, :test]
-gem 'debugger', :group => :development
+gem 'debugger', {group: [:test, :development]}.merge(ENV['RM_INFO'] ? {require: false} : {})
+gem 'ruby-debug-base19x', :group => :development
+gem 'ruby-debug-ide', :group => :development
 
 gem "unicorn", ">= 4.3.1", :group => :production
 gem "haml-rails", ">= 0.4"
