@@ -1,0 +1,44 @@
+%div
+
+  .modal-header
+    %h3 Simple sign in form
+  .modal-body
+    %form(ng-submit="submit_sign_in(signin)")
+      %p
+        Email:
+        %input{type: 'text', 'ng-model' => "signin.email", :placeholder => "Enter email..."}
+
+      %p
+        Password:
+        %input{type: 'text', 'ng-model' => "signin.password", :placeholder => "Enter password..."}
+
+
+      .modal-footer
+        %button.btn.btn-primary Sign in
+        %button.btn.btn-primary(ng-click="cancel(result)") Cancel
+
+  -#.row-fluid
+    .span6
+      %label.checkbox
+        %input{"ng-model" => "opts.backdrop", :type => "checkbox"}>/
+        Show backdrop
+      %label.checkbox
+        %input{"ng-model" => "opts.dialogFade", :type => "checkbox"}>/
+        Fade modal dialog
+      %label.checkbox
+        %input{"ng-disabled" => "!opts.backdrop", "ng-model" => "opts.backdropFade", :type => "checkbox"}>/
+        Fade Backdrop
+      %hr/
+      %label.checkbox
+        %input{"ng-model" => "opts.keyboard", :type => "checkbox"}>/
+        Close on Escape
+      %label.checkbox
+        %input{"ng-disabled" => "!opts.backdrop", "ng-model" => "opts.backdropClick", :type => "checkbox"}>/
+        Close on backdrop click
+    .span6
+      %p Change options at will and press the open dialog button below!
+      %p
+        %button.btn.btn-primary{"ng-click" => "openDialog()"} Open Dialog
+      %p Alternatively open a simple message box:
+      %p
+        %button.btn.btn-primary{"ng-click" => "openMessageBox()"} Open Message Box

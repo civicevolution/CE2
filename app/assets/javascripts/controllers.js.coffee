@@ -12,7 +12,7 @@ bootstrap_CE2 = ->
 bootstrap_CE2()
 
 
-ce2_app = angular.module("CE2", ["ngResource","CE2.services", "firebase", 'ui.compat'] )
+ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', "firebase", 'ui.compat', 'ui.bootstrap'] )
 
 ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
@@ -34,10 +34,10 @@ ce2_app.controller( "ConversationCtrl", [ "$scope", "CommentData", ($scope, Comm
 	$scope.delete = ->
 		CommentData.persist_change_to_ror 'delete', @comment
 		
-] )		
+] )
 
 
-ce2_app.controller( "AngularFireCtrl", [ 'angularFireCollection', (angularFireCollection) ->	
+ce2_app.controller( "AngularFireCtrl", [ 'angularFireCollection', (angularFireCollection) ->
 	url = 'https://civicevolution.firebaseio.com/issues/7/updates'
 	# don't attach to the view, just initialize it so it will trigger on updates
 	angularFireCollection url

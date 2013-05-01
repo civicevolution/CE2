@@ -2,6 +2,15 @@
 
 services = angular.module("CE2.services", ["ngResource"])
 
+
+services.factory "UserAppData", [ "CommentData", ( CommentData ) ->
+  user:
+    signed_in: false
+    id: 1234
+    first_name: "Brian"
+    last_name: "Sullivan"
+]
+
 services.factory "Comment", ["$resource", ($resource) ->
   $resource("/api/comments/:id", {id: "@id"}, {update: {method: "PUT"}})
 ]

@@ -10,11 +10,11 @@
 // WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
 // GO AFTER THE REQUIRES BELOW.
 //
-//= require jquery
-//= require bootstrap
+
 //= require angular-1.1.4/angular
 //= require angular-1.1.4/angular-resource
 //= require angular-1.1.4/angular-ui-states
+//= require angular-1.1.4/ui-bootstrap-tpls-0.2.0.js
 //= require firebase.js
 //= require angularFire.js
 //= require services.js
@@ -24,6 +24,8 @@
 
 
 // Don't use these for now
+// require jquery
+// require bootstrap
 // require jquery_ujs
 
 var temp = { FirebaseUpdates: [] }

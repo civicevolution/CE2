@@ -1,3 +1,5 @@
+%div(ce-user-bar)
+
 %h1 Conversation (HAML)
 
 %div(ng-controller='AngularFireCtrl')        
@@ -15,7 +17,7 @@
     %p
       %input{type: 'submit', value: 'Add'}  
     
-  %ul
+  %ul(ng-cloak)
     %li(ng-repeat="comment in comments")
       %span(ng-bind-template="{{comment.name}} said \"{{comment.text}}\"")
       %a(ng-show="!comment.liked" ng-click="like()")

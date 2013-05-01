@@ -1,0 +1,17 @@
+%div
+  %p(ng-show="{{user.signed_in}}" )
+    v1 Hello
+    {{user.first_name}} {{user.last_name}},
+    %a(ng-href="" )
+    %a(ng-click="sign_out()")
+      Sign out
+    %a(ng-click="edit_profile()")
+      Edit profile
+
+  %p(ng-hide="{{user.signed_in}}" )
+    Please
+    %a(ng-click="sign_in()")
+      Sign in
+    or
+    %a(ng-click="sign_up()")
+      Sign up
