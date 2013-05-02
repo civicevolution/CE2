@@ -10,7 +10,14 @@ Ce2::Application.routes.draw do
     #  resources :products
     #end
   end
-  
+
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      #resources :users
+      get 'users/user'
+    end
+  end
+  #get '/api/users(.:format)',            api/v1/comments#index {:format=>"json"}
 
   #resources :comments
 

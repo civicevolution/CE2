@@ -3,19 +3,21 @@
   .modal-header
     %h3 Sign in to CivicEvolution
   .modal-body
-    %form(ng-submit="submit_sign_in(signin)")
+    %form(ng-submit="submit_sign_in(user)")
       %p
         Email:
-        %input(ng-model='signin.email' required ce-focus){type: 'text', placeholder: 'Enter email...'}
+        %input(ng-model='user.email' required ce-focus){type: 'text', placeholder: 'Enter email...'}
         -#ng-pattern='^\S+\@\S+\.\S+$'
           %span(ng-show="form.email.$error.pattern")
             Incorrect Format, should be MM/DD/YY!
 
       %p
         Password:
-        %input(ng-model='signin.password' required){type: 'text', placeholder: 'Enter password...'}
+        %input(ng-model='user.password' required){type: 'text', placeholder: 'Enter password...'}
 
-
+      %p
+        Remember me:
+        %input(ng-model='user.remember_me'){type: 'checkbox', value:1}
 
       .modal-footer
         -#%button.btn.btn-primary(ng-disabled='!signIn.$valid') Sign in

@@ -1,0 +1,30 @@
+%div
+  .modal-header
+    %h3 Sign up with CivicEvolution
+  .modal-body
+    %form(ng-submit="submit_sign_up(user)")
+
+      %p
+        Name:
+        %input(ng-model='user.name' required ce-focus){type: 'text', placeholder: 'Enter name...'}
+
+      %p
+        Email:
+        %input(ng-model='user.email' required ){type: 'text', placeholder: 'Enter email...'}
+
+      %p
+        Password:
+        %input(ng-model='user.password' required){type: 'text', placeholder: 'Enter password...'}
+
+      %p
+        Password:
+        %input(ng-model='user.password_confirmation' required){type: 'text', placeholder: 'Confirm your password...'}
+
+
+
+      .modal-footer
+        -#%button.btn.btn-primary(ng-disabled='!signIn.$valid') Sign in
+        %button.btn.btn-primary Sign up
+        %button.btn.btn-primary(ng-click="cancel(result)") Cancel
+
+  -#= render "devise/shared/links"

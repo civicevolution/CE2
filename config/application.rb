@@ -86,7 +86,11 @@ module Ce2
     config.assets.version = '1.0'
     
     
-    Firebase.auth = "LHp51r7znXmO09dACFIz4TLPp7zbrdMHPtVkHua2"  
+    Firebase.auth = "LHp51r7znXmO09dACFIz4TLPp7zbrdMHPtVkHua2"
+
+    config.to_prepare do
+      DeviseController.respond_to :html, :json
+    end
     
     
   end

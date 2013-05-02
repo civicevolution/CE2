@@ -2,46 +2,49 @@
 
 services = angular.module("CE2.services", ["ngResource"])
 
-services.factory 'User', [ "$http", ($http) ->
+services.factory 'User', [ "$http", "$window", ($http, $window) ->
   # a static method to retrieve current User
   get: ->
     return $http.get('/api/users/user.json').then (response) ->
       response.data
+
+  sign_in: (user,dialog) ->
+    console.log "User.sign_in  with data: #{user.email}/#{user.password}"
+    $http.post('/users/sign_in.json', {user: user }).then(
+      (response)->
+        console.log "signin received response"
+        dialog.close()
+        $window.location.reload()
+    ,
+    (reason) ->
+      console.log "signin received reason"
+    )
+
   sign_out: ->
     console.log "User:sign_out"
-    $http({method: 'DELETE', url: '/users/sign_out.json'} )
-    #$http({method: 'GET', url: '/api/users/user.json'} )
-  sign_up: ->
-    console.log "User:sign_up"
-    #temp.user_data =
-    #debugger
-    #$http({method: 'GET', url: '/api/users/user.json'} )
+    $http({method: 'DELETE', url: '/users/sign_out.json'}).then(
+      (response)->
+        console.log "signout received response"
+        $window.location.reload()
+      ,
+      (reason) ->
+        console.log "signout received reason"
+    )
+
+  sign_up: (user,dialog) ->
+    console.log "User.sign_up with credentials: #{user.name}/#{user.email}/#{user.password}"
+    $http.post('/users.json', {user: user }).then(
+      (response)->
+        console.log 'signup received response'
+        dialog.close()
+        $window.location.reload()
+    ,
+    (reason) ->
+      console.log 'signup received reason'
+    )
+
   edit_profile: ->
-    console.log "User:edit_profile"
-  sign_in: (signin) ->
-    console.log "User.sign_in with credentials: #{signin.email}/#{signin.password}"
-    #temp.user_dataX = $http({method: 'GET', url: '/api/users/user.json'}).then(
-    #  (response) ->
-    #    console.log "return the response data"
-    #    debugger
-    #    response.data
-    #)
-    #data =
-    #  user:
-    #    email: "alice@civicevolution.org"
-    #    password: 'aaaaaaaa'
-    #    remember_me: 0
-    #
-    #$http({method: 'POST', url: '/users/sign_in', data: data} )
-    #$http({method: 'GET', url: '/api/comments'} )
-    #$http({method: 'POST', url: '/users/sign_in', data: data, headers: {'content-type': 'application/json;charset=UTF-8'}} )
-    #$http.post('/users/sign_in.json', {
-    #  user:
-    #    email: 'alice@civicevolution.org'
-    #    password: 'aaaaaaaa'
-    #    remember_me: 0
-    #
-    #})
+    console.log 'User:edit_profile'
 
 ]
 

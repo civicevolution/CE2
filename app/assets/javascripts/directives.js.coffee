@@ -20,13 +20,13 @@ ce2_directives.directive('ceUserBar', ->
           templateUrl: '/assets/angular-views/signin_form.html.haml'
           controller: ->
             # for testing
-            $scope.signin =
+            $scope.user =
               email: 'alice@civicevolution.org'
               password: 'aaaaaaaa'
-            $scope.submit_sign_in = (signin) ->
-              console.log "Submit by calling User.sign_in with credentials: #{signin.email}/#{signin.password}"
-              User.sign_in(signin)
-              #dialog.close("#{signin.email}/#{signin.password}")
+              remember_me: 1
+            $scope.submit_sign_in = (user) ->
+              console.log "Submit by calling User.sign_in with credentials: #{user.email}/#{user.password}"
+              User.sign_in(user, dialog)
             $scope.cancel = ->
               dialog.close()
         )
@@ -35,7 +35,26 @@ ce2_directives.directive('ceUserBar', ->
       $scope.sign_out = ->
         User.sign_out()
       $scope.sign_up = ->
-        User.sign_up()
+        console.log "open sign up form"
+        dialog = $dialog.dialog(
+          backdrop: true
+          keyboard: true
+          backdropClick: true
+          templateUrl: '/assets/angular-views/signup_form.html.haml'
+          controller: ->
+            # for testing
+            $scope.user =
+              name: 'Test user'
+              email: 'test@civicevolution.org'
+              password: 'aaaaaaaa'
+              password_confirmation: 'aaaaaaaa'
+            $scope.submit_sign_up = (user) ->
+              console.log "Submit by calling User.sign_up with data: #{user.name}/#{user.email}/#{user.password}"
+              User.sign_up(user, dialog)
+            $scope.cancel = ->
+              dialog.close()
+        )
+        dialog.open()
       $scope.edit_profile = ->
         User.edit_profile()
   ]
