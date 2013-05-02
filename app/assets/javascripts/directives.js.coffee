@@ -8,36 +8,36 @@ ce2_directives.directive('ceUserBar', ->
   restrict: 'A'
   templateUrl: '/assets/angular-views/signed_in.html.haml'
   replace: true
-  controller: [ "$scope", "UserAppData", "$dialog", "$http", "User",
-    ($scope, UserAppData, $dialog, $http, User) ->
+  controller: [ "$scope", "User", "$dialog", "$http", "$timeout"
+    ($scope, User, $dialog, $http, $timeout) ->
       $scope.user = User.get()
       $scope.sign_in = ->
-        console.log "sign in"
+        console.log "open sign in form"
         dialog = $dialog.dialog(
           backdrop: true
           keyboard: true
           backdropClick: true
           templateUrl: '/assets/angular-views/signin_form.html.haml'
           controller: ->
-          $scope.submit_sign_in = (signin) ->
-            console.log "Process sign in submit"
-            UserAppData.sign_in()
-            #dialog.close("#{signin.email}/#{signin.password}")
-          $scope.cancel = ->
-            dialog.close()
+            # for testing
+            $scope.signin =
+              email: 'alice@civicevolution.org'
+              password: 'aaaaaaaa'
+            $scope.submit_sign_in = (signin) ->
+              console.log "Submit by calling User.sign_in with credentials: #{signin.email}/#{signin.password}"
+              User.sign_in(signin)
+              #dialog.close("#{signin.email}/#{signin.password}")
+            $scope.cancel = ->
+              dialog.close()
         )
-        dialog.open().then( (result) ->
-          alert "dialog closed with result: #{result}" if result
-        )
-
+        dialog.open()
 
       $scope.sign_out = ->
-        UserAppData.sign_out()
+        User.sign_out()
       $scope.sign_up = ->
-        console.log "sign up"
-        debugger
+        User.sign_up()
       $scope.edit_profile = ->
-        console.log "edit profile"
+        User.edit_profile()
   ]
 )
 
