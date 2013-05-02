@@ -1,11 +1,11 @@
 %div
   .modal-header
     %h3 Sign up with CivicEvolution
-  .modal-body
+  .modal-body{style: "max-height: 600px"}
     %div.alert.alert-error(ng-show="error_messages")
       %p.message Please review the problems below:
 
-    %form(ng-submit="submit_sign_up(user)")
+    %form(ng-submit="submit_sign_up(user)"){name: 'signUp'}
 
       %div.control-group(ng-class='{error: error_messages.name}')
         %label.name.required.control-label{for: "user_name"}
@@ -24,22 +24,23 @@
       %div.control-group(ng-class='{error: error_messages.password}')
         %label.password.required.control-label{for: "user_password"}
           Password:
-        %input(ng-model='user.password' required ){type: 'text', placeholder: 'Enter password...'}
+          %span.hint
+            At least 8 characters long
+        %input(ng-model='user.password' required ng-minlength='8'){type: 'text', placeholder: 'Enter password...'}
         %span.help-inline
           {{error_messages.password.join(' and ')}}
 
       %div.control-group(ng-class='{error: error_messages.password_confirmation}')
         %label.password_confirmation.required.control-label{for: "user_password_confirmation"}
           Confirm password:
-        %input(ng-model='user.password_confirmation' required ){type: 'text', placeholder: 'Confirm your password...'}
+        %input(ng-model='user.password_confirmation' required ng-minlength='8'){type: 'text', placeholder: 'Confirm your password...'}
         %span.help-inline
           {{error_messages.password_confirmation}}
 
 
 
       .modal-footer
-        -#%button.btn.btn-primary(ng-disabled='!signIn.$valid') Sign in
-        %button.btn.btn-primary Sign up
+        %button.btn.btn-primary(ng-disabled='!signUp.$valid') Sign in
         %button.btn.btn-primary(ng-click="cancel(result)") Cancel
 
   -#= render "devise/shared/links"
