@@ -26,7 +26,8 @@ ce2_directives.directive('ceUserBar', ->
               remember_me: 1
             $scope.submit_sign_in = (user) ->
               console.log "Submit by calling User.sign_in with credentials: #{user.email}/#{user.password}"
-              User.sign_in(user, dialog)
+              $scope.error_message = null
+              User.sign_in($scope, user, dialog)
             $scope.cancel = ->
               dialog.close()
         )
@@ -50,7 +51,8 @@ ce2_directives.directive('ceUserBar', ->
               password_confirmation: 'aaaaaaaa'
             $scope.submit_sign_up = (user) ->
               console.log "Submit by calling User.sign_up with data: #{user.name}/#{user.email}/#{user.password}"
-              User.sign_up(user, dialog)
+              $scope.error_messages = null
+              User.sign_up($scope, user, dialog)
             $scope.cancel = ->
               dialog.close()
         )

@@ -8,39 +8,44 @@ services.factory 'User', [ "$http", "$window", ($http, $window) ->
     return $http.get('/api/users/user.json').then (response) ->
       response.data
 
-  sign_in: (user,dialog) ->
-    console.log "User.sign_in  with data: #{user.email}/#{user.password}"
+  sign_in: (dialog_scope, user, dialog) ->
+    #console.log "User.sign_in  with data: #{user.email}/#{user.password}"
     $http.post('/users/sign_in.json', {user: user }).then(
       (response)->
-        console.log "signin received response"
+        #console.log "signin received response"
         dialog.close()
         $window.location.reload()
     ,
     (reason) ->
-      console.log "signin received reason"
+      #console.log "signin received reason"
+      dialog_scope.error_message = reason.data.error
     )
 
   sign_out: ->
-    console.log "User:sign_out"
+    #console.log "User:sign_out"
     $http({method: 'DELETE', url: '/users/sign_out.json'}).then(
       (response)->
-        console.log "signout received response"
+        #console.log "signout received response"
         $window.location.reload()
       ,
       (reason) ->
         console.log "signout received reason"
     )
 
-  sign_up: (user,dialog) ->
-    console.log "User.sign_up with credentials: #{user.name}/#{user.email}/#{user.password}"
+  sign_up: (dialog_scope, user, dialog) ->
+    #console.log "User.sign_up with credentials: #{user.name}/#{user.email}/#{user.password}"
     $http.post('/users.json', {user: user }).then(
       (response)->
-        console.log 'signup received response'
+        #console.log 'signup received response'
         dialog.close()
         $window.location.reload()
     ,
     (reason) ->
-      console.log 'signup received reason'
+      #console.log 'signup received reason'
+      if reason.data.errors
+        dialog_scope.error_messages = reason.data.errors
+      else
+        console.log "a bigger error in sign up"
     )
 
   edit_profile: ->

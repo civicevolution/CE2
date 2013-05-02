@@ -2,23 +2,38 @@
   .modal-header
     %h3 Sign up with CivicEvolution
   .modal-body
+    %div.alert.alert-error(ng-show="error_messages")
+      %p.message Please review the problems below:
+
     %form(ng-submit="submit_sign_up(user)")
 
-      %p
-        Name:
+      %div.control-group(ng-class='{error: error_messages.name}')
+        %label.name.required.control-label{for: "user_name"}
+          Name:
         %input(ng-model='user.name' required ce-focus){type: 'text', placeholder: 'Enter name...'}
+        %span.help-inline
+          {{error_messages.name.join('\n')}}
 
-      %p
-        Email:
+      %div.control-group(ng-class='{error: error_messages.email}')
+        %label.email.required.control-label{for: "user_email"}
+          Email:
         %input(ng-model='user.email' required ){type: 'text', placeholder: 'Enter email...'}
+        %span.help-inline
+          {{error_messages.email.join(' and ')}}
 
-      %p
-        Password:
-        %input(ng-model='user.password' required){type: 'text', placeholder: 'Enter password...'}
+      %div.control-group(ng-class='{error: error_messages.password}')
+        %label.password.required.control-label{for: "user_password"}
+          Password:
+        %input(ng-model='user.password' required ){type: 'text', placeholder: 'Enter password...'}
+        %span.help-inline
+          {{error_messages.password.join(' and ')}}
 
-      %p
-        Password:
-        %input(ng-model='user.password_confirmation' required){type: 'text', placeholder: 'Confirm your password...'}
+      %div.control-group(ng-class='{error: error_messages.password_confirmation}')
+        %label.password_confirmation.required.control-label{for: "user_password_confirmation"}
+          Confirm password:
+        %input(ng-model='user.password_confirmation' required ){type: 'text', placeholder: 'Confirm your password...'}
+        %span.help-inline
+          {{error_messages.password_confirmation}}
 
 
 

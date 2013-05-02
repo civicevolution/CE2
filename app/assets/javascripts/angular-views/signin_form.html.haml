@@ -3,6 +3,9 @@
   .modal-header
     %h3 Sign in to CivicEvolution
   .modal-body
+    %div.alert.alert-error(ng-show="error_message")
+      %p.message {{error_message}}
+
     %form(ng-submit="submit_sign_in(user)")
       %p
         Email:
