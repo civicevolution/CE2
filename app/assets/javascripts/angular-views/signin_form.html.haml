@@ -6,7 +6,7 @@
     %div.alert.alert-error(ng-show="error_message")
       %p.message {{error_message}}
 
-    %form(ng-submit="submit_sign_in(user)")
+    %form(ng-submit="submit_sign_in(user)"){name: 'signIn'}
       %p
         Email:
         %input(ng-model='user.email' required ce-focus){type: 'text', placeholder: 'Enter email...'}
@@ -23,8 +23,7 @@
         %input(ng-model='user.remember_me'){type: 'checkbox', value:1}
 
       .modal-footer
-        -#%button.btn.btn-primary(ng-disabled='!signIn.$valid') Sign in
-        %button.btn.btn-primary Sign in
+        %button.btn.btn-primary(ng-disabled='!signIn.$valid') Sign in
         %button.btn.btn-primary(ng-click="cancel(result)") Cancel
 
   -#.row-fluid

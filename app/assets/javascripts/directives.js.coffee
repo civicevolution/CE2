@@ -39,8 +39,8 @@ ce2_directives.directive('ceUserBar', ->
         console.log "open sign up form"
         dialog = $dialog.dialog(
           backdrop: true
-          keyboard: true
-          backdropClick: true
+          keyboard: false
+          backdropClick: false
           templateUrl: '/assets/angular-views/signup_form.html.haml'
           controller: ->
             # for testing
