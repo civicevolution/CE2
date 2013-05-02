@@ -8,9 +8,9 @@ ce2_directives.directive('ceUserBar', ->
   restrict: 'A'
   templateUrl: '/assets/angular-views/signed_in.html.haml'
   replace: true
-  controller: [ "$scope", "UserAppData", "$dialog",
-    ($scope, UserAppData, $dialog) ->
-      $scope.user = UserAppData.user
+  controller: [ "$scope", "UserAppData", "$dialog", "$http", "User",
+    ($scope, UserAppData, $dialog, $http, User) ->
+      $scope.user = User.get()
       $scope.sign_in = ->
         console.log "sign in"
         dialog = $dialog.dialog(
@@ -21,7 +21,8 @@ ce2_directives.directive('ceUserBar', ->
           controller: ->
           $scope.submit_sign_in = (signin) ->
             console.log "Process sign in submit"
-            dialog.close("#{signin.email}/#{signin.password}")
+            UserAppData.sign_in()
+            #dialog.close("#{signin.email}/#{signin.password}")
           $scope.cancel = ->
             dialog.close()
         )
@@ -31,10 +32,19 @@ ce2_directives.directive('ceUserBar', ->
 
 
       $scope.sign_out = ->
-        console.log "sign out"
+        UserAppData.sign_out()
       $scope.sign_up = ->
         console.log "sign up"
+        debugger
       $scope.edit_profile = ->
         console.log "edit profile"
   ]
 )
+
+ce2_directives.directive('ceFocus', [ "$timeout", ($timeout) ->
+  link: ( scope, element, attrs, controller) ->
+    $timeout ->
+      element[0].focus()
+    , 100
+
+])

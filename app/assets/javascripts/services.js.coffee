@@ -3,12 +3,62 @@
 services = angular.module("CE2.services", ["ngResource"])
 
 
-services.factory "UserAppData", [ "CommentData", ( CommentData ) ->
+services.factory('User', [ "$http", ($http) ->
+  # User is a class which we can use for retrieving and
+  # updating data on the server
+  User = (data) ->
+    angular.extend(this, data);
+
+  # a static method to retrieve current User
+  User.get = ->
+    return $http.get('/api/users/user.json').then (response) ->
+      response.data
+
+  return User;
+])
+
+services.factory "UserAppData", [ "$http", 'User', ( $http, User ) ->
   user:
-    signed_in: false
+    signed_in: true
     id: 1234
     first_name: "Brian"
     last_name: "Sullivan"
+    email: 'bc@ce.org'
+  sign_out: ->
+    console.log "sign out"
+    #$http({method: 'DELETE', url: '/users/sign_out.json'} )
+    $http({method: 'GET', url: '/api/users/user.json'} )
+  sign_up: ->
+    console.log "sign up"
+    #temp.user_data =
+    debugger
+    $http({method: 'GET', url: '/api/users/user.json'} )
+
+  sign_in: ->
+    console.log "sign in"
+    temp.user_dataX = $http({method: 'GET', url: '/api/users/user.json'}).then(
+      (response) ->
+        console.log "return the response data"
+        debugger
+        response.data
+    )
+    data =
+      user:
+        email: "alice@civicevolution.org"
+        password: 'aaaaaaaa'
+        remember_me: 0
+
+    #$http({method: 'POST', url: '/users/sign_in', data: data} )
+    #$http({method: 'GET', url: '/api/comments'} )
+    #$http({method: 'POST', url: '/users/sign_in', data: data, headers: {'content-type': 'application/json;charset=UTF-8'}} )
+    #$http.post('/users/sign_in.json', {
+    #  user:
+    #    email: 'alice@civicevolution.org'
+    #    password: 'aaaaaaaa'
+    #    remember_me: 0
+    #
+    #})
+
 ]
 
 services.factory "Comment", ["$resource", ($resource) ->
