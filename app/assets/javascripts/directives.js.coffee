@@ -45,7 +45,8 @@ ce2_directives.directive('ceUserBar', ->
           controller: ->
             # for testing
             $scope.user =
-              name: 'Test user'
+              first_name: 'Test'
+              last_name: 'User'
               email: 'test@civicevolution.org'
               password: 'aaaaaaaa'
               password_confirmation: 'aaaaaaaa'

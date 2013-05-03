@@ -7,12 +7,19 @@
 
     %form(ng-submit="submit_sign_up(user)"){name: 'signUp'}
 
-      %div.control-group(ng-class='{error: error_messages.name}')
-        %label.name.required.control-label{for: "user_name"}
-          Name:
-        %input(ng-model='user.name' required ce-focus){type: 'text', placeholder: 'Enter name...'}
+      %div.control-group(ng-class='{error: error_messages.first_name}')
+        %label.first_name.required.control-label{for: "user_first_name"}
+          First name:
+        %input(ng-model='user.first_name' required ce-focus){type: 'text', placeholder: 'Enter first name...'}
         %span.help-inline
-          {{error_messages.name.join('\n')}}
+          {{error_messages.first_name.join('\n')}}
+
+      %div.control-group(ng-class='{error: error_messages.last_name}')
+        %label.last_name.required.control-label{for: "user_last_name"}
+          Last name:
+        %input(ng-model='user.last_name' required ){type: 'text', placeholder: 'Enter last name...'}
+        %span.help-inline
+          {{error_messages.last_name.join('\n')}}
 
       %div.control-group(ng-class='{error: error_messages.email}')
         %label.email.required.control-label{for: "user_email"}
