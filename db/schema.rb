@@ -11,15 +11,24 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130502235944) do
+ActiveRecord::Schema.define(:version => 20130503072302) do
 
   create_table "comments", :force => true do |t|
-    t.string   "name"
-    t.string   "text"
-    t.boolean  "liked"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.string   "type",                               :null => false
+    t.integer  "user_id",                            :null => false
+    t.integer  "conversation_id",                    :null => false
+    t.text     "text",                               :null => false
+    t.integer  "version",         :default => 1
+    t.string   "status",          :default => "new"
+    t.integer  "order_id"
+    t.string   "purpose"
+    t.string   "references"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
   end
+
+  add_index "comments", ["conversation_id"], :name => "index_comments_on_conversation_id"
+  add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 
   create_table "roles", :force => true do |t|
     t.string   "name"

@@ -1,9 +1,7 @@
 class Comment < ActiveRecord::Base
   include Modules::FirebaseConnect
   
-  attr_accessible :liked, :name, :text
-
-  before_create { self.liked ||= false; true }
+  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references
 
   validate :my_test
 
