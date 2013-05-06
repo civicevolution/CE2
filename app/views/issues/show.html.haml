@@ -1,0 +1,45 @@
+%h1= @issue.title
+
+%div(ng-controller='AngularFireCtrl')
+
+%p What do I want to see here?
+
+-#%div(ng-controller='ConversationCtrl')
+  %form.convo(ng-submit="addComment()"){arb_attr: 'reddish'}
+    %p
+      Name:
+      %input{type: 'text', 'ng-model' => "newComment.name", :placeholder => "Name"}
+
+    %p
+      Message:
+      %input{type: 'text', 'ng-model' => "newComment.text", :placeholder => "Message..."}
+
+    %p
+      %input{type: 'submit', value: 'Add'}
+
+  %ul(ng-cloak)
+    %li(ng-repeat="comment in comments")
+      %span(ng-bind-template="{{comment.name}} said \"{{comment.text}}\"")
+      %a(ng-show="!comment.liked" ng-click="like()")
+        Like
+      %a(ng-show="comment.liked" ng-click="like()")
+        Unlike
+      %a(ng-click="delete()")
+        Delete
+
+  %div
+    %a{href: '/#/state_temp_prov'}
+      temp_prov
+
+    %a{href: '/#/state1'}
+      state1
+    %a{href: '/#/state2'}
+      state2
+    %a{href: '/#/state3'}
+      state3
+    %a{href: '/#/state4'}
+      state4
+
+  %div(ui-view)
+
+  %div(ui-view="footer")

@@ -19,8 +19,8 @@ describe Issue do
     expect(issue.user_id).to eq( 1 )
   end
 
-  it "expect title to be issue title" do
-    expect(issue.title).to eq( 'issue title')
+  it "expect title to be My issue title: punctuated" do
+    expect(issue.title).to eq( 'My issue title: punctuated')
   end
 
   it "expect description to be issue description" do
@@ -42,5 +42,16 @@ describe Issue do
   it { should belong_to (:user)}
   it { should belong_to (:initiative)}
   it { should have_many (:questions)}
+
+  it "expect to_param to return the munged title as my-issue-title-punctuated" do
+    expect(issue.to_param).to eq('my-issue-title-punctuated')
+  end
+
+
+  it "expect munged_title to get calculated and saved as my-issue-title-punctuated" do
+    issue.save
+    expect(issue.munged_title).to eq('my-issue-title-punctuated')
+  end
+
 
 end

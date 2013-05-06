@@ -21,6 +21,8 @@ Ce2::Application.routes.draw do
 
   #resources :comments
 
+  get "issues/:issue_id" => "issues#show", constraints: {issue_id: /\d+/}
+  get "issues/:munged_title" => "issues#show", constraints: {munged_title: /[\w&-]+/}
 
   get "conversation/index"
 

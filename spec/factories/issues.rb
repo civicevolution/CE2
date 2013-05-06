@@ -4,7 +4,7 @@ FactoryGirl.define do
   factory :issue do
     initiative_id 1
     user_id 1
-    title "issue title"
+    title "My issue title: punctuated"
     description "issue description"
     version 1
     status "open"
