@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130503072302) do
+ActiveRecord::Schema.define(:version => 20130503173752) do
 
   create_table "comments", :force => true do |t|
     t.string   "type",                               :null => false
@@ -29,6 +29,43 @@ ActiveRecord::Schema.define(:version => 20130503072302) do
 
   add_index "comments", ["conversation_id"], :name => "index_comments_on_conversation_id"
   add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
+
+  create_table "conversations", :force => true do |t|
+    t.integer  "question_id",                     :null => false
+    t.string   "status",      :default => "open", :null => false
+    t.datetime "created_at",                      :null => false
+    t.datetime "updated_at",                      :null => false
+  end
+
+  create_table "initiatives", :force => true do |t|
+    t.string   "title",       :null => false
+    t.text     "description", :null => false
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  create_table "issues", :force => true do |t|
+    t.integer  "initiative_id",                     :null => false
+    t.integer  "user_id",                           :null => false
+    t.string   "title",                             :null => false
+    t.text     "description",                       :null => false
+    t.integer  "version",       :default => 1
+    t.string   "status",        :default => "open", :null => false
+    t.string   "purpose"
+    t.datetime "created_at",                        :null => false
+    t.datetime "updated_at",                        :null => false
+  end
+
+  create_table "questions", :force => true do |t|
+    t.integer  "issue_id",                       :null => false
+    t.integer  "user_id",                        :null => false
+    t.text     "text",                           :null => false
+    t.integer  "version",    :default => 1
+    t.string   "status",     :default => "open", :null => false
+    t.string   "purpose"
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
+  end
 
   create_table "roles", :force => true do |t|
     t.string   "name"

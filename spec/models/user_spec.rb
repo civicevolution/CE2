@@ -5,6 +5,8 @@ describe User do
   before(:each) do
     @attr = {
       :name => "Example User",
+      :first_name => 'Test',
+      :last_name => 'User',
       :email => "user@example.com",
       :password => "changeme",
       :password_confirmation => "changeme"
@@ -18,6 +20,16 @@ describe User do
   it "should require an email address" do
     no_email_user = User.new(@attr.merge(:email => ""))
     no_email_user.should_not be_valid
+  end
+
+  it "should not be valid if missing first_name" do
+    no_first_name_user = User.new(@attr.merge(:first_name => ""))
+    no_first_name_user.should_not be_valid
+  end
+
+  it "should not be valid if missing last_name" do
+    no_last_name_user = User.new(@attr.merge(:last_name => ""))
+    no_last_name_user.should_not be_valid
   end
 
   it "should accept valid email addresses" do

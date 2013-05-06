@@ -1,11 +1,11 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
 FactoryGirl.define do
-  factory :comment do
-    type 'Comment'
+  factory :summary_comment do
+    type "SummaryComment"
     user_id 1
     conversation_id 1
-    text "Comment text"
+    text "Summary comment text"
     version 1
     status "new"
     order_id 1

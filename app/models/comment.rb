@@ -1,7 +1,12 @@
 class Comment < ActiveRecord::Base
   include Modules::FirebaseConnect
-  
+
+  belongs_to :user
+  belongs_to :conversation
+
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references
+
+  validates :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :presence => true
 
   validate :my_test
 
