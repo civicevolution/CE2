@@ -1,5 +1,6 @@
 class CommentsController < ApplicationController
   protect_from_forgery
+  before_action :set_comment, only: [:show, :edit, :update, :destroy]
   skip_before_filter :verify_authenticity_token, if: :json_request?
   
   respond_to :json
@@ -13,11 +14,11 @@ class CommentsController < ApplicationController
   end
 
   def create
-    respond_with Comment.create(params[:comment])
+    respond_with Comment.create(comment_params)
   end
 
   def update
-    respond_with Comment.update(params[:id], params[:comment])
+    respond_with Comment.update(params[:id], comment_params)
   end
 
   def destroy
@@ -28,6 +29,17 @@ class CommentsController < ApplicationController
 
   def json_request?
     request.format.json?
+  end
+
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_comment
+    @comment = Comment.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def comment_params
+    params.require(:comment).permit(:conversation_id, :text, :version, :status, :order_id, :purpose, :references,)
   end
 
 end

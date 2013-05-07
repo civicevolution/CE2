@@ -1,5 +1,7 @@
 class IssuesController < ApplicationController
   protect_from_forgery
+  before_action :set_issue, only: [:show, :edit, :update, :destroy]
+
   #skip_before_filter :verify_authenticity_token, if: :json_request?
 
   def show
@@ -16,11 +18,11 @@ class IssuesController < ApplicationController
   #end
   #
   #def create
-  #  respond_with Comment.create(params[:comment])
+  #  respond_with Comment.create( issue_params )
   #end
   #
   #def update
-  #  respond_with Comment.update(params[:id], params[:comment])
+  #  respond_with Comment.update(params[:id], issue_params )
   #end
   #
   #def destroy
@@ -32,5 +34,16 @@ class IssuesController < ApplicationController
   #def json_request?
   #  request.format.json?
   #end
+
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_issue
+    @issue = Issue.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def issue_params
+    params.require(:issue).permit(:initiative_id, :user_id, :title, :description, :version, :status, :purpose, :munged_title)
+  end
 
 end
