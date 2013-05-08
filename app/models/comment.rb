@@ -1,7 +1,14 @@
 class Comment < ActiveRecord::Base
   include Modules::FirebaseConnect
 
-  belongs_to :user
+  def active_model_serializer
+    CommentSerializer
+  end
+
+
+
+  belongs_to :author, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id', :select => 'id, first_name, last_name' #, photo_file_name'
+
   belongs_to :conversation
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references

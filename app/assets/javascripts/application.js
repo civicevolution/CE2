@@ -29,3 +29,4 @@
 // require jquery_ujs
 
 var temp = { FirebaseUpdates: [] }
+setTimeout( function(){SVCS = angular.element(document.body).injector();}, 2000)

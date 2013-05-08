@@ -1,5 +1,8 @@
 class SummaryComment < Comment
-  # To change this template use File | Settings | File Templates.
+
+  def active_model_serializer
+    CommentSerializer
+  end
 
   belongs_to :conversation
 

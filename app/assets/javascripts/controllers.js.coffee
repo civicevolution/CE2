@@ -12,7 +12,7 @@ bootstrap_CE2 = ->
 bootstrap_CE2()
 
 
-ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', "firebase", 'ui.compat', 'ui.bootstrap'] )
+ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', 'CE2.filters', "firebase", 'ui.compat', 'ui.bootstrap'] )
 
 ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 

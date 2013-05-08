@@ -19,10 +19,10 @@
     
   %ul(ng-cloak)
     %li(ng-repeat="comment in comments")
-      %span(ng-bind-template="{{comment.name}} said \"{{comment.text}}\"")
-      %a(ng-show="!comment.liked" ng-click="like()")
+      %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
+      -#%a(ng-show="!comment.liked" ng-click="like()")
         Like
-      %a(ng-show="comment.liked" ng-click="like()")
+      -#%a(ng-show="comment.liked" ng-click="like()")
         Unlike
       %a(ng-click="delete()")
         Delete

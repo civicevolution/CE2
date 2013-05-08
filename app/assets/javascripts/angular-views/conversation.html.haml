@@ -1,0 +1,21 @@
+%div.conversation
+  %h3 {{conversation.question}}
+
+  %div.summary
+    %h4 Summary
+    -#%div(ng-repeat="comment in conversation.comments | summary_comments | orderBy:'order_id':false")
+    %div(ng-repeat="comment in conversation.summary_comments" )
+      %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
+      %a(ng-click="edit()")
+        Edit
+
+  %div.conversation
+    %h4 Conversation
+    -#%div(ng-repeat="comment in conversation.comments | conversation_comments | orderBy:'order_id':false")
+    %div(ng-repeat="comment in conversation.conversation_comments" )
+      %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
+      %a(ng-click="edit()")
+        Edit
+
+  %a(ng-click="test()")
+    Test

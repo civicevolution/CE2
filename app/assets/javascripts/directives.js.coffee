@@ -70,3 +70,17 @@ ce2_directives.directive('ceFocus', [ "$timeout", ($timeout) ->
     , 100
 
 ])
+
+ce2_directives.directive('ceConversation', ->
+  restrict: 'A'
+  templateUrl: '/assets/angular-views/conversation.html.haml'
+  replace: true
+  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout"
+    ($scope, CommentData, $dialog, $http, $timeout) ->
+      $scope.conversation = CommentData.conversation(1)
+
+      $scope.test = ->
+        console.log "Clicked test link"
+
+  ]
+)

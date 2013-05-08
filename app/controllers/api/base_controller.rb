@@ -37,8 +37,9 @@ module Api
     end
     
     def rescue_not_found(e)
-      logger.debug "return something about record not found"
-      render json: {system_error: e.message}, :status => :not_found
+      msg = "Api::BaseController.rescue_not_found, return something about record not found"
+      logger.debug msg
+      render json: {system_error: e.message, message: msg}, :status => :not_found
     end
     
     def cancan_denied(e)
