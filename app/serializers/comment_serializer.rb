@@ -1,7 +1,7 @@
 class CommentSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name
+  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at
 
   def url
     api_comment_url(object)

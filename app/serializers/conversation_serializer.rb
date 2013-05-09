@@ -1,6 +1,6 @@
 class ConversationSerializer < ActiveModel::Serializer
   #embed :ids, :include => true
-  attributes :id, :url, :question
+  attributes :id, :url, :question, :updated_at
   has_many :comments
 
   def url
