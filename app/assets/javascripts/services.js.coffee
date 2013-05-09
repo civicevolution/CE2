@@ -4,6 +4,7 @@ services = angular.module("CE2.services", ["ngResource"])
 
 services.factory 'User', [ "$http", "$window", ($http, $window) ->
   # a static method to retrieve current User
+  name: "User"
   get: ->
     $http.get('/api/users/user.json').then (response) ->
       response.data
@@ -58,6 +59,7 @@ services.factory "Comment", ["$resource", ($resource) ->
 
 services.factory "CommentData", ["$log", "$http", "Comment", "FirebaseUpdateRec",
   ($log, $http, Comment, FirebaseUpdateRec) ->
+    name: "CommentData"
     conversation: (conversation_id) ->
       # conversation(conversation_id) is called by the directive or controller that uses this data
       # this request returns a promise to the directive
@@ -97,6 +99,7 @@ services.factory "CommentData", ["$log", "$http", "Comment", "FirebaseUpdateRec"
 
 
 services.factory "FirebaseUpdateRec", [ "$timeout", ($timeout) ->
+  name: "FirebaseUpdateRec"
   process: (service, data) ->
     #console.log "FirebaseUpdateRec for #{data.class}"
     # The item arrays for updating are based on the class of the item
@@ -135,6 +138,7 @@ services.factory "FirebaseUpdateRec", [ "$timeout", ($timeout) ->
 # and a second time when RoR sends update to Firebase which sends update to all subscribers
 
 services.factory "FirebaseUpdatesFromAngular", [ "CommentData", ( CommentData ) ->
+  name: "FirebaseUpdatesFromAngular"
   process: (data) ->
     switch data.class
       when "SummaryComment" then CommentData.process_firebase data

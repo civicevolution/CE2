@@ -1,4 +1,6 @@
 class CommentSerializer < ActiveModel::Serializer
+  self.root = false
+
   attributes :type, :id, :order_id, :text, :url, :first_name, :last_name
 
   def url
