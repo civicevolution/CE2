@@ -23,7 +23,7 @@ describe Comment do
     expect(comment.conversation_id).to eq(1)
   end
 
-  it { should belong_to (:user)}
+  it { should belong_to (:author)}
   it { should belong_to (:conversation)}
 
 

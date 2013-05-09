@@ -77,7 +77,19 @@ ce2_directives.directive('ceConversation', ->
   replace: true
   controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout"
     ($scope, CommentData, $dialog, $http, $timeout) ->
-      $scope.conversation = CommentData.conversation(1)
+      CommentData.conversation(1).then (response) ->
+        # when the promise is fulfilled, set the arrays to $scope for display
+        # and set the arrays as properties on the service for they can be updated
+        # by firebase updates and still be bound to the view for this directive
+        $scope.SummaryComments = CommentData.SummaryComment_array = response.summary_comments
+        $scope.ConversationComments = CommentData.ConversationComment_array = response.conversation_comments
+        $scope.question = CommentData.question = response.question
+      $scope.newComment =
+        text: "This is a test comment #{ Date() }"
+
+      $scope.addComment = ->
+        CommentData.persist_change_to_ror 'save', $scope.newComment,
+          angular.bind $scope, -> this.newComment = {}
 
       $scope.test = ->
         console.log "Clicked test link"
