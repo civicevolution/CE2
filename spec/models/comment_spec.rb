@@ -15,10 +15,6 @@ describe Comment do
   it {should validate_presence_of (:type) }
   it {should validate_presence_of (:version) }
 
-  it "expect comment.user_id to be 1" do
-    expect(comment.user_id).to eq(1)
-  end
-
   it "expect comment.conversation_id to be 1" do
     expect(comment.conversation_id).to eq(1)
   end

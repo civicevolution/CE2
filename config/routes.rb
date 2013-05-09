@@ -2,6 +2,8 @@ require 'api_constraints'
 
 Ce2::Application.routes.draw do
 
+  default_url_options :host => "civicevolution.org"
+
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :comments

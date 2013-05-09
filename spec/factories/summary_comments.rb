@@ -11,6 +11,7 @@ FactoryGirl.define do
     order_id 1
     purpose "purpose"
     references "references"
+    association :author, factory: :user
   end
 end
 
