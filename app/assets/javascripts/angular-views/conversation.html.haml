@@ -12,15 +12,18 @@
     %h4 Conversation
     %div(ng-repeat="comment in ConversationComments" )
       %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
-      %a(ng-click="edit()")
+      %a(ng-click="edit({{comment.id}})")
         Edit
 
 
     %form.convo(ng-submit="addComment()")
       %textarea(ng-model="newComment.text"){:placeholder => "Enter your comment..."}
+      %input(ng-model="newComment.id"){type: 'hidden', value: 'Add'}
 
       %p
         %input{type: 'submit', value: 'Add'}
+        %a(ng-click="clear_form()")
+          Clear
 
   %a(ng-click="test()")
     Test

@@ -84,13 +84,17 @@ ce2_directives.directive('ceConversation', ->
         $scope.SummaryComments = CommentData.SummaryComment_array = response.summary_comments
         $scope.ConversationComments = CommentData.ConversationComment_array = response.conversation_comments
         $scope.question = CommentData.question = response.question
-      $scope.newComment =
-        text: "This is a test comment #{ Date() }"
+      #$scope.newComment =
+      #  text: "This is a test comment #{ Date() }"
 
       $scope.addComment = ->
         CommentData.persist_change_to_ror 'save', $scope.newComment,
           angular.bind $scope, -> this.newComment = {}
+      $scope.edit = (comment_id) ->
+        $scope.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
 
+      $scope.clear_form = ->
+        $scope.newComment = {id: null, text: null}
       $scope.test = ->
         console.log "Clicked test link"
 

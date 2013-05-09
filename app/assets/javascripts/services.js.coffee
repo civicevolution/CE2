@@ -86,6 +86,7 @@ services.factory "CommentData", ["$log", "$http", "Comment", "FirebaseUpdateRec"
     persist_change_to_ror: (action, data, ok_cb, err_cb) ->
         _this._ok_cb = ok_cb
         _this._err_cb = err_cb
+        action = 'update' if data.id
         Comment[action] data, (data,resp_headers_fn) =>
           _this._ok_cb() if _this._ok_cb
           FirebaseUpdateRec.process _this, {
