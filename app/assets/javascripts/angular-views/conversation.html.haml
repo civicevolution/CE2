@@ -14,7 +14,10 @@
       %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
       %a(ng-click="edit({{comment.id}})")
         Edit
-
+      %span(ng-show="comment.version>1")
+        Version {{comment.version}}
+        %a(ng-click="view_history({{comment.id}})")
+          View history
 
     %form.convo(ng-submit="addComment()")
       %textarea(ng-model="newComment.text"){:placeholder => "Enter your comment..."}

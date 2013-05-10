@@ -40,6 +40,7 @@ gem 'responders'
 gem 'firebase'
 gem 'firebase_token_generator'
 
+gem "paper_trail", github: 'airblade/paper_trail', branch: 'rails4'
 
 # add these gems to help with the transition:
 gem 'protected_attributes'

@@ -22,6 +22,13 @@ describe Comment do
   it { should belong_to (:author)}
   it { should belong_to (:conversation)}
 
+  it "should increment the comment version each time the record is updated" do
+    com1 = FactoryGirl.create(:conversation_comment, conversation_id: 100, version: 10 )
+    #pp com1.inspect
+    com1.save
+    #pp com1.inspect
+    expect(com1.version).to eq(11)
+  end
 
 end
 

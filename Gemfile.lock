@@ -1,4 +1,13 @@
 GIT
+  remote: git://github.com/airblade/paper_trail.git
+  revision: 009d3bd4a371f6c93c765fb4ee754ed98608437e
+  branch: rails4
+  specs:
+    paper_trail (2.7.1)
+      activerecord (>= 4.0.0.beta, < 5.0)
+      railties (>= 4.0.0.beta, < 5.0)
+
+GIT
   remote: git://github.com/cucumber/cucumber-rails.git
   revision: d5bded34c28b8c5d3541aee7cb047da7870209a1
   branch: master_rails4_test
@@ -263,6 +272,7 @@ DEPENDENCIES
   html2haml (>= 1.0.1)
   jquery-rails
   launchy (>= 2.2.0)
+  paper_trail!
   pg
   protected_attributes
   quiet_assets (>= 1.0.2)

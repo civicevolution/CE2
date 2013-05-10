@@ -5,6 +5,8 @@ class Comment < ActiveRecord::Base
     CommentSerializer
   end
 
+  has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
+                  skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at]
 
 
   belongs_to :author, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id', :select => 'id, first_name, last_name' #, photo_file_name'
@@ -12,6 +14,12 @@ class Comment < ActiveRecord::Base
   belongs_to :conversation
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references
+
+  before_update :increment_comment_version
+
+  def increment_comment_version
+    self.version += 1
+  end
 
   validates :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :presence => true
 

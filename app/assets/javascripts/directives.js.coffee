@@ -92,6 +92,8 @@ ce2_directives.directive('ceConversation', ->
           angular.bind $scope, -> this.newComment = {}
       $scope.edit = (comment_id) ->
         $scope.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
+      $scope.view_history = (comment_id) ->
+        console.log "View history for comment #{comment_id}"
 
       $scope.clear_form = ->
         $scope.newComment = {id: null, text: null}
