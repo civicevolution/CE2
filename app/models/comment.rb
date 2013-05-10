@@ -1,3 +1,4 @@
+require 'differ'
 class Comment < ActiveRecord::Base
   include Modules::FirebaseConnect
 
@@ -32,6 +33,53 @@ class Comment < ActiveRecord::Base
     #errors.add(:text, "must be no longer than #{range[2]} characters") unless length <= range[2].to_i
     #false
   end
+
+
+  def history_diffs
+
+    Differ.format = :html
+
+    # create an array of the version details
+    # extract the version #, text and time from the comment_versions table using reify
+    version_details = self.versions.map do |ver|
+      com_ver = ver.reify
+      { text: com_ver.text, version: com_ver.version, created_at: ver.created_at}
+    end
+
+    # I want to display newest version and diffs first
+    version_details.reverse!
+
+    #process the version details into an array of diffs
+    # for each version generate the diff with from the next version, if it exists
+
+    # first diff is the current text
+    diffs = [ { version: 'Current', html_diff: self.text, created_at: self.updated_at } ]
+
+    # next diff is between current text and the first stored version
+    diffs << { version: 'Current',
+               html_diff: Differ.diff_by_word(self.text, version_details[0][:text]).to_s,
+               created_at: self.created_at }
+
+    # now iterate through the remaining versions, and then show initial version
+    version_details.each_with_index do |ver,i|
+      prev_ver = version_details[i+1]
+      if prev_ver
+        #puts "i: #{i}, ver: #{ver[:version]}: #{ver[:text]} PREV ver: #{prev_ver[:version]}: #{prev_ver[:text]}"
+        diffs << { version: ver[:version],
+                   #html_diff: "new: #{ver[:text]}, old: #{prev_ver[:text]}",
+                   html_diff: Differ.diff_by_word(ver[:text], prev_ver[:text]).to_s,
+                   created_at: ver[:created_at] }
+      else
+        #puts "i: #{i}, ver: #{ver[:version]}: #{ver[:text]} NO PREV ver!"
+        diffs << { version: 'Original', html_diff: ver[:text], created_at: ver[:created_at] }
+      end
+    end
+
+    diffs
+
+  end
+
+
 
   protected
   def as_json_for_firebase( action = "create" )

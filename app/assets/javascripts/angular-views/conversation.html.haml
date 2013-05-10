@@ -30,3 +30,10 @@
 
   %a(ng-click="test()")
     Test
+  %h3 History
+  %div.history
+    %div(ng-repeat="diff in history" )
+      %p
+        Version {{diff.version}}:
+        %span(ng-bind-html-unsafe="diff.html_diff")
+      %p Created: {{diff.created_at}}

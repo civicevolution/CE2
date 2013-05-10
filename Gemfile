@@ -42,6 +42,8 @@ gem 'firebase_token_generator'
 
 gem "paper_trail", github: 'airblade/paper_trail', branch: 'rails4'
 
+gem 'differ'
+
 # add these gems to help with the transition:
 gem 'protected_attributes'
 gem 'rails-observers'

@@ -79,6 +79,10 @@ services.factory "CommentData", ["$log", "$http", "Comment", "FirebaseUpdateRec"
             .sort((a,b)-> a.order_id - b.order_id)
           conversation_comments: (comment for comment in response.data.comments when comment.type is "ConversationComment")
             .sort((a,b)-> a.order_id - b.order_id)
+    history: (comment_id) ->
+      console.log "Retrieve history for comment #{comment_id}"
+      $http.get("/api/comments/#{comment_id}/history").then (response) ->
+        response.data
 
     process_firebase: (data) ->
       FirebaseUpdateRec.process this, data

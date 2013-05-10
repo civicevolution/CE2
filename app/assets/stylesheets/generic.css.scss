@@ -23,5 +23,12 @@ input.link_button::-moz-focus-inner {
 div#messagesDiv{
 	width: 400px;
 	height: 200px;
-	border: 1px solid black
+	border: 1px solid black;
+}
+
+del{
+  color: red;
+}
+ins{
+  color: green;
 }
