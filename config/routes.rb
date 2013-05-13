@@ -25,6 +25,17 @@ Ce2::Application.routes.draw do
     #end
   end
 
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :attachments do
+        get 'history', :on => :member
+      end
+
+    end
+    #scope module: :v2, constraints: ApiConstraints.new(version: 2, default: true) do
+    #  resources :products
+    #end
+  end
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do

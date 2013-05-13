@@ -11,7 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130509225957) do
+ActiveRecord::Schema.define(version: 20130512174137) do
+
+  create_table "attachments", force: true do |t|
+    t.integer  "attachable_id",                           null: false
+    t.string   "attachable_type",                         null: false
+    t.integer  "user_id",                                 null: false
+    t.string   "title"
+    t.text     "description"
+    t.integer  "version",                 default: 1,     null: false
+    t.string   "status",                  default: "new", null: false
+    t.string   "attachment_file_name"
+    t.string   "attachment_content_type"
+    t.integer  "attachment_file_size"
+    t.datetime "attachment_updated_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "comment_versions", force: true do |t|
     t.string   "item_type",  null: false

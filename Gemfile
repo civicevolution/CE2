@@ -44,6 +44,9 @@ gem "paper_trail", github: 'airblade/paper_trail', branch: 'rails4'
 
 gem 'differ'
 
+gem "paperclip", github: "thoughtbot/paperclip", branch: 'master'
+gem 'aws-sdk'
+
 # add these gems to help with the transition:
 gem 'protected_attributes'
 gem 'rails-observers'

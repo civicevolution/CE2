@@ -14,6 +14,8 @@ class Comment < ActiveRecord::Base
 
   belongs_to :conversation
 
+  has_many :attachments, :as => :attachable
+
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references
 
   before_update :increment_comment_version

@@ -13,6 +13,9 @@ class Ability
       can :create, Comment
       can :destroy, Comment
       can :history, Comment
+
+      can :create, Attachment
+
     end
     
     # Define abilities for the passed in user here. For example:

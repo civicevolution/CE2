@@ -6,6 +6,8 @@ class Issue < ActiveRecord::Base
 
   has_many :questions
 
+  has_many :attachments, :as => :attachable
+
   validates :initiative_id, :user_id, :title, :description, :version, :status, :purpose, presence: true
 
   before_create :calculate_munged_title
