@@ -17,11 +17,13 @@
 //= require angular-1.1.4/ui-bootstrap-tpls-0.2.0.js
 //= require firebase.js
 //= require angularFire.js
-//= require services.js
-//= require directives.js
-//= require controllers.js
-//= require_tree .
 
+//= require controllers.js
+//= require directives.js
+//= require filters.js
+//= require services.js
+
+//= require ng-upload.js
 
 // Don't use these for now
 // require jquery

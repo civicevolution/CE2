@@ -14,7 +14,7 @@ class Ability
       can :destroy, Comment
       can :history, Comment
 
-      can :create, Attachment
+      can :manage, Attachment
 
     end
     

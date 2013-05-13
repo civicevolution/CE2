@@ -12,11 +12,23 @@ bootstrap_CE2 = ->
 bootstrap_CE2()
 
 
-ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', 'CE2.filters', "firebase", 'ui.compat', 'ui.bootstrap'] )
+ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', 'CE2.filters',
+  "firebase", 'ui.compat', 'ui.bootstrap', 'ngUpload'] )
 
 ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
+
+
+
+ce2_app.controller('Example1Ctrl', ($scope) ->
+  $scope.submited = (content, completed) ->
+    if (completed)
+      console.log(content)
+      $scope.uploadResponse = content
+    else
+      console.log "NOT completed: #{completed}, content: #{content}"
+)
 
 ce2_app.controller( "ConversationCtrl", [ "$scope", "CommentData", ($scope, CommentData) ->	
 
