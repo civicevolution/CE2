@@ -1,0 +1,9 @@
+%div.attachment_form
+  %form.attachment(ce-csrf){name: 'attach_form', action: '/api/attachments?t={{timestamp}}', target: "upload_iframe", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}
+    %input{type: 'file', name: 'attachment[attachment]', id: "attachment_attachment"}
+    %input{type: 'text', name: 'attachment[title]', id: "attachment_title", value: 'Title'}
+    %textarea{name: 'attachment[description]', id: "attachment_description", :size => "20x2", value: 'Description', placeholder: "Enter your description"}
+    -#%input{type: "submit", class: "btn", value: "Upload attachment", 'upload-submit'=> "uploadComplete(contents, completed)"}
+    %input(ng-click="upload_attachment()"){type: "submit", class: "btn", value: "Upload attachment"}
+
+  %div(ng-include src="attachment_iframe_url" onload="iframe_directive_loaded()")

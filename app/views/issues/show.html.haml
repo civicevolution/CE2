@@ -1,21 +1,3 @@
-- @attachment = Attachment.new
-%div{"ng-controller" => "Example1Ctrl"}
-  %h4 Example 1 - Running with default configuration (requirement: v0.1.1 and above)
-  %span
-    Current value of foo is:
-    %b {{foo}}
-    %i (Works with the active $scope.)
-  %br
-  %br
-  = form_for @attachment, url: api_attachments_path, html: {'ng-upload'=>'', id: 'foo', method: :POST} do |f|
-    = f.file_field :attachment
-    = f.text_field :title, value: 'Title'
-    = f.text_area :description, :size => "20x2", value: 'Description'
-    = f.submit :type => "submit", "upload-submit" => "submited(content, completed)", :value => "Create", class: 'btn'
-
-  .alert.alert-info Server Response: {{uploadResponse}}
-
-
 %h1= @issue.title
 
 %div(ng-controller='AngularFireCtrl')

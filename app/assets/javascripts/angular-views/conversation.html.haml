@@ -21,12 +21,23 @@
 
     %form.convo(ng-submit="addComment()")
       %textarea(ng-model="newComment.text"){:placeholder => "Enter your comment..."}
+      %div(ng-repeat="att in comment_attachments" )
+        %p {{att.attachment_file_name}}
+
       %input(ng-model="newComment.id"){type: 'hidden', value: 'Add'}
 
       %p
         %input{type: 'submit', value: 'Add'}
         %a(ng-click="clear_form()")
           Clear
+
+    %a(ng-click="toggle_attachment_form()")
+      {{toggle_attachment_label}}
+    %div(ng-include src="template_url")
+
+
+
+
 
   %a(ng-click="test()")
     Test

@@ -20,17 +20,7 @@ ce2_app.config ($httpProvider) ->
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
 
-
-ce2_app.controller('Example1Ctrl', ($scope) ->
-  $scope.submited = (content, completed) ->
-    if (completed)
-      console.log(content)
-      $scope.uploadResponse = content
-    else
-      console.log "NOT completed: #{completed}, content: #{content}"
-)
-
-ce2_app.controller( "ConversationCtrl", [ "$scope", "CommentData", ($scope, CommentData) ->	
+ce2_app.controller( "ConversationCtrl", [ "$scope", "CommentData", ($scope, CommentData) ->
 
 	$scope.comments = CommentData.comments
 		
@@ -160,6 +150,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 ce2_app.run( ['$rootScope', '$state', '$stateParams', ($rootScope,   $state,   $stateParams) ->
   $rootScope.$state = $state
   $rootScope.$stateParams = $stateParams
+  $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 ])
 
 

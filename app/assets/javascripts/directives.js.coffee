@@ -87,6 +87,7 @@ ce2_directives.directive('ceConversation', ->
       #$scope.newComment =
       #  text: "This is a test comment #{ Date() }"
 
+      $scope.comment_attachments = []
       $scope.addComment = ->
         CommentData.persist_change_to_ror 'save', $scope.newComment,
           angular.bind $scope, -> this.newComment = {}
@@ -97,8 +98,49 @@ ce2_directives.directive('ceConversation', ->
 
       $scope.clear_form = ->
         $scope.newComment = {id: null, text: null}
+
+      $scope.toggle_attachment_form = ->
+        #console.log "toggle_attachment_form"
+        if $scope.template_url
+          $scope.toggle_attachment_label = "Show attachment form"
+          $scope.template_url = null
+          $scope.attachment_iframe_url = null
+        else
+          $scope.toggle_attachment_label = "Hide attachment form"
+          $scope.template_url = '/assets/angular-views/attachment_form.html'
+          $scope.timestamp = new Date().getTime()
+      $scope.toggle_attachment_label = "Show attachment form"
+      $scope.template_url = null
+
+      $scope.attachment_iframe_url = null
+      $scope.upload_attachment = ->
+        event.preventDefault() if event
+        #console.log "Upload the attachment now"
+        $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
+
+      $scope.iframe_directive_loaded = ->
+        #console.log "iframe directive is loaded, submit the form"
+        attach_form.submit()
+
+      window.iframe_loaded = (el) ->
+        # have access to $scope here
+        #console.log "window.iframe_loaded, get the contents"
+        content = el.contentDocument.body.innerText
+        if content
+          #console.log "add this data to scope: #{content}"
+          $scope.comment_attachments.push angular.fromJson( content )
+          $scope.toggle_attachment_form()
+          $scope.$apply()
+
       $scope.test = ->
         console.log "Clicked test link"
 
   ]
+)
+
+ce2_directives.directive('ceCsrf', ->
+  restrict: 'A'
+  replace: false
+  transclude: true
+  templateUrl: '/assets/angular-views/csrf-form-inputs.html.haml'
 )
