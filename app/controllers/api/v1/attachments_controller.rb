@@ -15,11 +15,10 @@ module Api
       end
 
       def create
-        logger.debug "Create an attachment"
         params[:attachment][:user_id] = current_user.id
-        com = Comment.last
-        respond_with com.attachments.create(params[:attachment])
-        #respond_with Attachment.create(params[:attachment])
+        params[:attachment][:attachable_id] = 0
+        params[:attachment][:attachable_type] = 'Undefined'
+        respond_with Attachment.create(params[:attachment])
       end
 
 

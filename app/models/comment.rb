@@ -6,6 +6,8 @@ class Comment < ActiveRecord::Base
     CommentSerializer
   end
 
+  attr_accessor :attachment_ids
+
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at]
 
@@ -16,12 +18,19 @@ class Comment < ActiveRecord::Base
 
   has_many :attachments, :as => :attachable
 
-  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references
+  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references, :attachment_ids
 
   before_update :increment_comment_version
+  after_save :associate_attachments
 
   def increment_comment_version
     self.version += 1
+  end
+
+  def associate_attachments
+    # associate the attachment records to this comment if attachment is owned by user and is not associated to another record
+    return unless attachment_ids
+    attachments << Attachment.where(user_id: user_id, attachable_id: 0, attachable_type: 'Undefined', id: attachment_ids.scan(/\d+/).map(&:to_i) )
   end
 
   validates :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :presence => true

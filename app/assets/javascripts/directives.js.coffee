@@ -87,7 +87,7 @@ ce2_directives.directive('ceConversation', ->
       #$scope.newComment =
       #  text: "This is a test comment #{ Date() }"
 
-      $scope.comment_attachments = []
+      $scope.newComment = { attachments: [] }
       $scope.addComment = ->
         CommentData.persist_change_to_ror 'save', $scope.newComment,
           angular.bind $scope, -> this.newComment = {}
@@ -97,7 +97,7 @@ ce2_directives.directive('ceConversation', ->
         $scope.history = CommentData.history(comment_id)
 
       $scope.clear_form = ->
-        $scope.newComment = {id: null, text: null}
+        $scope.newComment = { attachments: [] }
 
       $scope.toggle_attachment_form = ->
         #console.log "toggle_attachment_form"
@@ -128,7 +128,8 @@ ce2_directives.directive('ceConversation', ->
         content = el.contentDocument.body.innerText
         if content
           #console.log "add this data to scope: #{content}"
-          $scope.comment_attachments.push angular.fromJson( content )
+          $scope.newComment.attachments.push angular.fromJson( content )
+          $scope.newComment.attachment_ids = (att.id for att in $scope.newComment.attachments).join(', ')
           $scope.toggle_attachment_form()
           $scope.$apply()
 
