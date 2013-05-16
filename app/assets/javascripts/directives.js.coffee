@@ -89,6 +89,9 @@ ce2_directives.directive('ceConversation', ->
 
       $scope.newComment = { attachments: [] }
       $scope.addComment = ->
+        if $scope.template_url
+          alert 'You must save your attachment or close the attachment form'
+          return
         CommentData.persist_change_to_ror 'save', $scope.newComment,
           angular.bind $scope, -> this.newComment = {}
       $scope.edit = (comment_id) ->
@@ -107,15 +110,19 @@ ce2_directives.directive('ceConversation', ->
           $scope.attachment_iframe_url = null
         else
           $scope.toggle_attachment_label = "Hide attachment form"
-          $scope.template_url = '/assets/angular-views/attachment_form.html'
           $scope.timestamp = new Date().getTime()
+          $scope.template_url = "/assets/angular-views/attachment_form.html?t=#{$scope.timestamp}"
+
       $scope.toggle_attachment_label = "Show attachment form"
       $scope.template_url = null
 
       $scope.attachment_iframe_url = null
       $scope.upload_attachment = ->
-        event.preventDefault() if event
-        #console.log "Upload the attachment now"
+        if (event.preventDefault)
+          event.preventDefault()
+        else
+          event.returnValue = false # ie
+        #console.log "Attach the iframe for submitting the file upload"
         $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
 
       $scope.iframe_directive_loaded = ->
@@ -143,5 +150,62 @@ ce2_directives.directive('ceCsrf', ->
   restrict: 'A'
   replace: false
   transclude: true
-  templateUrl: '/assets/angular-views/csrf-form-inputs.html.haml'
+  templateUrl: "/assets/angular-views/csrf-form-inputs.html?t=#{new Date().getTime()}"
+)
+
+
+ce2_directives.directive('ceRatingSlider', ->
+  controller: [ "$scope", ($scope) ->
+    $scope.rating = 50
+  ]
+  link: (scope, element, attrs) ->
+    element = element
+    bar = element.find('span')
+    
+    # Scope/DOM elements that are not initialized out of game.
+    width = offset = null
+
+    mouseDown = false;
+
+    element.bind "mousedown", (evt) ->
+      mouseDown = true
+      if not width
+        padding = 20
+        width = _.widthCE(element[0]) - padding # 704 # element.width()
+        console.log "width: #{width}"  
+      if not offset
+        offset = _.offset(bar).left
+      calculate_position(evt)
+
+    #element.bind('mousemove', _.throttle(_pd( (evt) ->
+    #  return if not mouseDown
+    #  calculate_position(evt)
+    #),
+    #25))
+
+    element.bind('mousemove', (evt) ->
+      return if not mouseDown
+      calculate_position(evt)
+    )
+
+    element.bind "mouseup", (event) ->
+      mouseDown = false
+
+    calculate_position = (evt) ->
+      if evt.pageX
+        diff = evt.pageX - offset
+      else if evt.clientX
+        diff = evt.clientX - offset
+      else
+        diff = evt.originalEvent.touches[0].pageX - offset
+
+      if diff < 0
+        scope.rating = 0
+      else if diff > width
+        scope.rating = 100
+      else
+        scope.rating = Math.round( diff / width * 100 )
+
+      bar.css( { width: "#{scope.rating}%"})
+      scope.$apply()
 )

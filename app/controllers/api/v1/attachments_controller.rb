@@ -18,7 +18,12 @@ module Api
         params[:attachment][:user_id] = current_user.id
         params[:attachment][:attachable_id] = 0
         params[:attachment][:attachable_type] = 'Undefined'
-        respond_with Attachment.create(params[:attachment])
+
+        if env['HTTP_ACCEPT'].match(/json/)
+          respond_with Attachment.create(params[:attachment])
+        else
+          respond_with Attachment.create(params[:attachment]), :content_type=>'text/plain'
+        end
       end
 
 

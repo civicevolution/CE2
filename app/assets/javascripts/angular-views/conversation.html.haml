@@ -1,6 +1,12 @@
 %div.conversation
   %h3 {{question}}
 
+  %h4 Rating slider
+  %div(ce-user-bar)
+  Rating: {{ rating }}
+  %div.slider(ce-rating-slider)
+    %span{style: "width: 50%;"}
+
   %div.summary
     %h4 Summary
     %div(ng-repeat="comment in SummaryComments" )
@@ -42,7 +48,7 @@
 
   %a(ng-click="test()")
     Test
-  %h3 History
+
   %div.history
     %div(ng-repeat="diff in history" )
       %p

@@ -11,6 +11,8 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 
+//= require polyfills
+
 //= require angular-1.1.4/angular
 //= require angular-1.1.4/angular-resource
 //= require angular-1.1.4/angular-ui-states

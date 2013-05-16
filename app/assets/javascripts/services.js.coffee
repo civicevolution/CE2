@@ -109,7 +109,8 @@ services.factory "FirebaseUpdateRec", [ "$timeout", ($timeout) ->
     #console.log "FirebaseUpdateRec for #{data.class}"
     # The item arrays for updating are based on the class of the item
     # Only apply updates newer than the page load time
-    if (new Date(data.data.updated_at).getTime() / 1000 ) - _timestamp > 0
+    update_all = false
+    if update_all || (Date.fromISO(data.data.updated_at).getTime() / 1000 ) - _timestamp > 0
       item_array = service["#{data.class}_array"]
       if not item_array
         # The item arrays are defined after the data has been received from RoR

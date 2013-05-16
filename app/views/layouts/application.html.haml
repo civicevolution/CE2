@@ -1,29 +1,31 @@
 !!!
 %html(xmlns:ng="http://angularjs.org")
-	%head
-		%meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
-			%title= content_for?(:title) ? yield(:title) : "Ce2"
-			%meta{:content => content_for?(:description) ? yield(:description) : "Ce2", :name => "description"}
-				= stylesheet_link_tag "application", :media => "all"
-				= csrf_meta_tags
-				= yield(:head)
-	%body{:class => "#{controller_name} #{action_name}"}
-		-#.navbar.navbar-fixed-top
-			%nav.navbar-inner
-				.container
-					= render 'layouts/navigation'
-		#main{:role => "main"}
-			.container
-				.content
-					.row
-						.span12
-							%div(ce-user-bar)
-							= render 'layouts/messages'
-							= yield
-					%footer
-			/ ! end of .container
-		/ ! end of #main
-		
-		= javascript_include_tag "application"
-		:javascript
-			var _timestamp = #{Time.new.to_i}
+  %head
+    %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
+      %title= content_for?(:title) ? yield(:title) : "Ce2"
+      %meta{:content => content_for?(:description) ? yield(:description) : "Ce2", :name => "description"}
+        = stylesheet_link_tag "application", :media => "all"
+        = csrf_meta_tags
+        = yield(:head)
+      /[if lt IE 9]
+        <script src="/assets/jquery.js"></script>
+  %body{:class => "#{controller_name} #{action_name}"}
+    -#.navbar.navbar-fixed-top
+      %nav.navbar-inner
+        .container
+          = render 'layouts/navigation'
+    #main{:role => "main"}
+      .container
+        .content
+          .row
+            .span12
+              %div(ce-user-bar)
+              = render 'layouts/messages'
+              = yield
+          %footer
+      / ! end of .container
+    / ! end of #main
+    
+    = javascript_include_tag "application"
+    :javascript
+      var _timestamp = #{Time.new.to_i}
