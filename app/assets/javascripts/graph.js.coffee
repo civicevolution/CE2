@@ -56,15 +56,36 @@ class Graph
   draw_curve: (ctx, ptsa, tension, isClosed, numOfSegments, showPoints = false) ->
     ctx.beginPath();
 
-    #this.draw_lines(ctx, get_curve_points(ptsa, tension, isClosed, numOfSegments));
-    this.draw_lines(ctx,this.get_curve_points(ptsa, tension, isClosed, numOfSegments))
+    symmetrical = true
+    if symmetrical
+      set_of_coords = this.get_curve_coords_one_side(ptsa, tension, isClosed, numOfSegments)
 
-    if showPoints
+      pos_coords = []
+      for coord, index in set_of_coords
+        pos_coords.push( if index % 2 is 0 then coord else coord/2)
+
+      half_height = ctx.canvas.height
+      neg_coords = []
+      for coord, index in set_of_coords
+        neg_coords.push( if index % 2 is 0 then coord else half_height - coord/2)
+
+      reverse_neg_coords = []
+      for i in [neg_coords.length-2...-2] by -2
+        console.log "i: #{i}"
+        reverse_neg_coords.push neg_coords[i]
+        reverse_neg_coords.push neg_coords[i+1]
+      
+      this.draw_lines_symmetrical_and_close(ctx,pos_coords,reverse_neg_coords)
+
+    else
+      set_of_coords = this.get_curve_coords_one_side(ptsa, tension, isClosed, numOfSegments)
+      this.draw_lines_one_side_and_close(ctx,set_of_coords)
+      if showPoints
+        ctx.stroke()
+        ctx.beginPath()
+        for pts_item, index in ptsa when index % 2 is 0
+          ctx.rect(ptsa[index] - 2, ptsa[index+1] - 2, 4, 4)
       ctx.stroke()
-      ctx.beginPath()
-      for pts_item, index in ptsa when index % 2 is 0
-        ctx.rect(ptsa[index] - 2, ptsa[index+1] - 2, 4, 4)
-    ctx.stroke()
 
 
 
@@ -81,7 +102,7 @@ class Graph
   #
   #	NOTE: array must contain a minimum set of two points.
 
-  draw_lines: (ctx, pts) ->
+  draw_lines_one_side_and_close: (ctx, pts) ->
     ctx.moveTo(0,ctx.canvas.height)
     ctx.lineTo(pts[0], pts[1])
     #ctx.moveTo(0, 0)
@@ -92,7 +113,23 @@ class Graph
     ctx.lineTo(0,ctx.canvas.height)
     ctx.fill()
 
-  get_curve_points: (ptsa, tension = 0.5, isClosed = false, numOfSegments = 16) ->
+  draw_lines_symmetrical_and_close: (ctx, pos_coords, neg_coords) ->
+    ctx.moveTo(pos_coords[0], pos_coords[1])
+    for pts_item, index in pos_coords when index > 1 and index % 2 is 0
+      #console.log "lineTo x: "  + pts[index] + ", y: " + pts[index+1]
+      ctx.lineTo(pos_coords[index], pos_coords[index+1]);
+
+    ctx.lineTo(neg_coords[0], neg_coords[1])
+
+    for pts_item, index in neg_coords when index > 1 and index % 2 is 0
+      #console.log "lineTo x: "  + pts[index] + ", y: " + pts[index+1]
+      ctx.lineTo(neg_coords[index], neg_coords[index+1]);
+
+    ctx.lineTo(pos_coords[0], pos_coords[1])
+
+    ctx.fill()
+
+  get_curve_coords_one_side: (ptsa, tension = 0.5, isClosed = false, numOfSegments = 16) ->
     # _pts = [], res = [],	# clone array and result
     # x, y,					# our x,y coords
     # t1x, t2x, t1y, t2y,		# tension vectors
@@ -157,8 +194,8 @@ class Graph
         y = c1 * _pts[i+1]	+ c2 * _pts[i+3] + c3 * t1y + c4 * t2y;
 
         #store points in array
-        res.push(x);
-        res.push(y);
-    return res;
+        res.push(x)
+        res.push(y)
+    return res
 
 window.Graph = Graph
