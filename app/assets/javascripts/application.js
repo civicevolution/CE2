@@ -25,6 +25,11 @@
 //= require filters.js
 //= require services.js
 
+//= require graph.js
+
+//= require utilities.js
+//= require utilities_temp.js
+
 //= require ng-upload.js
 
 // Don't use these for now
