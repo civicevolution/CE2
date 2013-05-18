@@ -71,7 +71,6 @@ class Graph
 
       reverse_neg_coords = []
       for i in [neg_coords.length-2...-2] by -2
-        console.log "i: #{i}"
         reverse_neg_coords.push neg_coords[i]
         reverse_neg_coords.push neg_coords[i+1]
       

@@ -87,17 +87,17 @@ ce2_directives.directive('ceConversation', ->
       #$scope.newComment =
       #  text: "This is a test comment #{ Date() }"
 
-      $scope.newComment = { attachments: [] }
+      $scope.newComment = { text: 'text set in ceConversation', attachments: [] }
       $scope.addComment = ->
         if $scope.template_url
           alert 'You must save your attachment or close the attachment form'
           return
         CommentData.persist_change_to_ror 'save', $scope.newComment,
           angular.bind $scope, -> this.newComment = {}
-      $scope.edit = (comment_id) ->
-        $scope.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
-      $scope.view_history = (comment_id) ->
-        $scope.history = CommentData.history(comment_id)
+      #$scope.edit = (comment_id) ->
+      #  $scope.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
+      #$scope.view_history = (comment_id) ->
+      #  $scope.history = CommentData.history(comment_id)
 
       $scope.clear_form = ->
         $scope.newComment = { attachments: [] }
@@ -145,6 +145,109 @@ ce2_directives.directive('ceConversation', ->
 
   ]
 )
+ce2_directives.directive('ceComment', ->
+  restrict: 'A'
+  templateUrl: '/assets/angular-views/comment.html.haml'
+  replace: true
+  scope: false
+  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
+    ($scope, CommentData, $dialog, $http, $timeout, $element) ->
+      #CommentData.conversation(1).then (response) ->
+      #  # when the promise is fulfilled, set the arrays to $scope for display
+      #  # and set the arrays as properties on the service for they can be updated
+      #  # by firebase updates and still be bound to the view for this directive
+      #  $scope.SummaryComments = CommentData.SummaryComment_array = response.summary_comments
+      #  $scope.ConversationComments = CommentData.ConversationComment_array = response.conversation_comments
+      #  $scope.question = CommentData.question = response.question
+      ##$scope.newComment =
+      ##  text: "This is a test comment #{ Date() }"
+
+      #$scope.newComment = { attachments: [] }
+      #$scope.addComment = ->
+      #  if $scope.template_url
+      #    alert 'You must save your attachment or close the attachment form'
+      #    return
+      #  CommentData.persist_change_to_ror 'save', $scope.newComment,
+      #    angular.bind $scope, -> this.newComment = {}
+      $scope.edit = (comment_id) ->
+        console.log "edit comment"
+        $scope.$parent.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
+      $scope.view_history = (comment_id) ->
+        $scope.history = CommentData.history(comment_id)
+        $scope.history_url = "/assets/angular-views/comment-history.html?t=#{$scope.timestamp}"
+
+      $scope.hide_history = ->
+        $scope.history_url = null
+
+      $scope.clear_form = ->
+        $scope.newComment = { attachments: [] }
+
+      $scope.rating_results_url = "/assets/angular-views/rating-results.html?t=#{$scope.timestamp}"
+      $scope.rating_slider_url = "/assets/angular-views/rating-slider.html?t=#{$scope.timestamp}"
+
+      $scope.toggle_attachment_form = ->
+        #console.log "toggle_attachment_form"
+        if $scope.template_url
+          $scope.toggle_attachment_label = "Show attachment form"
+          $scope.template_url = null
+          $scope.attachment_iframe_url = null
+        else
+          $scope.toggle_attachment_label = "Hide attachment form"
+          $scope.timestamp = new Date().getTime()
+          $scope.template_url = "/assets/angular-views/attachment_form.html?t=#{$scope.timestamp}"
+
+      $scope.toggle_attachment_label = "Show attachment form"
+      $scope.template_url = null
+
+      $scope.rating_call_to_action = "Show rating results"
+      $scope.toggle_rating = () ->
+        console.log "toggle rating"
+        if $scope.rating_call_to_action.match(/results/)
+          $scope.rating_results_url = "/assets/angular-views/rating-results.html?t=#{$scope.timestamp}"
+          $scope.rating_slider_url = null
+          $scope.rating_call_to_action = "Show rating slider"
+          # build this canvas
+          canvas = document.getElementById('tutorial')
+          ctx = canvas.getContext('2d')
+          grapher = new window.Graph();
+          vote_counts = [12, 5, 8, 9, 17, 28, 42, 49, 16, 29];
+          grapher.draw_rating_results(ctx, vote_counts);
+
+        else
+          $scope.rating_results_url = null
+          $scope.rating_slider_url = "/assets/angular-views/rating-slider.html?t=#{$scope.timestamp}"
+          $scope.rating_call_to_action = "Show rating results"
+
+
+      $scope.attachment_iframe_url = null
+      $scope.upload_attachment = ->
+        if (event.preventDefault)
+          event.preventDefault()
+        else
+          event.returnValue = false # ie
+        #console.log "Attach the iframe for submitting the file upload"
+        $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
+
+      $scope.iframe_directive_loaded = ->
+        #console.log "iframe directive is loaded, submit the form"
+        attach_form.submit()
+
+      window.iframe_loaded = (el) ->
+        # have access to $scope here
+        #console.log "window.iframe_loaded, get the contents"
+        content = el.contentDocument.body.innerText
+        if content
+          #console.log "add this data to scope: #{content}"
+          $scope.newComment.attachments.push angular.fromJson( content )
+          $scope.newComment.attachment_ids = (att.id for att in $scope.newComment.attachments).join(', ')
+          $scope.toggle_attachment_form()
+          $scope.$apply()
+
+      $scope.test = ->
+        console.log "Clicked Comment test link"
+
+  ]
+)
 
 ce2_directives.directive('ceCsrf', ->
   restrict: 'A'
@@ -155,26 +258,47 @@ ce2_directives.directive('ceCsrf', ->
 
 
 ce2_directives.directive('ceRatingSlider', ->
+  restrict: 'A'
+  replace: true
+  templateUrl: "/assets/angular-views/rating-slider.html?t=#{new Date().getTime()}"
   controller: [ "$scope", ($scope) ->
     $scope.rating = 50
   ]
   link: (scope, element, attrs) ->
-    element = element
+    ctx = element.find('canvas')[0].getContext('2d');
+    lineargradient = ctx.createLinearGradient(20,0,270,0);
+    lineargradient.addColorStop(0,'#FF0000');
+    lineargradient.addColorStop(0.5,'#FFFF00');
+    lineargradient.addColorStop(1,'#00FF00');
+    ctx.fillStyle = lineargradient;
+    ctx.strokeStyle = lineargradient;
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(4,10);
+    ctx.lineTo(346,10);
+    ctx.stroke();
+
+    handle = element.find('div')
+    canvas = element.find('canvas')
+
+    #element = handle
     bar = element.find('span')
     
     # Scope/DOM elements that are not initialized out of game.
     width = offset = null
+    handle_width = 10
 
     mouseDown = false;
 
-    element.bind "mousedown", (evt) ->
+    canvas.bind "mousedown", (evt) ->
       mouseDown = true
       if not width
         padding = 20
-        width = _.widthCE(element[0]) - padding # 704 # element.width()
+        width = 350 - handle_width # _.widthCE(element[0]) - padding # 704 # element.width()
         console.log "width: #{width}"  
       if not offset
-        offset = _.offset(bar).left
+        offset = 160 #_.offset(bar).left
       calculate_position(evt)
 
     #element.bind('mousemove', _.throttle(_pd( (evt) ->
@@ -183,13 +307,18 @@ ce2_directives.directive('ceRatingSlider', ->
     #),
     #25))
 
-    element.bind('mousemove', (evt) ->
+    canvas.bind('mousemove', (evt) ->
       return if not mouseDown
       calculate_position(evt)
     )
 
-    element.bind "mouseup", (event) ->
+    canvas.bind "mouseup", (event) ->
       mouseDown = false
+
+    element.bind "mouseenter", (event) ->
+      mouseDown = false
+    #  console.log "mouseleave"
+
 
     calculate_position = (evt) ->
       if evt.pageX
@@ -206,6 +335,26 @@ ce2_directives.directive('ceRatingSlider', ->
       else
         scope.rating = Math.round( diff / width * 100 )
 
-      bar.css( { width: "#{scope.rating}%"})
+      #bar.css( { width: "#{scope.rating}%"})
+      #handle.css( 'left', "#{scope.rating}%" )
+      handle.css( 'margin-left', "#{diff-5}px" )
+      console.log "diff: #{diff}, scope.rating: #{scope.rating}%"
       scope.$apply()
+)
+
+ce2_directives.directive('ceRatingResults', ->
+  restrict: 'A'
+  replace: true
+  templateUrl: "/assets/angular-views/rating-results-canvas.html?t=#{new Date().getTime()}"
+  controller: [ "$scope", ($scope) ->
+    $scope.rating = 50
+  ]
+  link: (scope, element, attrs) ->
+    ctx = element.find('canvas')[0].getContext('2d');
+    grapher = new window.Graph();
+
+    #vote_counts = [12, 5, 8, 9, 17, 28, 42, 49, 16, 29];
+    grapher.draw_rating_results(ctx, scope.comment.vote_counts);
+
+
 )

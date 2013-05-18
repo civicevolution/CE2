@@ -1,12 +1,6 @@
 %div.conversation
   %h3 {{question}}
 
-  %h4 Rating slider
-  %div(ce-user-bar)
-  Rating: {{ rating }}
-  %div.slider(ce-rating-slider)
-    %span{style: "width: 50%;"}
-
   %div.summary
     %h4 Summary
     %div(ng-repeat="comment in SummaryComments" )
@@ -17,13 +11,8 @@
   %div.conversation
     %h4 Conversation
     %div(ng-repeat="comment in ConversationComments" )
-      %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
-      %a(ng-click="edit({{comment.id}})")
-        Edit
-      %span(ng-show="comment.version>1")
-        Version {{comment.version}}
-        %a(ng-click="view_history({{comment.id}})")
-          View history
+      %div(ce-comment)
+
 
     %form.convo(ng-submit="addComment()")
       %textarea(ng-model="newComment.text"){:placeholder => "Enter your comment..."}

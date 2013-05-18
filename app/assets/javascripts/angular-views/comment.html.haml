@@ -1,0 +1,16 @@
+%div.comment
+  %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
+  %a(ng-click="edit({{comment.id}})")
+    Edit
+  %span(ng-show="comment.version>1")
+    Version {{comment.version}}
+    %a(ng-click="view_history({{comment.id}})")
+      View history
+  %p
+    %a(ng-click="toggle_rating()")
+      {{rating_call_to_action}}
+  %div(ce-rating-slider)
+  %div(ce-rating-results)
+  %div(ng-include src="history_url")
+  %a(ng-click="test()")
+    Com Test

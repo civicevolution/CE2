@@ -1,0 +1,10 @@
+%div.history
+  -#%h4 History
+  %p
+    %a(ng-click="hide_history()")
+      Hide history
+  %div(ng-repeat="diff in history" )
+    %p
+      Version {{diff.version}}:
+      %span(ng-bind-html-unsafe="diff.html_diff")
+    %p Created: {{diff.created_at}}
