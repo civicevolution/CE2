@@ -7,7 +7,8 @@ console.log "loading graph.js.coffee"
 #
 
 class Graph
-  draw_rating_results: (ctx, vote_counts) ->
+  draw_rating_results: (ctx, vote_counts, my_rating) ->
+    console.log "Graph.draw_rating_results"
     ctx.clearRect( 0, 0, 350, 150 )
     lineargradient = ctx.createLinearGradient(0,0,350,0);
     lineargradient.addColorStop(0,'#FF0000');
@@ -15,6 +16,17 @@ class Graph
     lineargradient.addColorStop(1,'#00FF00');
     ctx.fillStyle = lineargradient;
     ctx.strokeStyle = lineargradient;
+
+    ctx.lineWidth = if my_rating then 4 else 18
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(4,75);
+    ctx.lineTo(346,75);
+    ctx.stroke();
+
+    return if not my_rating
+
+    ctx.beginPath();
     ctx.lineWidth = 3
 
     width = 350

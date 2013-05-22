@@ -183,13 +183,6 @@ ce2_directives.directive('ceComment', ->
       $scope.clear_form = ->
         $scope.newComment = { attachments: [] }
 
-      if $scope.comment.my_rating
-        $scope.rating_results_url = "/assets/angular-views/rating-results-directive.html?t=#{$scope.timestamp}"
-        $scope.rating_slider_url = null
-      else
-        $scope.rating_results_url = null
-        $scope.rating_slider_url = "/assets/angular-views/rating-slider-directive.html?t=#{$scope.timestamp}"
-
       $scope.toggle_attachment_form = ->
         #console.log "toggle_attachment_form"
         if $scope.template_url
@@ -203,26 +196,6 @@ ce2_directives.directive('ceComment', ->
 
       $scope.toggle_attachment_label = "Show attachment form"
       $scope.template_url = null
-
-      $scope.rating_call_to_action = "Show rating results"
-      $scope.toggle_rating = () ->
-        console.log "toggle rating"
-        if $scope.rating_call_to_action.match(/results/)
-          $scope.rating_results_url = "/assets/angular-views/rating-results.html?t=#{$scope.timestamp}"
-          $scope.rating_slider_url = null
-          $scope.rating_call_to_action = "Show rating slider"
-          # build this canvas
-          canvas = document.getElementById('tutorial')
-          ctx = canvas.getContext('2d')
-          grapher = new window.Graph();
-          vote_counts = [12, 5, 8, 9, 17, 28, 42, 49, 16, 29];
-          grapher.draw_rating_results(ctx, vote_counts);
-
-        else
-          $scope.rating_results_url = null
-          $scope.rating_slider_url = "/assets/angular-views/rating-slider.html?t=#{$scope.timestamp}"
-          $scope.rating_call_to_action = "Show rating results"
-
 
       $scope.attachment_iframe_url = null
       $scope.upload_attachment = ->
@@ -273,28 +246,16 @@ ce2_directives.directive('ceRatingSlider', ->
       #console.log "scope.persist_rating call on CommentData id: #{$scope.comment.id} with rating: #{$scope.rating}"
       CommentData.persist_rating_to_ror($scope.comment.id, $scope.comment.my_rating).then (response) ->
         $scope.comment.ratings_cache = response.data
-        if $scope.rating_slider_url
-          $scope.$parent.rating_results_url = "/assets/angular-views/rating-results-directive.html?t=#{$scope.timestamp}"
-          $scope.rating_slider_url = null
-          $scope.$parent.rating_slider_url = null
-
   ]
 
   link: (scope, element, attrs) ->
     #console.log "link function to draw rating slider with scope: #{scope.$id} and comment.id: #{scope.comment.id}"
-    ctx = element.find('canvas')[0].getContext('2d');
-    lineargradient = ctx.createLinearGradient(0,0,350,0);
-    lineargradient.addColorStop(0,'#FF0000');
-    lineargradient.addColorStop(0.5,'#FFFF00');
-    lineargradient.addColorStop(1,'#00FF00');
-    ctx.fillStyle = lineargradient;
-    ctx.strokeStyle = lineargradient;
-    ctx.lineWidth = 10;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(4,10);
-    ctx.lineTo(346,10);
-    ctx.stroke();
+
+    scope.$watch('comment.ratings_cache', (oldValue, newValue) ->
+      ctx = element.find('canvas')[0].getContext('2d');
+      grapher = new window.Graph();
+      grapher.draw_rating_results(ctx, scope.comment.ratings_cache, scope.comment.my_rating);
+    , true)
 
     mouse_out_box = element
     canvas = mouse_out_box.find('canvas')
@@ -372,17 +333,3 @@ ce2_directives.directive('ceRatingSlider', ->
 
 )
 
-ce2_directives.directive('ceRatingResults', ->
-  restrict: 'A'
-  replace: true
-  scope: false
-  templateUrl: "/assets/angular-views/rating-results-canvas.html?t=#{new Date().getTime()}"
-  link: (scope, element, attrs) ->
-    #console.log "link function to draw results canvas with scope: #{scope.$id} and comment.id: #{scope.comment.id}"
-    scope.$watch('comment.ratings_cache', (oldValue, newValue) ->
-      ctx = element.find('canvas')[0].getContext('2d');
-      grapher = new window.Graph();
-      grapher.draw_rating_results(ctx, scope.comment.ratings_cache);
-    , true)
-
-)

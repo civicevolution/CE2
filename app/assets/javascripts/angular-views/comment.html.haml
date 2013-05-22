@@ -7,11 +7,8 @@
     Version {{comment.version}}
     %a(ng-click="view_history({{comment.id}})")
       View history
-  %p
-    %a(ng-click="toggle_rating()")
-      {{rating_call_to_action}}
-  %div(ng-include src="rating_results_url")
-  %div(ng-include src="rating_slider_url")``
+
+  %div(ce-rating-slider)
 
   %div(ng-include src="history_url")
   %a(ng-click="test()")
