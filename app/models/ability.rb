@@ -13,6 +13,7 @@ class Ability
       can :create, Comment
       can :destroy, Comment
       can :history, Comment
+      can :rate, Comment
 
       can :manage, Attachment
 

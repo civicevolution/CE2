@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130512174137) do
+ActiveRecord::Schema.define(version: 20130520210638) do
 
   create_table "attachments", force: true do |t|
     t.integer  "attachable_id",                           null: false
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 20130512174137) do
     t.string   "references"
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
+    t.integer  "ratings_cache",                                array: true
   end
 
   add_index "comments", ["conversation_id"], name: "index_comments_on_conversation_id", using: :btree
@@ -93,6 +94,14 @@ ActiveRecord::Schema.define(version: 20130512174137) do
     t.string   "purpose"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
+  end
+
+  create_table "ratings", force: true do |t|
+    t.integer "ratable_id",   null: false
+    t.string  "ratable_type", null: false
+    t.integer "version",      null: false
+    t.integer "user_id",      null: false
+    t.integer "rating",       null: false
   end
 
   create_table "roles", force: true do |t|

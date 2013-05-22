@@ -1,4 +1,5 @@
 %div.comment
+  -#%p scope id: {{$id}}
   %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
   %a(ng-click="edit({{comment.id}})")
     Edit

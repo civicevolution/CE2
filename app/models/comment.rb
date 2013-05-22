@@ -1,36 +1,45 @@
 require 'differ'
 class Comment < ActiveRecord::Base
-  include Modules::FirebaseConnect
+  #include Modules::FirebaseConnect
 
   def active_model_serializer
     CommentSerializer
   end
 
-  attr_accessor :attachment_ids
+  attr_accessor :attachment_ids, :my_rating
 
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
-                  skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at]
+                  skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
 
 
-  belongs_to :author, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id', :select => 'id, first_name, last_name' #, photo_file_name'
+  belongs_to :author,  -> { select :id, :first_name, :last_name}, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id'  #, photo_file_name'
 
   belongs_to :conversation
 
   has_many :attachments, :as => :attachable
 
+  has_many :ratings, :as => :ratable
+
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references, :attachment_ids
 
   before_update :increment_comment_version
   after_save :associate_attachments
+  before_create :initialize_ratings_cache_to_zeros
 
   def increment_comment_version
     self.version += 1
+    true
   end
 
   def associate_attachments
     # associate the attachment records to this comment if attachment is owned by user and is not associated to another record
     return unless attachment_ids
     attachments << Attachment.where(user_id: user_id, attachable_id: 0, attachable_type: 'Undefined', id: attachment_ids.scan(/\d+/).map(&:to_i) )
+  end
+
+  def initialize_ratings_cache_to_zeros
+    self.ratings_cache = [0,0,0,0,0,0,0,0,0,0]
+    true
   end
 
   validates :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :presence => true

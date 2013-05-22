@@ -178,6 +178,7 @@ ce2_directives.directive('ceComment', ->
 
       $scope.hide_history = ->
         $scope.history_url = null
+        delete $scope.history
 
       $scope.clear_form = ->
         $scope.newComment = { attachments: [] }
@@ -245,6 +246,7 @@ ce2_directives.directive('ceComment', ->
 
       $scope.test = ->
         console.log "Clicked Comment test link"
+        debugger
 
   ]
 )
@@ -260,13 +262,19 @@ ce2_directives.directive('ceCsrf', ->
 ce2_directives.directive('ceRatingSlider', ->
   restrict: 'A'
   replace: true
+  scope: false
   templateUrl: "/assets/angular-views/rating-slider.html?t=#{new Date().getTime()}"
-  controller: [ "$scope", ($scope) ->
-    $scope.rating = 50
+  controller: [ "$scope", "CommentData", ($scope, CommentData) ->
+    $scope.persist_rating = ->
+      #console.log "scope.persist_rating call on CommentData id: #{$scope.comment.id} with rating: #{$scope.rating}"
+      CommentData.persist_rating_to_ror($scope.comment.id, $scope.comment.my_rating).then (response) ->
+        $scope.comment.ratings_cache = response.data
   ]
+
   link: (scope, element, attrs) ->
+    #console.log "link function to draw rating slider with scope: #{scope.$id} and comment.id: #{scope.comment.id}"
     ctx = element.find('canvas')[0].getContext('2d');
-    lineargradient = ctx.createLinearGradient(20,0,270,0);
+    lineargradient = ctx.createLinearGradient(0,0,350,0);
     lineargradient.addColorStop(0,'#FF0000');
     lineargradient.addColorStop(0.5,'#FFFF00');
     lineargradient.addColorStop(1,'#00FF00');
@@ -279,46 +287,49 @@ ce2_directives.directive('ceRatingSlider', ->
     ctx.lineTo(346,10);
     ctx.stroke();
 
-    handle = element.find('div')
-    canvas = element.find('canvas')
+    mouse_out_box = element
+    canvas = mouse_out_box.find('canvas')
+    mouse_binding_box = canvas.parent()
+    handle = mouse_binding_box.find('div')
+    handle.css( 'left', "#{scope.comment.my_rating/100*350-5}px" )
 
-    #element = handle
-    bar = element.find('span')
-    
-    # Scope/DOM elements that are not initialized out of game.
     width = offset = null
     handle_width = 10
 
     mouseDown = false;
 
-    canvas.bind "mousedown", (evt) ->
+    mouse_binding_box.bind "mousedown", (evt) ->
       mouseDown = true
       if not width
         padding = 20
         width = 350 - handle_width # _.widthCE(element[0]) - padding # 704 # element.width()
-        console.log "width: #{width}"  
+        #console.log "width: #{width}"
       if not offset
         offset = 160 #_.offset(bar).left
       calculate_position(evt)
 
+    # TODO throttle the calls made by mouse move
     #element.bind('mousemove', _.throttle(_pd( (evt) ->
     #  return if not mouseDown
     #  calculate_position(evt)
     #),
     #25))
 
-    canvas.bind('mousemove', (evt) ->
+    mouse_binding_box.bind('mousemove', (evt) ->
       return if not mouseDown
       calculate_position(evt)
     )
 
-    canvas.bind "mouseup", (event) ->
+    mouse_binding_box.bind "mouseup", (event) ->
       mouseDown = false
+      persist_rating_now()
 
-    element.bind "mouseenter", (event) ->
-      mouseDown = false
-    #  console.log "mouseleave"
-
+    # catch mouse leaving rating while still down which keeps rating still active
+    mouse_out_box.bind "mouseout", (event) ->
+      if event.toElement == element[0]
+        if mouseDown
+          mouseDown = false
+          persist_rating_now()
 
     calculate_position = (evt) ->
       if evt.pageX
@@ -329,32 +340,38 @@ ce2_directives.directive('ceRatingSlider', ->
         diff = evt.originalEvent.touches[0].pageX - offset
 
       if diff < 0
-        scope.rating = 0
+        diff = 0 if diff < 0
+        scope.comment.my_rating = 0
       else if diff > width
-        scope.rating = 100
+        diff = width + 12 if diff > width + 12
+        scope.comment.my_rating = 100
       else
-        scope.rating = Math.round( diff / width * 100 )
+        scope.comment.my_rating = Math.round( diff / width * 100 )
 
-      #bar.css( { width: "#{scope.rating}%"})
-      #handle.css( 'left', "#{scope.rating}%" )
-      handle.css( 'margin-left', "#{diff-5}px" )
-      console.log "diff: #{diff}, scope.rating: #{scope.rating}%"
+      handle.css( 'left', "#{diff-5}px" )
+      #console.log "diff: #{diff}, scope.rating: #{scope.rating}%"
       scope.$apply()
+
+    persist_rating_now = ->
+      #console.log "persist rating now with scope: #{scope.$id}"
+      scope.$apply( ->
+        scope.persist_rating()
+      )
+
+
 )
 
 ce2_directives.directive('ceRatingResults', ->
   restrict: 'A'
   replace: true
+  scope: false
   templateUrl: "/assets/angular-views/rating-results-canvas.html?t=#{new Date().getTime()}"
-  controller: [ "$scope", ($scope) ->
-    $scope.rating = 50
-  ]
   link: (scope, element, attrs) ->
-    ctx = element.find('canvas')[0].getContext('2d');
-    grapher = new window.Graph();
-
-    #vote_counts = [12, 5, 8, 9, 17, 28, 42, 49, 16, 29];
-    grapher.draw_rating_results(ctx, scope.comment.vote_counts);
-
+    #console.log "link function to draw results canvas with scope: #{scope.$id} and comment.id: #{scope.comment.id}"
+    scope.$watch('comment.ratings_cache', (oldValue, newValue) ->
+      ctx = element.find('canvas')[0].getContext('2d');
+      grapher = new window.Graph();
+      grapher.draw_rating_results(ctx, scope.comment.ratings_cache);
+    , true)
 
 )

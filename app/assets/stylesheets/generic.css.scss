@@ -69,20 +69,52 @@ div.attachment_form
 
 //canvas { border: 1px solid black; }
 
+//div.rating-slider{
+//  position: relative;
+//  width: 350px;
+//  height: 30px;
+//  //border: 1px solid black;
+//  div.handle {
+//    width: 12px;
+//    height: 30px;
+//    margin-left: 50%;
+//    background: image-url('slider-pointer.png') no-repeat 0 0
+//  }
+//  canvas{
+//    position: absolute;
+//    top: 5px;
+//    left: 0%;
+//  }
+//}
+
+
 div.rating-slider{
-  position: relative;
-  width: 350px;
-  height: 30px;
-  //border: 1px solid black;
-  div.handle {
-    width: 12px;
-    height: 30px;
-    margin-left: 50%;
-    background: image-url('slider-pointer.png') no-repeat 0 0
+  cursor: pointer;
+  cursor: pointer;
+  width: 360px;
+  padding: 2px;
+
+  div.mouse-binding-box{
+    position: relative;
+    //border: 1px solid red;
+    width: 350px;
+    padding-left: 10px;
+    padding-right: 10px;
+    canvas{
+      margin-top: 6px;
+    }
+    div.handle {
+      width: 12px;
+      height: 30px;
+      position: absolute;
+      top: 0px;
+      left: 50%;
+      background-color: black;
+    }
   }
+}
+div.results{
   canvas{
-    position: absolute;
-    top: 5px;
-    left: 0%;
+    margin-left: 12px;
   }
 }

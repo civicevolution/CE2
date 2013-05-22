@@ -16,7 +16,10 @@ module Api
       end
 
       def show
-        respond_with Conversation.find(params[:id])#, :root => false
+        conversation = Conversation.includes(:comments).find(params[:id])
+        my_ratings = Rating.where( user_id: current_user.id, ratable_id: conversation.comments.map(&:id), ratable_type: 'Comment').inject({}){|hash, r| hash[r.ratable_id] = r.rating ; hash }
+        conversation.comments.each{|com| com.my_rating = my_ratings[com.id]}
+        respond_with conversation
       end
 
       def create

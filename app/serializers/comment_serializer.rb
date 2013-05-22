@@ -1,12 +1,7 @@
 class CommentSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :version, :vote_counts
-
-  def vote_counts
-    # [12, 5, 8, 9, 17, 28, 42, 9, 6, 39]
-    (1...30).to_a.sample 10
-  end
+  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :version, :ratings_cache, :my_rating, :number_of_votes
 
   def url
     api_comment_url(object)
@@ -18,6 +13,10 @@ class CommentSerializer < ActiveModel::Serializer
 
   def last_name
     object.author.last_name
+  end
+
+  def number_of_votes
+    object.ratings_cache.inject{|sum,x| sum + x }
   end
 
 end

@@ -34,6 +34,14 @@ module Api
         logger.debug "Show the history"
       end
 
+      def rate
+        @comment = Comment.find(params[:comment_id])
+        rating = @comment.ratings.where(user_id: current_user.id).first_or_initialize
+        rating.rating = params[:rating]
+        rating.save
+        respond_with Comment.find(params[:comment_id]).ratings_cache
+      end
+
     end
 
   end

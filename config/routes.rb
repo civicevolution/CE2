@@ -50,6 +50,8 @@ Ce2::Application.routes.draw do
   get "issues/:issue_id" => "issues#show", constraints: {issue_id: /\d+/}
   get "issues/:munged_title" => "issues#show", constraints: {munged_title: /[\w&-]+/}
 
+  match "comments/:comment_id/rate/:rating" => "api/v1/comments#rate", constraints: {comment_id: /\d+/, rating: /\d+/}, via: [:post, :get], format: :json
+
   get "conversation/index"
 
   #authenticated :user do

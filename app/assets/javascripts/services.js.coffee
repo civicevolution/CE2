@@ -100,6 +100,11 @@ services.factory "CommentData", ["$log", "$http", "Comment", "FirebaseUpdateRec"
             source: "#{action}Comment"
           }
         , err_func
+
+    persist_rating_to_ror: (comment_id, rating) ->
+      #console.log "send rating to RoR id: #{comment_id} with rating #{rating}"
+      $http.post("/comments/#{comment_id}/rate/#{rating}.json")
+
 ]
 
 
