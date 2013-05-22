@@ -10,8 +10,9 @@
   %p
     %a(ng-click="toggle_rating()")
       {{rating_call_to_action}}
-  %div(ce-rating-slider)
-  %div(ce-rating-results)
+  %div(ng-include src="rating_results_url")
+  %div(ng-include src="rating_slider_url")``
+
   %div(ng-include src="history_url")
   %a(ng-click="test()")
     Com Test

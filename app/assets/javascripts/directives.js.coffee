@@ -183,8 +183,12 @@ ce2_directives.directive('ceComment', ->
       $scope.clear_form = ->
         $scope.newComment = { attachments: [] }
 
-      $scope.rating_results_url = "/assets/angular-views/rating-results.html?t=#{$scope.timestamp}"
-      $scope.rating_slider_url = "/assets/angular-views/rating-slider.html?t=#{$scope.timestamp}"
+      if $scope.comment.my_rating
+        $scope.rating_results_url = "/assets/angular-views/rating-results-directive.html?t=#{$scope.timestamp}"
+        $scope.rating_slider_url = null
+      else
+        $scope.rating_results_url = null
+        $scope.rating_slider_url = "/assets/angular-views/rating-slider-directive.html?t=#{$scope.timestamp}"
 
       $scope.toggle_attachment_form = ->
         #console.log "toggle_attachment_form"
@@ -269,6 +273,11 @@ ce2_directives.directive('ceRatingSlider', ->
       #console.log "scope.persist_rating call on CommentData id: #{$scope.comment.id} with rating: #{$scope.rating}"
       CommentData.persist_rating_to_ror($scope.comment.id, $scope.comment.my_rating).then (response) ->
         $scope.comment.ratings_cache = response.data
+        if $scope.rating_slider_url
+          $scope.$parent.rating_results_url = "/assets/angular-views/rating-results-directive.html?t=#{$scope.timestamp}"
+          $scope.rating_slider_url = null
+          $scope.$parent.rating_slider_url = null
+
   ]
 
   link: (scope, element, attrs) ->
@@ -291,8 +300,10 @@ ce2_directives.directive('ceRatingSlider', ->
     canvas = mouse_out_box.find('canvas')
     mouse_binding_box = canvas.parent()
     handle = mouse_binding_box.find('div')
-    handle.css( 'left', "#{scope.comment.my_rating/100*350-5}px" )
-
+    if scope.comment.my_rating
+      handle.css( 'left', "#{scope.comment.my_rating/100*350-5}px" )
+    else
+      handle.css( 'left', "#{50/100*350-5}px" )
     width = offset = null
     handle_width = 10
 
