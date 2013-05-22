@@ -24,7 +24,12 @@ class Graph
     ctx.lineTo(346,75);
     ctx.stroke();
 
-    return if not my_rating
+    if not my_rating
+      ctx.fillStyle = "white";
+      ctx.font = "italic 16px Arial";
+      ctx.fillText("Disagree", 4, 80);
+      ctx.fillText("Agree", 302, 80);
+      return
 
     ctx.beginPath();
     ctx.lineWidth = 3
