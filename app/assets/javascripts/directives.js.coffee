@@ -143,48 +143,38 @@ ce2_directives.directive('ceAttachmentForm', ->
   controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
     ($scope, CommentData, $dialog, $http, $timeout, $element) ->
 
-      #debug = true
-
-      $scope.attachment_iframe_url = null
-
-      $scope.theFile = {name:'new file'}
-      $scope.cancel_attachment = ->
-        console.log "Cancel and close the attachment v1"
+      debug = false
 
       $scope.file_selected = (element) ->
-        console.log "A file was selected" #if debug # in element.files[], # element.files.length > 0, send file
-        #if element.files.length > 0
-        #  console.log "Attach the iframe for submitting the file upload" if debug
-        #  $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
-
-
-      $scope.upload_attachment = ->
-        if (event.preventDefault)
-          event.preventDefault()
-        else
-          event.returnValue = false # ie
-        #console.log "Attach the iframe for submitting the file upload"
-        $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
+        console.log "A file was selected" if debug # in element.files[], # element.files.length > 0, send file
+        if element.files.length > 0
+          console.log "Attach the iframe for submitting the file upload" if debug
+          $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
+          $scope.$apply()
+          console.log "iframe_url has been set" if debug
 
       $scope.iframe_directive_loaded = ->
-        console.log "iframe directive is loaded, submit the form" #if debug
+        console.log "iframe directive is loaded, submit the form" if debug
         attach_form.submit()
 
       window.iframe_loaded = (el) ->
         # have access to $scope here
-        #console.log "window.iframe_loaded, get the contents"
+        console.log "window.iframe_loaded, get the contents" if debug
         content = el.contentDocument.body.innerText
         if content
-          #console.log "add this data to scope: #{content}"
+          console.log "add this data to scope: #{content}" if debug
           $scope.newComment.attachments.push angular.fromJson( content )
           $scope.newComment.attachment_ids = (att.id for att in $scope.newComment.attachments).join(', ')
-          $scope.toggle_attachment_form()
+          $scope.attachment_iframe_url = null
+          # find and clear the file input
+          $el = angular.element(el).parent()
+          $el = while $el.find('form').length == 0
+            $el = $el.parent()
+          inputs = $el[0].find('form').find('input')
+          input for input in inputs when input.type == 'file'
+          input.value = null
+
           $scope.$apply()
-
-      $scope.test = ->
-        console.log "Clicked Comment test link"
-        debugger
-
   ]
 )
 

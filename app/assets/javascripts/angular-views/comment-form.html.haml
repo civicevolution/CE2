@@ -1,6 +1,6 @@
 %div.comment-form
   %p
-    %i comment form from directive
+    -#%i comment form from directive scope id: {{$id}}
   %form.convo(ng-submit="addComment()")
     %textarea(ng-model="newComment.text"){:placeholder => "Enter your comment..."}
     %input(ng-model="newComment.attachment_ids"){type: 'hidden'}
