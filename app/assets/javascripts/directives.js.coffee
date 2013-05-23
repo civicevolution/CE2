@@ -84,65 +84,6 @@ ce2_directives.directive('ceConversation', ->
         $scope.SummaryComments = CommentData.SummaryComment_array = response.summary_comments
         $scope.ConversationComments = CommentData.ConversationComment_array = response.conversation_comments
         $scope.question = CommentData.question = response.question
-      #$scope.newComment =
-      #  text: "This is a test comment #{ Date() }"
-
-      $scope.newComment = { text: 'text set in ceConversation', attachments: [] }
-      $scope.addComment = ->
-        if $scope.template_url
-          alert 'You must save your attachment or close the attachment form'
-          return
-        CommentData.persist_change_to_ror 'save', $scope.newComment,
-          angular.bind $scope, -> this.newComment = {}
-      #$scope.edit = (comment_id) ->
-      #  $scope.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
-      #$scope.view_history = (comment_id) ->
-      #  $scope.history = CommentData.history(comment_id)
-
-      $scope.clear_form = ->
-        $scope.newComment = { attachments: [] }
-
-      $scope.toggle_attachment_form = ->
-        #console.log "toggle_attachment_form"
-        if $scope.template_url
-          $scope.toggle_attachment_label = "Show attachment form"
-          $scope.template_url = null
-          $scope.attachment_iframe_url = null
-        else
-          $scope.toggle_attachment_label = "Hide attachment form"
-          $scope.timestamp = new Date().getTime()
-          $scope.template_url = "/assets/angular-views/attachment_form.html?t=#{$scope.timestamp}"
-
-      $scope.toggle_attachment_label = "Show attachment form"
-      $scope.template_url = null
-
-      $scope.attachment_iframe_url = null
-      $scope.upload_attachment = ->
-        if (event.preventDefault)
-          event.preventDefault()
-        else
-          event.returnValue = false # ie
-        #console.log "Attach the iframe for submitting the file upload"
-        $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
-
-      $scope.iframe_directive_loaded = ->
-        #console.log "iframe directive is loaded, submit the form"
-        attach_form.submit()
-
-      window.iframe_loaded = (el) ->
-        # have access to $scope here
-        #console.log "window.iframe_loaded, get the contents"
-        content = el.contentDocument.body.innerText
-        if content
-          #console.log "add this data to scope: #{content}"
-          $scope.newComment.attachments.push angular.fromJson( content )
-          $scope.newComment.attachment_ids = (att.id for att in $scope.newComment.attachments).join(', ')
-          $scope.toggle_attachment_form()
-          $scope.$apply()
-
-      $scope.test = ->
-        console.log "Clicked test link"
-
   ]
 )
 ce2_directives.directive('ceComment', ->
@@ -152,23 +93,7 @@ ce2_directives.directive('ceComment', ->
   scope: false
   controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
     ($scope, CommentData, $dialog, $http, $timeout, $element) ->
-      #CommentData.conversation(1).then (response) ->
-      #  # when the promise is fulfilled, set the arrays to $scope for display
-      #  # and set the arrays as properties on the service for they can be updated
-      #  # by firebase updates and still be bound to the view for this directive
-      #  $scope.SummaryComments = CommentData.SummaryComment_array = response.summary_comments
-      #  $scope.ConversationComments = CommentData.ConversationComment_array = response.conversation_comments
-      #  $scope.question = CommentData.question = response.question
-      ##$scope.newComment =
-      ##  text: "This is a test comment #{ Date() }"
 
-      #$scope.newComment = { attachments: [] }
-      #$scope.addComment = ->
-      #  if $scope.template_url
-      #    alert 'You must save your attachment or close the attachment form'
-      #    return
-      #  CommentData.persist_change_to_ror 'save', $scope.newComment,
-      #    angular.bind $scope, -> this.newComment = {}
       $scope.edit = (comment_id) ->
         console.log "edit comment"
         $scope.$parent.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
@@ -180,24 +105,59 @@ ce2_directives.directive('ceComment', ->
         $scope.history_url = null
         delete $scope.history
 
+      $scope.test = ->
+        console.log "Clicked Comment test link"
+        debugger
+
+  ]
+)
+
+ce2_directives.directive('ceCommentForm', ->
+  restrict: 'A'
+  templateUrl: '/assets/angular-views/comment-form.html.haml'
+  replace: true
+  scope: false
+  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
+    ($scope, CommentData, $dialog, $http, $timeout, $element) ->
+
+      $scope.newComment = { text: 'text set in ceCommentForm', attachments: [] }
+      $scope.addComment = ->
+        console.log "addComment"
+        if $scope.template_url
+          alert 'You must save your attachment or close the attachment form'
+          return
+        CommentData.persist_change_to_ror 'save', $scope.newComment,
+          angular.bind $scope, -> this.newComment = {}
+
       $scope.clear_form = ->
         $scope.newComment = { attachments: [] }
 
-      $scope.toggle_attachment_form = ->
-        #console.log "toggle_attachment_form"
-        if $scope.template_url
-          $scope.toggle_attachment_label = "Show attachment form"
-          $scope.template_url = null
-          $scope.attachment_iframe_url = null
-        else
-          $scope.toggle_attachment_label = "Hide attachment form"
-          $scope.timestamp = new Date().getTime()
-          $scope.template_url = "/assets/angular-views/attachment_form.html?t=#{$scope.timestamp}"
+  ]
+)
 
-      $scope.toggle_attachment_label = "Show attachment form"
-      $scope.template_url = null
+ce2_directives.directive('ceAttachmentForm', ->
+  restrict: 'A'
+  templateUrl: '/assets/angular-views/attachment_form.html.haml'
+  replace: true
+  scope: false
+  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
+    ($scope, CommentData, $dialog, $http, $timeout, $element) ->
+
+      #debug = true
 
       $scope.attachment_iframe_url = null
+
+      $scope.theFile = {name:'new file'}
+      $scope.cancel_attachment = ->
+        console.log "Cancel and close the attachment v1"
+
+      $scope.file_selected = (element) ->
+        console.log "A file was selected" #if debug # in element.files[], # element.files.length > 0, send file
+        #if element.files.length > 0
+        #  console.log "Attach the iframe for submitting the file upload" if debug
+        #  $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
+
+
       $scope.upload_attachment = ->
         if (event.preventDefault)
           event.preventDefault()
@@ -207,7 +167,7 @@ ce2_directives.directive('ceComment', ->
         $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
 
       $scope.iframe_directive_loaded = ->
-        #console.log "iframe directive is loaded, submit the form"
+        console.log "iframe directive is loaded, submit the form" #if debug
         attach_form.submit()
 
       window.iframe_loaded = (el) ->
