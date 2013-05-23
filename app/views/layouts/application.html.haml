@@ -2,14 +2,14 @@
 %html(xmlns:ng="http://angularjs.org")
   %head
     %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
-      %title= content_for?(:title) ? yield(:title) : "Ce2"
-      %meta{:content => content_for?(:description) ? yield(:description) : "Ce2", :name => "description"}
-        = stylesheet_link_tag "application", :media => "all"
-        = csrf_meta_tags
-        = yield(:head)
-      /[if lt IE 9]
-        <script src="/assets/jquery.js"></script>
-        <script src="/assets/excanvas.js"></script>
+    %title= content_for?(:title) ? yield(:title) : "Ce2"
+    %meta{:content => content_for?(:description) ? yield(:description) : "Ce2", :name => "description"}
+    = stylesheet_link_tag "application", :media => "all"
+    = csrf_meta_tags
+    = yield(:head)
+    /[if lt IE 9]
+      <script src="/assets/jquery.js"></script>
+      <script src="/assets/excanvas.js"></script>
   %body{:class => "#{controller_name} #{action_name}"}
     -#.navbar.navbar-fixed-top
       %nav.navbar-inner

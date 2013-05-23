@@ -261,6 +261,7 @@ ce2_directives.directive('ceRatingSlider', ->
     canvas = mouse_out_box.find('canvas')
     mouse_binding_box = canvas.parent()
     handle = mouse_binding_box.find('div')
+    debug = false
     if scope.comment.my_rating
       handle.css( 'left', "#{scope.comment.my_rating/100*350-5}px" )
     else
@@ -274,10 +275,11 @@ ce2_directives.directive('ceRatingSlider', ->
       mouseDown = true
       if not width
         padding = 20
-        width = 350 - handle_width # _.widthCE(element[0]) - padding # 704 # element.width()
-        #console.log "width: #{width}"
+        width = _.width(mouse_binding_box[0]) - padding
+        console.log "width: #{width}" if debug
       if not offset
-        offset = 160 #_.offset(bar).left
+        offset = _.offset(mouse_binding_box[0]).left
+        console.log "offset: #{offset}" if debug
       calculate_position(evt)
 
     # TODO throttle the calls made by mouse move
@@ -304,24 +306,26 @@ ce2_directives.directive('ceRatingSlider', ->
           persist_rating_now()
 
     calculate_position = (evt) ->
-      if evt.pageX
-        diff = evt.pageX - offset
+      pageX = if evt.pageX
+        evt.pageX
       else if evt.clientX
-        diff = evt.clientX - offset
+        evt.clientX
       else
-        diff = evt.originalEvent.touches[0].pageX - offset
+        evt.originalEvent.touches[0].pageX
 
-      if diff < 0
+      diff = pageX - offset
+
+      scope.comment.my_rating = if diff < 0
         diff = 0 if diff < 0
-        scope.comment.my_rating = 0
+        0
       else if diff > width
         diff = width + 12 if diff > width + 12
-        scope.comment.my_rating = 100
+        100
       else
-        scope.comment.my_rating = Math.round( diff / width * 100 )
+        Math.round( diff / width * 100 )
 
       handle.css( 'left', "#{diff-5}px" )
-      #console.log "diff: #{diff}, scope.rating: #{scope.rating}%"
+      console.log "pageX: #{pageX}, diff: #{diff}, scope.rating: #{scope.comment.my_rating}%" if debug
       scope.$apply()
 
     persist_rating_now = ->

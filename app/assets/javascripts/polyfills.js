@@ -49,7 +49,7 @@ _.throttle = function(func, wait, immediate) {
 // In rating I need to know the offset and width of the rating bar
 _.offset = function(elm) {
     try {return elm.offset();} catch(e) {}
-    var rawDom = elm[0];
+    var rawDom = elm[0] || elm;
     var _x = 0;
     var _y = 0;
     var body = document.documentElement || document.body;
@@ -61,7 +61,7 @@ _.offset = function(elm) {
 }
 
 // In rating I need to know the offset and width of the rating bar
-_.widthCE = function(elm) {
+_.width = function(elm) {
     if (typeof elm.clip !== "undefined") {
         return elm.clip.width;
     } else {

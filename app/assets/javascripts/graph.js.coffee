@@ -8,7 +8,7 @@ console.log "loading graph.js.coffee"
 
 class Graph
   draw_rating_results: (ctx, vote_counts, my_rating) ->
-    console.log "Graph.draw_rating_results"
+    #console.log "Graph.draw_rating_results"
     width = 350
     height = 40
 
