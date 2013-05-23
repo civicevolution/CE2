@@ -90,34 +90,46 @@ div.attachment_form
 $rating_width: 350px;
 $rating_height: 40px;
 $rating_handle_height: 18px;
+.clr{
+  clear: both;
+}
+div.rating{
+  div.rating-slider{
+    cursor: pointer;
+    float: left;
+    width: $rating_width + 15;
+    padding: 2px;
+    //border: 1px solid green;
 
-div.rating-slider{
-  cursor: pointer;
-  cursor: pointer;
-  width: $rating_width + 25;
-  padding: 2px;
-  //border: 1px solid green;
-
-  div.mouse-binding-box{
-    position: relative;
-    //border: 1px solid red;
-    width: $rating_width;
-    padding-left: 10px;
-    padding-right: 10px;
-    div.handle {
-      width: $rating_handle_height;
-      height: $rating_handle_height;
-      position: absolute;
-      top: $rating_height/2 - $rating_handle_height/2;
-      left: 50%;
-      //background-color: black;
-      background: image-url('slider-star-pointer.png') no-repeat 0 0
+    div.mouse-binding-box{
+      position: relative;
+      //border: 1px solid red;
+      width: $rating_width;
+      padding-left: 10px;
+      padding-right: 10px;
+      div.handle {
+        width: $rating_handle_height;
+        height: $rating_handle_height;
+        position: absolute;
+        top: $rating_height/2 - $rating_handle_height/2;
+        left: 50%;
+        //background-color: black;
+        background: image-url('slider-star-pointer.png') no-repeat 0 0
+      }
     }
   }
-}
-div.results{
-  canvas{
-    margin-left: 12px;
-
+  .vote_count{
+    float: left;
+    margin-top: 4px;
+    margin-left: 8px;
+    div.count{
+      font-weight: bold;
+      font-size: 1.4em;
+    }
+    div.lbl{
+      font-weight: normal;
+      font-size: 1em;
+    }
   }
+
 }
