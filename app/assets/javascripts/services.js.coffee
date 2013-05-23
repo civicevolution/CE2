@@ -133,10 +133,13 @@ services.factory "FirebaseUpdateRec", [ "$timeout", ($timeout) ->
         new_rec = data.data
         for rec, index in item_array
           if rec.id == new_rec.id
-            item_array[index] = new_rec
+            item_array[index][prop] = new_rec[prop] for prop of new_rec when not prop.match(/^\$/)
             new_rec = null
             break
-        item_array.push new_rec if new_rec
+        if new_rec
+          new_obj = {}
+          new_obj[prop] = new_rec[prop] for prop of new_rec when not prop.match(/^\$/)
+          item_array.push new_obj
 ]
 
 # The models are updated from internal posts and external updates the same way

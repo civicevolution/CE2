@@ -1,6 +1,6 @@
 require 'differ'
 class Comment < ActiveRecord::Base
-  #include Modules::FirebaseConnect
+  include Modules::FirebaseConnect
 
   def active_model_serializer
     CommentSerializer
@@ -22,12 +22,17 @@ class Comment < ActiveRecord::Base
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references, :attachment_ids
 
+  after_initialize :read_previous_text_on_init
   before_update :increment_comment_version
   after_save :associate_attachments
   before_create :initialize_ratings_cache_to_zeros
 
+  def read_previous_text_on_init
+    @text = text
+  end
+
   def increment_comment_version
-    self.version += 1
+    self.version += 1 if text != @text
     true
   end
 

@@ -7,6 +7,25 @@ describe Comment do
     expect(comment).to be_valid
   end
 
+  it "should not increment version if text doesn't change" do
+    subject.save
+    version_number = subject.version
+    id = subject.id
+    new_comment = Comment.find(id)
+    new_comment.save
+    expect(new_comment.version).to eq(version_number)
+  end
+
+  it "should increment version if text changes" do
+    subject.save
+    version_number = subject.version
+    id = subject.id
+    new_comment = Comment.find(id)
+    new_comment.text = 'next version'
+    expect { new_comment.save }.to change { new_comment.version }.to(version_number+1)
+  end
+
+
   it {should validate_presence_of (:user_id) }
   it {should validate_presence_of (:conversation_id) }
   it {should validate_presence_of (:text) }
