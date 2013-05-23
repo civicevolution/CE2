@@ -87,30 +87,28 @@ div.attachment_form
 //  }
 //}
 
+$rating_width: 350px;
+$rating_height: 40px;
+$rating_handle_height: 18px;
 
 div.rating-slider{
   cursor: pointer;
   cursor: pointer;
-  width: 375px;
+  width: $rating_width + 25;
   padding: 2px;
   //border: 1px solid green;
 
   div.mouse-binding-box{
     position: relative;
     //border: 1px solid red;
-    width: 350px;
+    width: $rating_width;
     padding-left: 10px;
     padding-right: 10px;
-
-
-    canvas{
-      //margin-top: 6px;
-    }
     div.handle {
-      width: 18px;
-      height: 18px;
+      width: $rating_handle_height;
+      height: $rating_handle_height;
       position: absolute;
-      top: 66px;
+      top: $rating_height/2 - $rating_handle_height/2;
       left: 50%;
       //background-color: black;
       background: image-url('slider-star-pointer.png') no-repeat 0 0

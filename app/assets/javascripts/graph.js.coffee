@@ -9,8 +9,13 @@ console.log "loading graph.js.coffee"
 class Graph
   draw_rating_results: (ctx, vote_counts, my_rating) ->
     console.log "Graph.draw_rating_results"
-    ctx.clearRect( 0, 0, 350, 150 )
-    lineargradient = ctx.createLinearGradient(0,0,350,0);
+    width = 350
+    height = 40
+
+    ctx.width = width
+    ctx.height = height
+    ctx.clearRect( 0, 0, width, height )
+    lineargradient = ctx.createLinearGradient(0,0,width,0);
     lineargradient.addColorStop(0,'#FF0000');
     lineargradient.addColorStop(0.5,'#FFFF00');
     lineargradient.addColorStop(1,'#00FF00');
@@ -20,22 +25,22 @@ class Graph
     ctx.lineWidth = if my_rating then 4 else 18
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(4,75);
-    ctx.lineTo(346,75);
+    ctx.moveTo(4,height/2);
+    ctx.lineTo(width-4,height/2);
     ctx.stroke();
 
     if not my_rating
       ctx.fillStyle = "white";
       ctx.font = "italic 16px Arial";
-      ctx.fillText("Disagree", 4, 80);
-      ctx.fillText("Agree", 302, 80);
+      ctx.textBaseline = "middle"
+      ctx.fillText("Disagree", 4, height/2);
+      ctx.textAlign = "right"
+      ctx.fillText("Agree", width-4, height/2);
       return
 
     ctx.beginPath();
     ctx.lineWidth = 3
 
-    width = 350
-    height = 150
     int_width = width/(vote_counts.length - 1)
     vote_scaler = (height - 10) / (Math.max vote_counts...)
     vote_coords = []
@@ -43,8 +48,6 @@ class Graph
       vote_coords.push i * int_width
       vote_coords.push height - vote * vote_scaler
 
-
-    #vote_counts = [10, 2, 20, 5, 30, 8, 40,  9, 50, 17, 60, 28, 70, 42, 80, 49, 90, 16, 100, 29];
     this.draw_curve(ctx, vote_coords,.5, true, 10, false);
 
 
