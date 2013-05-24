@@ -127,7 +127,7 @@ ce2_directives.directive('ceCommentForm', ->
           alert 'You must save your attachment or close the attachment form'
           return
         CommentData.persist_change_to_ror 'save', $scope.newComment,
-          angular.bind $scope, -> this.newComment = {}
+          angular.bind $scope, -> this.newComment = { attachments: [] }
 
       $scope.clear_form = ->
         $scope.newComment = { attachments: [] }

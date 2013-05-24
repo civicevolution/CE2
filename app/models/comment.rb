@@ -23,12 +23,17 @@ class Comment < ActiveRecord::Base
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references, :attachment_ids
 
   after_initialize :read_previous_text_on_init
+  before_save :check_for_associations_and_postpone_firebase_send
   before_update :increment_comment_version
   after_save :associate_attachments
   before_create :initialize_ratings_cache_to_zeros
 
   def read_previous_text_on_init
     @text = text
+  end
+
+  def check_for_associations_and_postpone_firebase_send
+    @_cancel_firebase_send = true if attachment_ids
   end
 
   def increment_comment_version
@@ -40,6 +45,8 @@ class Comment < ActiveRecord::Base
     # associate the attachment records to this comment if attachment is owned by user and is not associated to another record
     return unless attachment_ids
     attachments << Attachment.where(user_id: user_id, attachable_id: 0, attachable_type: 'Undefined', id: attachment_ids.scan(/\d+/).map(&:to_i) )
+    @_cancel_firebase_send = false
+    send_to_firebase
   end
 
   def initialize_ratings_cache_to_zeros
@@ -109,7 +116,7 @@ class Comment < ActiveRecord::Base
   protected
   def as_json_for_firebase( action = "create" )
     #data = as_json root: false, except: [:user_id]
-    data = CommentSerializer.new( self )
+    data = CommentSerializer.new( self ).as_json
     { class: self.class.to_s, action: action, data: data, source: "RoR-Firebase" }
   end
 

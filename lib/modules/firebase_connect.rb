@@ -2,21 +2,18 @@ module Modules
   module FirebaseConnect
     extend ActiveSupport::Concern
 
-    attr_accessor :_is_new_record
-
     included do
-      before_create { self._is_new_record = true }
+      before_create { @_is_new_record = true }
       after_save :send_to_firebase
       after_destroy :send_to_firebase
     end
 
 
     def send_to_firebase
-      #debugger
-      #Firebase.auth = "LHp51r7znXmO09dACFIz4TLPp7zbrdMHPtVkHua2"
-      action = _is_new_record ? "create" : destroyed? ? "delete" : "update"
+      return if @_cancel_firebase_send
+      action = @_is_new_record ? "create" : destroyed? ? "delete" : "update"
       Firebase.base_uri = 'https://civicevolution.firebaseio.com/issues/7/updates'
-      response = Firebase.push '', self.as_json_for_firebase( action )
+      Firebase.push '', self.as_json_for_firebase( action )
     end
 
     # override as_json_for_firebase in the model as needed
