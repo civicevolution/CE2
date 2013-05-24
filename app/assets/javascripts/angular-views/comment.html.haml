@@ -8,6 +8,14 @@
     %a(ng-click="view_history({{comment.id}})")
       View history
 
+  %div.attachments
+    %div(ng-repeat="attachment in comment.attachments" )
+      %div.attachment
+        %p
+          %img(ng-src="{{attachment.icon_url}}")
+          %a(ng-href="{{attachment.url}}"){target: "_blank"}
+            {{attachment.attachment_file_name}}
+
   %div(ce-rating-slider)
 
   %div.clr(ng-include src="history_url")

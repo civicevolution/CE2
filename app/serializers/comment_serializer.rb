@@ -3,6 +3,8 @@ class CommentSerializer < ActiveModel::Serializer
 
   attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :version, :ratings_cache, :my_rating, :number_of_votes
 
+  has_many :attachments
+
   def url
     api_comment_url(object)
   end

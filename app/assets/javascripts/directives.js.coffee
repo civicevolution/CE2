@@ -88,7 +88,7 @@ ce2_directives.directive('ceConversation', ->
 )
 ce2_directives.directive('ceComment', ->
   restrict: 'A'
-  templateUrl: '/assets/angular-views/comment.html.haml'
+  templateUrl: "/assets/angular-views/comment.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: false
   controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
@@ -114,13 +114,13 @@ ce2_directives.directive('ceComment', ->
 
 ce2_directives.directive('ceCommentForm', ->
   restrict: 'A'
-  templateUrl: '/assets/angular-views/comment-form.html.haml'
+  templateUrl: "/assets/angular-views/comment-form.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: false
   controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
     ($scope, CommentData, $dialog, $http, $timeout, $element) ->
 
-      $scope.newComment = { text: 'text set in ceCommentForm', attachments: [] }
+      $scope.newComment = { attachments: [] }
       $scope.addComment = ->
         console.log "addComment"
         if $scope.template_url
