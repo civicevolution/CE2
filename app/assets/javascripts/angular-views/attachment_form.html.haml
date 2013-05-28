@@ -1,6 +1,0 @@
-%div.attachment_form
-  -#%p att scope id: {{$id}}
-  %form.attachment(ce-csrf){name: 'attach_form', action: '/api/attachments?t={{timestamp}}', target: "upload_iframe", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}
-    %input(type="file" onchange="angular.element(this).scope().file_selected(this)"){type: 'file', name: 'attachment[attachment]', id: "attachment_attachment"}
-
-  %div(ng-include src="attachment_iframe_url" onload="iframe_directive_loaded()")

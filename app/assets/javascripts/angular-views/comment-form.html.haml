@@ -1,17 +1,28 @@
 %div.comment-form
-  %p
-    -#%i comment form from directive scope id: {{$id}}
-  %form.convo(ng-submit="addComment()")
+  -#%p
+    %i comment form from directive scope id: {{$id}}
+  %div.edit-menu
+    %div.attachment_form
+      %form.attachment(ce-csrf){name: 'attach_form', action: '/api/attachments?t={{timestamp}}', target: "attachment_upload_iframe_1", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}
+        %input(type="file" onchange="angular.element(this).scope().file_selected(this)"){type: 'file', name: 'attachment[attachment]', id: "attachment_attachment"}
+      %div.iframe_placeholder
+    %div.progress-bar {{progress_bar_message}}
+
+
+
+
+  %form.convo.clear(ng-submit="addComment()"){name: 'comment_form'}
     %textarea(ng-model="newComment.text"){:placeholder => "Enter your comment..."}
-    %input(ng-model="newComment.attachment_ids"){type: 'hidden'}
+    %input(ng-model="newComment.attachment_ids"){type: 'text'}
     %div(ng-repeat="att in newComment.attachments" )
       %p {{att.attachment_file_name}}
 
     %input(ng-model="newComment.id"){type: 'hidden', value: 'Add'}
 
     %p
-      %input{type: 'submit', value: 'Add'}
+      %input(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
       %a(ng-click="clear_form()")
         Clear
 
-  %div(ce-attachment-form)
+
+

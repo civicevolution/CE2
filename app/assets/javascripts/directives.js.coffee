@@ -120,6 +120,8 @@ ce2_directives.directive('ceCommentForm', ->
   controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
     ($scope, CommentData, $dialog, $http, $timeout, $element) ->
 
+      debug = false
+
       $scope.newComment = { attachments: [] }
       $scope.addComment = ->
         console.log "addComment"
@@ -132,48 +134,44 @@ ce2_directives.directive('ceCommentForm', ->
       $scope.clear_form = ->
         $scope.newComment = { attachments: [] }
 
-  ]
-)
-
-ce2_directives.directive('ceAttachmentForm', ->
-  restrict: 'A'
-  templateUrl: '/assets/angular-views/attachment_form.html.haml'
-  replace: true
-  scope: false
-  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
-    ($scope, CommentData, $dialog, $http, $timeout, $element) ->
-
-      debug = false
-
       $scope.file_selected = (element) ->
-        console.log "A file was selected" if debug # in element.files[], # element.files.length > 0, send file
         if element.files.length > 0
-          console.log "Attach the iframe for submitting the file upload" if debug
-          $scope.attachment_iframe_url = '/assets/angular-views/attachment_iframe.html'
+          file_name = element.files[0].name
+          console.log "loading file: #{file_name}"
+          $scope.progress_bar_message = "Loading #{file_name}"
+
+          console.log "ceCommentForm: a file is selected, add iframe" if debug
+          $scope.$root.attachment_frame_id = 1 if not $scope.$root.attachment_frame_id
+          $scope.$root.attachment_frame_id += 1
+          target = "attachment_upload_iframe_#{$scope.$root.attachment_frame_id}"
+          form = angular.element(element.form)
+          form.attr('target', target)
+          form.next().replaceWith(
+            "<iframe id='#{target}' name='#{target}' onload='angular.element(this).scope().iframe_loaded(this)'></iframe>" )
+
           $scope.$apply()
-          console.log "iframe_url has been set" if debug
 
-      $scope.iframe_directive_loaded = ->
-        console.log "iframe directive is loaded, submit the form" if debug
-        attach_form.submit()
+      $scope.iframe_loaded = (el) ->
+            # have access to $scope here
+        console.log "ceCommentForm: window.iframe_loaded, get the contents" if debug
 
-      window.iframe_loaded = (el) ->
-        # have access to $scope here
-        console.log "window.iframe_loaded, get the contents" if debug
+        if not $scope.form_disabled
+          console.log "ceCommentForm: a iframe is ready, submit the form" if debug
+          $scope.form_disabled = true
+          attach_form.submit()
+
         content = el.contentDocument.body.innerText
         if content
-          console.log "add this data to scope: #{content}" if debug
+          console.log "ceCommentForm: add this data to scope: #{content}" if debug
           $scope.newComment.attachments.push angular.fromJson( content )
           $scope.newComment.attachment_ids = (att.id for att in $scope.newComment.attachments).join(', ')
-          $scope.attachment_iframe_url = null
           # find and clear the file input
-          $el = angular.element(el).parent()
-          $el = while $el.find('form').length == 0
-            $el = $el.parent()
-          inputs = $el[0].find('form').find('input')
+          inputs = angular.element(attach_form).find('input')
           input for input in inputs when input.type == 'file'
           input.value = null
-
+          el.remove()
+          $scope.progress_bar_message = null
+          $scope.form_disabled = false
           $scope.$apply()
   ]
 )

@@ -1,4 +1,5 @@
 %div(style="margin:0;padding:0;display:inline")
+  -#%p csrf-form scope id: {{$id}}
   %input(name="utf8" type="hidden" value="✓")
   %input(name="authenticity_token" type="hidden" value="{{CSRF}}")
 %div(ng-transclude)

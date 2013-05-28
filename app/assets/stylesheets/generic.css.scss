@@ -1,3 +1,12 @@
+@mixin opacity($trans) {
+  filter: alpha(opactiy=($trans * 100));
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=#{$trans * 100})";
+  -moz-opacity: $trans;
+  -khtml-opacity: $trans;
+  opacity: $trans;
+}
+
+
 input.link_button, input.link_button:focus, input.link_button:active {
     /* Remove all decorations */
     border: none;
@@ -90,7 +99,7 @@ div.attachment_form
 $rating_width: 350px;
 $rating_height: 40px;
 $rating_handle_height: 18px;
-.clr{
+.clear{
   clear: both;
 }
 div.rating{
@@ -133,12 +142,58 @@ div.rating{
   }
 }
 div.comment-form{
+  //border: 1px solid green;
+  width: 330px;
+  padding: 18px 10px 10px 10px;
+  position: relative;
+  div.edit-bar{
+    border: 1px solid yellow;
+  }
+
+  input[type=text]{
+    display: block;
+  }
+  textarea{
+    width: 300px;
+    height: 150px;
+  }
+  div.attachment_form{
+    //border: 1px solid red;
+    //position: absolute;
+    //left: 10px;
+    //top: 0px;
+    float: left;
+    width: 16px;
+    height: 16px;
+    form{
+     // border: 1xp solid green;
+      background: image-url('attachment16.gif') no-repeat 0 0;
+      cursor: pointer;
+      input{
+        opacity: 0;
+        width: 16px;
+        height: 16px
+      }
+    }
+    iframe{
+      display: none;
+      width: 300px;
+      height: 100px;
+      border: 1px solid red;
+    }
+  }
+  div.progress-bar{
+    float: left;
+  }
+}
+div.profile-photo-form{
   border: 1px solid green;
   padding: 10px;
   iframe{
-    display: none;
-    //width: 300px;
-    //height: 100px;
-    //border: 1px solid red;
+    //display: none;
+    width: 300px;
+    height: 100px;
+    border: 1px solid red;
   }
 }
+
