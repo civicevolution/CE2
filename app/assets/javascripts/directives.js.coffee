@@ -117,8 +117,8 @@ ce2_directives.directive('ceCommentForm', ->
   templateUrl: "/assets/angular-views/comment-form.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: false
-  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
-    ($scope, CommentData, $dialog, $http, $timeout, $element) ->
+  controller: [ "$scope", "CommentData", "AttachmentData", "$dialog", "$http", "$timeout", "$element",
+    ($scope, CommentData, AttachmentData, $dialog, $http, $timeout, $element) ->
 
       debug = false
 
@@ -132,12 +132,15 @@ ce2_directives.directive('ceCommentForm', ->
           angular.bind $scope, -> this.newComment = { attachments: [] }
 
       $scope.clear_form = ->
+        # if there are any attachments, they need to be deleted
+        # or don't clear attachments
+        console.log "ceCommentForm:clear, if there are any attachments, they need to be deleted"
         $scope.newComment = { attachments: [] }
 
       $scope.file_selected = (element) ->
         if element.files.length > 0
           file_name = element.files[0].name
-          console.log "loading file: #{file_name}"
+          console.log "loading file: #{file_name}" if debug
           $scope.progress_bar_message = "Loading #{file_name}"
 
           console.log "ceCommentForm: a file is selected, add iframe" if debug
@@ -169,10 +172,28 @@ ce2_directives.directive('ceCommentForm', ->
           inputs = angular.element(attach_form).find('input')
           input for input in inputs when input.type == 'file'
           input.value = null
-          el.remove()
+          angular.element(el).replaceWith('<div></div>')
           $scope.progress_bar_message = null
           $scope.form_disabled = false
           $scope.$apply()
+
+      $scope.delete_attachment = (id) ->
+        console.log "delete attachment id: #{id}" if debug
+        AttachmentData.delete_attachment(id).then(
+          (response)->
+            console.log "AttachmentData.delete_attachment received response" if debug
+            # update the scope data based on response.data
+            $scope.newComment.attachments = (att for att in $scope.newComment.attachments when att.id != id)
+            $scope.newComment.attachment_ids = (att.id for att in $scope.newComment.attachments).join(', ')
+            console.log "AttachmentData.delete_attachment updated scope variables" if debug
+        ,
+        (reason) ->
+          console.log "AttachmentData.delete_attachment received reason"
+          dialog_scope.error_message = reason.data.error
+        )
+
+      $scope.test = ->
+        console.log "ceCommentForm: test"
   ]
 )
 
@@ -281,7 +302,4 @@ ce2_directives.directive('ceRatingSlider', ->
       scope.$apply( ->
         scope.persist_rating()
       )
-
-
 )
-

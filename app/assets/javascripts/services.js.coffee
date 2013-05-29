@@ -107,6 +107,14 @@ services.factory "CommentData", ["$log", "$http", "Comment", "FirebaseUpdateRec"
 
 ]
 
+services.factory "AttachmentData", ["$log", "$http", "FirebaseUpdateRec",
+  ($log, $http, FirebaseUpdateRec) ->
+    name: "AttachmentData"
+    delete_attachment: (attachment_id) ->
+      #console.log "AttachmentData:destroy_attachment id: #{attachment_id}"
+      $http.delete("/api/attachments/#{attachment_id}.json")
+
+]
 
 services.factory "FirebaseUpdateRec", [ "$timeout", ($timeout) ->
   name: "FirebaseUpdateRec"
