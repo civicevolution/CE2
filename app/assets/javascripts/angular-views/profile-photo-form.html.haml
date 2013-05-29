@@ -1,0 +1,8 @@
+%div.profile-photo-form
+  %h3 Select your profile photo
+
+  -#%p upload photo scope id: {{$id}}
+  %form.profile_photo(ce-csrf){name: 'profile_photo_form', action: '/api/users/photo.json', target: "upload_iframe", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}
+    %input(type="file" onchange="angular.element(this).scope().file_selected(this)"){type: 'file', name: 'photo[photo]', id: "photo_photo"}
+  %div.iframe_placeholder
+  %div.progress-bar {{progress_bar_message}}

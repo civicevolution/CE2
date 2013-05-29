@@ -8,9 +8,16 @@ ce2_directives.directive('ceUserBar', ->
   restrict: 'A'
   templateUrl: '/assets/angular-views/signed_in.html.haml'
   replace: true
+  scope: false
   controller: [ "$scope", "User", "$dialog", "$http", "$timeout"
     ($scope, User, $dialog, $http, $timeout) ->
-      $scope.user = User.get()
+      #$scope.user = User.get()
+      $scope.user = {}
+      User.get().then(
+        (response)->
+          console.log "ceUserBar.User.get() received response"
+          $scope.user = response
+      )
       $scope.sign_in = ->
         console.log "open sign in form"
         dialog = $dialog.dialog(
@@ -302,4 +309,55 @@ ce2_directives.directive('ceRatingSlider', ->
       scope.$apply( ->
         scope.persist_rating()
       )
+)
+
+ce2_directives.directive('ceProfilePhotoForm', ->
+  restrict: 'A'
+  templateUrl: "/assets/angular-views/profile-photo-form.html.haml?t=#{new Date().getTime()}"
+  replace: true
+  scope: true
+  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
+    ($scope, CommentData, $dialog, $http, $timeout, $element) ->
+
+      debug = false
+
+      $scope.file_selected = (element) ->
+        if element.files.length > 0
+          file_name = element.files[0].name
+          console.log "ceProfilePhotoForm loading file: #{file_name}" if debug
+          $scope.progress_bar_message = "Loading #{file_name}"
+
+          console.log "ceProfilePhotoForm: a file is selected, add iframe" if debug
+          $scope.$root.attachment_frame_id = 1 if not $scope.$root.attachment_frame_id
+          $scope.$root.attachment_frame_id += 1
+          target = "attachment_upload_iframe_#{$scope.$root.attachment_frame_id}"
+          form = angular.element(element.form)
+          form.attr('target', target)
+          form.next().replaceWith(
+            "<iframe id='#{target}' name='#{target}' onload='angular.element(this).scope().iframe_loaded(this)'></iframe>" )
+
+          $scope.$apply()
+
+      $scope.iframe_loaded = (el) ->
+        # have access to $scope here
+        console.log "ceProfilePhotoForm: window.iframe_loaded, get the contents" if debug
+
+        if not $scope.form_disabled
+          console.log "ceProfilePhotoForm: iframe is ready, submit the form" if debug
+          $scope.form_disabled = true
+          profile_photo_form.submit()
+
+        content = el.contentDocument.body.innerText
+        if content
+          console.log "ceProfilePhotoForm: add this data to scope: #{content}" if debug
+          $scope.user.small_photo_url = angular.fromJson(content).small_photo_url
+          # find and clear the file input
+          inputs = angular.element(profile_photo_form).find('input')
+          input for input in inputs when input.type == 'file'
+          input.value = null
+          angular.element(el).replaceWith('<div></div>')
+          $scope.progress_bar_message = null
+          $scope.form_disabled = false
+          $scope.$apply()
+  ]
 )

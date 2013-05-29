@@ -1,5 +1,6 @@
 %div.comment
   -#%p scope id: {{$id}}
+  %img(ng-src="{{comment.small_user_photo_url}}")
   %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
   %a(ng-click="edit({{comment.id}})")
     Edit

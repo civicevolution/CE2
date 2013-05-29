@@ -16,6 +16,7 @@ class Ability
       can :rate, Comment
 
       can :manage, Attachment
+      can :manage, Profile
 
     end
     

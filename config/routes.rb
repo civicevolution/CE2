@@ -63,6 +63,9 @@ Ce2::Application.routes.draw do
   devise_for :users
   resources :users
 
+  post "api/users/photo" => "api/v1/profiles#upload_photo", format: :json
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
