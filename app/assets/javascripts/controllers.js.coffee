@@ -72,6 +72,13 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
       })
       
     $stateProvider
+
+      .state('home', {
+        url: '/home',
+        templateUrl: '/assets/angular-views/home.html'
+      })
+
+
       .state('about', {
         url: '/about',
         templateProvider:
@@ -90,6 +97,17 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
             , 100
           ]
       })
+
+      .state('issue', {
+        url: '/',
+        templateUrl: '/assets/angular-views/issue.html'
+      })
+
+      .state('edit-profile', {
+        url: '/edit-profile',
+        templateUrl: '/assets/angular-views/edit-profile.html'
+      })
+
       .state('state1', {
         url: '/state1',
         templateUrl: '/assets/angular-views/state1.html'

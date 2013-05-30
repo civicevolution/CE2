@@ -11,6 +11,7 @@ class IssuesController < ApplicationController
       @issue = Issue.find_by_munged_title( params[:munged_title] )
     end
     not_found if @issue.nil?
+    render text: 'ok', layout: true
   end
 
   #def index

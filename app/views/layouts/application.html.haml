@@ -4,6 +4,8 @@
     %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
     %title= content_for?(:title) ? yield(:title) : "Ce2"
     %meta{:content => content_for?(:description) ? yield(:description) : "Ce2", :name => "description"}
+    = stylesheet_link_tag "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css", :media => "all"
+    = stylesheet_link_tag "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css", :media => "all"
     = stylesheet_link_tag "application", :media => "all"
     = csrf_meta_tags
     = yield(:head)
@@ -15,14 +17,19 @@
       %nav.navbar-inner
         .container
           = render 'layouts/navigation'
+    .navbar.navbar-fixed-top
+      %nav.navbar-inner
+        .container.user-bar
+          %div(ce-user-bar)
     #main{:role => "main"}
-      .container
+      .container-fluid
         .content
-          .row
+
+
+          .row-fluid
             .span12
-              %div(ce-user-bar)
-              = render 'layouts/messages'
-              = yield
+              %div(ng-controller='AngularFireCtrl')
+              %div(ui-view)
           %footer
       / ! end of .container
     / ! end of #main

@@ -6,11 +6,11 @@ ce2_directives = angular.module('CE2.directives', ['ui.bootstrap'])
 
 ce2_directives.directive('ceUserBar', ->
   restrict: 'A'
-  templateUrl: '/assets/angular-views/signed_in.html.haml'
+  templateUrl: '/assets/angular-views/user-bar.html.haml'
   replace: true
   scope: false
-  controller: [ "$scope", "User", "$dialog", "$http", "$timeout"
-    ($scope, User, $dialog, $http, $timeout) ->
+  controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state" ,
+    ($scope, User, $dialog, $http, $timeout, $state) ->
       #$scope.user = User.get()
       $scope.user = {}
       User.get().then(
@@ -66,7 +66,7 @@ ce2_directives.directive('ceUserBar', ->
         )
         dialog.open()
       $scope.edit_profile = ->
-        User.edit_profile()
+        $state.transitionTo('edit-profile')
   ]
 )
 
@@ -350,7 +350,7 @@ ce2_directives.directive('ceProfilePhotoForm', ->
         content = el.contentDocument.body.innerText
         if content
           console.log "ceProfilePhotoForm: add this data to scope: #{content}" if debug
-          $scope.user.small_photo_url = angular.fromJson(content).small_photo_url
+          $scope.user.sm1 = angular.fromJson(content).sm1
           # find and clear the file input
           inputs = angular.element(profile_photo_form).find('input')
           input for input in inputs when input.type == 'file'

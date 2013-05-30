@@ -1,16 +1,21 @@
 %div.conversation
-  %h3 {{question}}
+  -#%div(ce-profile-photo-form)
+  -#%div(ce-comment-form)
 
-  %div.summary
-    %h4 Summary
-    %div(ng-repeat="comment in SummaryComments" )
-      %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
-      %a(ng-click="edit()")
-        Edit
+  .row-fluid
+    .span8
+      %h3 {{question}}
 
-  %div(ce-comment-form)
+  .row-fluid
+    .span8.summary
+      %h4 Summary
+      %div(ng-repeat="comment in SummaryComments" )
+        %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
+        %a(ng-click="edit()")
+          Edit
 
-  %div.conversation
-    %h4 Conversation
-    %div(ng-repeat="comment in ConversationComments" )
-      %div(ce-comment)
+  .row-fluid
+    .span8.conversation
+      %h4 Conversation
+      %div(ng-repeat="comment in ConversationComments" )
+        %div(ce-comment)

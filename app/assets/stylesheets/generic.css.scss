@@ -213,3 +213,41 @@ div.profile-photo-form{
   }
 }
 
+.container-fluid{
+  padding-left: 40px;
+  padding-right: 40px;
+  .content{
+    margin-top: 40px;
+    background-color: white;
+  }
+}
+
+.row.test{
+  div{
+    height: 60px;
+    background-color: #ccc;
+  }
+}
+
+div.comment{
+  .author{
+    text-align: right;
+  }
+  div.attachments{
+    div.attachment{
+      position: relative;
+      //border: 1px solid blue;
+      float: left;
+      margin: 0 10px 10px 0;
+      //img.icon{
+      //  max-width: 400px;
+      //}
+      p.name{
+        line-height: .9;
+        margin-top: 4px;
+        font-size: .8em;
+        word-wrap: break-word;
+      }
+    }
+  }
+}
