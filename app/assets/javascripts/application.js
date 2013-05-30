@@ -26,9 +26,10 @@
 //= require services.js
 
 //= require graph.js
+//= require moment.js
 
 //= require utilities.js
-//= require utilities_temp.js
+// require utilities_temp.js
 
 //= require ng-upload.js
 
