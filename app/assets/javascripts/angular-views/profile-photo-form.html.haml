@@ -1,5 +1,5 @@
 %div.profile-photo-form
-  %h3 Select your profile photo
+  %h4 Select your profile photo
 
   -#%p upload photo scope id: {{$id}}
   %form.profile_photo(ce-csrf){name: 'profile_photo_form', action: '/api/users/photo.json', target: "upload_iframe", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}

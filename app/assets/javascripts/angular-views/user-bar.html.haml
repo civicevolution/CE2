@@ -1,0 +1,25 @@
+%div.ce-user-bar
+  .logo
+    %a(ng-click="$state.transitionTo('home')")
+      %img{src:'/assets/ce-white-blue-20.gif'}
+    %p.tagline Think together to Act together
+
+
+  %div.user(ng-show="user.id>0" )
+    %img(ng-src="{{user.sm1}}")
+    %span {{user.first_name}} {{user.last_name}}
+    %a.dropdown-toggle
+      %i.icon-cog
+    %ul.dropdown-menu
+      %li
+        %a(ng-click="edit_profile()") Edit profile
+      %li
+        %a(ng-click="sign_outX()") Sign out
+
+  %p(ng-hide="user.id>0" )
+    Please
+    %a(ng-click="sign_in()")
+      Sign in
+    or
+    %a(ng-click="sign_up()")
+      Sign up

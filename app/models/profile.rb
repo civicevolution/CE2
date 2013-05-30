@@ -14,7 +14,10 @@ class Profile < ActiveRecord::Base
                     #:default_url => "/assets/:class_default/:style/m.jpg",
                     :bucket => 'assets.civicevolution.org',
                     :styles => {
-                        sm: '36x36#',
+                        sm1: '36x36',
+                        sm2: '50x50',
+                        sm3: '60x60',
+                        sm4: '75x75',
                         med: '250x250>'
                     }
 
