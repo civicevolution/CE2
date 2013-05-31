@@ -20,41 +20,11 @@ ce2_app.config ($httpProvider) ->
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
 
-ce2_app.controller( "ConversationCtrl", [ "$scope", "CommentData", ($scope, CommentData) ->
-
-	$scope.comments = CommentData.comments
-		
-	$scope.addComment = ->
-		CommentData.persist_change_to_ror 'save', $scope.newComment, 
-			angular.bind $scope, -> this.newComment = {}
-		
-	$scope.like = ->
-		liked = if @comment.liked? && @comment.liked then false else true
-		CommentData.persist_change_to_ror 'update', { id: @comment.id, liked: liked }, -> 
-			console.log "doing the controller's callback for like comment"
-		
-	$scope.delete = ->
-		CommentData.persist_change_to_ror 'delete', @comment
-		
-] )
-
-
 ce2_app.controller( "AngularFireCtrl", [ 'angularFireCollection', (angularFireCollection) ->
 	url = 'https://civicevolution.firebaseio.com/issues/7/updates'
 	# don't attach to the view, just initialize it so it will trigger on updates
 	angularFireCollection url
 ] )
-
-
-ce2_app.controller( "TestCtrl", [ "$scope", "resolved_data", ($scope, resolved_data ) ->	
-  $scope.name = resolved_data.name
-  $scope.my_var = resolved_data.my_var
-  $scope.test = ->
-      console.log("Hello from test");
-] )
-
-
-
 
 ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
   ($stateProvider,   $routeProvider,   $urlRouterProvider) ->
@@ -104,7 +74,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
       })
 
       .state('edit-profile', {
-        url: '/edit-profile',
+        url: '/edit-profile'
         templateUrl: '/assets/angular-views/edit-profile.html'
       })
 
@@ -162,13 +132,28 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
             template: "The footer"
       })
 
-      
-  ])
+      .state('test-autogrow', {
+        url: '/test-autogrow'
+        templateUrl: '/assets/angular-views/test/autogrow.html'
+        controller: [ "$scope", ($scope) ->
+          console.log "controller for test-autogrow"
+          $scope.autoGrow = (oField) ->
+            if oField.scrollHeight > oField.clientHeight
+              oField.style.height = oField.scrollHeight + "px"
+        ]
+      })
 
-ce2_app.run( ['$rootScope', '$state', '$stateParams', ($rootScope,   $state,   $stateParams) ->
+])
+
+ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", ($rootScope,   $state,   $stateParams, Issue) ->
   $rootScope.$state = $state
   $rootScope.$stateParams = $stateParams
   $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
+  $rootScope.issue = Issue.data
+  $rootScope.autoGrow = (oField) ->
+    if oField.scrollHeight > oField.clientHeight
+      oField.style.height = oField.scrollHeight + "px"
+
 ])
 
 

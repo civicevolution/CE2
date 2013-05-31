@@ -2,7 +2,7 @@
 %html(xmlns:ng="http://angularjs.org")
   %head
     %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
-    %title= content_for?(:title) ? yield(:title) : "Ce2"
+    %title= @issue.try{|issue| issue.title} || ( content_for?(:title) ? yield(:title) : 'CivicEvolution')
     %meta{:content => content_for?(:description) ? yield(:description) : "Ce2", :name => "description"}
     = stylesheet_link_tag "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css", :media => "all"
     = stylesheet_link_tag "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css", :media => "all"
@@ -37,3 +37,4 @@
     = javascript_include_tag "application"
     :javascript
       var _timestamp = #{Time.new.to_i}
+      var issue_data = #{IssueSerializer.new(@issue).to_json}

@@ -11,24 +11,30 @@ class Attachment < ActiveRecord::Base
                     :path => "upload/:res_base/:hash/:basename.:extension",
                     :url => "http://assets.civicevolution.org/upload/:res_base/:hash/:basename.:extension",
                     :bucket => 'assets.civicevolution.org',
-                    :styles => { :icon => '50x50>' }
+                    :styles => {
+                      icon: '50x50>',
+                      small: '200x200>',
+                      medium: '400x400>'
+
+  }
+
+  before_post_process :cancel_post_process_if_not_image?
+
 
   def icon_url
     case
-      when self.attachment_content_type.match(/image/i)
-        self.attachment(:icon)
+      when attachment_content_type.match(/image.*/i)
+        attachment(:icon)
       else
         '/assets/doc_icon.gif'
     end
   end
 
 
-  before_post_process :image?
-
   private
 
-  def image?
-    !(attachment_content_type =~ /^image.*/).nil?
+  def cancel_post_process_if_not_image?
+    !(attachment_content_type.match(/image.*/i)).nil?
   end
 
 

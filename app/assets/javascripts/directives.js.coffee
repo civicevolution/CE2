@@ -67,6 +67,9 @@ ce2_directives.directive('ceUserBar', ->
         dialog.open()
       $scope.edit_profile = ->
         $state.transitionTo('edit-profile')
+      $scope.test = ->
+        console.log "CeUserBar test"
+        debugger
   ]
 )
 

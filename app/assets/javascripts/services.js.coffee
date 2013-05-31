@@ -57,6 +57,11 @@ services.factory "Comment", ["$resource", ($resource) ->
   $resource("/api/comments/:id", {id: "@id"}, {update: {method: "PUT"}})
 ]
 
+services.factory "Issue", [ ->
+  data:
+    issue_data
+]
+
 services.factory "CommentData", ["$log", "$http", "Comment", "FirebaseUpdateRec",
   ($log, $http, Comment, FirebaseUpdateRec) ->
     name: "CommentData"

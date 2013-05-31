@@ -8,12 +8,10 @@
       %div.iframe_placeholder
     %div.progress-bar {{progress_bar_message}}
 
-
-
-
   %form.convo.clear(ng-submit="addComment()"){name: 'comment_form'}
-    %textarea(ng-model="newComment.text"){:placeholder => "Enter your comment..."}
-    %input(ng-model="newComment.attachment_ids"){type: 'text'}
+    %textarea.noscrollbars(ng-model="newComment.text"){:onkeyup => "angular.element(this).scope().autoGrow(this)",
+    placeholder: "Enter your comment..."}
+    %input(ng-model="newComment.attachment_ids"){type: 'hidden'}
     %div.attachments
       %div.attachment(ng-repeat="att in newComment.attachments" )
         %img.icon(ng-src="{{att.icon_url}}")

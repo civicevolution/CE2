@@ -106,18 +106,14 @@ div.comment-form{
   }
   textarea{
     width: 300px;
-    height: 150px;
+    height: 80px;
+    max-height: 300px;
   }
   div.attachment_form{
-    //border: 1px solid red;
-    //position: absolute;
-    //left: 10px;
-    //top: 0px;
     float: left;
     width: 16px;
     height: 16px;
     form{
-     // border: 1xp solid green;
       background: image-url('attachment16.gif') no-repeat 0 0;
       cursor: pointer;
       input{
@@ -219,6 +215,11 @@ div.profile-photo-form{
   .content{
     margin-top: 40px;
     background-color: white;
+
+    .right-bar{
+      border: 1px solid #ddd;
+      min-height: 800px;
+    }
   }
 }
 
@@ -250,4 +251,10 @@ div.comment{
       }
     }
   }
+  .share{
+    border: 1px solid #ddd;
+    min-height: 140px;
+  }
+  p.controls{ text-align: right;}
+
 }

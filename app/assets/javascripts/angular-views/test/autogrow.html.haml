@@ -1,0 +1,10 @@
+.test
+  %h3 Test autogrow section
+
+  %form{:name => "myForm"}
+    %fieldset
+      %legend Your comments
+      %p
+        %textarea.noscrollbars{:onkeyup => "angular.element(this).scope().autoGrow(this)"}
+      %p
+        %input{:type => "submit", :value => "Send"}/
