@@ -13,10 +13,10 @@
 
 //= require polyfills
 
-//= require angular-1.1.4/angular
-//= require angular-1.1.4/angular-resource
-//= require angular-1.1.4/angular-ui-states
-//= require angular-1.1.4/ui-bootstrap-tpls-0.2.0.js
+//= require angular-1.1.5/angular
+//= require angular-1.1.5/angular-resource
+//= require angular-ui-states-0.0.1/angular-ui-states.js
+//= require ui-bootstrap-tpls-0.2.0/ui-bootstrap-tpls-0.2.0.js
 //= require firebase.js
 //= require angularFire.js
 
