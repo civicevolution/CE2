@@ -80,7 +80,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
       .state('state1', {
         url: '/state1',
-        templateUrl: '/assets/angular-views/state1.html'
+        templateUrl: '/assets/angular-views/test/state1.html'
         data:
           custom_id: 10
           custom_desc: 'circle'
@@ -90,11 +90,11 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
       
       .state('state2', {
         url: '/state2',
-        templateUrl: '/assets/angular-views/state2.html'
+        templateUrl: '/assets/angular-views/test/state2.html'
       })
       .state('state3', {
         url: '/state3',
-        templateUrl: '/assets/angular-views/state3.html'
+        templateUrl: '/assets/angular-views/test/state3.html'
         controller:  [ "$scope", "$state", "$timeout", ($scope, $state, $timeout) ->
           $scope.user = 'Brian Sullivan'
           $scope.goto_state1 = ->
@@ -109,7 +109,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         url: '/state4/{userID}',
         views: 
           "":
-            templateUrl: '/assets/angular-views/state4.html'
+            templateUrl: '/assets/angular-views/test/state4.html'
             resolve: { resolved_data: -> 
               title: 'My Contacts' 
               duration: '1 hour'
