@@ -1,0 +1,9 @@
+.test
+  %h3 Test animation section
+
+  %p
+    %a(ng-click="adjust()")
+      Toggle display
+
+  %div.ani-slide(ng-if="step" ng-animate="'slide'")
+    %div(ce-comment-form)
