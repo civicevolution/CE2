@@ -4,30 +4,35 @@
     %img(ng-src="{{comment.sm3}}")
 
   .span8
-    %p
-      %span {{comment.first_name}} {{comment.last_name}}
-      %span {{comment.updated_at | from_now}}
-    %p {{comment.text}}
+    %div(ng-hide="edit_mode")
+      %p
+        %span {{comment.first_name}} {{comment.last_name}}
+        %span {{comment.updated_at | from_now}}
+      %p {{comment.text}}
 
-    %div.attachments
-      %div.attachment(ng-repeat="attachment in comment.attachments" )
-        %a(ng-href="{{attachment.url}}"){target: "_blank"}
-          %img.icon(ng-src="{{attachment.medium_url}}")
-          %p.name
-            {{attachment.attachment_file_name}}
+      %div.attachments
+        %div.attachment(ng-repeat="attachment in comment.attachments" )
+          %a(ng-href="{{attachment.url}}"){target: "_blank"}
+            %img.icon(ng-src="{{attachment.medium_url}}")
+            %p.name
+              {{attachment.attachment_file_name}}
 
-    %p.controls.clear
-      %a(ng-click="edit({{comment.id}})")
-        Edit
-      %span(ng-show="comment.version>0")
-        Version {{comment.version}}
-        %a(ng-click="view_history({{comment.id}})")
-          View history
+      %p.controls.clear
+        %a(ng-click="edit({{comment.id}})"){title: "Edit this comment"}
+          %i.icon-pencil
+          Edit
+        %span(ng-show="comment.version>0")
+          Version {{comment.version}}
+          %a(ng-click="view_history({{comment.id}})")
+            View history
 
 
-    %div(ce-rating-slider)
+      %div(ce-rating-slider)
 
-    %div.history.clear(ng-include src="history_url")
+      %div.history.clear(ng-include src="history_url")
+
+    %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
+      %div(ce-comment-form)
 
   .span2.share
     %p Share

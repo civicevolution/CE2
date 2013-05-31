@@ -18,12 +18,14 @@
         %p.name {{att.attachment_file_name}}
         %img.delete(ng-click="delete_attachment({{att.id}})")
 
-    %input(ng-model="newComment.id"){type: 'hidden', value: 'Add'}
+    %input(ng-model="newComment.id"){type: 'hidden'}
 
-    %p.clear
+    %p.clear(ng-hide="newComment.id")
       %input(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
       %a(ng-click="clear_form()")
         Clear
 
-
-
+    %p.clear(ng-show="newComment.id")
+      %input(ng-disabled="form_disabled"){type: 'submit', value: 'Update'}
+      %a(ng-click="cancel_edit()")
+        Cancel

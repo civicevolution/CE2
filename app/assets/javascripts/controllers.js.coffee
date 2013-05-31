@@ -143,6 +143,17 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         ]
       })
 
+      .state('test-animation', {
+        url: '/test-animation'
+        templateUrl: '/assets/angular-views/test/animation.html'
+        controller: [ "$scope", ($scope) ->
+          console.log "controller for test-animation"
+          $scope.adjust = ->
+            console.log "test-animation:adjust"
+            $scope.step = not $scope.step
+        ]
+      })
+
 ])
 
 ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", ($rootScope,   $state,   $stateParams, Issue) ->

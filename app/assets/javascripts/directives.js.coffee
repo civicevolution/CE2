@@ -106,7 +106,8 @@ ce2_directives.directive('ceComment', ->
 
       $scope.edit = (comment_id) ->
         console.log "edit comment"
-        $scope.$parent.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
+        $scope.edit_mode = true
+        $scope.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
       $scope.view_history = (comment_id) ->
         $scope.history = CommentData.history(comment_id)
         $scope.history_url = "/assets/angular-views/comment-history.html?t=#{$scope.timestamp}"
@@ -122,30 +123,42 @@ ce2_directives.directive('ceComment', ->
   ]
 )
 
-ce2_directives.directive('ceCommentForm', ->
+ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
   restrict: 'A'
   templateUrl: "/assets/angular-views/comment-form.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: false
+  link: (scope, element, attrs) ->
+    #console.log "link function for ceCommentForm with scope: #{scope.$id}"
+    $timeout ->
+      scope.autoGrow(element.find('textarea')[0])
+    , 100
+
   controller: [ "$scope", "CommentData", "AttachmentData", "$dialog", "$http", "$timeout", "$element",
     ($scope, CommentData, AttachmentData, $dialog, $http, $timeout, $element) ->
 
       debug = false
 
-      $scope.newComment = { attachments: [] }
+      $scope.newComment = { attachments: [] } if not ($scope.newComment && $scope.newComment.id)
       $scope.addComment = ->
         console.log "addComment"
         if $scope.template_url
           alert 'You must save your attachment or close the attachment form'
           return
         CommentData.persist_change_to_ror 'save', $scope.newComment,
-          angular.bind $scope, -> this.newComment = { attachments: [] }
+          angular.bind $scope, ->
+            this.newComment = { attachments: [] }
+            $scope.$parent.edit_mode = false
 
       $scope.clear_form = ->
         # if there are any attachments, they need to be deleted
         # or don't clear attachments
         console.log "ceCommentForm:clear, if there are any attachments, they need to be deleted"
         $scope.newComment = { attachments: [] }
+
+      $scope.cancel_edit = ->
+        #console.log "cancel the comment edit"
+        $scope.$parent.edit_mode = false
 
       $scope.file_selected = (element) ->
         if element.files.length > 0
@@ -205,7 +218,7 @@ ce2_directives.directive('ceCommentForm', ->
       $scope.test = ->
         console.log "ceCommentForm: test"
   ]
-)
+])
 
 ce2_directives.directive('ceCsrf', ->
   restrict: 'A'

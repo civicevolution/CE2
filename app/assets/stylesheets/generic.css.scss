@@ -258,3 +258,37 @@ div.comment{
   p.controls{ text-align: right;}
 
 }
+
+.slide-enter-active, .slide-leave-active {
+  //.slide-enter, .slide-leave {
+  //.slide-enter, .slide-leave, .slide-enter-active, .slide-leave-active {
+  -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) .5s;
+  -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) .5s;
+  -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) .5s;
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) .5s;
+}
+
+.slide-leave {
+  opacity: 0;
+  height: 0;
+}
+.slide-leave.slide-leave-active  {
+  opacity: 0;
+  height: 0;
+}
+
+.slide-enter {
+  opacity: 0;
+  height: 0;
+}
+.slide-enter.slide-enter-active {
+  opacity: 1;
+  height: 200px;
+}
+
+div.ani-slide{
+  overflow: hidden;
+  > div{
+    min-height: 200px;
+  }
+}
