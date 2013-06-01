@@ -3,12 +3,20 @@ class ConversationSerializer < ActiveModel::Serializer
   attributes :id, :url, :question, :updated_at
   has_many :comments
 
+  def include_comments?
+    !( scope && scope[:shallow_serialization_mode] )
+  end
+
   def url
     api_conversation_url(object)
   end
 
+  def include_question?
+    !( scope && scope[:shallow_serialization_mode] )
+  end
+
   def question
-    object.question.text
+      object.question.text
   end
 
 end

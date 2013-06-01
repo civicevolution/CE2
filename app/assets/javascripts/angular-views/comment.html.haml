@@ -5,7 +5,7 @@
 
   .span8
     %div(ng-hide="edit_mode")
-      %p
+      %p.author
         %span {{comment.first_name}} {{comment.last_name}}
         %span {{comment.updated_at | from_now}}
       %p {{comment.text}}

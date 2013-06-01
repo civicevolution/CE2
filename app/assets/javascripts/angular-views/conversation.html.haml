@@ -1,5 +1,4 @@
 %div.conversation
-  %div(ce-comment-form)
 
   .row-fluid
     .span12
@@ -8,13 +7,23 @@
   .row-fluid
     .span12.summary
       %h4 Summary
-      %div(ng-repeat="comment in SummaryComments" )
-        %span(ng-bind-template="{{comment.first_name}} said \"{{comment.text}}\"")
-        %a(ng-click="edit()")
-          Edit
+      %div.comment-outer(ng-repeat="comment in SummaryComments" )
+        %div(ce-comment)
+
+  .row-fluid
+    .span8.offset2
+      %h4 Summarize this conversation
+      %div(ce-comment-form)
+
 
   .row-fluid
     .span12.conversation
       %h4 Conversation
-      %div(ng-repeat="comment in ConversationComments" )
+      %div.comment-outer(ng-repeat="comment in ConversationComments" )
         %div(ce-comment)
+
+  .row-fluid
+    .span8.offset2
+
+      %h4 What do you think?
+      %div(ce-comment-form)

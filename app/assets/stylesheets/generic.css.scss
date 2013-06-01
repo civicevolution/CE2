@@ -95,7 +95,7 @@ div.rating{
 div.comment-form{
   //border: 1px solid green;
   width: 330px;
-  padding: 18px 10px 10px 10px;
+  //padding: 18px 10px 10px 10px;
   position: relative;
   div.edit-bar{
     border: 1px solid yellow;
@@ -230,33 +230,41 @@ div.profile-photo-form{
   }
 }
 
-div.comment{
-  .author{
-    text-align: right;
-  }
-  div.attachments{
-    div.attachment{
-      position: relative;
-      //border: 1px solid blue;
-      float: left;
-      margin: 0 10px 10px 0;
-      //img.icon{
-      //  max-width: 400px;
-      //}
-      p.name{
-        line-height: .9;
-        margin-top: 4px;
-        font-size: .8em;
-        word-wrap: break-word;
+div.comment-outer{
+  margin-bottom: 60px;
+  div.comment{
+    div.author{
+      text-align: right;
+    }
+    p.author{
+      color: #aaa;
+      font-style: italic;
+    }
+
+    div.attachments{
+      div.attachment{
+        position: relative;
+        //border: 1px solid blue;
+        float: left;
+        margin: 4px 10px 8px 0;
+        //img.icon{
+        //  max-width: 400px;
+        //}
+        p.name{
+          line-height: .9;
+          margin: 4px 0 0 0;
+          font-size: .8em;
+          word-wrap: break-word;
+        }
       }
     }
-  }
-  .share{
-    border: 1px solid #ddd;
-    min-height: 140px;
-  }
-  p.controls{ text-align: right;}
+    .share{
+      border: 1px solid #ddd;
+      min-height: 140px;
+    }
+    p.controls{ text-align: right; margin: 0;}
 
+  }
 }
 
 .slide-enter-active, .slide-leave-active {

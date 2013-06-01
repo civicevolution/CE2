@@ -37,4 +37,4 @@
     = javascript_include_tag "application"
     :javascript
       var _timestamp = #{Time.new.to_i}
-      var issue_data = #{IssueSerializer.new(@issue).to_json}
+      var issue_data = #{@issue.active_model_serializer.new(@issue, scope: { shallow_serialization_mode: true} ).to_json}
