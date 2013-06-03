@@ -28,7 +28,6 @@
 
           .row-fluid
             .span12
-              %div(ng-controller='AngularFireCtrl')
               %div(ui-view)
           %footer
       / ! end of .container
@@ -37,4 +36,5 @@
     = javascript_include_tag "application"
     :javascript
       var _timestamp = #{Time.new.to_i}
-      var issue_data = #{@issue.active_model_serializer.new(@issue, scope: { shallow_serialization_mode: true} ).to_json}
+      var issue_data = #{@issue_data.to_json}
+      var firebase_auth_token = "#{@firebase_token}"

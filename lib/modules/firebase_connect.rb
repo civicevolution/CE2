@@ -12,7 +12,7 @@ module Modules
     def send_to_firebase
       return if @_cancel_firebase_send
       action = @_is_new_record ? "create" : destroyed? ? "delete" : "update"
-      Firebase.base_uri = 'https://civicevolution.firebaseio.com/issues/7/updates'
+      Firebase.base_uri = "https://civicevolution.firebaseio.com/issues/#{conversation.question.issue_id}/conversations/#{conversation_id}/updates/"
       Firebase.push '', self.as_json_for_firebase( action )
     end
 

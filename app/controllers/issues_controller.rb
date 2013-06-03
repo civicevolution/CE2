@@ -11,6 +11,15 @@ class IssuesController < ApplicationController
       @issue = Issue.find_by_munged_title( params[:munged_title] )
     end
     not_found if @issue.nil?
+
+    @issue_data = @issue.active_model_serializer.new(@issue, scope: { shallow_serialization_mode: true} )
+
+    firebase_auth_data =    { userid: "#{current_user.id}",
+                              issues_read: { "#{@issue.id}" => true },
+                              issues_write: { "#{@issue.id}" => true }
+                            }
+    @firebase_token = Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data)
+
     render text: 'ok', layout: true
   end
 

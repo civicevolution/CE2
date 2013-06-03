@@ -4,6 +4,7 @@ class Conversation < ActiveRecord::Base
   end
 
   attr_accessible :question_id, :status
+  attr_accessor :firebase_token
 
   belongs_to :question
   has_many  :comments, -> { includes :author }

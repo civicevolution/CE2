@@ -15,7 +15,7 @@ ce2_directives.directive('ceUserBar', ->
       $scope.user = {}
       User.get().then(
         (response)->
-          console.log "ceUserBar.User.get() received response"
+          #console.log "ceUserBar.User.get() received response"
           $scope.user = response
       )
       $scope.sign_in = ->
@@ -81,19 +81,39 @@ ce2_directives.directive('ceFocus', [ "$timeout", ($timeout) ->
 
 ])
 
+
+ce2_directives.directive('ceQuestion', ->
+  restrict: 'A'
+  templateUrl: "/assets/angular-views/question.html?t=#{new Date().getTime()}"
+  replace: true
+)
+
 ce2_directives.directive('ceConversation', ->
   restrict: 'A'
   templateUrl: '/assets/angular-views/conversation.html.haml'
   replace: true
-  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout"
-    ($scope, CommentData, $dialog, $http, $timeout) ->
-      CommentData.conversation(1).then (response) ->
+  controller: [ "$scope", "ConversationData", "FirebaseService",
+    ($scope, ConversationData, FirebaseService) ->
+      ConversationData.conversation($scope.conversation.id).then (response) ->
         # when the promise is fulfilled, set the arrays to $scope for display
         # and set the arrays as properties on the service for they can be updated
         # by firebase updates and still be bound to the view for this directive
-        $scope.SummaryComments = CommentData.SummaryComment_array = response.summary_comments
-        $scope.ConversationComments = CommentData.ConversationComment_array = response.conversation_comments
-        $scope.question = CommentData.question = response.question
+        $scope.SummaryComments = response.summary_comments
+        $scope.ConversationComments = response.conversation_comments
+
+        # Subscribe to updates for this data
+        url = "https://civicevolution.firebaseio.com/issues/1/conversations/#{$scope.conversation.id}/updates/"
+        FirebaseService.initialize_source(url, response.firebase_token)
+
+        # register the listeners for the firebase updates
+        $scope.$on( 'ConversationComment_update', (event, data) ->
+          #console.log "received broadcast ConversationComment_update"
+          FirebaseService.process_update($scope.ConversationComments, data)
+        )
+        $scope.$on( 'SummaryComment_update', (event, data) ->
+          #console.log "received broadcast SummaryComment_update"
+          FirebaseService.process_update($scope.SummaryComments, data)
+        )
   ]
 )
 ce2_directives.directive('ceComment', ->

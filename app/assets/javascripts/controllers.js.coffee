@@ -4,27 +4,26 @@
 
 bootstrap_CE2 = ->
 	#console.log "In bootstrap_CE2"
-	try
-		angular.module('firebase')
-		angular.bootstrap(document,["CE2"])
-	catch error
-		setTimeout bootstrap_CE2, 50
+
+  if typeof Firebase == 'undefined'
+    setTimeout bootstrap_CE2, 50
+  else
+    try
+      angular.bootstrap(document,["CE2"])
+    catch error
+      setTimeout bootstrap_CE2, 50
+
 bootstrap_CE2()
 
 
 ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', 'CE2.filters',
-  "firebase", 'ui.compat', 'ui.bootstrap', 'ngUpload'] )
+  'ui.compat', 'ui.bootstrap', 'ngUpload'] )
 
 ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
-
-ce2_app.controller( "AngularFireCtrl", [ 'angularFireCollection', (angularFireCollection) ->
-	url = 'https://civicevolution.firebaseio.com/issues/7/updates'
-	# don't attach to the view, just initialize it so it will trigger on updates
-	angularFireCollection url
-] )
+ce2_app.value('Firebase', Firebase);
 
 ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
   ($stateProvider,   $routeProvider,   $urlRouterProvider) ->

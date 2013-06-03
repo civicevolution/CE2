@@ -1,9 +1,12 @@
 .row-fluid
-  .span8
+  .span8.issue
     %h2 {{issue.title}}
     %p {{issue.description}}
-    %div.ce-conversation-directive(ce-conversation)
+
+    %div.question(ng-repeat="question in issue.questions" )
+      %div(ce-question)
 
 
   .span4.right-bar
     Right bar
+

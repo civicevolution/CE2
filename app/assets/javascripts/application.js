@@ -18,7 +18,6 @@
 //= require angular-ui-states-0.0.1/angular-ui-states.js
 //= require ui-bootstrap-tpls-0.2.0/ui-bootstrap-tpls-0.2.0.js
 //= require firebase.js
-//= require angularFire.js
 
 //= require controllers.js
 //= require directives.js
