@@ -1,8 +1,11 @@
-class ConversationController < ApplicationController
+class ConversationsController < ApplicationController
   before_action :set_conversation, only: [:show, :edit, :update, :destroy]
 
   def index
+    Rails.logger.debug "Conversation#index"
   end
+
+
 
   private
   # Use callbacks to share common setup or constraints between actions.
