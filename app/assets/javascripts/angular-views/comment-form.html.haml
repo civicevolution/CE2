@@ -1,5 +1,5 @@
 %div.comment-form
-  -#%p
+  %p
     %i comment form from directive scope id: {{$id}}
   %div.edit-menu
     %div.attachment_form
@@ -18,7 +18,9 @@
         %p.name {{att.attachment_file_name}}
         %img.delete(ng-click="delete_attachment({{att.id}})")
 
-    %input(ng-model="newComment.id"){type: 'hidden'}
+    %input(ng-model="newComment.id"){type: 'hidden' }
+    %input(ng-model="newComment.conversation_id"){type: 'hidden' }
+    %input(ng-model="newComment.type"){type: 'hidden' }
 
     %p.clear(ng-hide="newComment.id")
       %input(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}

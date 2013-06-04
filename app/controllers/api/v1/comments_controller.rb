@@ -16,8 +16,7 @@ module Api
 
       def create
         params[:comment][:user_id] = current_user.id
-        params[:comment][:conversation_id] = 1
-        respond_with ConversationComment.create(params[:comment])
+        respond_with Comment.create(params[:comment])
       end
 
       def update

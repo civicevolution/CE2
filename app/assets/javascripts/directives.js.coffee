@@ -121,13 +121,13 @@ ce2_directives.directive('ceComment', ->
   templateUrl: "/assets/angular-views/comment.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: false
-  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
-    ($scope, CommentData, $dialog, $http, $timeout, $element) ->
+  controller: [ "$scope", "CommentData",
+    ($scope, CommentData) ->
 
-      $scope.edit = (comment_id) ->
+      $scope.edit = (comment_type, comment_id) ->
         console.log "edit comment"
         $scope.edit_mode = true
-        $scope.newComment = (comment for comment in $scope.ConversationComments when comment.id is comment_id)[0]
+        $scope.newComment = angular.copy( (comment for comment in $scope["#{comment_type}s"] when comment.id is comment_id)[0] )
       $scope.view_history = (comment_id) ->
         $scope.history = CommentData.history(comment_id)
         $scope.history_url = "/assets/angular-views/comment-history.html?t=#{$scope.timestamp}"
@@ -147,15 +147,17 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
   restrict: 'A'
   templateUrl: "/assets/angular-views/comment-form.html.haml?t=#{new Date().getTime()}"
   replace: true
-  scope: false
+  scope: true
   link: (scope, element, attrs) ->
     #console.log "link function for ceCommentForm with scope: #{scope.$id}"
+    scope.newComment.conversation_id = scope.conversation.id
+    scope.newComment.type = attrs.type
     $timeout ->
       scope.autoGrow(element.find('textarea')[0])
     , 100
 
-  controller: [ "$scope", "CommentData", "AttachmentData", "$dialog", "$http", "$timeout", "$element",
-    ($scope, CommentData, AttachmentData, $dialog, $http, $timeout, $element) ->
+  controller: [ "$scope", "CommentData", "AttachmentData",
+    ($scope, CommentData, AttachmentData) ->
 
       debug = false
 
@@ -167,8 +169,10 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           return
         CommentData.persist_change_to_ror 'save', $scope.newComment,
           angular.bind $scope, ->
-            this.newComment = { attachments: [] }
-            $scope.$parent.edit_mode = false
+            this.newComment.attachments = []
+            this.newComment.id = null
+            this.newComment.text = null
+            $scope.$parent.$parent.edit_mode = false
 
       $scope.clear_form = ->
         # if there are any attachments, they need to be deleted
@@ -178,7 +182,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
       $scope.cancel_edit = ->
         #console.log "cancel the comment edit"
-        $scope.$parent.edit_mode = false
+        $scope.$parent.$parent.edit_mode = false
 
       $scope.file_selected = (element) ->
         if element.files.length > 0
@@ -204,7 +208,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         if not $scope.form_disabled
           console.log "ceCommentForm: a iframe is ready, submit the form" if debug
           $scope.form_disabled = true
-          attach_form.submit()
+          angular.element(el).parent().find('form')[0].submit()
 
         content = el.contentDocument.body.innerText
         if content
@@ -352,8 +356,8 @@ ce2_directives.directive('ceProfilePhotoForm', ->
   templateUrl: "/assets/angular-views/profile-photo-form.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: true
-  controller: [ "$scope", "CommentData", "$dialog", "$http", "$timeout", "$element",
-    ($scope, CommentData, $dialog, $http, $timeout, $element) ->
+  controller: [ "$scope",
+    ($scope) ->
 
       debug = false
 
