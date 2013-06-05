@@ -259,10 +259,28 @@ div.comment-outer{
 
   }
 }
-div.placeholder{
-  background-color: #ddd;
-  display: none;
+
+div.ce-sortable-item-pair{
+  div.ce-sortable-item-carrier{
+    div.ce-sortable-item{
+      position: relative;
+      div.ce-sortable-handle{
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 20px;
+        height: 20px;
+        background-color: #aaa;
+        cursor: pointer;
+      }
+    }
+  }
+  div.ce-sortable-placeholder{
+    background-color: #ddd;
+    display: none;
+  }
 }
+
 
 .slide-enter-active, .slide-leave-active {
   //.slide-enter, .slide-leave {

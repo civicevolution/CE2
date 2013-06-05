@@ -397,20 +397,33 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
     link: (scope, elm, attrs) ->
       startX = startY = initialMouseX = initialMouseY = mouseY = 0
       placeholder = dragged = placeholder_upper = placeholder_lower = {}
-      ph = angular.element('<div class="placeholder item">PH</div>')
-      elm.after(ph)
+
+      elm.addClass('ce-sortable-item')
+      elm.wrap('<div class="ce-sortable-item-carrier"></div>')
+      item_carrier = elm.parent();
+
+      item_carrier.wrap('<div class="ce-sortable-item-pair"></div>')
+      item_pair = item_carrier.parent()
+
+      handle = angular.element('<div class="ce-sortable-handle"></div>')
+      elm.append(handle)
+
+      item_carrier.after(angular.element('<div class="ce-sortable-placeholder ce-sortable-item"></div>'))
+
+      elm = item_carrier
+
       #elm.html("y: #{ elm.parent().prop('offsetTop') }")
 
-      debug = true
+      debug = false
 
-      elm.bind('mousedown', ($event) ->
+      handle.bind('mousedown', ($event) ->
         angular.element(document.body).addClass('drag_in_process')
         startX = elm.parent().prop('offsetLeft')
         startY = elm.parent().prop('offsetTop')
         elm.css
           position: 'absolute'
           top:  "#{startX}px"
-          left: "#{startY}px"
+          #left: "#{startY}px"
 
         console.log "startX: #{startX}, startY: #{startY}" if debug
         initialMouseX = $event.clientX
@@ -484,11 +497,8 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
         dragged =
           x: startX + $event.clientX - initialMouseX
           y: startY + $event.clientY - initialMouseY
-        elm.css {
-          top:  "#{dragged.y}px"
-          left: "#{dragged.x}px"
-        }
-        mouseY = $event.clientY
+        #elm.css { left: "#{dragged.x}px" }
+        elm.css { top: "#{dragged.y}px" }
 
       calculate_offset = ->
         #console.log "calculate_offset"
