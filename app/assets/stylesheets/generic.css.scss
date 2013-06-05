@@ -57,25 +57,17 @@ div.rating{
   div.rating-slider{
     cursor: pointer;
     float: left;
-    width: $rating_width + 15;
-    padding: 2px;
-    //border: 1px solid green;
-
-    div.mouse-binding-box{
-      position: relative;
-      //border: 1px solid red;
-      width: $rating_width;
-      padding-left: 10px;
-      padding-right: 10px;
-      div.handle {
-        width: $rating_handle_height;
-        height: $rating_handle_height;
-        position: absolute;
-        top: $rating_height/2 - $rating_handle_height/2;
-        left: 50%;
-        //background-color: black;
-        background: image-url('slider-star-pointer.png') no-repeat 0 0
-      }
+    width: $rating_width;
+    position: relative;
+    //border: 1px solid red;
+    width: $rating_width;
+    div.handle {
+      width: $rating_handle_height;
+      height: $rating_handle_height;
+      position: absolute;
+      top: $rating_height/2 - $rating_handle_height/2;
+      left: 50%;
+      background: image-url('slider-star-pointer.png') no-repeat 0 0
     }
   }
   .vote_count{
@@ -231,7 +223,7 @@ div.profile-photo-form{
 }
 
 div.comment-outer{
-  margin-bottom: 60px;
+  padding-bottom: 60px;
   border: 1px solid green;
   div.comment{
     div.author{

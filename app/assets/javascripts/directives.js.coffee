@@ -252,7 +252,7 @@ ce2_directives.directive('ceCsrf', ->
 )
 
 
-ce2_directives.directive('ceRatingSlider', ->
+ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
   restrict: 'A'
   replace: true
   scope: false
@@ -273,22 +273,18 @@ ce2_directives.directive('ceRatingSlider', ->
       grapher.draw_rating_results(ctx, scope.comment.ratings_cache, scope.comment.my_rating);
     , true)
 
-    mouse_out_box = element
-    canvas = mouse_out_box.find('canvas')
+    canvas = element.find('canvas')
     mouse_binding_box = canvas.parent()
     handle = mouse_binding_box.find('div')
     debug = false
     if scope.comment.my_rating
-      handle.css( 'left', "#{scope.comment.my_rating/100*350-5}px" )
+      handle.css( 'left', "#{scope.comment.my_rating/100*350-9}px" )
     else
-      handle.css( 'left', "#{50/100*350-5}px" )
+      handle.css( 'left', "#{50/100*350-9}px" )
     width = offset = null
-    handle_width = 10
 
-    mouseDown = false;
-
-    mouse_binding_box.bind "mousedown", (evt) ->
-      mouseDown = true
+    mouse_binding_box.bind "mousedown", ($event) ->
+      angular.element(document.body).addClass('drag_in_process')
       if not width
         padding = 20
         width = _.width(mouse_binding_box[0]) - padding
@@ -296,7 +292,9 @@ ce2_directives.directive('ceRatingSlider', ->
       if not offset
         offset = _.offset(mouse_binding_box[0]).left
         console.log "offset: #{offset}" if debug
-      calculate_position(evt)
+      calculate_position($event)
+      $document.bind('mousemove', calculate_position)
+      $document.bind('mouseup', mouseup)
 
     # TODO throttle the calls made by mouse move
     #element.bind('mousemove', _.throttle(_pd( (evt) ->
@@ -305,35 +303,25 @@ ce2_directives.directive('ceRatingSlider', ->
     #),
     #25))
 
-    mouse_binding_box.bind('mousemove', (evt) ->
-      return if not mouseDown
-      calculate_position(evt)
-    )
-
-    mouse_binding_box.bind "mouseup", (event) ->
-      mouseDown = false
+    mouseup = () ->
+      $document.unbind('mousemove', calculate_position)
+      $document.unbind('mouseup', mouseup)
+      angular.element(document.body).removeClass('drag_in_process')
       persist_rating_now()
 
-    # catch mouse leaving rating while still down which keeps rating still active
-    mouse_out_box.bind "mouseout", (event) ->
-      if event.toElement == element[0]
-        if mouseDown
-          mouseDown = false
-          persist_rating_now()
-
-    calculate_position = (evt) ->
-      pageX = if evt.pageX
-        evt.pageX
-      else if evt.clientX
-        evt.clientX
+    calculate_position = ($event) ->
+      pageX = if $event.pageX
+        $event.pageX
+      else if $event.clientX
+        $event.clientX
       else
-        evt.originalEvent.touches[0].pageX
+        $event.originalEvent.touches[0].pageX
 
       diff = pageX - offset
 
       scope.comment.my_rating = if diff < 0
         diff = 0 if diff < 0
-        0
+        1
       else if diff > width
         diff = width + 12 if diff > width + 12
         100
@@ -349,7 +337,7 @@ ce2_directives.directive('ceRatingSlider', ->
       scope.$apply( ->
         scope.persist_rating()
       )
-)
+])
 
 ce2_directives.directive('ceProfilePhotoForm', ->
   restrict: 'A'
@@ -413,6 +401,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
       elm.after(ph)
       #elm.html("y: #{ elm.parent().prop('offsetTop') }")
 
+      debug = true
 
       elm.bind('mousedown', ($event) ->
         angular.element(document.body).addClass('drag_in_process')
@@ -423,7 +412,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
           top:  "#{startX}px"
           left: "#{startY}px"
 
-        #console.log "startX: #{startX}, startY: #{startY}"
+        console.log "startX: #{startX}, startY: #{startY}" if debug
         initialMouseX = $event.clientX
         initialMouseY = $event.clientY
         $document.bind('mousemove', mousemove)
@@ -442,7 +431,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
       )
 
       mousemove = ($event) ->
-        #console.log "mousemove initialMouseX: #{initialMouseX}, initialMouseY: #{initialMouseY}"
+        #console.log "mousemove initialMouseX: #{initialMouseX}, initialMouseY: #{initialMouseY}" if debug
         adjust_dragged($event)
         calculate_offset()
         false
@@ -486,9 +475,9 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
         else
           placeholder_upper = null
 
-        #console.log "placeholder_upper: " + ("#{key}: #{placeholder_upper[key]}" for key of placeholder_upper).join(', ')
-        #console.log "placeholder: " + ("#{key}: #{placeholder[key]}" for key of placeholder).join(', ')
-        #console.log "placeholder_lower: " + ("#{key}: #{placeholder_lower[key]}" for key of placeholder_lower).join(', ')
+        console.log "placeholder_upper: " + ("#{key}: #{placeholder_upper[key]}" for key of placeholder_upper).join(', ') if debug
+        console.log "placeholder: " + ("#{key}: #{placeholder[key]}" for key of placeholder).join(', ') if debug
+        console.log "placeholder_lower: " + ("#{key}: #{placeholder_lower[key]}" for key of placeholder_lower).join(', ') if debug
 
 
       adjust_dragged = ($event) ->
@@ -503,8 +492,8 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
 
       calculate_offset = ->
         #console.log "calculate_offset"
-        #console.log "PH: " + ("#{key}: #{placeholder[key]}" for key of placeholder).join(', ') + ", DR: " + ("#{key}: #{dragged[key]}" for key of dragged).join(', ')
-        #console.log "sY: #{startY}, iY: #{initialMouseY}, mY: #{mouseY}, DR.Y: #{dragged.y}, phU.y: #{placeholder_upper?.y}, ph.y: #{placeholder?.y}, phL.y: #{placeholder_lower?.y} "
+        #console.log "PH: " + ("#{key}: #{placeholder[key]}" for key of placeholder).join(', ') + ", DR: " + ("#{key}: #{dragged[key]}" for key of dragged).join(', ') if debug
+        console.log "sY: #{startY}, iY: #{initialMouseY}, mY: #{mouseY}, DR.Y: #{dragged.y}, phU.y: #{placeholder_upper?.y}, ph.y: #{placeholder?.y}, phL.y: #{placeholder_lower?.y}" if debug
 
         offset =
           x: (dragged.x - placeholder.x)/placeholder.w * 100
@@ -515,7 +504,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
           lower_y_offset = (dragged.y - placeholder_lower.y)/placeholder.h * 100
           #console.log "check offset with placeholder_lower, offset.y: #{offset.y}, lower offset y: #{lower_y_offset}"
           if Math.abs(offset.y) > Math.abs(lower_y_offset)
-            #console.log "SWAP THE ELEMENT WITH THE LOWER ELEMENT"
+            console.log "SWAP THE ELEMENT WITH THE LOWER ELEMENT" if debug
             next_elm = elm.parent().next()
             next_elm.after(elm.parent())
             placeholder.y = elm.parent().prop('offsetTop')
@@ -525,7 +514,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
           upper_y_offset = (dragged.y - placeholder_upper.y)/placeholder.h * 100
           #console.log "check offset with placeholder_upper, offset.y: #{offset.y}, lower offset y: #{upper_y_offset}"
           if Math.abs(offset.y) > Math.abs(upper_y_offset)
-            #console.log "SWAP THE ELEMENT WITH THE UPPER ELEMENT"
+            console.log "SWAP THE ELEMENT WITH THE UPPER ELEMENT" if debug
             prev_elm = angular.element( elm.parent()[0].previousElementSibling )
             elm.parent().after(prev_elm)
             placeholder.y = elm.parent().prop('offsetTop')
