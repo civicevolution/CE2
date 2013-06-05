@@ -232,6 +232,7 @@ div.profile-photo-form{
 
 div.comment-outer{
   margin-bottom: 60px;
+  border: 1px solid green;
   div.comment{
     div.author{
       text-align: right;
@@ -265,6 +266,10 @@ div.comment-outer{
     p.controls{ text-align: right; margin: 0;}
 
   }
+}
+div.placeholder{
+  background-color: #ddd;
+  display: none;
 }
 
 .slide-enter-active, .slide-leave-active {
@@ -303,4 +308,13 @@ div.ani-slide{
 
 .issue{
   > p{ font-style: italic;}
+}
+
+body.drag_in_process{
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

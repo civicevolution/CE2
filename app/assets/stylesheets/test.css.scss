@@ -1,3 +1,20 @@
+/* CSS for sortable test */
+
+.test{
+  .group{
+    border: 1 px solid blue;
+    padding: 20px;
+    .item{
+      border: 1px solid red;
+      height: 60px;
+      width: 160px;
+      //margin-bottom: 20px;
+    }
+  }
+
+}
+
+
 /*
     * the setup class (the class without the active suffix)
     is is where you define the transition code and where

@@ -14,11 +14,13 @@ class IssuesController < ApplicationController
 
     @issue_data = @issue.active_model_serializer.new(@issue, scope: { shallow_serialization_mode: true} )
 
-    firebase_auth_data =    { userid: "#{current_user.id}",
-                              issues_read: { "#{@issue.id}" => true },
-                              issues_write: { "#{@issue.id}" => true }
-                            }
-    @firebase_token = Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data)
+    if current_user
+      firebase_auth_data =    { userid: "#{current_user.id}",
+                                issues_read: { "#{@issue.id}" => true },
+                                issues_write: { "#{@issue.id}" => true }
+                              }
+      @firebase_token = Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data)
+    end
 
     render text: 'ok', layout: true
   end

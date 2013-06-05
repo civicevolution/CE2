@@ -1,0 +1,28 @@
+.test
+  %h3 Test sortable
+
+  %p
+    %a(ng-click="adjust()")
+      Test
+
+  %div.group
+
+    %div.item-outer
+      %div.item(ce-sortable){style: "height: #{rand(199..200)}px"}
+        item 1
+
+    %div.item-outer
+      %div.item(ce-sortable){style: "height: #{rand(100..101)}px"}
+        item 2
+
+    %div.item-outer
+      %div.item(ce-sortable){style: "height: #{rand(199..200)}px"}
+        item 3
+
+    %div.item-outer
+      %div.item(ce-sortable){style: "height: #{rand(49..50)}px"}
+        item 4
+
+    %div.item-outer
+      %div.item(ce-sortable){style: "height: #{rand(499..500)}px"}
+        item 5

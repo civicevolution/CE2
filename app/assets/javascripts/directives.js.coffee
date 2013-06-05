@@ -401,3 +401,134 @@ ce2_directives.directive('ceProfilePhotoForm', ->
           $scope.$apply()
   ]
 )
+
+
+ce2_directives.directive('ceSortable', [ "$document", "$timeout",
+  ($document, $timeout) ->
+    restrict: 'A'
+    link: (scope, elm, attrs) ->
+      startX = startY = initialMouseX = initialMouseY = mouseY = 0
+      placeholder = dragged = placeholder_upper = placeholder_lower = {}
+      ph = angular.element('<div class="placeholder item">PH</div>')
+      elm.after(ph)
+      #elm.html("y: #{ elm.parent().prop('offsetTop') }")
+
+
+      elm.bind('mousedown', ($event) ->
+        angular.element(document.body).addClass('drag_in_process')
+        startX = elm.parent().prop('offsetLeft')
+        startY = elm.parent().prop('offsetTop')
+        elm.css
+          position: 'absolute'
+          top:  "#{startX}px"
+          left: "#{startY}px"
+
+        #console.log "startX: #{startX}, startY: #{startY}"
+        initialMouseX = $event.clientX
+        initialMouseY = $event.clientY
+        $document.bind('mousemove', mousemove)
+        $document.bind('mouseup', mouseup)
+        record_current_place_holders()
+
+        elm.next().css
+          display: 'block'
+          height: "#{placeholder.h}px"
+          width: "#{placeholder.w}px"
+
+        adjust_dragged($event)
+
+        false
+
+      )
+
+      mousemove = ($event) ->
+        #console.log "mousemove initialMouseX: #{initialMouseX}, initialMouseY: #{initialMouseY}"
+        adjust_dragged($event)
+        calculate_offset()
+        false
+
+      mouseup = () ->
+        elm.css({position: 'static', left: "#{startX}px", top: "#{startY}px"})
+        $document.unbind('mousemove', mousemove)
+        $document.unbind('mouseup', mouseup)
+        elm.next().css({display: 'none'})
+        $timeout ->
+          angular.element(document.body).removeClass('drag_in_process')
+        , 1000
+
+
+      record_current_place_holders = ->
+        old_startX = startX
+        startX = elm.parent().prop('offsetLeft')
+        initialMouseX += (startX - old_startX)
+
+        old_startY = startY
+        startY = elm.parent().prop('offsetTop')
+        initialMouseY += (startY - old_startY)
+
+        placeholder =
+          x: startX
+          y: startY
+          w: elm.prop('offsetWidth')
+          h: elm.prop('offsetHeight')
+
+        nextElm = elm.parent().next()
+        if nextElm.length > 0
+          placeholder_lower = angular.copy(placeholder)
+          placeholder_lower.y = placeholder.y + nextElm.prop('offsetHeight')
+        else
+          placeholder_lower = null
+
+        prevElm = angular.element( elm.parent()[0].previousElementSibling )
+        if prevElm.length > 0
+          placeholder_upper = angular.copy(placeholder)
+          placeholder_upper.y = placeholder.y - prevElm.prop('offsetHeight')
+        else
+          placeholder_upper = null
+
+        #console.log "placeholder_upper: " + ("#{key}: #{placeholder_upper[key]}" for key of placeholder_upper).join(', ')
+        #console.log "placeholder: " + ("#{key}: #{placeholder[key]}" for key of placeholder).join(', ')
+        #console.log "placeholder_lower: " + ("#{key}: #{placeholder_lower[key]}" for key of placeholder_lower).join(', ')
+
+
+      adjust_dragged = ($event) ->
+        dragged =
+          x: startX + $event.clientX - initialMouseX
+          y: startY + $event.clientY - initialMouseY
+        elm.css {
+          top:  "#{dragged.y}px"
+          left: "#{dragged.x}px"
+        }
+        mouseY = $event.clientY
+
+      calculate_offset = ->
+        #console.log "calculate_offset"
+        #console.log "PH: " + ("#{key}: #{placeholder[key]}" for key of placeholder).join(', ') + ", DR: " + ("#{key}: #{dragged[key]}" for key of dragged).join(', ')
+        #console.log "sY: #{startY}, iY: #{initialMouseY}, mY: #{mouseY}, DR.Y: #{dragged.y}, phU.y: #{placeholder_upper?.y}, ph.y: #{placeholder?.y}, phL.y: #{placeholder_lower?.y} "
+
+        offset =
+          x: (dragged.x - placeholder.x)/placeholder.w * 100
+          y: (dragged.y - placeholder.y)/placeholder.h * 100
+        #console.log ("#{key}: #{offset[key]}" for key of offset).join(', ')
+
+        if offset.y > 50 && placeholder_lower
+          lower_y_offset = (dragged.y - placeholder_lower.y)/placeholder.h * 100
+          #console.log "check offset with placeholder_lower, offset.y: #{offset.y}, lower offset y: #{lower_y_offset}"
+          if Math.abs(offset.y) > Math.abs(lower_y_offset)
+            #console.log "SWAP THE ELEMENT WITH THE LOWER ELEMENT"
+            next_elm = elm.parent().next()
+            next_elm.after(elm.parent())
+            placeholder.y = elm.parent().prop('offsetTop')
+            record_current_place_holders()
+
+        else if offset.y < -50 && placeholder_upper
+          upper_y_offset = (dragged.y - placeholder_upper.y)/placeholder.h * 100
+          #console.log "check offset with placeholder_upper, offset.y: #{offset.y}, lower offset y: #{upper_y_offset}"
+          if Math.abs(offset.y) > Math.abs(upper_y_offset)
+            #console.log "SWAP THE ELEMENT WITH THE UPPER ELEMENT"
+            prev_elm = angular.element( elm.parent()[0].previousElementSibling )
+            elm.parent().after(prev_elm)
+            placeholder.y = elm.parent().prop('offsetTop')
+            record_current_place_holders()
+
+])

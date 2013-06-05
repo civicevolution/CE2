@@ -153,6 +153,16 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         ]
       })
 
+      .state('test-sortable', {
+        url: '/test-sortable'
+        templateUrl: "/assets/angular-views/test/sortable.html?t=#{new Date().getTime()}"
+        controller: [ "$scope", ($scope) ->
+          console.log "controller for test-sortable"
+          $scope.test = ->
+            console.log "test in sortable"
+        ]
+      })
+
 ])
 
 ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", ($rootScope,   $state,   $stateParams, Issue) ->
