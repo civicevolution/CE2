@@ -5,7 +5,18 @@
     %a(ng-click="adjust()")
       Test
 
+  -#%div.comment-outer(ng-repeat="item in items")
+    %div.item(ce-sortableX){style: "height: #{rand(100..100)}px"}
+      {{item}}
+
   %div.group
+
+    %h4 items from ngRepeat
+    %div.item-outer(ng-repeat="item in items")
+      %div.item(ce-sortable in-repeat="true"){style: "height: #{rand(100..100)}px"}
+        {{item}}
+
+    %hr Hardcoded items
 
     %div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
       item 1

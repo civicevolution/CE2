@@ -121,6 +121,7 @@ ce2_directives.directive('ceComment', ->
   templateUrl: "/assets/angular-views/comment.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: false
+  priority: 100
   controller: [ "$scope", "CommentData",
     ($scope, CommentData) ->
 
@@ -394,6 +395,8 @@ ce2_directives.directive('ceProfilePhotoForm', ->
 ce2_directives.directive('ceSortable', [ "$document", "$timeout",
   ($document, $timeout) ->
     restrict: 'A'
+    priority: 500
+    scope: true
     link: (scope, elm, attrs) ->
       startX = startY = initialMouseX = initialMouseY = mouseY = 0
       placeholder = dragged = placeholder_upper = placeholder_lower = {}
@@ -401,9 +404,15 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
       elm.addClass('ce-sortable-item')
       elm.wrap('<div class="ce-sortable-item-carrier"></div>')
       item_carrier = elm.parent();
-
-      item_carrier.wrap('<div class="ce-sortable-item-pair"></div>')
-      item_pair = item_carrier.parent()
+      
+      if typeof item_carrier.parent().attr('ng-repeat')
+        #console.log "Build up item using the ng-repeat parent element"
+        item_pair = item_carrier.parent()
+        item_pair.addClass("ce-sortable-item-pair")
+      else
+        #console.log "Build up original item"
+        item_carrier.wrap('<div class="ce-sortable-item-pair"></div>')
+        item_pair = item_carrier.parent()
 
       handle = angular.element('<div class="ce-sortable-handle"></div>')
       elm.append(handle)
