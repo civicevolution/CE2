@@ -17,10 +17,10 @@ class Rating < ActiveRecord::Base
     yield
     index_for_new_rating = ( (rating-1)/10).floor
     if index_for_new_rating != @index_for_previous_rating
-      ratable.ratings_cache[@index_for_previous_rating] -= 1 if @index_for_previous_rating
-      ratable.ratings_cache[index_for_new_rating] += 1
-      ratable.ratings_cache_will_change!
-      ratable.save
+      ratings_cache = ratable.ratings_cache
+      ratings_cache[@index_for_previous_rating] -= 1 if @index_for_previous_rating
+      ratings_cache[index_for_new_rating] += 1
+      ratable.update_column(:ratings_cache, "{#{ratings_cache.join(',')}}" )
     end
   end
 end
