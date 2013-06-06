@@ -392,14 +392,15 @@ ce2_directives.directive('ceProfilePhotoForm', ->
 )
 
 
-ce2_directives.directive('ceSortable', [ "$document", "$timeout",
-  ($document, $timeout) ->
+ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationData",
+  ($document, $timeout, ConversationData) ->
     restrict: 'A'
     priority: 500
     scope: true
     link: (scope, elm, attrs) ->
       startX = startY = initialMouseX = initialMouseY = mouseY = 0
       placeholder = dragged = placeholder_upper = placeholder_lower = {}
+      item_name = collection_name = ''
 
       elm.addClass('ce-sortable-item')
       elm.wrap('<div class="ce-sortable-item-carrier"></div>')
@@ -459,13 +460,54 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout",
         false
 
       mouseup = () ->
+        clear_sort_mode()
+        [model_collection, dom_scope_collection] = get_scope_collection_for_dom_items_and_model()
+        # now compare model in scope collection with the scope in DOM children
+
+        if not collections_are_equal(model_collection, dom_scope_collection)
+          # update the scope model
+          #console.log "update the scope_model"
+          #model_collection = dom_scope_collection
+          elm.scope().$parent[collection_name] = dom_scope_collection
+          $rootScope = elm.scope().$root
+          $rootScope.$$phase || $rootScope.$apply()
+
+          # persist the new collection ordered ids
+          #console.log "persist the new collection order"
+          conversation_id = elm.scope().$parent.conversation?.id || 22
+          comments_order = (item.id for item in dom_scope_collection )
+          ConversationData.persist_summary_comment_order_to_ror(conversation_id, comments_order)
+          $timeout ->
+            angular.element(document.body).removeClass('drag_in_process')
+          , 1000
+
+      collections_are_equal = (collection_a, collection_b) ->
+        for item, i in collection_a
+          #console.log "compare item at #{i}"
+          if item isnt collection_b[i]
+            return false
+        true
+
+      clear_sort_mode = ->
         elm.css({position: 'static', left: "#{startX}px", top: "#{startY}px"})
         $document.unbind('mousemove', mousemove)
         $document.unbind('mouseup', mouseup)
         elm.next().css({display: 'none'})
-        $timeout ->
-          angular.element(document.body).removeClass('drag_in_process')
-        , 1000
+
+
+      get_scope_collection_for_dom_items_and_model = ->
+        [x, item_name, collection_name ] = elm.parent().attr('ng-repeat').match(/(\w+)\s+in\s+(\w+)/)
+        #console.log "item_name: #{item_name}, collection_name: #{collection_name}"
+
+        # get the DOM items for the collection
+        dom_items = elm.parent().parent().children()
+        # get the scope items for each dom_item
+        scope_collection = (angular.element(dom_item).scope()[item_name] for dom_item in dom_items)
+
+        model_collection = elm.scope().$parent[collection_name]
+        [model_collection, scope_collection]
+
+
 
 
       record_current_place_holders = ->

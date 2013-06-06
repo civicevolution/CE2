@@ -2,33 +2,36 @@
   %h3 Test sortable
 
   %p
-    %a(ng-click="adjust()")
+    %a(ng-click="test()")
       Test
 
   -#%div.comment-outer(ng-repeat="item in items")
     %div.item(ce-sortableX){style: "height: #{rand(100..100)}px"}
       {{item}}
 
+  %p item ids: (scope: {{$id}})
+  %div.item-outer(ng-repeat="itemXY in items")
+    %p id: {{itemXY.id}}, {{itemXY.order_id}}
+
+  %h4 items from ngRepeat (scope: {{$id}})
   %div.group
+    %div.item-outer(ng-repeat="itemX in items")
+      %div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
+        id: {{itemX.id}}, order_id: {{itemX.order_id}}, text: {{itemX.text}}
 
-    %h4 items from ngRepeat
-    %div.item-outer(ng-repeat="item in items")
-      %div.item(ce-sortable in-repeat="true"){style: "height: #{rand(100..100)}px"}
-        {{item}}
-
-    %hr Hardcoded items
-
-    %div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
-      item 1
-
-    %div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
-      item 2
-
-    %div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
-      item 3
-
-    %div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
-      item 4
-
-    %div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
-      item 5
+    -#%hr Hardcoded items
+    -#
+    -#%div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
+    -#  item 1
+    -#
+    -#%div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
+    -#  item 2
+    -#
+    -#%div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
+    -#  item 3
+    -#
+    -#%div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
+    -#  item 4
+    -#
+    -#%div.item(ce-sortable){style: "height: #{rand(100..100)}px"}
+    -#  item 5

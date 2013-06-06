@@ -157,8 +157,14 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         url: '/test-sortable'
         templateUrl: "/assets/angular-views/test/sortable.html?t=#{new Date().getTime()}"
         controller: [ "$scope", ($scope) ->
-          console.log "controller for test-sortable"
-          $scope.items = ['item 1', 'item 2', 'item 3', 'item 4', 'item 5']
+          #console.log "controller for test-sortable"
+          $scope.items = [
+            {id: 1, order_id: 1, text: 'item 1'},
+            {id: 2, order_id: 2, text: 'item 2'},
+            {id: 3, order_id: 3, text: 'item 3'},
+            {id: 4, order_id: 4, text: 'item 4'},
+            {id: 5, order_id: 5, text: 'item 5'}
+          ]
           $scope.test = ->
             console.log "test in sortable"
         ]
