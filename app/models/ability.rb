@@ -18,6 +18,8 @@ class Ability
       can :manage, Attachment
       can :manage, Profile
 
+      can :manage, Conversation
+
     end
     
     # Define abilities for the passed in user here. For example:

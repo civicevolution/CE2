@@ -106,14 +106,33 @@ ce2_directives.directive('ceConversation', ->
         FirebaseService.initialize_source(url, response.firebase_token)
 
         # register the listeners for the firebase updates
-        $scope.$on( 'ConversationComment_update', (event, data) ->
+        $scope.$on 'ConversationComment_update', (event, data) ->
           #console.log "received broadcast ConversationComment_update"
           FirebaseService.process_update($scope.ConversationComments, data)
-        )
-        $scope.$on( 'SummaryComment_update', (event, data) ->
+
+        $scope.$on 'SummaryComment_update', (event, data) ->
           #console.log "received broadcast SummaryComment_update"
           FirebaseService.process_update($scope.SummaryComments, data)
-        )
+
+
+        # register a listener for summary_comments ordered ids
+        $scope.$on 'Conversation_update', (event, data) ->
+          console.log "received broadcast Conversation_update"
+
+          # make sure it is the correct conversation_id
+          # $scope.conversation.id
+          if Number(data.data.conversation_id) is Number($scope.conversation.id)
+            ordered_ids = data.data.ordered_ids
+            # reorder $scope.SummaryComments according to these ids
+            if ordered_ids
+              # update the order_id for the comments
+              for comment in $scope.SummaryComments
+                comment.order_id = ordered_ids[comment.id]
+              #resort the SummaryComments according to order_id
+              $scope.SummaryComments.sort((a, b) -> return a.order_id > b.order_id )
+             $scope.$$phase || $scope.$apply()
+
+
   ]
 )
 ce2_directives.directive('ceComment', ->

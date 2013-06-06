@@ -89,7 +89,7 @@ services.factory "ConversationData", ["$http", "FirebaseService",
 
     persist_summary_comment_order_to_ror: (conversation_id, comments_order) ->
       console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_id} with order #{comments_order}"
-      #$http.post("/comments/#{comment_id}/rate/#{rating}.json")
+      $http.post("/api/conversations/#{conversation_id}/summary_comment_order.json", {ordered_ids: comments_order})
 
 ]
 

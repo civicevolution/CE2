@@ -44,6 +44,17 @@ module Api
         respond_with Comment.destroy(params[:id])
       end
 
+      def summary_comment_order
+        Rails.logger.debug "api/conversations_controller.summary_comment_order for conversation #{params[:id]}"
+        ids_with_order_id = Conversation.reorder_summary_comments( params[:id], params[:ordered_ids] )
+        if !ids_with_order_id.empty?
+          conversation = Conversation.find( params[:id] )
+          Firebase.base_uri = "https://civicevolution.firebaseio.com/issues/#{conversation.question.issue_id}/conversations/#{conversation.id}/updates/"
+          Firebase.push '', { class: 'Conversation', action: 'update_summary_comment_order', data: {conversation_id: params[:id], ordered_ids: ids_with_order_id }, source: "RoR-Firebase" }
+        end
+
+        render json: 'ok'
+      end
     end
 
   end
