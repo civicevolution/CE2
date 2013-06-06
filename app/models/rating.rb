@@ -21,6 +21,8 @@ class Rating < ActiveRecord::Base
       ratings_cache[@index_for_previous_rating] -= 1 if @index_for_previous_rating
       ratings_cache[index_for_new_rating] += 1
       ratable.update_column(:ratings_cache, "{#{ratings_cache.join(',')}}" )
+      # using update_column to prevent update of updated_at field means callbacks are skipped
+      ratable.send_to_firebase if ratable.respond_to? :send_to_firebase
     end
   end
 end

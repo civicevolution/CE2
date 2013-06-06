@@ -50,7 +50,7 @@ module Api
         if !ids_with_order_id.empty?
           conversation = Conversation.find( params[:id] )
           Firebase.base_uri = "https://civicevolution.firebaseio.com/issues/#{conversation.question.issue_id}/conversations/#{conversation.id}/updates/"
-          Firebase.push '', { class: 'Conversation', action: 'update_summary_comment_order', data: {conversation_id: params[:id], ordered_ids: ids_with_order_id }, source: "RoR-Firebase" }
+          Firebase.push '', { class: 'Conversation', action: 'update_summary_comment_order', data: {conversation_id: params[:id], ordered_ids: ids_with_order_id }, updated_at: Time.now.getutc, source: "RoR-Firebase" }
         end
 
         render json: 'ok'

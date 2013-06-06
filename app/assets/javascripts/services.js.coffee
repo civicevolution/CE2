@@ -166,7 +166,7 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
     #console.log "Firebase.process_update for #{data.class}"
     # Only apply updates newer than the page load time
     update_all = false
-    if update_all || (Date.fromISO(data.data.updated_at).getTime() / 1000 ) - _timestamp > 0
+    if update_all || (Date.fromISO(data.updated_at).getTime() / 1000 ) - _timestamp > 0
       if data.action == "delete"
         for rec, index in item_array
           if rec.id == data.data.id
