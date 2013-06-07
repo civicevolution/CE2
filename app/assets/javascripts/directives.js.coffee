@@ -114,6 +114,8 @@ ce2_directives.directive('ceConversation', ->
           #console.log "received broadcast SummaryComment_update"
           FirebaseService.process_update($scope.SummaryComments, data)
 
+        $scope.ConversationCommentLength = 1500
+        $scope.SummaryCommentLength = 0
 
         # register a listener for summary_comments ordered ids
         $scope.$on 'Conversation_update', (event, data) ->
@@ -172,6 +174,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
     #console.log "link function for ceCommentForm with scope: #{scope.$id}"
     scope.newComment.conversation_id = scope.conversation.id
     scope.newComment.type = attrs.type
+    scope.comment_length = scope[attrs.max]
     $timeout ->
       scope.autoGrow(element.find('textarea')[0])
     , 100

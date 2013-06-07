@@ -10,7 +10,7 @@
   .row-fluid
     .span8.offset2
       %h4 Summarize this conversation
-      %div(ce-comment-form){type: "SummaryComment"}
+      %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
 
 
   .row-fluid
@@ -23,4 +23,4 @@
     .span8.offset2
 
       %h4 What do you think?
-      %div(ce-comment-form){type: "ConversationComment"}
+      %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")

@@ -86,7 +86,7 @@ div.rating{
 }
 div.comment-form{
   //border: 1px solid green;
-  width: 330px;
+  //width: 330px;
   //padding: 18px 10px 10px 10px;
   position: relative;
   div.edit-bar{
@@ -97,7 +97,7 @@ div.comment-form{
     display: block;
   }
   textarea{
-    width: 300px;
+    width: 100%;
     height: 80px;
     max-height: 300px;
   }
@@ -151,6 +151,14 @@ div.comment-form{
         font-size: .8em;
         word-wrap: break-word;
       }
+    }
+  }
+  div.form_ctrls{
+    position: relative;
+    .char-ctr{
+      position: absolute;
+      top: 0;
+      right: 0;
     }
   }
 }
@@ -255,7 +263,7 @@ div.comment-outer{
       border: 1px solid #ddd;
       min-height: 140px;
     }
-    p.controls{ text-align: right; margin: 0;}
+    p.controls{ text-align: right; margin: -10px 0 0 0; font-style: italic; opacity: .6;}
 
   }
 }
@@ -327,4 +335,9 @@ body.drag_in_process{
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.warn{
+  color: red;
+  font-weight: bold;
 }

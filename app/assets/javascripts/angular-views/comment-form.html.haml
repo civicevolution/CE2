@@ -1,5 +1,5 @@
 %div.comment-form
-  %p
+  -#%p
     %i comment form from directive scope id: {{$id}}
   %div.edit-menu
     %div.attachment_form
@@ -22,12 +22,15 @@
     %input(ng-model="newComment.conversation_id"){type: 'hidden' }
     %input(ng-model="newComment.type"){type: 'hidden' }
 
-    %p.clear(ng-hide="newComment.id")
-      %input(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
-      %a(ng-click="clear_form()")
-        Clear
+    %div.clear.form_ctrls
+      %span(ng-hide="newComment.id")
+        %input(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
+        %a(ng-click="clear_form()")
+          Clear
 
-    %p.clear(ng-show="newComment.id")
-      %input(ng-disabled="form_disabled"){type: 'submit', value: 'Update'}
-      %a(ng-click="cancel_edit()")
-        Cancel
+      %span(ng-show="newComment.id")
+        %input(ng-disabled="form_disabled"){type: 'submit', value: 'Update'}
+        %a(ng-click="cancel_edit()")
+          Cancel
+
+      %span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")
