@@ -7,7 +7,7 @@
       %p.author
         %span {{comment.first_name}} {{comment.last_name}}
         %span {{comment.updated_at | from_now}}
-      %p {{comment.text}}
+      %div(ng-bind-html-unsafe="simple_format(comment.text)")
 
       %div.attachments
         %div.attachment(ng-repeat="attachment in comment.attachments" )

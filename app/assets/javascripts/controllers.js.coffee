@@ -180,7 +180,8 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", ($rootScope,   $s
   $rootScope.autoGrow = (oField) ->
     if oField.scrollHeight > oField.clientHeight
       oField.style.height = oField.scrollHeight + "px"
-
+  $rootScope.simple_format = (s) ->
+    ("<p>#{str}</p>" for str in unescape(s).split(/\n\n/)).join('').replace(/\n/g,'<br/>')
 ])
 
 
