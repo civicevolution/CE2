@@ -1,76 +1,96 @@
 %div.row-fluid.comment(ng-switch="comment.type" )
   %div(ng-switch-when="SummaryComment")
-
-    .span10
-      %div(ng-hide="edit_mode")
-        %p.author
-        %div(ng-bind-html-unsafe="simple_format(comment.text)")
-
-        %div.attachments
-          %div.attachment(ng-repeat="attachment in comment.attachments" )
-            %a(ng-href="{{attachment.url}}"){target: "_blank"}
-              %img.icon(ng-src="{{attachment.medium_url}}")
-              %p.name
-                {{attachment.attachment_file_name}}
-
-        %p.controls.clear
-          %a(ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
-            %i.icon-pencil
-            Edit
-          %span(ng-show="comment.version>1")
-            Version {{comment.version}}
+    %div(ng-switch="comment.text.length")
+      %div(ng-switch-when="0")
+        .span8.deleted-comment-body
+          %p
+            This summary item has been deleted
             %a(ng-click="view_history({{comment.id}})")
               View history
-          %span {{comment.updated_at | from_now}}
+          %div.history.clear(ng-include src="history_url")
+
+      %div(ng-switch-default)
+
+        .span10.summary-comment-body
+          %div(ng-hide="edit_mode")
+            %p.author
+            %div(ng-bind-html-unsafe="simple_format(comment.text)")
+
+            %div.attachments
+              %div.attachment(ng-repeat="attachment in comment.attachments" )
+                %a(ng-href="{{attachment.url}}"){target: "_blank"}
+                  %img.icon(ng-src="{{attachment.medium_url}}")
+                  %p.name
+                    {{attachment.attachment_file_name}}
+
+            %p.controls.clear
+              %a(ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
+                %i.icon-pencil
+                Edit
+              %span(ng-show="comment.version>1")
+                Version {{comment.version}}
+                %a(ng-click="view_history({{comment.id}})")
+                  View history
+              %span {{comment.updated_at | from_now}}
 
 
 
-        %div(ce-rating-slider)
+            %div(ce-rating-slider)
 
-        %div.history.clear(ng-include src="history_url")
+            %div.history.clear(ng-include src="history_url")
 
-      %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
-        %div(ce-comment-form max="SummaryCommentLength")
+          %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
+            %div(ce-comment-form max="SummaryCommentLength")
 
-    .span2.share
-      %p Share
+        .span2.share
+          %p Share
 
 
 
   %div(ng-switch-when="ConversationComment")
-    .span2.author
-      %img(ng-src="{{comment.sm3}}")
-
-    .span8
-      %div(ng-hide="edit_mode")
-        %p.author
-          %span {{comment.first_name}} {{comment.last_name}}
-          %span {{comment.updated_at | from_now}}
-        %div(ng-bind-html-unsafe="simple_format(comment.text)")
-
-        %div.attachments
-          %div.attachment(ng-repeat="attachment in comment.attachments" )
-            %a(ng-href="{{attachment.url}}"){target: "_blank"}
-              %img.icon(ng-src="{{attachment.medium_url}}")
-              %p.name
-                {{attachment.attachment_file_name}}
-
-        %p.controls.clear
-          %a(ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
-            %i.icon-pencil
-            Edit
-          %span(ng-show="comment.version>1")
-            Version {{comment.version}}
+    %div(ng-switch="comment.text.length")
+      %div(ng-switch-when="0")
+        .span8.offset2.deleted-comment-body
+          %p
+            This comment has been deleted
             %a(ng-click="view_history({{comment.id}})")
               View history
+          %div.history.clear(ng-include src="history_url")
+
+      %div(ng-switch-default)
+        .span2.author
+          %img(ng-src="{{comment.sm3}}")
+
+        .span8.conversation-comment-body
+          %div(ng-hide="edit_mode")
+            %p.author
+              %span {{comment.first_name}} {{comment.last_name}}
+              %span {{comment.updated_at | from_now}}
+            %div(ng-bind-html-unsafe="simple_format(comment.text)")
+
+            %div.attachments
+              %div.attachment(ng-repeat="attachment in comment.attachments" )
+                %a(ng-href="{{attachment.url}}"){target: "_blank"}
+                  %img.icon(ng-src="{{attachment.medium_url}}")
+                  %p.name
+                    {{attachment.attachment_file_name}}
+
+            %p.controls.clear
+              %a(ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
+                %i.icon-pencil
+                Edit
+              %span(ng-show="comment.version>1")
+                Version {{comment.version}}
+                %a(ng-click="view_history({{comment.id}})")
+                  View history
 
 
-        %div(ce-rating-slider)
+            %div(ce-rating-slider)
 
-        %div.history.clear(ng-include src="history_url")
+            %div.history.clear(ng-include src="history_url")
 
-      %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
-        %div(ce-comment-form max="ConversationCommentLength")
+          %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
+            %div(ce-comment-form max="ConversationCommentLength")
 
-    .span2.share
-      %p Share
+        .span2.share
+          %p Share

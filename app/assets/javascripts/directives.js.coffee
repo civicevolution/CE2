@@ -147,9 +147,12 @@ ce2_directives.directive('ceComment', ->
     ($scope, CommentData) ->
 
       $scope.edit = (comment_type, comment_id) ->
-        console.log "edit comment"
         $scope.edit_mode = true
         $scope.newComment = angular.copy( (comment for comment in $scope["#{comment_type}s"] when comment.id is comment_id)[0] )
+
+      $scope.$on 'clear-comment-edit', ->
+        $scope.edit_mode = false
+
       $scope.view_history = (comment_id) ->
         $scope.history = CommentData.history(comment_id)
         $scope.history_url = "/assets/angular-views/comment-history.html?t=#{$scope.timestamp}"
@@ -174,9 +177,9 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
     #console.log "link function for ceCommentForm with scope: #{scope.$id}"
     scope.newComment.conversation_id = scope.conversation.id
     scope.newComment.type = attrs.type
-    scope.comment_length = scope[attrs.max]
     $timeout ->
       scope.autoGrow(element.find('textarea')[0])
+      scope.comment_length = scope[attrs.max]
     , 100
 
   controller: [ "$scope", "CommentData", "AttachmentData",
@@ -195,7 +198,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             this.newComment.attachments = []
             this.newComment.id = null
             this.newComment.text = null
-            $scope.$parent.$parent.edit_mode = false
+            $scope.$emit('clear-comment-edit')
 
       $scope.clear_form = ->
         # if there are any attachments, they need to be deleted
@@ -205,7 +208,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
       $scope.cancel_edit = ->
         #console.log "cancel the comment edit"
-        $scope.$parent.$parent.edit_mode = false
+        $scope.$emit('clear-comment-edit')
 
       $scope.file_selected = (element) ->
         if element.files.length > 0

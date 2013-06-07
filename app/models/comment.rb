@@ -54,7 +54,12 @@ class Comment < ActiveRecord::Base
     true
   end
 
-  validates :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :presence => true
+  validates :type, :user_id, :conversation_id, :version, :status, :order_id, :presence => true
+  validates :text, presence: true, if: :is_new_comment?
+
+  def is_new_comment?
+    !persisted?
+  end
 
   validate :my_test
 

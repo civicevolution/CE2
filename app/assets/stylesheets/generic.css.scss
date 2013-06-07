@@ -231,7 +231,6 @@ div.profile-photo-form{
 }
 
 div.comment-outer{
-  padding-bottom: 60px;
   //border: 1px solid green;
   div.comment{
     div.author{
@@ -264,7 +263,14 @@ div.comment-outer{
       min-height: 140px;
     }
     p.controls{ text-align: right; margin: -10px 0 0 0; font-style: italic; opacity: .6;}
-
+    .conversation-comment-body{ padding-bottom: 60px; }
+    .summary-comment-body{ padding-bottom: 30px; }
+    .deleted-comment-body{ padding-bottom: 30px;
+      > p {
+        font-style: italic;
+        opacity: .6
+      }
+    }
   }
 }
 

@@ -27,3 +27,10 @@ ce2_filters.filter 'characters_remaining', ->
       when count == 0 then "No characters left"
       when count == -1 then "<span class='warn'>1 character over</span>"
       when count < -1 then "<span class='warn'>#{count} characters over</span>"
+
+
+ce2_filters.filter 'vote_count', ->
+  (count) ->
+    switch
+      when count == 1 then "<div class='count'>#{count}</div><div class='lbl'>vote</div>"
+      else "<div class='count'>#{count}</div><div class='lbl'>votes</div>"
