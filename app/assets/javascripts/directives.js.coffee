@@ -303,10 +303,11 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
     mouse_binding_box = canvas.parent()
     handle = mouse_binding_box.find('div')
     debug = false
+    canvas_width = 300
     if scope.comment.my_rating
-      handle.css( 'left', "#{scope.comment.my_rating/100*350-9}px" )
+      handle.css( 'left', "#{scope.comment.my_rating/100*canvas_width-9}px" )
     else
-      handle.css( 'left', "#{50/100*350-9}px" )
+      handle.css( 'left', "#{50/100*canvas_width-9}px" )
     width = offset = null
 
     mouse_binding_box.bind "mousedown", ($event) ->

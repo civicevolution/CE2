@@ -9,7 +9,7 @@ console.log "loading graph.js.coffee"
 class Graph
   draw_rating_results: (ctx, vote_counts, my_rating) ->
     #console.log "Graph.draw_rating_results"
-    width = 350
+    width = 300 # also set $rating_width in scss, rating_slider.html, canvas_width in directives
     height = 40
 
     ctx.width = width

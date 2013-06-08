@@ -47,7 +47,7 @@ div.attachment_form
 
 
 
-$rating_width: 350px;
+$rating_width: 300px;
 $rating_height: 40px;
 $rating_handle_height: 18px;
 .clear{
@@ -235,10 +235,25 @@ div.comment-outer{
   div.comment{
     div.author{
       text-align: right;
+      div.com-num{
+        color: #eed;
+        font-size: 4em;
+        margin-top: 30px;
+        margin-right: 10px;
+        font-style: italic;
+      }
     }
+    div.deleted-comment-author{
+      div.com-num{
+        font-size: 1.6em;
+        margin-top: 0;
+      }
+    }
+
     p.author{
       color: #aaa;
       font-style: italic;
+      margin: -6px 0 0 0;
     }
 
     div.attachments{
@@ -260,17 +275,25 @@ div.comment-outer{
     }
     .share{
       border: 1px solid #ddd;
-      min-height: 140px;
+      min-height: 20px;
     }
     p.controls{ text-align: right; margin: -10px 0 0 0; font-style: italic; opacity: .6;}
-    .conversation-comment-body{ padding-bottom: 60px; }
-    .summary-comment-body{ padding-bottom: 30px; }
     .deleted-comment-body{ padding-bottom: 30px;
       > p {
         font-style: italic;
         opacity: .6
       }
     }
+    div.rating{
+      min-width: 360px;
+      div.vote_count{
+        max-width: 58px;
+        margin-left: 20px
+      }
+    }
+    &.ConversationComment div.rating{ padding-bottom: 40px; }
+    &.SummaryComment div.rating{ padding-bottom: 0px; }
+
   }
 }
 
