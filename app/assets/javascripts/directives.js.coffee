@@ -428,6 +428,14 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
       placeholder = dragged = placeholder_upper = placeholder_lower = {}
       item_name = collection_name = ''
 
+      # construct the html structure that will allow the sorting to work
+      # in order to be draggable, item must be positioned absolute
+      # to format the drag handle I want position absolute on handle and position relative on comment
+      # so I wrap the comment with a div that will be position absolute so comm can be relative to allow handle placement
+      # I also need a placeholder at the same level as the comment wrapper
+      # the code below adds these pieces
+      # it starts with the sortable element which is div.comment.SummaryComment
+      # adding a bound class, class="{{comment.type}}", causes the 'ce-sortable-item' class to be lost
       elm.addClass('ce-sortable-item')
       elm.wrap('<div class="ce-sortable-item-carrier"></div>')
       item_carrier = elm.parent();
@@ -456,9 +464,11 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
         angular.element(document.body).addClass('drag_in_process')
         startX = elm.parent().prop('offsetLeft')
         startY = elm.parent().prop('offsetTop')
+        width = elm.parent().prop('offsetWidth')
         elm.css
           position: 'absolute'
           top:  "#{startX}px"
+          width: "#{width}px"
           #left: "#{startY}px"
 
         console.log "startX: #{startX}, startY: #{startY}" if debug

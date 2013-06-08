@@ -1,7 +1,7 @@
-%div.row-fluid.comment(ng-switch="comment.type" class="{{comment.type}}" )
+%div.comment(ng-switch="comment.type" ng-class="comment.type" )
   %div(ng-switch-when="SummaryComment")
     %div(ng-switch="comment.text.length")
-      %div(ng-switch-when="0")
+      %div.row-fluid(ng-switch-when="0")
         .span8.deleted-comment-body
           %p
             This summary item has been deleted
@@ -9,7 +9,7 @@
               View history
           %div.history.clear(ng-include src="history_url")
 
-      %div(ng-switch-default)
+      %div.row-fluid(ng-switch-default)
         .span10.summary-comment-body
           %div(ng-hide="edit_mode")
             %p.author
@@ -46,7 +46,7 @@
 
   %div(ng-switch-when="ConversationComment")
     %div(ng-switch="comment.text.length")
-      %div(ng-switch-when="0")
+      %div.row-fluid(ng-switch-when="0")
         .span2.author.deleted-comment-author
           %div.com-num
             {{comment.order_id}}
@@ -58,7 +58,7 @@
               View history
           %div.history.clear(ng-include src="history_url")
 
-      %div(ng-switch-default)
+      %div.row-fluid(ng-switch-default)
         .span2.author
           %img(ng-src="{{comment.sm3}}")
           %div.com-num
@@ -99,7 +99,7 @@
 
 
           %div.row-fluid
-            .span12
+            .span10
               %div(ce-rating-slider)
 
 
