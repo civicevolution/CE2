@@ -65,11 +65,44 @@ ce2_directives.directive('ceUserBar', ->
               dialog.close()
         )
         dialog.open()
+
+      $scope.forgot_password = ->
+        console.log "open forgot_password form"
+        dialog = $dialog.dialog(
+          backdrop: true
+          keyboard: true
+          backdropClick: true
+          templateUrl: '/assets/angular-views/forgot_password_form.html.haml'
+          controller: ->
+            $scope.user =
+              email: 'alice@civicevolution.org'
+            $scope.submit_forgot_password = (user) ->
+              console.log "Submit by calling User.forgot_password with email: #{user.email}"
+              $scope.error_message = null
+              User.forgot_password($scope, user, dialog)
+            $scope.cancel = ->
+              dialog.close()
+        )
+        dialog.open()
+
       $scope.edit_profile = ->
         $state.transitionTo('edit-profile')
       $scope.test = ->
         console.log "CeUserBar test"
-        debugger
+        User.test()
+
+      $scope.acknowledge_dialog = (message) ->
+        dialog = $dialog.dialog(
+          backdrop: true
+          keyboard: true
+          backdropClick: true
+          templateUrl: '/assets/angular-views/acknowledge-dialog.html.haml'
+          controller: ->
+            $scope.message = message
+            $scope.cancel = ->
+              dialog.close()
+        )
+        dialog.open()
   ]
 )
 
@@ -449,7 +482,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
         item_carrier.wrap('<div class="ce-sortable-item-pair"></div>')
         item_pair = item_carrier.parent()
 
-      handle = angular.element('<div class="ce-sortable-handle"></div>')
+      handle = angular.element('<div class="ce-sortable-handle"><i class="icon-sort icon-2x"></i></div>')
       elm.append(handle)
 
       item_carrier.after(angular.element('<div class="ce-sortable-placeholder ce-sortable-item"></div>'))

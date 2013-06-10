@@ -49,8 +49,27 @@ services.factory 'User', [ "$http", "$window", ($http, $window) ->
         console.log "a bigger error in sign up"
     )
 
+  forgot_password: (dialog_scope, user, dialog) ->
+    #console.log "User.sign_up with credentials: #{user.name}/#{user.email}/#{user.password}"
+    $http.post('/users/password.json', {user: user }).then(
+      (response)->
+        console.log 'forgot_password received response'
+        dialog.close()
+        dialog_scope.acknowledge_dialog("An email has been sent to #{user.email}")
+    ,
+    (reason) ->
+      #console.log 'signup received reason'
+      if reason.data.errors
+        dialog_scope.error_messages = reason.data.errors
+      else
+        console.log "a bigger error in forgot_password"
+    )
+
   edit_profile: ->
-    console.log 'User:edit_profile'
+    console.log 'User:edit_profile'   
+  test: ->
+    console.log "User.test"
+    console.log "User.test is done"
 ]
 
 services.factory "Comment", ["$resource", ($resource) ->

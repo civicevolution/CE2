@@ -22,7 +22,7 @@ class IssuesController < ApplicationController
       @firebase_token = Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data)
     end
 
-    render text: 'ok', layout: true
+    render text: 'ok', layout: 'angular-application'
   end
 
   #def index

@@ -14,9 +14,14 @@
       %li
         %a(ng-click="edit_profile()") Edit profile
       %li
-        %a(ng-click="sign_outX()") Sign out
+        %a(ng-click="sign_out()") Sign out
       %li
         %a(ng-click="test()") Test
+      %li
+        %a(ng-click="forgot_password()")
+          Forgot password
+
+
 
   %p(ng-hide="user.id>0" )
     Please
@@ -25,3 +30,9 @@
     or
     %a(ng-click="sign_up()")
       Sign up
+
+    %a(ng-click="forgot_password()")
+      Forgot password
+
+    %a(ng-click="test()")
+      Test

@@ -60,7 +60,7 @@ Ce2::Application.routes.draw do
   #  root :to => 'home#index'
   #end
   #root :to => "home#index"
-  root to: "conversation#index"
+  root to: "conversations#index"
   
   devise_for :users
   resources :users

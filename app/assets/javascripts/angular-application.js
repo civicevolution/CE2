@@ -11,8 +11,31 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 
+//= require polyfills
+
+//= require angular-1.1.5/angular
+//= require angular-1.1.5/angular-resource
+//= require angular-ui-states-0.0.1/angular-ui-states.js
+//= require ui-bootstrap-tpls-0.2.0/ui-bootstrap-tpls-0.2.0.js
+//= require firebase.js
+
+//= require controllers.js
+//= require directives.js
+//= require filters.js
+//= require services.js
+
+//= require graph.js
+//= require moment.js
+
+//= require utilities.js
+// require utilities_temp.js
+
+//= require ng-upload.js
+
 // Don't use these for now
 // require jquery
 // require bootstrap
 // require jquery_ujs
 
+var temp = { FirebaseUpdates: [] }
+setTimeout( function(){SVCS = angular.element(document.body).injector();}, 2000)

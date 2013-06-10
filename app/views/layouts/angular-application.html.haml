@@ -15,14 +15,20 @@
   %body{:class => "#{controller_name} #{action_name}"}
     .navbar.navbar-fixed-top
       %nav.navbar-inner
-        .container
-          = render 'layouts/navigation'
+        .container.user-bar
+          %div(ce-user-bar)
     #main{:role => "main"}
       .container-fluid
         .content
-          = yield
+          .row-fluid
+            .span12
+              %div(ui-view)
           %footer
       / ! end of .container
     / ! end of #main
 
-    = javascript_include_tag "application"
+    = javascript_include_tag "angular-application"
+    :javascript
+      var _timestamp = #{Time.new.to_i}
+      var issue_data = #{@issue_data.to_json}
+      var firebase_auth_token = "#{@firebase_token}"
