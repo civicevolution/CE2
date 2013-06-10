@@ -1,7 +1,9 @@
 class CommentSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :version, :ratings_cache, :my_rating, :number_of_votes, :small_user_photo_url, :sm1, :sm2, :sm3, :sm4
+  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at,
+             :version, :ratings_cache, :my_rating, :number_of_votes, :small_user_photo_url, :sm1, :sm2, :sm3, :sm4,
+             :editable_by_user
 
   has_many :attachments
 
@@ -41,5 +43,8 @@ class CommentSerializer < ActiveModel::Serializer
     object.author.profile.try{|profile| profile.photo.url(:sm4)} || '/assets/default-user.jpg'
   end
 
+  def editable_by_user
+    ((defined? current_user).nil? || current_user.nil?) ? false : object.editable_by_user?(current_user)
+  end
 
 end

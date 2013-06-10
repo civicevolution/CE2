@@ -140,12 +140,16 @@ ce2_directives.directive('ceConversation', ->
 
         # register the listeners for the firebase updates
         $scope.$on 'ConversationComment_update', (event, data) ->
-          #console.log "received broadcast ConversationComment_update"
-          FirebaseService.process_update($scope.ConversationComments, data)
+          console.log "received broadcast ConversationComment_update"
+          [original_rec, updated_rec] = FirebaseService.process_update($scope.ConversationComments, data)
+          if updated_rec && original_rec
+            updated_rec.editable_by_user = original_rec.editable_by_user
 
         $scope.$on 'SummaryComment_update', (event, data) ->
-          #console.log "received broadcast SummaryComment_update"
-          FirebaseService.process_update($scope.SummaryComments, data)
+          console.log "received broadcast SummaryComment_update"
+          [original_rec, updated_rec] = FirebaseService.process_update($scope.SummaryComments, data)
+          if updated_rec && original_rec
+            updated_rec.editable_by_user = original_rec.editable_by_user
 
         $scope.ConversationCommentLength = 1500
         $scope.SummaryCommentLength = 0
@@ -174,7 +178,7 @@ ce2_directives.directive('ceComment', ->
   restrict: 'A'
   templateUrl: "/assets/angular-views/comment.html.haml?t=#{new Date().getTime()}"
   replace: true
-  scope: false
+  scope: true
   priority: 100
   controller: [ "$scope", "CommentData",
     ($scope, CommentData) ->
@@ -184,6 +188,7 @@ ce2_directives.directive('ceComment', ->
         $scope.newComment = angular.copy( (comment for comment in $scope["#{comment_type}s"] when comment.id is comment_id)[0] )
 
       $scope.$on 'clear-comment-edit', ->
+        console.log "updating the edit mode to false"
         $scope.edit_mode = false
 
       $scope.view_history = (comment_id) ->
@@ -457,6 +462,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
     priority: 500
     scope: true
     link: (scope, elm, attrs) ->
+      return unless scope.comment.editable_by_user
       startX = startY = initialMouseX = initialMouseY = mouseY = 0
       placeholder = dragged = placeholder_upper = placeholder_lower = {}
       item_name = collection_name = ''

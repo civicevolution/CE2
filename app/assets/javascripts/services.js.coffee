@@ -195,6 +195,8 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
         #console.log "looking at data with id: #{new_rec.id} and text: #{new_rec.text}"
         for rec, index in item_array
           if rec.id == new_rec.id
+            original_rec = angular.copy(item_array[index])
+            updated_rec = item_array[index]
             item_array[index][prop] = new_rec[prop] for prop of new_rec when not prop.match(/^\$/)
             new_rec = null
             break
@@ -203,6 +205,7 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
           new_obj[prop] = new_rec[prop] for prop of new_rec when not prop.match(/^\$/)
           item_array.push new_obj
       $rootScope.$$phase || $rootScope.$apply();
+    [original_rec, updated_rec]
 ]
 
 ###

@@ -116,7 +116,9 @@ class Comment < ActiveRecord::Base
 
   end
 
-
+  def editable_by_user?(user)
+    user_id == user.id
+  end
 
   protected
   def as_json_for_firebase( action = "create" )
