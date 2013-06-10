@@ -17,12 +17,15 @@ class User < ActiveRecord::Base
 
   validates :first_name, :last_name, :presence => true
 
-  after_create :add_participant_role
+  after_create :add_participant_role, :add_profile
   
   def add_participant_role
     add_role :participant
   end
 
-	
-  
+  def add_profile
+    self.profile = Profile.create
+  end
+
+
 end

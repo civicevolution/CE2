@@ -247,7 +247,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         if element.files.length > 0
           file_name = element.files[0].name
           console.log "loading file: #{file_name}" if debug
-          $scope.progress_bar_message = "Loading #{file_name}"
+          $scope.progress_bar_message = "<i class='icon-spinner icon-spin'></i><span>Loading #{file_name}</span>"
 
           console.log "ceCommentForm: a file is selected, add iframe" if debug
           $scope.$root.attachment_frame_id = 1 if not $scope.$root.attachment_frame_id
@@ -413,7 +413,7 @@ ce2_directives.directive('ceProfilePhotoForm', ->
         if element.files.length > 0
           file_name = element.files[0].name
           console.log "ceProfilePhotoForm loading file: #{file_name}" if debug
-          $scope.progress_bar_message = "Loading #{file_name}"
+          $scope.progress_bar_message = "<i class='icon-spinner icon-spin'></i><span>Loading #{file_name}</span>"
 
           console.log "ceProfilePhotoForm: a file is selected, add iframe" if debug
           $scope.$root.attachment_frame_id = 1 if not $scope.$root.attachment_frame_id

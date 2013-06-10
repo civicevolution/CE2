@@ -123,6 +123,9 @@ div.comment-form{
   }
   div.progress-bar{
     float: left;
+    span{
+      margin-left: 10px;
+    }
   }
   div.attachments{
     div.attachment{
@@ -166,6 +169,12 @@ div.comment-form{
 div.profile-photo-form{
   iframe{
     display: none;
+  }
+  div.progress-bar{
+    float: left;
+    span{
+      margin-left: 10px;
+    }
   }
 }
 
@@ -298,23 +307,33 @@ div.comment-outer{
 }
 
 div.ce-sortable-item-pair{
+  margin: -24px;
+  padding: 24px;
   div.ce-sortable-item-carrier{
     div.ce-sortable-item{
       position: relative;
       div.ce-sortable-handle{
         position: absolute;
         top: 0;
-        right: 0;
-        width: 20px;
-        height: 20px;
-        background-color: #aaa;
-        cursor: pointer;
+        left: -24px;
+        cursor: move;
       }
     }
   }
   div.ce-sortable-placeholder{
     background-color: #ddd;
     display: none;
+  }
+}
+
+div.ce-sortable-item-pair{
+  div.ce-sortable-handle{
+    display: none;
+  }
+  &:hover{
+    div.ce-sortable-handle{
+      display: inline-block;
+    }
   }
 }
 

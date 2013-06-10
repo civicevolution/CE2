@@ -17,6 +17,11 @@ describe User do
     User.create!(@attr)
   end
 
+  it "should create a new empty profile when creating a new user" do
+    user = User.create!(@attr)
+    user.profile.should_not be_nil
+  end
+
   it "should require an email address" do
     no_email_user = User.new(@attr.merge(:email => ""))
     no_email_user.should_not be_valid

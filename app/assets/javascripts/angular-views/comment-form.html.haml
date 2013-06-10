@@ -6,7 +6,7 @@
       %form.attachment(ce-csrf){name: 'attach_form', action: '/api/attachments?t={{timestamp}}', target: "attachment_upload_iframe_1", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}
         %input(type="file" onchange="angular.element(this).scope().file_selected(this)"){type: 'file', name: 'attachment[attachment]', id: "attachment_attachment"}
       %div.iframe_placeholder
-    %div.progress-bar {{progress_bar_message}}
+    %div.progress-bar(ng-bind-html-unsafe="progress_bar_message")
 
   %form.convo.clear(ng-submit="addComment()"){name: 'comment_form'}
     %textarea.noscrollbars(ng-model="newComment.text"){:onkeyup => "angular.element(this).scope().autoGrow(this)",
