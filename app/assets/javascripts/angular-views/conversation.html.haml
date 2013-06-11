@@ -7,10 +7,18 @@
         %div.comment-outer(ng-repeat="comment in SummaryComments" )
           %div(ce-sortable ce-comment)
 
-  .row-fluid
-    .span8.offset2
-      %h4 Summarize this conversation
-      %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
+  .div(ng-switch="add_summary_comment" )
+    .row-fluid(ng-switch-default )
+      .span8
+        %p
+          %a(ng-click="show_summary_comment_form()")
+            Add another summary comment
+
+    .row-fluid(ng-switch-when="true")
+      .span8
+        %h4 Add a summary comment to help capture this conversation
+        %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
+
 
 
   .row-fluid

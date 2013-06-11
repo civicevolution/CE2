@@ -23,12 +23,17 @@
     %input(ng-model="newComment.type"){type: 'hidden' }
 
     %div.clear.form_ctrls
-      %span(ng-hide="newComment.id")
+      %span(ng-if="newComment.id == null && newComment.type == 'ConversationComment'")
         %input(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
         %a(ng-click="clear_form()")
           Clear
 
-      %span(ng-show="newComment.id")
+      %span(ng-if="newComment.id == null && newComment.type == 'SummaryComment'")
+        %input(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
+        %a(ng-click="cancel_summary_form()")
+          Cancel
+
+      %span(ng-if="newComment.id > 0")
         %input(ng-disabled="form_disabled"){type: 'submit', value: 'Update'}
         %a(ng-click="cancel_edit()")
           Cancel

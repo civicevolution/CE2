@@ -22,7 +22,7 @@
                   %p.name
                     {{attachment.attachment_file_name}}
 
-            %p.controls.clear
+            -#%p.controls.clear
               %a(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
                 %i.icon-pencil
                 Edit
@@ -40,7 +40,25 @@
           %div(ce-rating-slider)
 
         .span2.share
-          %p Share
+          %p Summary
+          %a(ng-click="share({{comment.id}})")
+            %i.icon-share-alt
+            %span Share
+          %a(ng-click="reply({{comment.id}})")
+            %i.icon-reply
+            %span Reply
+          %a(ng-click="flag({{comment.id}})")
+            %i.icon-flag
+            %span Flag
+
+          %p.time {{comment.updated_at | from_now}}
+
+          %a(ng-show="comment.version>1" ng-click="view_history({{comment.id}})")
+            History v{{comment.version}}
+
+          %a(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
+            -#%i.icon-pencil
+            Edit
 
 
 
@@ -61,45 +79,46 @@
       %div.row-fluid(ng-switch-default)
         .span2.author
           %img(ng-src="{{comment.sm3}}")
+          %p.name {{comment.first_name}} {{comment.last_name}}
           %div.com-num
             {{comment.order_id}}
 
-        .span10
-          %div.row-fluid
-            .span9.conversation-comment-body
-              %div(ng-hide="edit_mode")
-                %p.author
-                  %span {{comment.first_name}} {{comment.last_name}}
-                  %span {{comment.updated_at | from_now}}
-                %div(ng-bind-html-unsafe="simple_format(comment.text)")
+        .span8.conversation-comment-body
+          %div(ng-hide="edit_mode")
+            %div.comment-body(ng-bind-html-unsafe="simple_format(comment.text)")
 
-                %div.attachments
-                  %div.attachment(ng-repeat="attachment in comment.attachments" )
-                    %a(ng-href="{{attachment.url}}"){target: "_blank"}
-                      %img.icon(ng-src="{{attachment.medium_url}}")
-                      %p.name
-                        {{attachment.attachment_file_name}}
+            %div.attachments
+              %div.attachment(ng-repeat="attachment in comment.attachments" )
+                %a(ng-href="{{attachment.url}}"){target: "_blank"}
+                  %img.icon(ng-src="{{attachment.medium_url}}")
+                  %p.name
+                    {{attachment.attachment_file_name}}
 
-                %p.controls.clear
-                  %a(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
-                    %i.icon-pencil
-                    Edit
-                  %span(ng-show="comment.version>1")
-                    Version {{comment.version}}
-                    %a(ng-click="view_history({{comment.id}})")
-                      View history
-
-                %div.history.clear(ng-include src="history_url")
-
-              %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
-                %div(ce-comment-form max="ConversationCommentLength")
-
-            .span3.share
-              %p Share
+            %div(ce-rating-slider)
 
 
-          %div.row-fluid
-            .span10
-              %div(ce-rating-slider)
+            %div.history.clear(ng-include src="history_url")
 
+          %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
+            %div(ce-comment-form max="ConversationCommentLength")
 
+        .span2.share
+          %p {{comment.purpose}}
+          %a(ng-click="share({{comment.id}})")
+            %i.icon-share-alt
+            %span Share
+          %a(ng-click="reply({{comment.id}})")
+            %i.icon-reply
+            %span Reply
+          %a(ng-click="flag({{comment.id}})")
+            %i.icon-flag
+            %span Flag
+
+          %p.time {{comment.updated_at | from_now}}
+
+          %a(ng-show="comment.version>1" ng-click="view_history({{comment.id}})")
+            History v{{comment.version}}
+
+          %a(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
+            -#%i.icon-pencil
+            Edit

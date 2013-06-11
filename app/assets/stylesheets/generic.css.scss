@@ -245,12 +245,13 @@ div.comment-outer{
     div.author{
       text-align: right;
       div.com-num{
-        color: #eed;
-        font-size: 4em;
-        margin-top: 30px;
-        margin-right: 10px;
+        color: #bbd;
+        font-size: 1.6em;
+        //margin-top: 30px;
+        //margin-right: 10px;
         font-style: italic;
       }
+      p{ color: #aaa; font-style: italic; margin: 0; font-size: .8em; line-height: 1.2em; }
     }
     div.deleted-comment-author{
       div.com-num{
@@ -264,7 +265,7 @@ div.comment-outer{
       font-style: italic;
       margin: -6px 0 0 0;
     }
-
+    div.comment-body{ margin-top: -8px; }
     div.attachments{
       div.attachment{
         position: relative;
@@ -283,8 +284,15 @@ div.comment-outer{
       }
     }
     .share{
-      border: 1px solid #ddd;
-      min-height: 20px;
+      margin-top: -4px;
+      margin-bottom: 20px;
+      white-space: nowrap;
+      p, a {
+        color: #ccc;
+        display: block;
+        margin: 0; line-height: 1.3em; font-size: .9em;
+        span { margin-left: 4px;}
+      }
     }
     p.controls{ text-align: right; margin: -10px 0 0 0; font-style: italic; opacity: .6;}
     .deleted-comment-body{ padding-bottom: 30px;
@@ -295,6 +303,7 @@ div.comment-outer{
     }
     div.rating{
       min-width: 360px;
+      clear: both;
       div.vote_count{
         max-width: 58px;
         margin-left: 20px
@@ -326,13 +335,16 @@ div.ce-sortable-item-pair{
   }
 }
 
-div.ce-sortable-item-pair{
-  div.ce-sortable-handle{
-    display: none;
-  }
+//div.ce-sortable-item-pair{
+div.comment-outer{
+  div.ce-sortable-handle{ display: none; }
+  p.controls{ display: none; }
   &:hover{
-    div.ce-sortable-handle{
-      display: inline-block;
+    div.ce-sortable-handle{ display: inline-block; }
+    p.controls{ display: block; }
+    div.share{
+      p {color: #444; }
+      a {color: #08c; cursor: pointer;}
     }
   }
 }

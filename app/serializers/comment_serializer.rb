@@ -1,7 +1,7 @@
 class CommentSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at,
+  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :purpose,
              :version, :ratings_cache, :my_rating, :number_of_votes, :small_user_photo_url, :sm1, :sm2, :sm3, :sm4,
              :editable_by_user
 
@@ -21,6 +21,10 @@ class CommentSerializer < ActiveModel::Serializer
 
   def number_of_votes
     object.ratings_cache.inject{|sum,x| sum + x }
+  end
+
+  def purpose
+    object.purpose || 'Comment'
   end
 
   def small_user_photo_url

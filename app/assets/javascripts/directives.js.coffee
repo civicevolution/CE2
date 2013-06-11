@@ -134,19 +134,33 @@ ce2_directives.directive('ceConversation', ->
         $scope.SummaryComments = response.summary_comments
         $scope.ConversationComments = response.conversation_comments
 
+        
+        $scope.show_summary_comment_form = ->
+          console.log "show_summary_comment_form"
+          $scope.add_summary_comment = true
+
+        $scope.$on 'cancel_summary_form', ->
+          console.log "hide_summary_comment_form"
+          $scope.add_summary_comment = false
+
+        $scope.$on 'clear-comment-edit', ->
+          console.log "hide_summary_comment_form"
+          $scope.add_summary_comment = false
+
+
         # Subscribe to updates for this data
         url = "https://civicevolution.firebaseio.com/issues/1/conversations/#{$scope.conversation.id}/updates/"
         FirebaseService.initialize_source(url, response.firebase_token)
 
         # register the listeners for the firebase updates
         $scope.$on 'ConversationComment_update', (event, data) ->
-          console.log "received broadcast ConversationComment_update"
+          #console.log "received broadcast ConversationComment_update"
           [original_rec, updated_rec] = FirebaseService.process_update($scope.ConversationComments, data)
           if updated_rec && original_rec
             updated_rec.editable_by_user = original_rec.editable_by_user
 
         $scope.$on 'SummaryComment_update', (event, data) ->
-          console.log "received broadcast SummaryComment_update"
+          #console.log "received broadcast SummaryComment_update"
           [original_rec, updated_rec] = FirebaseService.process_update($scope.SummaryComments, data)
           if updated_rec && original_rec
             updated_rec.editable_by_user = original_rec.editable_by_user
@@ -156,7 +170,7 @@ ce2_directives.directive('ceConversation', ->
 
         # register a listener for summary_comments ordered ids
         $scope.$on 'Conversation_update', (event, data) ->
-          console.log "received broadcast Conversation_update"
+          #console.log "received broadcast Conversation_update"
 
           # make sure it is the correct conversation_id
           # $scope.conversation.id
@@ -198,6 +212,15 @@ ce2_directives.directive('ceComment', ->
       $scope.hide_history = ->
         $scope.history_url = null
         delete $scope.history
+
+      $scope.share = ->
+        console.log "Clicked Comment share link"
+
+      $scope.reply = ->
+        console.log "Clicked Comment reply link"
+
+      $scope.flag = ->
+        console.log "Clicked Comment flag link"
 
       $scope.test = ->
         console.log "Clicked Comment test link"
@@ -247,6 +270,10 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       $scope.cancel_edit = ->
         #console.log "cancel the comment edit"
         $scope.$emit('clear-comment-edit')
+
+      $scope.cancel_summary_form = ->
+        $scope.$emit('cancel_summary_form')
+
 
       $scope.file_selected = (element) ->
         if element.files.length > 0
@@ -502,8 +529,8 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
       handle.bind('mousedown', ($event) ->
         angular.element(document.body).addClass('drag_in_process')
         startX = elm.parent().prop('offsetLeft')
-        startY = elm.parent().prop('offsetTop')
-        width = elm.parent().prop('offsetWidth')
+        startY = elm.parent().prop('offsetTop')  + 24
+        width = elm.prop('offsetWidth')
         elm.css
           position: 'absolute'
           top:  "#{startX}px"
@@ -564,7 +591,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
         true
 
       clear_sort_mode = ->
-        elm.css({position: 'static', left: "#{startX}px", top: "#{startY}px"})
+        elm.css({position: 'static', left: "#{startX}px", top: "#{startY}px", width: ""})
         $document.unbind('mousemove', mousemove)
         $document.unbind('mouseup', mouseup)
         elm.next().css({display: 'none'})
