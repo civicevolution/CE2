@@ -147,6 +147,42 @@ ce2_directives.directive('ceConversation', ->
           console.log "hide_summary_comment_form"
           $scope.add_summary_comment = false
 
+        $scope.conversation_select = ->
+          try
+            if document.all
+              # get the selection for IE
+              sel = document.selection.createRange()
+              # IE's selection gives the text with linefeeds automatically
+              str = sel.text
+              console.log "use this string in form:\n#{str}"
+              # get a node in the selection so I can find the parent comment
+              node = sel.parentElement()
+
+            else
+              # get the selection for other browsers
+              sel = document.getSelection()
+              # the text from the selection doesn't respect linefeeds, so I must manually respect linefeeds
+              #console.log "conversation_select text: #{sel.toString() }"
+              # turn the selection into a range
+              range = sel.getRangeAt(0)
+              # now get the string while respecting the linefeeds
+              frag = range.cloneContents()
+              child_nodes = frag.childNodes
+              # get the text for each of the nodes, without formatting
+              strs = ( (if node.innerHTML then node.innerHTML else node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
+
+              str = strs.join('\n\n').replace(/<br[^>]*>/ig, '\n')
+              console.log "use this string in form:\n#{str}"
+              # get a node of the range in the selection so I can find the parent comment
+              node = range.startContainer
+
+            # now find the parent with comment_id attr
+            node = node.parentNode until node.attributes && node.attributes.comment_id
+            comment_id = node.attributes.comment_id.value
+            console.log "found comment_id: #{comment_id}"
+
+          catch error
+            #console.log "conversation_select had an error: #{error}"
 
         # Subscribe to updates for this data
         url = "https://civicevolution.firebaseio.com/issues/1/conversations/#{$scope.conversation.id}/updates/"
@@ -359,7 +395,9 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
     #console.log "link function to draw rating slider with scope: #{scope.$id} and comment.id: #{scope.comment.id}"
 
     scope.$watch('comment.ratings_cache', (oldValue, newValue) ->
-      ctx = element.find('canvas')[0].getContext('2d');
+      canvas = element.find('canvas')[0]
+      G_vmlCanvasManager.initElement(canvas) if G_vmlCanvasManager?
+      ctx = canvas.getContext('2d');
       grapher = new window.Graph();
       grapher.draw_rating_results(ctx, scope.comment.ratings_cache, scope.comment.my_rating);
     , true)

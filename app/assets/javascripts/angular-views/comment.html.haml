@@ -1,4 +1,4 @@
-%div.comment(ng-switch="comment.type" ng-class="comment.type" )
+%div.comment(ng-switch="comment.type" ng-class="comment.type" comment_id="{{comment.id}}")
   %div(ng-switch-when="SummaryComment")
     %div(ng-switch="comment.text.length")
       %div.row-fluid(ng-switch-when="0")

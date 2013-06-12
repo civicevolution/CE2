@@ -22,24 +22,49 @@ class Graph
     ctx.fillStyle = lineargradient;
     ctx.strokeStyle = lineargradient;
 
-    ctx.lineWidth = if my_rating then 4 else 18
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(4,height/2);
-    ctx.lineTo(width-4,height/2);
-    ctx.stroke();
+    line_width = if my_rating
+      4
+    else
+      18
+
+    if G_vmlCanvasManager?
+      # excanvas in IE isn't as functional as HTML5 canvas, so draw the rating bar as an enclosed box
+      ctx.lineWidth = .1
+
+      upper = height/2 + line_width/2
+      lower = height/2 - line_width/2
+
+      ctx.beginPath();
+      ctx.moveTo(4,upper);
+      ctx.lineTo(width-4,upper);
+      ctx.lineTo(width-4,lower);
+      ctx.lineTo(4,lower);
+      ctx.lineTo(4,upper);
+      ctx.stroke();
+      ctx.fill();
+      text_offset = 4
+
+    else
+      ctx.lineWidth = line_width
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(4,height/2);
+      ctx.lineTo(width-4,height/2);
+      ctx.stroke();
+      text_offset = 0
+
 
     if not my_rating
       ctx.fillStyle = "white";
       ctx.font = "italic 16px Arial";
       ctx.textBaseline = "middle"
-      ctx.fillText("Disagree", 4, height/2);
+      ctx.fillText("Disagree", 4, height/2 + text_offset);
       ctx.textAlign = "right"
-      ctx.fillText("Agree", width-4, height/2);
+      ctx.fillText("Agree", width-4 - text_offset*2, height/2 + text_offset);
       return
 
     ctx.beginPath();
-    ctx.lineWidth = 3
+    ctx.lineWidth = .1
 
     int_width = width/(vote_counts.length - 1)
     vote_scaler = (height - 10) / (Math.max vote_counts...)
