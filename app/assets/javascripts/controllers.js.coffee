@@ -172,16 +172,113 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
 ])
 
-ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", ($rootScope,   $state,   $stateParams, Issue) ->
-  $rootScope.$state = $state
-  $rootScope.$stateParams = $stateParams
-  $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
-  $rootScope.issue = Issue.data
-  $rootScope.autoGrow = (oField) ->
-    if oField.scrollHeight > oField.clientHeight
-      oField.style.height = oField.scrollHeight + "px"
-  $rootScope.simple_format = (s) ->
-    ("<p>#{str}</p>" for str in unescape(s).split(/\n\n/)).join('').replace(/\n/g,'<br/>')
+ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout",
+  ($rootScope,   $state,   $stateParams, Issue, $timeout) ->
+    $rootScope.$state = $state
+    $rootScope.$stateParams = $stateParams
+    $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
+    $rootScope.issue = Issue.data
+
+    $rootScope.autoGrow = (oField) ->
+      if oField.scrollHeight > oField.clientHeight
+        oField.style.height = oField.scrollHeight + "px"
+
+    $rootScope.simple_format = (s) ->
+      ("<p>#{str}</p>" for str in unescape(s).split(/\n\n/)).join('').replace(/\n/g,'<br/>')
+
+    $rootScope.text_select_by_mouse = ->
+      #console.log "text_select_by_mouse"
+      try
+        [str, select_reference, coords] = capture_selection()
+        $rootScope.selection =
+          str: str
+          select_reference: select_reference
+
+        if str
+          #console.log "use this string in form:\n#{str}"
+          #console.log "found select_reference: #{select_reference}"
+          $rootScope.show_add_quote_to_reply_style =
+            display: 'block'
+            position: 'absolute'
+            top: "#{coords.top}px"
+            left: "#{coords.left}px"
+
+          $timeout ->
+            angular.element(document).bind('mouseup', clear_capture_selection_button)
+          ,100
+
+        else
+          $rootScope.show_add_quote_to_reply_style =
+            display: "none"
+
+        $rootScope.$$phase || $rootScope.$apply()
+
+      catch error
+        console.log "conversation_select had an error: #{error}"
+
+    $rootScope.add_quote_to_reply = ->
+      console.log "add_quote_to_reply:\n#{$rootScope.selection.str}"
+      console.log "found select_reference: #{$rootScope.selection.select_reference}"
+      $rootScope.show_add_quote_to_reply_style =
+        display: "none"
+      $rootScope.$$phase || $rootScope.$apply()
+
 ])
 
+capture_selection = ->
+  #console.log "capture_selection"
+  if document.all
+    # get the selection for IE
+    sel = document.selection
+    range = sel.createRange()
+    # IE's selection gives the text with linefeeds automatically
+    str = range.text
+    #console.log "use this string in form:\n#{str}"
+    # get a node in the selection so I can find the parent comment
+    node = range.parentElement()
 
+    range.collapse(true);
+    coords =
+      left: range.boundingLeft
+      top:  range.boundingTop;
+
+  else
+    # get the selection for other browsers
+    sel = document.getSelection()
+    # the text from the selection doesn't respect linefeeds, so I must manually respect linefeeds
+    #console.log "conversation_select text: #{sel.toString() }"
+    # turn the selection into a range
+    range = sel.getRangeAt(0)
+    # now get the string while respecting the linefeeds
+    frag = range.cloneContents()
+    child_nodes = frag.childNodes
+    # get the text for each of the nodes, without formatting
+    strs = ( (if node.innerHTML then node.innerHTML else node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
+
+    str = strs.join('\n\n').replace(/<br[^>]*>/ig, '\n')
+
+    # get a node of the range in the selection so I can find the parent comment
+    node = range.startContainer
+
+    # get the selection coordinates
+    range = range.cloneRange()
+    range.collapse(true);
+    coords = range.getClientRects()[0];
+
+  if str
+    # now find the parent with comment_id attr
+    node = node.parentNode until node.attributes && node.attributes.select_reference
+    select_reference = node.attributes.select_reference.value
+  [str, select_reference, coords]
+
+clear_capture_selection_button = ->
+  #console.log "clear_capture_selection_button mouseup, then clear"
+  doc = angular.element(document)
+
+  rootScope = doc.scope().$root
+  rootScope.show_add_quote_to_reply_style =
+    display: "none"
+  rootScope.$$phase || rootScope.$apply()
+
+  doc.unbind('mouseup', clear_capture_selection_button)
+  

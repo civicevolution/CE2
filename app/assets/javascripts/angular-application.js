@@ -33,7 +33,7 @@
 //= require ng-upload.js
 
 // Don't use these for now
-// require jquery
+// require jquery-1.9.1
 // require bootstrap
 // require jquery_ujs
 

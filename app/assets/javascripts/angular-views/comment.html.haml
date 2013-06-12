@@ -1,4 +1,4 @@
-%div.comment(ng-switch="comment.type" ng-class="comment.type" comment_id="{{comment.id}}")
+%div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}")
   %div(ng-switch-when="SummaryComment")
     %div(ng-switch="comment.text.length")
       %div.row-fluid(ng-switch-when="0")
@@ -10,7 +10,7 @@
           %div.history.clear(ng-include src="history_url")
 
       %div.row-fluid(ng-switch-default)
-        .span10.summary-comment-body
+        .span10.summary-comment-body(ng-mouseup="text_select_by_mouse()")
           %div(ng-hide="edit_mode")
             %p.author
             %div(ng-bind-html-unsafe="simple_format(comment.text)")
@@ -22,15 +22,6 @@
                   %p.name
                     {{attachment.attachment_file_name}}
 
-            -#%p.controls.clear
-              %a(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
-                %i.icon-pencil
-                Edit
-              %span(ng-show="comment.version>1")
-                Version {{comment.version}}
-                %a(ng-click="view_history({{comment.id}})")
-                  View history
-              %span {{comment.updated_at | from_now}}
 
             %div.history.clear(ng-include src="history_url")
 
@@ -83,7 +74,7 @@
           %div.com-num
             {{comment.order_id}}
 
-        .span8.conversation-comment-body
+        .span8.conversation-comment-body(ng-mouseup="text_select_by_mouse()")
           %div(ng-hide="edit_mode")
             %div.comment-body(ng-bind-html-unsafe="simple_format(comment.text)")
 
