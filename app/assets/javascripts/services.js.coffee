@@ -133,6 +133,7 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
             action: action
             class: data.type
             data: data
+            updated_at: data.updated_at
             source: "#{action}Comment"
           }
         , err_func

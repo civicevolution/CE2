@@ -193,13 +193,13 @@ ce2_directives.directive('ceConversation', ->
           #console.log "received broadcast ConversationComment_update"
           [original_rec, updated_rec] = FirebaseService.process_update($scope.ConversationComments, data)
           if updated_rec && original_rec
-            updated_rec.editable_by_user = original_rec.editable_by_user
+            updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
 
         $scope.$on 'SummaryComment_update', (event, data) ->
           #console.log "received broadcast SummaryComment_update"
           [original_rec, updated_rec] = FirebaseService.process_update($scope.SummaryComments, data)
           if updated_rec && original_rec
-            updated_rec.editable_by_user = original_rec.editable_by_user
+            updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
 
         $scope.ConversationCommentLength = 1500
         $scope.SummaryCommentLength = 0
