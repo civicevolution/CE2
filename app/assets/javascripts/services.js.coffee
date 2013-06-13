@@ -209,6 +209,27 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
     [original_rec, updated_rec]
 ]
 
+
+
+services.factory "TemplateEngine",
+  ($q, $rootScope, $templateCache, $compile, $interpolate) ->
+    name: "TemplateEngine"
+    interpolate: (templateName, args) ->
+      #console.log "TemplateEngine.compile with templateName: #{templateName}"
+
+      # get the interplotion function from a cache
+      template = $templateCache.get("/assets/angular-views/#{templateName}.html")
+
+      # if not existing, get the template and create the function and store in cache
+
+      # use the cached interpolation function to convert the quote data into html
+
+      interpolate_fn = $interpolate(template[1])
+
+      return interpolate_fn(args)
+
+
+
 ###
   ok_func(data,resp_headers_fn) 
     data is the returned data

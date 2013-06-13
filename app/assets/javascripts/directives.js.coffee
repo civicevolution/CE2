@@ -230,7 +230,7 @@ ce2_directives.directive('ceComment', ->
 
 ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
   restrict: 'A'
-  templateUrl: "/assets/angular-views/comment-form.html.haml?t=#{new Date().getTime()}"
+  templateUrl: "/assets/angular-views/comment-preview-form.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: true
   link: (scope, element, attrs) ->
@@ -246,6 +246,10 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
     ($scope, CommentData, AttachmentData) ->
 
       debug = false
+
+      $scope.convert_markdown = (text) ->
+        return if not text
+        $scope.$root.converter.makeHtml(text)
 
       $scope.newComment = { attachments: [] } if not ($scope.newComment && $scope.newComment.id)
       $scope.addComment = ->

@@ -2,7 +2,7 @@
 
 
 
-
+/*
 // Create a safe reference to the Underscore object for use below.
 var _ = function(obj) {
     if (obj instanceof _) return obj;
@@ -72,7 +72,7 @@ _.width = function(elm) {
         }
     }
 };
-
+*/
 
 // IE8 cannot create a new date from ISO date string, this fixes that problem
 (function(){

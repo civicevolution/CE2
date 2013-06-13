@@ -1,0 +1,13 @@
+Quote template, author: {{username}} said {{quote}}
+
+
+-#
+  <aside class='quote' {{#params}}data-{{key}}="{{value}}" {{/params}}>
+  <div class='title'>
+    <div class='quote-controls'></div>
+    {{{avatarImg}}}
+    {{username}}
+    said:
+  </div>
+  <blockquote>{{{quote}}}</blockquote>
+  </aside>

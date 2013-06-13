@@ -11,6 +11,10 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 
+// require jquery-1.9.1
+//= require underscore-min.js
+//= require md5.js
+
 //= require polyfills
 
 //= require angular-1.1.5/angular
@@ -29,6 +33,12 @@
 
 //= require utilities.js
 // require utilities_temp.js
+
+//= require Markdown.Converter.js
+//= require Markdown.Editor.js
+//= require Markdown.Sanitizer.js
+//= require bbcode.js
+
 
 //= require ng-upload.js
 

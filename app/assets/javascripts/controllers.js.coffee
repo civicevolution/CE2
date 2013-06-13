@@ -172,8 +172,8 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
 ])
 
-ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout",
-  ($rootScope,   $state,   $stateParams, Issue, $timeout) ->
+ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "TemplateEngine", "$http", "$templateCache"
+  ($rootScope,   $state,   $stateParams, Issue, $timeout, TemplateEngine, $http, $templateCache) ->
     $rootScope.$state = $state
     $rootScope.$stateParams = $stateParams
     $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
@@ -222,6 +222,10 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout",
       $rootScope.show_add_quote_to_reply_style =
         display: "none"
       $rootScope.$$phase || $rootScope.$apply()
+
+    $rootScope.converter = initialize_markdown_converter( TemplateEngine )
+
+    $http.get("/assets/angular-views/quote.html", {cache:$templateCache};)
 
 ])
 
@@ -282,3 +286,31 @@ clear_capture_selection_button = ->
 
   doc.unbind('mouseup', clear_capture_selection_button)
   
+initialize_markdown_converter = (TemplateEngine) ->
+  opts = { TemplateEngine: TemplateEngine } # unless opts
+  quoteTemplate = null
+
+  #converter = new Markdown.getSanitizingConverter()
+  # Since I am using hooks, I will manually hook in sanitize at the end
+  converter = new Markdown.Converter();
+
+  # Before cooking callbacks
+  converter.hooks.chain "preConversion", (text) ->
+    #Discourse.Markdown.trigger('beforeCook', { detail: text, opts: opts });
+    #return Discourse.Markdown.textResult || text;
+    return text
+
+  # Extract quotes so their contents are not passed through markdown.
+  converter.hooks.chain "preConversion", (text) ->
+    extracted = Markdown.BBCode.extractQuotes(text)
+    quoteTemplate = extracted.template;
+    return extracted.text;
+
+
+  converter.hooks.chain "postConversion", (text) ->
+    # reapply quotes
+    text = quoteTemplate(text) if quoteTemplate
+    return Markdown.BBCode.format(text, opts);
+
+
+  return converter
