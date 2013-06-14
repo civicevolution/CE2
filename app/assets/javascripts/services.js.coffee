@@ -209,24 +209,43 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
     [original_rec, updated_rec]
 ]
 
-
-
 services.factory "TemplateEngine",
-  ($q, $rootScope, $templateCache, $compile, $interpolate) ->
+  ($q, $rootScope, $templateCache, $http, $interpolate) ->
     name: "TemplateEngine"
+    interpolation_fns: {}
+
     interpolate: (templateName, args) ->
       #console.log "TemplateEngine.compile with templateName: #{templateName}"
 
       # get the interplotion function from a cache
-      template = $templateCache.get("/assets/angular-views/#{templateName}.html")
+      interpolate_fn = this.interpolation_fns[templateName]
 
-      # if not existing, get the template and create the function and store in cache
+      if interpolate_fn
+        # use the cached interpolation function to convert the quote data into html
+        return interpolate_fn(args)
 
-      # use the cached interpolation function to convert the quote data into html
+      else
+        # if not existing, get the template and create the function and store in cache
+        template = $templateCache.get("/assets/angular-views/#{templateName}.html")
 
-      interpolate_fn = $interpolate(template[1])
+        if template
+          interpolate_fn = $interpolate(template[1])
+          this.interpolation_fns[templateName] = interpolate_fn
+          return interpolate_fn(args)
 
-      return interpolate_fn(args)
+        else
+          # I have to intentionally load the template in app.run() with
+          # $http.get("/assets/angular-views/quote.html", {cache:$templateCache};)
+          # my attempts to load the template when I realize I need cause problems
+          # of deep iteration.
+          # $broadcast/$on is tightly coupled leading to the same deep iteration
+          #$rootScope.$broadcast('load_template',templateName)
+          ## load the required template to cache and it will be used next time
+          #console.log "load the template for #{templateName}"
+          ##$http.get("/assets/angular-views/#{templateName}.html", {cache:$templateCache};)
+          ##$http.get("/assets/angular-views/#{templateName}.html")
+          return "Initializing TemplateEngine for #{templateName}"
+
 
 
 

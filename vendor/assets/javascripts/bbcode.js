@@ -193,31 +193,43 @@ Markdown.BBCode = {
   formatQuote: function(text, opts) {
     var args, matches, params, paramsSplit, paramsString, templateName, username;
     while (matches = this.QUOTE_REGEXP.exec(text)) {
-      paramsString = matches[1].replace(/\"/g, '');
-      paramsSplit = paramsString.split(/\, */);
-      params = [];
-      _.each(paramsSplit,function(p,i) {
-        if (i > 0) {
-          var assignment = p.split(':');
-          if (assignment[0] && assignment[1]) {
-            return params.push({
-              key: assignment[0],
-              value: assignment[1].trim()
-            });
-          }
-        }
-      });
-      username = paramsSplit[0];
+      //paramsString = matches[1].replace(/\"/g, '');
+      //paramsSplit = paramsString.split(/\, */);
+      //params = [];
+      //_.each(paramsSplit,function(p,i) {
+      //  if (i > 0) {
+      //    var assignment = p.split(':');
+      //    if (assignment[0] && assignment[1]) {
+      //      return params.push({
+      //        key: assignment[0],
+      //        value: assignment[1].trim()
+      //      });
+      //    }
+      //  }
+      //});
+      //username = paramsSplit[0];
+      //var _i, _len, _results, param;
+      //_results = [];
+      //for (_i = 0, _len = params.length; _i < _len; _i++) {
+      //    var param = params[_i];
+      //    _results.push("" + param.key + ": " + param.value);
+      //}
+      //params = _results.join('; ')
 
+      // typical paramsString
+      // "Alice Walton~ConversationComment~161~6e729a6b8841631a16d8a2656bcad029d77bd125"
+
+      var params = matches[1].split(/~/)
       // remove leading <br>s
       var content = matches[2].trim();
 
       // Arguments for formatting
       args = {
-        username: username,
-        params: params,
-        quote: content,
-        avatarImg: opts.lookupAvatar ? opts.lookupAvatar(username) : void 0
+        username: params[0],
+        type: params[1],
+        id: params[2],
+        photo_code: params[3],
+        quote: content
       };
 
       // Name of the template

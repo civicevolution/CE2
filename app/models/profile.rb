@@ -7,6 +7,7 @@ class Profile < ActiveRecord::Base
   #  validates_attachment_size :photo, :less_than => 2.megabytes if :resource_type == 'upload'
   has_attached_file :photo,
                     :hash_secret => "d7eeKHWw8ppW",
+                    :hash_data => ":class/:attachment/:id:updated_at",
                     :storage => :s3,
                     :s3_credentials => "#{Rails.root.to_s}/config/s3.yml",
                     :path => "users/:res_base/:hash/:style/p.jpg",
@@ -14,10 +15,11 @@ class Profile < ActiveRecord::Base
                     :default_url => "/assets/default-user-:style.gif",
                     :bucket => 'assets.civicevolution.org',
                     :styles => {
-                        sm1: '36x36',
-                        sm2: '50x50',
-                        sm3: '60x60',
-                        sm4: '75x75',
+                        sm1: '20x20',
+                        sm2: '28x28',
+                        sm3: '36x36',
+                        sm4: '50x50',
+                        sm5: '60x60',
                         med: '250x250>'
                     }
 

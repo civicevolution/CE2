@@ -414,11 +414,24 @@ body.drag_in_process{
     border: 1px solid green;
     float: left;
     width: 49%;
+    background-color: white;
   }
   div.preview{
     border: 1px solid blue;
     float: left;
     width: 49%;
+    background-color: white;
+    padding: 4px;
   }
 
+}
+
+.quote{
+  border: 1px solid #dddddd;
+  .title{
+    padding: 4px;
+    background-color: #dddddd;
+
+
+  }
 }

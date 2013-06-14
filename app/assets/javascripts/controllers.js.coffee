@@ -189,12 +189,16 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
     $rootScope.text_select_by_mouse = ->
       #console.log "text_select_by_mouse"
       try
-        [str, select_reference, coords] = capture_selection()
-        $rootScope.selection =
-          str: str
-          select_reference: select_reference
+        [text, id, type, name, photo, coords] = capture_selection()
 
-        if str
+        $rootScope.selection =
+          text: text
+          id: id
+          type: type
+          name:name
+          photo: photo
+
+        if text
           #console.log "use this string in form:\n#{str}"
           #console.log "found select_reference: #{select_reference}"
           $rootScope.show_add_quote_to_reply_style =
@@ -217,8 +221,12 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
         console.log "conversation_select had an error: #{error}"
 
     $rootScope.add_quote_to_reply = ->
-      console.log "add_quote_to_reply:\n#{$rootScope.selection.str}"
-      console.log "found select_reference: #{$rootScope.selection.select_reference}"
+      sel = $rootScope.selection
+      quote_insert = "[quote=#{sel.name}~#{sel.type}~#{sel.id}~#{sel.photo}]#{sel.text}[/quote]"
+      #console.log "Add this quote to textarea: #{quote_insert}"
+
+      textarea = document.getElementById('comment-preview-form').getElementsByTagName('textarea')[0]
+      textarea.value += "\n" + quote_insert
       $rootScope.show_add_quote_to_reply_style =
         display: "none"
       $rootScope.$$phase || $rootScope.$apply()
@@ -271,9 +279,14 @@ capture_selection = ->
 
   if str
     # now find the parent with comment_id attr
-    node = node.parentNode until node.attributes && node.attributes.select_reference
-    select_reference = node.attributes.select_reference.value
-  [str, select_reference, coords]
+    #node = node.parentNode until node.attributes && node.attributes.select_reference
+    #select_reference = node.attributes.select_reference.value
+    com_scope = angular.element(node).scope()
+    img_code = com_scope.comment.sm1.match(/\/([^\/]+)\/sm\d\//)[1]
+    name = "#{com_scope.comment.first_name} #{com_scope.comment.last_name}"
+    [str, com_scope.comment.id, com_scope.comment.type, name, img_code, coords]
+  else
+    [null,null,null,null,null,null]
 
 clear_capture_selection_button = ->
   #console.log "clear_capture_selection_button mouseup, then clear"

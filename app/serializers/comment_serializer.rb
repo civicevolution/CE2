@@ -2,7 +2,7 @@ class CommentSerializer < ActiveModel::Serializer
   self.root = false
 
   attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :purpose,
-             :version, :ratings_cache, :my_rating, :number_of_votes, :small_user_photo_url, :sm1, :sm2, :sm3, :sm4,
+             :version, :ratings_cache, :my_rating, :number_of_votes, :sm1, :sm2, :sm3, :sm4, :sm5,
              :editable_by_user
 
   has_many :attachments
@@ -27,24 +27,24 @@ class CommentSerializer < ActiveModel::Serializer
     object.purpose || 'Comment'
   end
 
-  def small_user_photo_url
-    object.author.profile.try{|profile| profile.photo.url(:sm)} || '/assets/default-user.jpg'
-  end
-
   def sm1
-    object.author.profile.try{|profile| profile.photo.url(:sm1)} || '/assets/default-user.jpg'
+    object.author.profile.try{|profile| profile.photo.url(:sm1)}
   end
 
   def sm2
-    object.author.profile.try{|profile| profile.photo.url(:sm2)} || '/assets/default-user.jpg'
+    object.author.profile.try{|profile| profile.photo.url(:sm2)}
   end
 
   def sm3
-    object.author.profile.try{|profile| profile.photo.url(:sm3)} || '/assets/default-user.jpg'
+    object.author.profile.try{|profile| profile.photo.url(:sm3)}
   end
 
   def sm4
-    object.author.profile.try{|profile| profile.photo.url(:sm4)} || '/assets/default-user.jpg'
+    object.author.profile.try{|profile| profile.photo.url(:sm4)}
+  end
+
+  def sm5
+    object.author.profile.try{|profile| profile.photo.url(:sm5)}
   end
 
   def editable_by_user

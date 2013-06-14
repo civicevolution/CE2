@@ -1,4 +1,9 @@
-Quote template, author: {{username}} said {{quote}}
+%div.quote{ id: "{{id}}", type: "{{type}}", }
+  %p.title
+    %img{src: "http://s3.amazonaws.com/assets.civicevolution.org/users/civic_dev/{{photo_code}}/sm1/p.jpg"}
+    {{username}} said:
+  %blockquote {{quote}}
+
 
 
 -#
