@@ -230,7 +230,7 @@ ce2_directives.directive('ceComment', ->
 
 ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
   restrict: 'A'
-  templateUrl: "/assets/angular-views/comment-preview-form.html.haml?t=#{new Date().getTime()}"
+  templateUrl: "/assets/angular-views/reply-control.html.haml?t=#{new Date().getTime()}"
   replace: true
   scope: true
   link: (scope, element, attrs) ->
@@ -240,6 +240,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
     $timeout ->
       scope.autoGrow(element.find('textarea')[0])
       scope.comment_length = scope[attrs.max]
+      angular.element( document.getElementById('reply-control')).addClass('open show-preview')
     , 100
 
   controller: [ "$scope", "CommentData", "AttachmentData",

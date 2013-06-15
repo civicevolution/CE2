@@ -1,0 +1,91 @@
+%div#reply-control
+  .grippie
+  .spinner Uploading...
+  .contents
+    -#.composer-popup-container
+      #new-user-education.composer-popup{:style => "display: none; bottom: 288px;"}
+        %a.close{"data-ember-action" => "109", :href => "#"}
+          %i.icon.icon-remove-sign
+      #similar-topics.composer-popup{:style => "display: none; bottom: 288px;"}
+        %a.close{"data-ember-action" => "110", :href => "#"}
+          %i.icon.icon-remove-sign
+        %h3 Your topic is similar to...
+        %h3
+        %ul.topics
+    .control
+      %a.toggler{"data-ember-action" => "111", :href => "#", :title => "hide or show the composer panel"}
+      .control-row.reply-area
+        -#.reply-to
+          %script#metamorph-129-start{:type => "text/x-placeholder"}>
+          Reply to
+          %a{:href => "/t/this-site-is-a-sandbox-it-is-reset-every-day/57"} THIS SITE IS A SANDBOX -- it is reset every day
+          = succeed ":" do
+
+        %div.comment-form.wmd-controls
+          -#%p
+            %i comment form from directive scope id: {{$id}}
+          .textarea-wrapper
+            .form
+              %div.edit-menu
+                %div.attachment_form
+                  -#%form.attachment(ce-csrf){name: 'attach_form', action: '/api/attachments?t={{timestamp}}', target: "attachment_upload_iframe_1", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}
+                    %input(type="file" onchange="angular.element(this).scope().file_selected(this)"){type: 'file', name: 'attachment[attachment]', id: "attachment_attachment"}
+                  -#%div.iframe_placeholder
+                %div.progress-bar(ng-bind-html-unsafe="progress_bar_message")
+
+              %form.convo.clear(ng-submit="addComment()"){name: 'comment_form'}
+
+                #wmd-button-bar
+                  -#.wmd-button-bar
+                  -##wmd-button-row.wmd-button-row
+                    %button#wmd-quote-post.wmd-button{:title => "Quote whole post"}
+                    %button#wmd-bold-button.wmd-button{:title => "Strong <strong> Ctrl+B"}
+                    %button#wmd-italic-button.wmd-button{:title => "Emphasis <em> Ctrl+I"}
+                    #wmd-spacer1.wmd-spacer
+                    %button#wmd-link-button.wmd-button{:title => "Hyperlink <a> Ctrl+L"}
+                    %button#wmd-quote-button.wmd-button{:title => "Blockquote <blockquote> Ctrl+Q"}
+                    %button#wmd-code-button.wmd-button{:title => "Code Sample <pre><code> Ctrl+K"}
+                    %button#wmd-image-button.wmd-button{:title => "Image <img> Ctrl+G"}
+                    #wmd-spacer2.wmd-spacer
+                    %button#wmd-olist-button.wmd-button{:title => "Numbered List <ol> Ctrl+O"}
+                    %button#wmd-ulist-button.wmd-button{:title => "Bulleted List <ul> Ctrl+U"}
+                    %button#wmd-heading-button.wmd-button{:title => "Heading <h1>/<h2> Ctrl+H"}
+                    %button#wmd-hr-button.wmd-button{:title => "Horizontal Rule <hr> Ctrl+R"}
+                    #wmd-spacer3.wmd-spacer
+                    %button#wmd-undo-button.wmd-button{:disabled => "", :title => "Undo - Ctrl+Z"}
+                    %button#wmd-redo-button.wmd-button{:disabled => "", :title => "Redo - Ctrl+Shift+Z"}
+
+                %textarea#wmd-input.noscrollbars(ng-model="newComment.text"){:onkeyup => "angular.element(this).scope().autoGrow(this)",
+                  placeholder: "Enter your comment..."}
+                %input(ng-model="newComment.attachment_ids"){type: 'hidden'}
+                -#%div.attachments
+                  %div.attachment(ng-repeat="att in newComment.attachments" )
+                    %img.icon(ng-src="{{att.icon_url}}")
+                    %p.name {{att.attachment_file_name}}
+                    %img.delete(ng-click="delete_attachment({{att.id}})")
+
+                %input(ng-model="newComment.id"){type: 'hidden' }
+                %input(ng-model="newComment.conversation_id"){type: 'hidden' }
+                %input(ng-model="newComment.type"){type: 'hidden' }
+
+          .preview-wrapper
+            .preview#wmd-preview
+
+        .row-fluid.clear.submit-panel
+          .span12
+            %span(ng-if="newComment.id == null && newComment.type == 'ConversationComment'")
+              %input.btn-primary.btn(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
+              %a(ng-click="clear_form()")
+                Clear
+
+            %span(ng-if="newComment.id == null && newComment.type == 'SummaryComment'")
+              %input.btn-primary.btn(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
+              %a(ng-click="cancel_summary_form()")
+                Cancel
+
+            %span(ng-if="newComment.id > 0")
+              %input.btn-primary.btn(ng-disabled="form_disabled"){type: 'submit', value: 'Update'}
+              %a(ng-click="cancel_edit()")
+                Cancel
+
+            %span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")

@@ -27,7 +27,4 @@
       %div.comment-outer(ng-repeat="comment in ConversationComments" )
         %div(ce-comment)
 
-  .row-fluid
-    .span12.reply-comment-preview
-      -#%h4 What do you think?
-      %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")
+  %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")

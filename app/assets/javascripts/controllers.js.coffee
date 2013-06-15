@@ -225,13 +225,20 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
       quote_insert = "[quote=#{sel.name}~#{sel.type}~#{sel.id}~#{sel.photo}]#{sel.text}[/quote]"
       #console.log "Add this quote to textarea: #{quote_insert}"
 
-      textarea = document.getElementById('comment-preview-form').getElementsByTagName('textarea')[0]
+      textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
       textarea.value += "\n" + quote_insert
       $rootScope.show_add_quote_to_reply_style =
         display: "none"
       $rootScope.$$phase || $rootScope.$apply()
 
-    $rootScope.converter = initialize_markdown_converter( TemplateEngine )
+    [converter,editor] = initialize_markdown_converter( TemplateEngine )
+    $rootScope.converter = converter
+    $rootScope.converter = editor
+    $timeout ->
+      console.log " init editor"
+      editor.run()
+    , 1000
+
 
     $http.get("/assets/angular-views/quote.html", {cache:$templateCache};)
 
@@ -306,6 +313,7 @@ initialize_markdown_converter = (TemplateEngine) ->
   #converter = new Markdown.getSanitizingConverter()
   # Since I am using hooks, I will manually hook in sanitize at the end
   converter = new Markdown.Converter();
+  editor = new Markdown.Editor converter
 
   # Before cooking callbacks
   converter.hooks.chain "preConversion", (text) ->
@@ -326,4 +334,4 @@ initialize_markdown_converter = (TemplateEngine) ->
     return Markdown.BBCode.format(text, opts);
 
 
-  return converter
+  return [converter,editor]

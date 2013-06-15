@@ -1,0 +1,151 @@
+
+div.comment-outer{
+  //border: 1px solid green;
+  div.comment{
+    div.author{
+      text-align: right;
+      div.com-num{
+        color: #bbd;
+        font-size: 1.6em;
+        //margin-top: 30px;
+        //margin-right: 10px;
+        font-style: italic;
+      }
+      p{ color: #aaa; font-style: italic; margin: 0; font-size: .8em; line-height: 1.2em; }
+    }
+    div.deleted-comment-author{
+      div.com-num{
+        font-size: 1.6em;
+        margin-top: 0;
+      }
+    }
+
+    p.author{
+      color: #aaa;
+      font-style: italic;
+      margin: -6px 0 0 0;
+    }
+    div.comment-body{ margin-top: -8px; }
+    div.attachments{
+      div.attachment{
+        position: relative;
+        //border: 1px solid blue;
+        float: left;
+        margin: 4px 10px 8px 0;
+        //img.icon{
+        //  max-width: 400px;
+        //}
+        p.name{
+          line-height: .9;
+          margin: 4px 0 0 0;
+          font-size: .8em;
+          word-wrap: break-word;
+        }
+      }
+    }
+    .share{
+      margin-top: -4px;
+      margin-bottom: 20px;
+      white-space: nowrap;
+      p, a {
+        color: #ccc;
+        display: block;
+        margin: 0; line-height: 1.3em; font-size: .9em;
+        span { margin-left: 4px;}
+      }
+    }
+    p.controls{ text-align: right; margin: -10px 0 0 0; font-style: italic; opacity: .6;}
+    .deleted-comment-body{ padding-bottom: 30px;
+      > p {
+        font-style: italic;
+        opacity: .6
+      }
+    }
+    div.rating{
+      min-width: 360px;
+      clear: both;
+      div.vote_count{
+        max-width: 58px;
+        margin-left: 20px
+      }
+    }
+    &.ConversationComment div.rating{ padding-bottom: 40px; }
+    &.SummaryComment div.rating{ padding-bottom: 0px; }
+
+  }
+}
+
+div.ce-sortable-item-pair{
+  margin: -24px;
+  padding: 24px;
+  div.ce-sortable-item-carrier{
+    div.ce-sortable-item{
+      position: relative;
+      div.ce-sortable-handle{
+        position: absolute;
+        top: 0;
+        left: -24px;
+        cursor: move;
+      }
+    }
+  }
+  div.ce-sortable-placeholder{
+    background-color: #ddd;
+    display: none;
+  }
+}
+
+//div.ce-sortable-item-pair{
+div.comment-outer{
+  div.ce-sortable-handle{ display: none; }
+  p.controls{ display: none; }
+  &:hover{
+    div.ce-sortable-handle{ display: inline-block; }
+    p.controls{ display: block; }
+    div.share{
+      p {color: #444; }
+      a {color: #08c; cursor: pointer;}
+    }
+  }
+}
+
+
+
+$rating_width: 300px;
+$rating_height: 40px;
+$rating_handle_height: 18px;
+.clear{
+  clear: both;
+}
+div.rating{
+  div.rating-slider{
+    cursor: pointer;
+    float: left;
+    width: $rating_width;
+    position: relative;
+    //border: 1px solid red;
+    width: $rating_width;
+    div.handle {
+      width: $rating_handle_height;
+      height: $rating_handle_height;
+      position: absolute;
+      top: $rating_height/2 - $rating_handle_height/2;
+      left: 50%;
+      background: image-url('slider-star-pointer.png') no-repeat 0 0
+    }
+  }
+  .vote_count{
+    float: left;
+    margin-top: 4px;
+    margin-left: 8px;
+    div.count{
+      font-weight: bold;
+      font-size: 1.4em;
+    }
+    div.lbl{
+      font-weight: normal;
+      font-size: 1em;
+    }
+  }
+}
+
