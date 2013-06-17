@@ -125,27 +125,66 @@ ce2_directives.directive('ceConversation', ->
   restrict: 'A'
   templateUrl: '/assets/angular-views/conversation.html.haml'
   replace: true
-  controller: [ "$scope", "ConversationData", "FirebaseService",
-    ($scope, ConversationData, FirebaseService) ->
+  controller: [ "$scope", "ConversationData", "FirebaseService", "$timeout",
+    ($scope, ConversationData, FirebaseService, $timeout) ->
+      $scope.name = 'ceConversation'
+
       ConversationData.conversation($scope.conversation.id).then (response) ->
         # when the promise is fulfilled, set the arrays to $scope for display
         # and set the arrays as properties on the service for they can be updated
         # by firebase updates and still be bound to the view for this directive
         $scope.SummaryComments = response.summary_comments
         $scope.ConversationComments = response.conversation_comments
+        $scope.newComment = { attachments: [] }
 
         
-        $scope.show_summary_comment_form = ->
-          console.log "show_summary_comment_form"
-          $scope.add_summary_comment = true
+        $scope.show_comment_form = (type) ->
+          console.log "show_comment_form type: #{type}"
+          # clear new comment
+          $scope.newComment = { conversation_id: $scope.conversation.id, attachments: [] }
+          if type == 'summary'
+            console.log "#### Set the type for summary"
+            $scope.newComment.type = 'SummaryComment'
+          else
+            console.log "#### Set the type for conversation"
+            $scope.newComment.type = 'ConversationComment'
+          $timeout -> $scope.$root.editor.refreshPreview()
+          angular.element( document.getElementById('reply-control')).addClass('open show-preview')
 
-        $scope.$on 'cancel_summary_form', ->
-          console.log "hide_summary_comment_form"
-          $scope.add_summary_comment = false
 
-        $scope.$on 'clear-comment-edit', ->
-          console.log "hide_summary_comment_form"
-          $scope.add_summary_comment = false
+        $scope.$on 'request-edit', (event, comment) ->
+          console.log "request-edit for comment id: #{comment.id}"
+          $scope.newComment = angular.copy(comment)
+          $timeout -> $scope.$root.editor.refreshPreview()
+          angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
+        $scope.$on 'clear-edit', (event) ->
+          console.log "clear-edit"
+          $scope.newComment = { attachments: [] }
+          $timeout -> $scope.$root.editor.refreshPreview()
+          angular.element( document.getElementById('reply-control')).removeClass('open')
+
+        $scope.$on 'conversation-comment-edit', (event) ->
+          console.log "conversation-comment-edit"
+          $scope.newComment.type = 'ConversationComment'
+          $scope.newComment.conversation_id = $scope.conversation.id
+          $timeout -> $scope.$root.editor.refreshPreview()
+          angular.element( document.getElementById('reply-control')).addClass('open')
+
+        $scope.$on 'cancel-edit', (event) ->
+          console.log "XXXX cancel-edit"
+          $scope.newComment = { attachments: [] }
+          $timeout -> $scope.$root.editor.refreshPreview()
+          angular.element( document.getElementById('reply-control')).removeClass('open')
+
+        $scope.$on 'toggle-compose-window', ->
+          console.log "toggle_compose_window"
+          composer = angular.element( document.getElementById('reply-control') )
+          if composer.hasClass('open')
+            composer.removeClass('open show-preview')
+            $scope.$root.editor.refreshPreview()
+          else
+            composer.addClass('open show-preview')
 
         # Subscribe to updates for this data
         url = "https://civicevolution.firebaseio.com/issues/1/conversations/#{$scope.conversation.id}/updates/"
@@ -195,14 +234,11 @@ ce2_directives.directive('ceComment', ->
   priority: 100
   controller: [ "$scope", "CommentData",
     ($scope, CommentData) ->
+      $scope.name = 'ceComment'
 
       $scope.edit = (comment_type, comment_id) ->
-        $scope.edit_mode = true
-        $scope.newComment = angular.copy( (comment for comment in $scope["#{comment_type}s"] when comment.id is comment_id)[0] )
-
-      $scope.$on 'clear-comment-edit', ->
-        console.log "updating the edit mode to false"
-        $scope.edit_mode = false
+        console.log "emit request-edit"
+        $scope.$emit('request-edit', $scope.comment)
 
       $scope.view_history = (comment_id) ->
         $scope.history = CommentData.history(comment_id)
@@ -235,24 +271,23 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
   scope: true
   link: (scope, element, attrs) ->
     #console.log "link function for ceCommentForm with scope: #{scope.$id}"
-    scope.newComment.conversation_id = scope.conversation.id
-    scope.newComment.type = attrs.type
+    #scope.newComment.conversation_id = scope.conversation.id
+    #scope.newComment.type = attrs.type
     $timeout ->
-      scope.autoGrow(element.find('textarea')[0])
+      #scope.autoGrow(element.find('textarea')[0])
       scope.comment_length = scope[attrs.max]
-      angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+      #angular.element( document.getElementById('reply-control')).addClass('open show-preview')
     , 100
 
   controller: [ "$scope", "CommentData", "AttachmentData",
     ($scope, CommentData, AttachmentData) ->
+      $scope.name = 'ceCommentForm'
 
       debug = false
 
-      $scope.convert_markdown = (text) ->
-        return if not text
-        $scope.$root.converter.makeHtml(text)
+      $scope.toggle_compose_window = ->
+        $scope.$emit('toggle-compose-window')
 
-      $scope.newComment = { attachments: [] } if not ($scope.newComment && $scope.newComment.id)
       $scope.addComment = ->
         console.log "addComment"
         if $scope.template_url
@@ -263,7 +298,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             this.newComment.attachments = []
             this.newComment.id = null
             this.newComment.text = null
-            $scope.$emit('clear-comment-edit')
+            $scope.$emit('clear-edit')
 
       $scope.clear_form = ->
         # if there are any attachments, they need to be deleted
@@ -273,11 +308,10 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
       $scope.cancel_edit = ->
         #console.log "cancel the comment edit"
-        $scope.$emit('clear-comment-edit')
+        $scope.$emit('cancel-edit')
 
       $scope.cancel_summary_form = ->
-        $scope.$emit('cancel_summary_form')
-
+        $scope.$emit('cancel-edit')
 
       $scope.file_selected = (element) ->
         if element.files.length > 0

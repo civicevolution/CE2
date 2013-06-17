@@ -11,22 +11,17 @@
 
       %div.row-fluid(ng-switch-default)
         .span10.summary-comment-body(ng-mouseup="text_select_by_mouse()")
-          %div(ng-hide="edit_mode")
-            %p.author
-            %div(ng-bind-html-unsafe="simple_format(comment.text)")
+          %p.author
+          %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
 
-            %div.attachments
-              %div.attachment(ng-repeat="attachment in comment.attachments" )
-                %a(ng-href="{{attachment.url}}"){target: "_blank"}
-                  %img.icon(ng-src="{{attachment.medium_url}}")
-                  %p.name
-                    {{attachment.attachment_file_name}}
+          %div.attachments
+            %div.attachment(ng-repeat="attachment in comment.attachments" )
+              %a(ng-href="{{attachment.url}}"){target: "_blank"}
+                %img.icon(ng-src="{{attachment.medium_url}}")
+                %p.name
+                  {{attachment.attachment_file_name}}
 
-
-            %div.history.clear(ng-include src="history_url")
-
-          %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
-            %div(ce-comment-form max="SummaryCommentLength")
+          %div.history.clear(ng-include src="history_url")
 
           %div(ce-rating-slider)
 
@@ -75,23 +70,18 @@
             {{comment.order_id}}
 
         .span8.conversation-comment-body(ng-mouseup="text_select_by_mouse()")
-          %div(ng-hide="edit_mode")
-            %div.comment-body(ng-bind-html-unsafe="simple_format(comment.text)")
+          %div.comment-body(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
 
-            %div.attachments
-              %div.attachment(ng-repeat="attachment in comment.attachments" )
-                %a(ng-href="{{attachment.url}}"){target: "_blank"}
-                  %img.icon(ng-src="{{attachment.medium_url}}")
-                  %p.name
-                    {{attachment.attachment_file_name}}
+          %div.attachments
+            %div.attachment(ng-repeat="attachment in comment.attachments" )
+              %a(ng-href="{{attachment.url}}"){target: "_blank"}
+                %img.icon(ng-src="{{attachment.medium_url}}")
+                %p.name
+                  {{attachment.attachment_file_name}}
 
-            %div(ce-rating-slider)
+          %div.history.clear(ng-include src="history_url")
 
-
-            %div.history.clear(ng-include src="history_url")
-
-          %div.ani-slide(ng-if="edit_mode" ng-animate="'slide'")
-            %div(ce-comment-form max="ConversationCommentLength")
+          %div(ce-rating-slider)
 
         .span2.share
           %p {{comment.purpose}}

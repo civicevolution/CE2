@@ -183,9 +183,6 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
       if oField.scrollHeight > oField.clientHeight
         oField.style.height = oField.scrollHeight + "px"
 
-    $rootScope.simple_format = (s) ->
-      ("<p>#{str}</p>" for str in unescape(s).split(/\n\n/)).join('').replace(/\n/g,'<br/>')
-
     $rootScope.text_select_by_mouse = ->
       #console.log "text_select_by_mouse"
       try
@@ -201,11 +198,14 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
         if text
           #console.log "use this string in form:\n#{str}"
           #console.log "found select_reference: #{select_reference}"
+          body = document.documentElement || document.body
+          scrollX = window.pageXOffset || body.scrollLeft
+          scrollY = window.pageYOffset || body.scrollTop
           $rootScope.show_add_quote_to_reply_style =
             display: 'block'
             position: 'absolute'
-            top: "#{coords.top}px"
-            left: "#{coords.left}px"
+            top: "#{coords.top + scrollY}px"
+            left: "#{coords.left + scrollX}px"
 
           $timeout ->
             angular.element(document).bind('mouseup', clear_capture_selection_button)
@@ -224,7 +224,7 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
       sel = $rootScope.selection
       quote_insert = "[quote=#{sel.name}~#{sel.type}~#{sel.id}~#{sel.photo}]#{sel.text}[/quote]"
       #console.log "Add this quote to textarea: #{quote_insert}"
-
+      $rootScope.$broadcast('conversation-comment-edit')
       textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
       textarea.value += "\n" + quote_insert
       $rootScope.show_add_quote_to_reply_style =
@@ -233,12 +233,22 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
 
     [converter,editor] = initialize_markdown_converter( TemplateEngine )
     $rootScope.converter = converter
-    $rootScope.converter = editor
-    $timeout ->
-      console.log " init editor"
-      editor.run()
-    , 1000
+    $rootScope.editor = editor
 
+    init_editor = ->
+      console.log "check init_editor"
+      if editor && editor.run
+        console.log "init_editor now"
+        editor.run()
+      else
+        console.log "try to init editor in 1 sec"
+        $timeout ->
+          init_editor()
+        , 1000
+
+    $timeout ->
+      init_editor()
+    , 2000
 
     $http.get("/assets/angular-views/quote.html", {cache:$templateCache};)
 
@@ -283,6 +293,7 @@ capture_selection = ->
     range = range.cloneRange()
     range.collapse(true);
     coords = range.getClientRects()[0];
+    #console.log "coords top: #{coords.top}, left: #{coords.left}"
 
   if str
     # now find the parent with comment_id attr
@@ -327,11 +338,9 @@ initialize_markdown_converter = (TemplateEngine) ->
     quoteTemplate = extracted.template;
     return extracted.text;
 
-
   converter.hooks.chain "postConversion", (text) ->
     # reapply quotes
     text = quoteTemplate(text) if quoteTemplate
-    return Markdown.BBCode.format(text, opts);
-
+    return Markdown. BBCode.format(text, opts);
 
   return [converter,editor]

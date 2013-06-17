@@ -45,7 +45,7 @@ _.throttle = function(func, wait, immediate) {
         return result;
     };
 };
-
+*/
 // In rating I need to know the offset and width of the rating bar
 _.offset = function(elm) {
     try {return elm.offset();} catch(e) {}
@@ -72,7 +72,6 @@ _.width = function(elm) {
         }
     }
 };
-*/
 
 // IE8 cannot create a new date from ISO date string, this fixes that problem
 (function(){

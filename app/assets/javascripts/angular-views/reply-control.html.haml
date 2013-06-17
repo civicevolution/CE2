@@ -13,7 +13,7 @@
         %h3
         %ul.topics
     .control
-      %a.toggler{"data-ember-action" => "111", :href => "#", :title => "hide or show the composer panel"}
+      %a.toggler(ng-click="toggle_compose_window()" ){:href => "#", :title => "hide or show the composer panel"}
       .control-row.reply-area
         -#.reply-to
           %script#metamorph-129-start{:type => "text/x-placeholder"}>
@@ -55,8 +55,7 @@
                     %button#wmd-undo-button.wmd-button{:disabled => "", :title => "Undo - Ctrl+Z"}
                     %button#wmd-redo-button.wmd-button{:disabled => "", :title => "Redo - Ctrl+Shift+Z"}
 
-                %textarea#wmd-input.noscrollbars(ng-model="newComment.text"){:onkeyup => "angular.element(this).scope().autoGrow(this)",
-                  placeholder: "Enter your comment..."}
+                %textarea#wmd-input.noscrollbars(ng-model="newComment.text"){placeholder: "Enter your comment..."}
                 %input(ng-model="newComment.attachment_ids"){type: 'hidden'}
                 -#%div.attachments
                   %div.attachment(ng-repeat="att in newComment.attachments" )
@@ -71,21 +70,22 @@
           .preview-wrapper
             .preview#wmd-preview
 
-        .row-fluid.clear.submit-panel
-          .span12
-            %span(ng-if="newComment.id == null && newComment.type == 'ConversationComment'")
-              %input.btn-primary.btn(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
-              %a(ng-click="clear_form()")
-                Clear
+        -#.row-fluid.clear.submit-panel
+        -#.span12
+        %div.submit-panel
+          %span(ng-if="newComment.id == null && newComment.type == 'ConversationComment'")
+            %input.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit', value: 'Add'}
+            %a(ng-click="clear_form()")
+              Clear
 
-            %span(ng-if="newComment.id == null && newComment.type == 'SummaryComment'")
-              %input.btn-primary.btn(ng-disabled="form_disabled"){type: 'submit', value: 'Add'}
-              %a(ng-click="cancel_summary_form()")
-                Cancel
+          %span(ng-if="newComment.id == null && newComment.type == 'SummaryComment'")
+            %input.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit', value: 'Add'}
+            %a(ng-click="cancel_summary_form()")
+              Cancel
 
-            %span(ng-if="newComment.id > 0")
-              %input.btn-primary.btn(ng-disabled="form_disabled"){type: 'submit', value: 'Update'}
-              %a(ng-click="cancel_edit()")
-                Cancel
+          %span(ng-if="newComment.id > 0")
+            %input.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit', value: 'Update'}
+            %a(ng-click="cancel_edit()")
+              Cancel
 
-            %span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")
+          %span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")
