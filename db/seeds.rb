@@ -7,20 +7,34 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 # Environment variables (ENV['...']) are set in the file config/application.yml.
 # See http://railsapps.github.com/rails-environment-variables.html
+
 puts 'ROLES'
 YAML.load(ENV['ROLES']).each do |role|
-  Role.find_or_create_by_name({ :name => role }, :without_protection => true)
+  Role.where(name: role).first_or_create( without_protection: true )
   puts 'role: ' << role
 end
+
 puts 'DEFAULT USERS'
-user = User.find_or_create_by_email :name => ENV['ADMIN_NAME'].dup, :email => ENV['ADMIN_EMAIL'].dup, :password => ENV['ADMIN_PASSWORD'].dup, :password_confirmation => ENV['ADMIN_PASSWORD'].dup
+user = User.where( email: ENV['ADMIN_EMAIL'].dup )first_or_create do |user|
+  user.name = ENV['ADMIN_NAME'].dup
+  user.first_name = ENV['ADMIN_FIRST_NAME'].dup
+  user.last_name = ENV['ADMIN_LAST_NAME'].dup
+  user.password = ENV['ADMIN_PASSWORD'].dup
+  user.password_confirmation = ENV['ADMIN_PASSWORD'].dup
+end
 puts 'user: ' << user.name
 user.add_role :admin
 
 
 puts 'DEMO USER'
-demo_user = User.find_or_create_by_email :first_name => ENV['DEMO_FIRST_NAME'].dup, :last_name => ENV['DEMO_LAST_NAME'].dup, :email => ENV['DEMO_EMAIL'].dup, :password => ENV['DEMO_PASSWORD'].dup, :password_confirmation => ENV['DEMO_PASSWORD'].dup
+demo_user = User.where( email: ENV['DEMO_EMAIL'].dup )first_or_create do |user|
+  user.first_name = ENV['DEMO_FIRST_NAME'].dup
+  user.last_name = ENV['DEMO_LAST_NAME'].dup
+  user.password = ENV['DEMO_PASSWORD'].dup
+  user.password_confirmation = ENV['DEMO_PASSWORD'].dup
+end
 puts "demo_user: #{demo_user.first_name}  #{demo_user.last_name}  at #{demo_user.email}"
+
 
 puts "DEMO INITIATIVE"
 initiative = Initiative.where(title: 'Demo initiative', description: 'Demo initiative description').first_or_create
