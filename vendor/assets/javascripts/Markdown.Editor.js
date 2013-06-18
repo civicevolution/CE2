@@ -1732,7 +1732,7 @@
             // Marks up the link and adds the ref.
             var linkEnteredCallback = function (link, dims) {
 
-                background.parentNode.removeChild(background);
+                //background.parentNode.removeChild(background);
 
                 if (link !== null) {
                     // (                          $1
@@ -1781,13 +1781,12 @@
                 postProcessing();
             };
 
-            background = ui.createBackground();
+            //background = ui.createBackground();
 
             if (isImage) {
-                if (!this.hooks.insertImageDialog(linkEnteredCallback)){
+                if (!this.hooks.insertImageDialog(linkEnteredCallback))
                     // get the file, upload it, and call the callback with the url
                     Markdown.upload_dialog(linkEnteredCallback)
-                }
             }
             else {
                 ui.prompt(this.getString("linkdialog"), linkDefaultText, linkEnteredCallback);

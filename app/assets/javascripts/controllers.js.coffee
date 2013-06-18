@@ -347,7 +347,7 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
     console.log "call the upload dialog"
 
     dialog = $dialog.dialog(
-      backdrop: false
+      backdrop: true
       keyboard: true
       backdropClick: true
       templateUrl: '/assets/angular-views/insert-image-form.html.haml'
