@@ -5,9 +5,7 @@ class CommentSerializer < ActiveModel::Serializer
              :version, :ratings_cache, :my_rating, :number_of_votes, :sm1, :sm2, :sm3, :sm4, :sm5,
              :editable_by_user
 
-  has_many :attachments
-
-  def url
+   def url
     api_comment_url(object)
   end
 

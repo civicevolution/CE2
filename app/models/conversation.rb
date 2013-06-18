@@ -11,6 +11,8 @@ class Conversation < ActiveRecord::Base
   has_many  :conversation_comments, -> { includes :author }
   has_many :summary_comments, -> { includes :author }
 
+  has_many :attachments, :as => :attachable
+
   validates :question_id, :status, :presence => true
 
 

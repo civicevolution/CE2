@@ -1,0 +1,53 @@
+%div
+
+  .modal-header
+    %a.close(ng-click="cancel()")
+      %i.icon-remove.icon
+    %h3
+      Insert Image
+
+  .modal-body
+    %div.alert.alert-error(ng-show="error_message")
+      %p.message {{error_message}}
+
+
+    %ul.nav.nav-pills.image-options
+      %li(ng-class="type=='local' ? 'active' : ''"){:title => "Local image"}
+        %a(ng-click="show_tab('local')"){:href => "#"} From my computer
+      %li(ng-class="type=='web' ? 'active' : ''"){:title => "Remote image"}
+        %a(ng-click="show_tab('web')"){:href => "#"} From the web
+
+    %div(ng-class="type=='local' ? '' : 'hidden'")
+      .modal-body.attachment_form
+        %form.attachment(ce-csrf){name: 'image_upload_form', action: '/api/attachments?t={{timestamp}}', target: "attachment_upload_iframe", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}
+          -#%input(type="file" onchange="angular.element(this).scope().file_selected(this)"){type: 'file', name: 'attachment[attachment]', id: "attachment_attachment"}
+          %input#filename-input{accept: "image/*", type: "file", name: "attachment[attachment]", value: "browse"}/
+          %input(ng-model="image.conversation_id"){type: 'text', name: "conversation_id", style: "display: none" }
+          %br/
+          %span.description click to select an image from your device
+          %br/
+          %div.iframe_placeholder
+          %iframe(id="attachment_upload_iframe" name="attachment_upload_iframe" onload='angular.element(this).scope().iframe_loaded(this)')
+          %div.progress-bar(ng-bind-html-unsafe="progress_bar_message")
+
+      .modal-footer
+        %button.btn.btn-large.btn-primary(ng-click="upload()")
+          %span.add-picture
+            %i.icon-picture
+            %i.icon-plus
+          Upload
+
+    %div(ng-class="type=='web' ? '' : 'hidden'")
+      .modal-body
+        %form
+          %input#fileurl-input(ng-model="image.url"){:autofocus => "", :name => "text", :type => "text"}
+          %br/
+          %span.description enter address of an image in the form http://example.com/image.jpg
+          %br/
+      .modal-footer
+        %button.btn.btn-large.btn-primary(ng-click="submit()")
+          %span.add-picture
+            %i.icon-picture
+            %i.icon-plus
+          Add image
+

@@ -20,7 +20,7 @@ ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', 
   'ui.compat', 'ui.bootstrap', 'ngUpload'] )
 
 ce2_app.config ($httpProvider) ->
-	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] = 
+	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] =
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
 ce2_app.value('Firebase', Firebase);
@@ -30,7 +30,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
     $urlRouterProvider
       .when('/c?id', '/contacts/:id')
       .otherwise('/');
-  
+
     $routeProvider
       .when('/user/:id', {
         redirectTo: '/contacts/:id',
@@ -39,7 +39,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         template: '<p class="lead">Welcome to the ngStates sample</p><p>Use the menu above to navigate</p>' +
           '<p>Look at <a href="#/c?id=1">Alice</a> or <a href="#/user/42">Bob</a> to see a URL with a redirect in action.</p>',
       })
-      
+
     $stateProvider
 
       .state('home', {
@@ -52,8 +52,8 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         url: '/about',
         templateProvider:
           [        '$timeout', ($timeout) ->
-            $timeout -> 
-              "Hello <i>world</i>" 
+            $timeout ->
+              "Hello <i>world</i>"
             , 100
           ]
       })
@@ -61,8 +61,8 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         url: '/state_temp_prov',
         templateProvider:
           [        '$timeout', ($timeout) ->
-            $timeout -> 
-              "I am now in state1" 
+            $timeout ->
+              "I am now in state1"
             , 100
           ]
       })
@@ -86,7 +86,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         controller: ($state) ->
           console.log "$state.current.data.custom_desc: #{$state.current.data.custom_desc}"
       })
-      
+
       .state('state2', {
         url: '/state2',
         templateUrl: '/assets/angular-views/test/state2.html'
@@ -106,16 +106,16 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
       })
       .state('state4', {
         url: '/state4/{userID}',
-        views: 
+        views:
           "":
             templateUrl: '/assets/angular-views/test/state4.html'
-            resolve: { resolved_data: -> 
-              title: 'My Contacts' 
+            resolve: { resolved_data: ->
+              title: 'My Contacts'
               duration: '1 hour'
               weight: '5 pounds'
               height: '22 inches'
             }
-            controller: [ "$scope", "$state", "$timeout", "resolved_data", "$stateParams", "$routeParams", "$location", 
+            controller: [ "$scope", "$state", "$timeout", "resolved_data", "$stateParams", "$routeParams", "$location",
               ($scope, $state, $timeout, resolved_data, $stateParams, $routeParams, $location) ->
                 $scope.user = 'Brian Sullivan'
                 $scope.data = resolved_data
@@ -126,7 +126,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
                     $state.transitionTo('state2')
                   , 2000
             ]
-          
+
           "footer":
             template: "The footer"
       })
@@ -172,8 +172,8 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
 ])
 
-ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "TemplateEngine", "$http", "$templateCache"
-  ($rootScope,   $state,   $stateParams, Issue, $timeout, TemplateEngine, $http, $templateCache) ->
+ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "TemplateEngine", "$http", "$templateCache", "$dialog",
+  ($rootScope,   $state,   $stateParams, Issue, $timeout, TemplateEngine, $http, $templateCache, $dialog) ->
     $rootScope.$state = $state
     $rootScope.$stateParams = $stateParams
     $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
@@ -231,17 +231,17 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
         display: "none"
       $rootScope.$$phase || $rootScope.$apply()
 
-    [converter,editor] = initialize_markdown_converter( TemplateEngine )
+    [converter,editor] = initialize_markdown_converter( TemplateEngine, $timeout, $dialog, $rootScope )
     $rootScope.converter = converter
     $rootScope.editor = editor
 
     init_editor = ->
-      console.log "check init_editor"
+      #console.log "check init_editor"
       if editor && editor.run
-        console.log "init_editor now"
+        #console.log "init_editor now"
         editor.run()
       else
-        console.log "try to init editor in 1 sec"
+        #console.log "try to init editor in 1 sec"
         $timeout ->
           init_editor()
         , 1000
@@ -316,8 +316,8 @@ clear_capture_selection_button = ->
   rootScope.$$phase || rootScope.$apply()
 
   doc.unbind('mouseup', clear_capture_selection_button)
-  
-initialize_markdown_converter = (TemplateEngine) ->
+
+initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) ->
   opts = { TemplateEngine: TemplateEngine } # unless opts
   quoteTemplate = null
 
@@ -341,6 +341,66 @@ initialize_markdown_converter = (TemplateEngine) ->
   converter.hooks.chain "postConversion", (text) ->
     # reapply quotes
     text = quoteTemplate(text) if quoteTemplate
-    return Markdown. BBCode.format(text, opts);
+    return Markdown.BBCode.format(text, opts);
+
+  Markdown.upload_dialog = (linkEnteredCallback) ->
+    console.log "call the upload dialog"
+
+    dialog = $dialog.dialog(
+      backdrop: false
+      keyboard: true
+      backdropClick: true
+      templateUrl: '/assets/angular-views/insert-image-form.html.haml'
+      controller: ["$scope", "$timeout", ($scope, $timeout) ->
+        debug = false
+        $scope.type = 'local'
+        #$scope.image = {conversation_id: angular.element(document.getElementById('wmd-input')).scope().newComment.conversation_id}
+        $scope.image = {conversation_id: angular.element(document.getElementById('wmd-input')).scope().conversation.id }
+
+        console.log "in dialog, $scope.image.conversation_id: #{$scope.image.conversation_id} "
+
+        $scope.show_tab = (str) ->
+          if str is 'web'
+            console.log "show web tab"
+            $scope.type = 'web'
+          else
+            console.log "show local tab"
+            $scope.type = 'local'
+        $scope.submit = ->
+          console.log "submit url: #{$scope.image.url}"
+          linkEnteredCallback($scope.image.url)
+          dialog.close()
+
+        $scope.upload = ->
+          console.log "upload file"
+          file_input = document.getElementById('filename-input')
+          if file_input.files.length > 0
+            file_name = file_input.files[0].name
+            console.log "loading file: #{file_name}" if debug
+            $scope.progress_bar_message = "<i class='icon-spinner icon-spin'></i><span>Loading #{file_name}</span>"
+            image_upload_form.submit()
+
+        $scope.iframe_loaded = (el) ->
+          # have access to $scope here
+          console.log "ceCommentForm: window.iframe_loaded, get the contents" if debug
+
+          content = el.contentDocument.body.innerText
+          if content
+            attachment = angular.fromJson(content)
+            console.log "in_page_url is #{attachment.in_page_url}"
+            $timeout ->
+              linkEnteredCallback(attachment.in_page_url, {width: attachment.image_width, height: attachment.image_height});
+              dialog.close()
+              $scope.$root.$broadcast('update-new-comment-text')
+
+        $scope.cancel = ->
+          dialog.close()
+      ]
+    )
+    dialog.open()
+    $rootScope.$$phase || $rootScope.$apply()
+
+
+
 
   return [converter,editor]

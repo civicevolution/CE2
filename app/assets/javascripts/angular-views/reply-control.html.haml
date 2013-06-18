@@ -28,9 +28,6 @@
             .form
               %div.edit-menu
                 %div.attachment_form
-                  -#%form.attachment(ce-csrf){name: 'attach_form', action: '/api/attachments?t={{timestamp}}', target: "attachment_upload_iframe_1", method: :POST, enctype: "multipart/form-data", encoding: "multipart/form-data"}
-                    %input(type="file" onchange="angular.element(this).scope().file_selected(this)"){type: 'file', name: 'attachment[attachment]', id: "attachment_attachment"}
-                  -#%div.iframe_placeholder
                 %div.progress-bar(ng-bind-html-unsafe="progress_bar_message")
 
               %form.convo.clear(ng-submit="addComment()"){name: 'comment_form'}
@@ -70,13 +67,11 @@
           .preview-wrapper
             .preview#wmd-preview
 
-        -#.row-fluid.clear.submit-panel
-        -#.span12
         %div.submit-panel
           %span(ng-if="newComment.id == null && newComment.type == 'ConversationComment'")
             %input.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit', value: 'Add'}
-            %a(ng-click="clear_form()")
-              Clear
+            %a(ng-click="cancel_edit()")
+              Cancel
 
           %span(ng-if="newComment.id == null && newComment.type == 'SummaryComment'")
             %input.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit', value: 'Add'}

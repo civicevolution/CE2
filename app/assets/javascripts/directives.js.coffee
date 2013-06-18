@@ -153,7 +153,6 @@ ce2_directives.directive('ceConversation', ->
 
 
         $scope.$on 'request-edit', (event, comment) ->
-          console.log "request-edit for comment id: #{comment.id}"
           $scope.newComment = angular.copy(comment)
           $timeout -> $scope.$root.editor.refreshPreview()
           angular.element( document.getElementById('reply-control')).addClass('open show-preview')
@@ -237,7 +236,6 @@ ce2_directives.directive('ceComment', ->
       $scope.name = 'ceComment'
 
       $scope.edit = (comment_type, comment_id) ->
-        console.log "emit request-edit"
         $scope.$emit('request-edit', $scope.comment)
 
       $scope.view_history = (comment_id) ->
@@ -289,10 +287,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         $scope.$emit('toggle-compose-window')
 
       $scope.addComment = ->
-        console.log "addComment"
-        if $scope.template_url
-          alert 'You must save your attachment or close the attachment form'
-          return
         CommentData.persist_change_to_ror 'save', $scope.newComment,
           angular.bind $scope, ->
             this.newComment.attachments = []
@@ -313,60 +307,9 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       $scope.cancel_summary_form = ->
         $scope.$emit('cancel-edit')
 
-      $scope.file_selected = (element) ->
-        if element.files.length > 0
-          file_name = element.files[0].name
-          console.log "loading file: #{file_name}" if debug
-          $scope.progress_bar_message = "<i class='icon-spinner icon-spin'></i><span>Loading #{file_name}</span>"
-
-          console.log "ceCommentForm: a file is selected, add iframe" if debug
-          $scope.$root.attachment_frame_id = 1 if not $scope.$root.attachment_frame_id
-          $scope.$root.attachment_frame_id += 1
-          target = "attachment_upload_iframe_#{$scope.$root.attachment_frame_id}"
-          form = angular.element(element.form)
-          form.attr('target', target)
-          form.next().replaceWith(
-            "<iframe id='#{target}' name='#{target}' onload='angular.element(this).scope().iframe_loaded(this)'></iframe>" )
-
-          $scope.$apply()
-
-      $scope.iframe_loaded = (el) ->
-            # have access to $scope here
-        console.log "ceCommentForm: window.iframe_loaded, get the contents" if debug
-
-        if not $scope.form_disabled
-          console.log "ceCommentForm: a iframe is ready, submit the form" if debug
-          $scope.form_disabled = true
-          angular.element(el).parent().find('form')[0].submit()
-
-        content = el.contentDocument.body.innerText
-        if content
-          console.log "ceCommentForm: add this data to scope: #{content}" if debug
-          $scope.newComment.attachments.push angular.fromJson( content )
-          $scope.newComment.attachment_ids = (att.id for att in $scope.newComment.attachments).join(', ')
-          # find and clear the file input
-          inputs = angular.element(attach_form).find('input')
-          input for input in inputs when input.type == 'file'
-          input.value = null
-          angular.element(el).replaceWith('<div></div>')
-          $scope.progress_bar_message = null
-          $scope.form_disabled = false
-          $scope.$apply()
-
-      $scope.delete_attachment = (id) ->
-        console.log "delete attachment id: #{id}" if debug
-        AttachmentData.delete_attachment(id).then(
-          (response)->
-            console.log "AttachmentData.delete_attachment received response" if debug
-            # update the scope data based on response.data
-            $scope.newComment.attachments = (att for att in $scope.newComment.attachments when att.id != id)
-            $scope.newComment.attachment_ids = (att.id for att in $scope.newComment.attachments).join(', ')
-            console.log "AttachmentData.delete_attachment updated scope variables" if debug
-        ,
-        (reason) ->
-          console.log "AttachmentData.delete_attachment received reason"
-          dialog_scope.error_message = reason.data.error
-        )
+      $scope.$on 'update-new-comment-text', ->
+        console.log "do update-new-comment-text"
+        $scope.newComment.text = document.getElementById('wmd-input').value
 
       $scope.test = ->
         console.log "ceCommentForm: test"

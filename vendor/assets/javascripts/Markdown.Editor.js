@@ -1730,7 +1730,7 @@
             var that = this;
             // The function to be executed when you enter a link and press OK or Cancel.
             // Marks up the link and adds the ref.
-            var linkEnteredCallback = function (link) {
+            var linkEnteredCallback = function (link, dims) {
 
                 background.parentNode.removeChild(background);
 
@@ -1754,18 +1754,26 @@
                     // would mean a zero-width match at the start. Since zero-width matches advance the string position,
                     // the first bracket could then not act as the "not a backslash" for the second.
                     chunk.selection = (" " + chunk.selection).replace(/([^\\](?:\\\\)*)(?=[[\]])/g, "$1\\").substr(1);
-                    
-                    var linkDef = " [999]: " + properlyEncoded(link);
 
-                    var num = that.addLinkDef(chunk, linkDef);
-                    chunk.startTag = isImage ? "![" : "[";
-                    chunk.endTag = "][" + num + "]";
-
-                    if (!chunk.selection) {
-                        if (isImage) {
-                            chunk.selection = that.getString("imagedescription");
+                    // if this is an image insert a regular img tag instead of bbcode brackets
+                    if (isImage){
+                        chunk.after = chunk.selection + chunk.after;
+                        chunk.selection = "";
+                        chunk.startTag = '<img src="'
+                        if(dims.height && dims.width){
+                          //chunk.endTag = properlyEncoded(link) + '" width="' + dims.width +'" height="' + dims.height + '"/>'
+                          chunk.endTag = properlyEncoded(link) + '"/>'
+                        } else{
+                          chunk.endTag = properlyEncoded(link) + '"/>'
                         }
-                        else {
+                    } else {
+                        var linkDef = " [999]: " + properlyEncoded(link);
+
+                        var num = that.addLinkDef(chunk, linkDef);
+                        chunk.startTag = isImage ? "![" : "[";
+                        chunk.endTag = "][" + num + "]";
+
+                        if (!chunk.selection) {
                             chunk.selection = that.getString("linkdescription");
                         }
                     }
@@ -1776,8 +1784,10 @@
             background = ui.createBackground();
 
             if (isImage) {
-                if (!this.hooks.insertImageDialog(linkEnteredCallback))
-                    ui.prompt(this.getString("imagedialog"), imageDefaultText, linkEnteredCallback);
+                if (!this.hooks.insertImageDialog(linkEnteredCallback)){
+                    // get the file, upload it, and call the callback with the url
+                    Markdown.upload_dialog(linkEnteredCallback)
+                }
             }
             else {
                 ui.prompt(this.getString("linkdialog"), linkDefaultText, linkEnteredCallback);
