@@ -6,7 +6,7 @@ class Rating < ActiveRecord::Base
   after_initialize :read_previous_rating
   around_save :update_ratings_cache_on_ratable_around_save
 
-  scope :for_user, -> (userid) { where("user_id = ?", userid)}
+  #scope :for_user, -> (userid) { where("user_id = ?", userid)}
 
   def read_previous_rating
     @index_for_previous_rating = new_record? ? nil : ((rating-1)/10).floor
