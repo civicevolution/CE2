@@ -22,9 +22,13 @@ Ce2::Application.configure do
   # Disable Rails's static asset server (Apache or nginx will already do this).
   config.serve_static_assets = false
 
-  # Compress JavaScripts and CSS.
-  #config.assets.js_compressor = :uglifier
-  # config.assets.css_compressor = :sass
+  # Compress JavaScripts and CSS
+  config.assets.compress = false
+
+  # Choose the compressors to use
+  # config.assets.js_compressor  = :uglifier
+  # config.assets.css_compressor = :yui
+
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false
@@ -34,6 +38,14 @@ Ce2::Application.configure do
 
   # Version of your assets, change this if you want to expire all your assets.
   config.assets.version = '1.0'
+
+  # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
+  # Precompile additional assets.
+  # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
+  config.assets.precompile += %w( angular-application.js )
+
+  # Change the path that assets are served from
+  # config.assets.prefix = "/assets"
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for apache
@@ -56,10 +68,6 @@ Ce2::Application.configure do
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = "http://assets.example.com"
-
-  # Precompile additional assets.
-  # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
-  # config.assets.precompile += %w( search.js )
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

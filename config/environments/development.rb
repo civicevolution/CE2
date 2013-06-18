@@ -44,7 +44,18 @@ Ce2::Application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
-  config.assets.debug = true
+  config.assets.debug = false
+
+  # Do not compress assets
+  config.assets.compress = false
+
+  # Compress JavaScripts and CSS.
+  #config.assets.js_compressor = :uglifier
+  # config.assets.css_compressor = :sass
+
+  # Do not fallback to assets pipeline if a precompiled asset is missed.
+  #config.assets.compile = false
+
 
   RES_BASE='civic_dev'
 end

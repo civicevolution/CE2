@@ -81,7 +81,5 @@ module Ce2
       DeviseController.respond_to :html, :json
     end
 
-    config.assets.precompile += %w( angular-application.js )
-    
   end
 end
