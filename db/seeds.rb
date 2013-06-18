@@ -15,7 +15,7 @@ YAML.load(ENV['ROLES']).each do |role|
 end
 
 puts 'DEFAULT USERS'
-user = User.where( email: ENV['ADMIN_EMAIL'].dup )first_or_create do |user|
+user = User.where( email: ENV['ADMIN_EMAIL'].dup ).first_or_create do |user|
   user.name = ENV['ADMIN_NAME'].dup
   user.first_name = ENV['ADMIN_FIRST_NAME'].dup
   user.last_name = ENV['ADMIN_LAST_NAME'].dup
@@ -27,7 +27,7 @@ user.add_role :admin
 
 
 puts 'DEMO USER'
-demo_user = User.where( email: ENV['DEMO_EMAIL'].dup )first_or_create do |user|
+demo_user = User.where( email: ENV['DEMO_EMAIL'].dup ).first_or_create do |user|
   user.first_name = ENV['DEMO_FIRST_NAME'].dup
   user.last_name = ENV['DEMO_LAST_NAME'].dup
   user.password = ENV['DEMO_PASSWORD'].dup
@@ -56,18 +56,18 @@ puts "DEMO CONVERSATION"
 conversation = Conversation.where(question_id: question.id).first_or_create
 puts "demo conversation id: #{conversation.id}"
 
-puts "DEMO COMMENTS"
-['First demo comment', 'Second demo comment', 'Third demo comment'].each do |text|
-  comment = ConversationComment.where(conversation_id: conversation.id, text: text).first_or_create do |comment|
-    comment.user_id = demo_user.id
-  end
-  puts "conversation comment with text: #{comment.text}"
-end
-
-['First summary comment', 'Second summary comment', 'Third summary comment'].each do |text|
-  comment = SummaryComment.where(conversation_id: conversation.id, text: text).first_or_create do |comment|
-    comment.user_id = demo_user.id
-  end
-  puts "summary comment with text: #{comment.text}"
-end
+#puts "DEMO COMMENTS"
+#['First demo comment', 'Second demo comment', 'Third demo comment'].each do |text|
+#  comment = ConversationComment.where(conversation_id: conversation.id, text: text).first_or_create do |comment|
+#    comment.user_id = demo_user.id
+#  end
+#  puts "conversation comment with text: #{comment.text}"
+#end
+#
+#['First summary comment', 'Second summary comment', 'Third summary comment'].each do |text|
+#  comment = SummaryComment.where(conversation_id: conversation.id, text: text).first_or_create do |comment|
+#    comment.user_id = demo_user.id
+#  end
+#  puts "summary comment with text: #{comment.text}"
+#end
 
