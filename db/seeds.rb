@@ -43,12 +43,15 @@ puts "demo initiative title: #{initiative.title}"
 puts "DEMO ISSUE"
 issue = Issue.where(initiative_id: initiative.id, title: 'Demo issue', description: 'Demo issue description').first_or_create do |issue|
   issue.user_id = demo_user.id
+  issue.purpose = "demo"
+  issue.munged_title = "demo-issue"
 end
 puts "demo issue title: #{issue.title}"
 
 puts "DEMO QUESTION"
 question = Question.where(issue_id: issue.id, text: 'Demo question').first_or_create do |question|
   question.user_id = demo_user.id
+  question.purpose = "demo"
 end
 puts "demo question text = #{question.text}"
 
