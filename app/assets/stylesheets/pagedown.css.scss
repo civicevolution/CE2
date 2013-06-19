@@ -72,9 +72,7 @@ blockquote {
 }
 
 .wmd-button > span {
-    background-image: url(/assets/wmd-buttons.png);
-    background-repeat: no-repeat;
-    background-position: 0px 0px;
+    background: image-url('wmd-buttons.png') no-repeat 0,0;
     width: 20px;
     height: 20px;
     display: inline-block;
