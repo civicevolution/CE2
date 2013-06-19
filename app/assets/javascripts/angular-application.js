@@ -31,7 +31,7 @@
 //= require graph.js
 //= require moment.js
 
-//= require utilities
+// require utilities
 // require utilities_temp.js
 
 //= require Markdown.Converter.js
@@ -39,8 +39,6 @@
 //= require Markdown.Sanitizer.js
 //= require bbcode.js
 
-
-//= require ng-upload.js
 
 // Don't use these for now
 // require jquery-1.9.1

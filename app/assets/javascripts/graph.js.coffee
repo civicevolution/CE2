@@ -1,6 +1,3 @@
-console.log "loading graph.js.coffee"
-
-
 # draw the rating results curve
 # convert the rating results into a set of coordinates and draw a curve
 # find the correct canvas
