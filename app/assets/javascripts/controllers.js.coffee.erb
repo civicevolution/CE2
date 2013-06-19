@@ -44,7 +44,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
       .state('home', {
         url: '/home',
-        templateUrl: '/assets/angular-views/home.html'
+        templateUrl: '<%= path_to_asset "home.html" %>'
       })
 
 
@@ -69,17 +69,17 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
       .state('issue', {
         url: '/',
-        templateUrl: '/assets/angular-views/issue.html'
+        templateUrl: '<%= path_to_asset "issue.html" %>'
       })
 
       .state('edit-profile', {
         url: '/edit-profile'
-        templateUrl: '/assets/angular-views/edit-profile.html'
+        templateUrl: '<%= path_to_asset "edit-profile.html" %>'
       })
 
       .state('state1', {
         url: '/state1',
-        templateUrl: '/assets/angular-views/test/state1.html'
+        templateUrl: '<%= path_to_asset "test/state1.html" %>'
         data:
           custom_id: 10
           custom_desc: 'circle'
@@ -89,11 +89,11 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
       .state('state2', {
         url: '/state2',
-        templateUrl: '/assets/angular-views/test/state2.html'
+        templateUrl: '<%= path_to_asset "test/state2.html" %>'
       })
       .state('state3', {
         url: '/state3',
-        templateUrl: '/assets/angular-views/test/state3.html'
+        templateUrl: '<%= path_to_asset "test/state3.html" %>'
         controller:  [ "$scope", "$state", "$timeout", ($scope, $state, $timeout) ->
           $scope.user = 'Brian Sullivan'
           $scope.goto_state1 = ->
@@ -108,7 +108,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
         url: '/state4/{userID}',
         views:
           "":
-            templateUrl: '/assets/angular-views/test/state4.html'
+            templateUrl: '<%= path_to_asset "test/state4.html" %>'
             resolve: { resolved_data: ->
               title: 'My Contacts'
               duration: '1 hour'
@@ -133,7 +133,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
       .state('test-autogrow', {
         url: '/test-autogrow'
-        templateUrl: '/assets/angular-views/test/autogrow.html'
+        templateUrl: '<%= path_to_asset "test/autogrow.html" %>'
         controller: [ "$scope", ($scope) ->
           console.log "controller for test-autogrow"
           $scope.autoGrow = (oField) ->
@@ -144,7 +144,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
       .state('test-animation', {
         url: '/test-animation'
-        templateUrl: '/assets/angular-views/test/animation.html'
+        templateUrl: '<%= path_to_asset "test/animation.html" %>'
         controller: [ "$scope", ($scope) ->
           console.log "controller for test-animation"
           $scope.adjust = ->
@@ -155,7 +155,7 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
 
       .state('test-sortable', {
         url: '/test-sortable'
-        templateUrl: "/assets/angular-views/test/sortable.html?t=#{new Date().getTime()}"
+        templateUrl: "<%= path_to_asset "test/sortable.html" %>"
         controller: [ "$scope", ($scope) ->
           #console.log "controller for test-sortable"
           $scope.items = [
@@ -250,7 +250,7 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
       init_editor()
     , 2000
 
-    $http.get("/assets/angular-views/quote.html", {cache:$templateCache};)
+    $http.get("<%= path_to_asset "quote.html" %>", {cache:$templateCache};)
 
 ])
 
@@ -350,7 +350,7 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
       backdrop: true
       keyboard: true
       backdropClick: true
-      templateUrl: '/assets/angular-views/insert-image-form.html.haml'
+      templateUrl: '<%= path_to_asset "insert-image-form.html" %>'
       controller: ["$scope", "$timeout", ($scope, $timeout) ->
         debug = false
         $scope.type = 'local'

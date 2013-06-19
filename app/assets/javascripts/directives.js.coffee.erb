@@ -6,7 +6,7 @@ ce2_directives = angular.module('CE2.directives', ['ui.bootstrap'])
 
 ce2_directives.directive('ceUserBar', ->
   restrict: 'A'
-  templateUrl: '/assets/angular-views/user-bar.html.haml'
+  templateUrl: '<%= path_to_asset "user-bar.html" %>'
   replace: true
   scope: false
   controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state" ,
@@ -24,7 +24,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '/assets/angular-views/signin_form.html.haml'
+          templateUrl: '<%= path_to_asset "signin_form.html" %>'
           controller: ->
             # for testing
             $scope.user =
@@ -48,7 +48,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: false
           backdropClick: false
-          templateUrl: '/assets/angular-views/signup_form.html.haml'
+          templateUrl: '<%= path_to_asset "signup_form.html" %>'
           controller: ->
             # for testing
             $scope.user =
@@ -72,7 +72,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '/assets/angular-views/forgot_password_form.html.haml'
+          templateUrl: '<%= path_to_asset "forgot_password_form.html" %>'
           controller: ->
             $scope.user =
               email: 'alice@civicevolution.org'
@@ -96,7 +96,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '/assets/angular-views/acknowledge-dialog.html.haml'
+          templateUrl: '<%= path_to_asset "acknowledge-dialog.html" %>'
           controller: ->
             $scope.message = message
             $scope.cancel = ->
@@ -117,13 +117,13 @@ ce2_directives.directive('ceFocus', [ "$timeout", ($timeout) ->
 
 ce2_directives.directive('ceQuestion', ->
   restrict: 'A'
-  templateUrl: "/assets/angular-views/question.html?t=#{new Date().getTime()}"
+  templateUrl: "<%= path_to_asset "question.html" %>"
   replace: true
 )
 
 ce2_directives.directive('ceConversation', ->
   restrict: 'A'
-  templateUrl: '/assets/angular-views/conversation.html.haml'
+  templateUrl: '<%= path_to_asset "conversation.html" %>'
   replace: true
   controller: [ "$scope", "ConversationData", "FirebaseService", "$timeout",
     ($scope, ConversationData, FirebaseService, $timeout) ->
@@ -227,7 +227,7 @@ ce2_directives.directive('ceConversation', ->
 )
 ce2_directives.directive('ceComment', ->
   restrict: 'A'
-  templateUrl: "/assets/angular-views/comment.html.haml?t=#{new Date().getTime()}"
+  templateUrl: "<%= path_to_asset "comment.html" %>"
   replace: true
   scope: true
   priority: 100
@@ -240,7 +240,7 @@ ce2_directives.directive('ceComment', ->
 
       $scope.view_history = (comment_id) ->
         $scope.history = CommentData.history(comment_id)
-        $scope.history_url = "/assets/angular-views/comment-history.html?t=#{$scope.timestamp}"
+        $scope.history_url = "<%= path_to_asset "comment-history.html" %>"
 
       $scope.hide_history = ->
         $scope.history_url = null
@@ -264,7 +264,7 @@ ce2_directives.directive('ceComment', ->
 
 ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
   restrict: 'A'
-  templateUrl: "/assets/angular-views/reply-control.html.haml?t=#{new Date().getTime()}"
+  templateUrl: "<%= path_to_asset "reply-control.html" %>"
   replace: true
   scope: true
   link: (scope, element, attrs) ->
@@ -320,7 +320,7 @@ ce2_directives.directive('ceCsrf', ->
   restrict: 'A'
   replace: false
   transclude: true
-  templateUrl: "/assets/angular-views/csrf-form-inputs.html?t=#{new Date().getTime()}"
+  templateUrl: "<%= path_to_asset "csrf-form-inputs.html" %>"
 )
 
 
@@ -328,7 +328,7 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
   restrict: 'A'
   replace: true
   scope: false
-  templateUrl: "/assets/angular-views/rating-slider.html?t=#{new Date().getTime()}"
+  templateUrl: "<%= path_to_asset "rating-slider.html" %>"
   controller: [ "$scope", "CommentData", ($scope, CommentData) ->
     $scope.persist_rating = ->
       #console.log "scope.persist_rating call on CommentData id: #{$scope.comment.id} with rating: #{$scope.rating}"
@@ -416,7 +416,7 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
 
 ce2_directives.directive('ceProfilePhotoForm', ->
   restrict: 'A'
-  templateUrl: "/assets/angular-views/profile-photo-form.html.haml?t=#{new Date().getTime()}"
+  templateUrl: "<%= path_to_asset "profile-photo-form.html" %>"
   replace: true
   scope: true
   controller: [ "$scope",

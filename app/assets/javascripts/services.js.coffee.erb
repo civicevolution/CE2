@@ -226,7 +226,8 @@ services.factory "TemplateEngine",
 
       else
         # if not existing, get the template and create the function and store in cache
-        template = $templateCache.get("/assets/angular-views/#{templateName}.html")
+        #template = $templateCache.get("/assets/angular-views/#{templateName}.html")
+        template = $templateCache.get("<%= path_to_asset "quote.html" %>")
 
         if template
           interpolate_fn = $interpolate(template[1])
