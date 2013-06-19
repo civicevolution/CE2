@@ -31,7 +31,7 @@
 //= require graph.js
 //= require moment.js
 
-//= require utilities.js
+//= require utilities
 // require utilities_temp.js
 
 //= require Markdown.Converter.js
