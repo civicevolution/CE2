@@ -29,11 +29,21 @@ module Api
       {root: false}
     end
 
-    def rescue_generic_exception(e)
-      logger.error "\n\nError detected: #{e.class.to_s}: #{e.message}"
-      notify_airbrake(e) unless Rails.env == 'development'
+    def rescue_generic_exception(exception)
+      notify_airbrake(exception) unless Rails.env == 'development'
+
+      exception.backtrace[0..5].each_index do |ind|
+        Rails.logger.error "    #{ind}: #{exception.backtrace[ind]}"
+      end
+      #exception.backtrace[6..250].each do |line|
+      #  if !line.match(/\/gems\//)
+      #    Rails.logger.error ">>>>#{line}" unless line.match(/\Ascript/)
+      #  end
+      #end
+      Rails.logger.error "\n\n"
+      #logger.error "\n\nError detected: #{exception.class.to_s}: #{exception.message}"
       #raise e
-      render json: {system_error: e.message}, :status => :internal_server_error
+      render json: {system_error: exception.message}, :status => :internal_server_error
     end
     
     def rescue_not_found(e)

@@ -13,6 +13,7 @@ gem 'jquery-rails'
 gem "thin", ">= 1.5.0", :group => [:development, :test]
 
 gem "unicorn", ">= 4.3.1", :group => :production
+#gem 'airbrake', require: false
 gem "haml-rails", ">= 0.4"
 gem "html2haml", ">= 1.0.1", :group => :development
 gem "rspec-rails", ">= 2.12.2", :group => [:development, :test]
@@ -32,8 +33,10 @@ gem "rolify", ">= 3.2.0"
 gem "simple_form", github: 'plataformatec/simple_form', branch: 'master'
 gem "quiet_assets", ">= 1.0.2", :group => :development
 gem "figaro", ">= 0.6.3"
-gem "better_errors", ">= 0.7.2", :group => :development
-gem "binding_of_caller", ">= 0.7.1", :group => :development, :platforms => [:mri_19, :rbx]
+group :development do
+  gem 'better_errors'
+  gem 'binding_of_caller'
+end
 
 gem 'active_model_serializers'
 gem 'responders'
@@ -53,3 +56,4 @@ gem 'rails-observers'
 gem 'actionpack-page_caching'
 gem 'actionpack-action_caching'
 #gem 'activeresource', github: 'rails/activeresource'
+

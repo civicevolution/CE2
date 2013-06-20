@@ -17,9 +17,11 @@ module Api
 
       def show
         conversation = Conversation.includes(:comments).find(params[:id])
-        my_ratings = Rating.where( user_id: current_user.id, ratable_id: conversation.comments.map(&:id), ratable_type: 'Comment').inject({}){|hash, r| hash[r.ratable_id] = r.rating ; hash }
+        current_user_id = current_user.try{ |user| user.id} || nil
+
+        my_ratings = Rating.where( user_id: current_user_id, ratable_id: conversation.comments.map(&:id), ratable_type: 'Comment').inject({}){|hash, r| hash[r.ratable_id] = r.rating ; hash }
         conversation.comments.each{|com| com.my_rating = my_ratings[com.id]}
-        firebase_auth_data =    { userid: "#{current_user.id}",
+        firebase_auth_data =    { userid: "#{current_user_id}",
                                   #issues_read: { "#{conversation.issue_id}" => true },
                                   #issues_write: { "#{conversation.issue_id}" => true },
                                   conversations_read: { "#{conversation.id}" => true },
