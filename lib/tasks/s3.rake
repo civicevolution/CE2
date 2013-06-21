@@ -1,5 +1,5 @@
 require 'logger'
-#logger = Logger.new(File.open('sync.log', 'a'))
+##logger = Logger.new(File.open('sync.log', 'a'))
 logger = Logger.new(STDOUT)
 
 
