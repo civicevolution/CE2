@@ -49,6 +49,7 @@ gem 'differ'
 
 gem "paperclip", github: "thoughtbot/paperclip", branch: 'master'
 gem 'aws-sdk'
+gem 'right_aws'
 
 # add these gems to help with the transition:
 gem 'protected_attributes'

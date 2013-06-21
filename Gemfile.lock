@@ -212,6 +212,9 @@ GEM
     raindrops (0.11.0)
     rake (10.0.4)
     responders (0.6.5)
+    right_aws (3.1.0)
+      right_http_connection (>= 1.2.5)
+    right_http_connection (1.4.0)
     rolify (3.2.0)
     rspec-core (2.13.1)
     rspec-expectations (2.13.0)
@@ -304,6 +307,7 @@ DEPENDENCIES
   rails (= 4.0.0.rc2)
   rails-observers
   responders
+  right_aws
   rolify (>= 3.2.0)
   rspec-rails (>= 2.12.2)
   sass-rails (~> 4.0.0.rc2)
