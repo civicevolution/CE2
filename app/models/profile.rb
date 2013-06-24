@@ -12,7 +12,7 @@ class Profile < ActiveRecord::Base
                     :s3_credentials => "#{Rails.root.to_s}/config/s3.yml",
                     :path => "users/:res_base/:hash/:style/p.jpg",
                     :url => "http://assets.civicevolution.org/users/:res_base/:hash/:style/p.jpg",
-                    :default_url => "/assets/default-user-:style.gif",
+                    :default_url => "http://assets.civicevolution.org/users/:res_base/default-user/:style/p.gif",
                     :bucket => 'assets.civicevolution.org',
                     :styles => {
                         sm1: '20x20',
