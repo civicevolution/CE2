@@ -1,0 +1,10 @@
+%div.ce-issue-card
+
+  %h3
+    -#%a(ng-click="open_issue('{{issue.munged_title}}')" stop-event='click'){href: "#"}
+    %a{href: "/issues/{{issue.munged_title}}"}
+      {{issue.title}}
+
+  %div(ng-bind-html-unsafe="converter.makeHtml(issue.description)")
+
+  %p

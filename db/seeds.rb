@@ -74,3 +74,14 @@ puts "demo conversation id: #{conversation.id}"
 #  puts "summary comment with text: #{comment.text}"
 #end
 
+puts "2029 INITIATIVE"
+initiative = Initiative.where(title: '2029 and Beyond', description: '2029 and Beyond').first_or_create
+puts "demo initiative title: #{initiative.title}"
+
+puts "2029 INITIATIVE CGG Staff"
+initiative = Initiative.where(title: '2029 and Beyond CGG Staff', description: '2029 and Beyond CGG Staff').first_or_create
+puts "demo initiative title: #{initiative.title}"
+
+puts "NCDD Catalyst Awards"
+initiative = Initiative.where(title: 'NCDD Catalyst Awards', description: 'NCDD Catalyst Awards').first_or_create
+puts "demo initiative title: #{initiative.title}"

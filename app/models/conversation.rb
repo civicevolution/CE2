@@ -7,9 +7,9 @@ class Conversation < ActiveRecord::Base
   attr_accessor :firebase_token
 
   belongs_to :question
-  has_many  :comments, -> { includes :author }
-  has_many  :conversation_comments, -> { includes :author }
-  has_many :summary_comments, -> { includes :author }
+  has_many  :comments, -> { includes author: :profile   }
+  has_many  :conversation_comments, -> { includes author: :profile }
+  has_many :summary_comments, -> { includes author: :profile }
 
   has_many :attachments, :as => :attachable
 

@@ -25,28 +25,43 @@ ce2_app.config ($httpProvider) ->
 
 ce2_app.value('Firebase', Firebase);
 
-ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
-  ($stateProvider,   $routeProvider,   $urlRouterProvider) ->
+ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
+  ($stateProvider, $urlRouterProvider) ->
+
     $urlRouterProvider
+      # provides redirects
       .when('/c?id', '/contacts/:id')
       .otherwise('/');
 
-    $routeProvider
-      .when('/user/:id', {
-        redirectTo: '/contacts/:id',
-      })
-      .when('/haha', {
-        template: '<p class="lead">Welcome to the ngStates sample</p><p>Use the menu above to navigate</p>' +
-          '<p>Look at <a href="#/c?id=1">Alice</a> or <a href="#/user/42">Bob</a> to see a URL with a redirect in action.</p>',
-      })
-
     $stateProvider
-
-      .state('home', {
-        url: '/home',
+      # registers the urls with $urlRouterProvider
+      .state('home',
+        url: '/home/{munged_title}'
         templateUrl: '<%= path_to_asset "home.html" %>'
-      })
+        resolve:
+          issues: ["Issue", "$stateParams", (Issue, $stateParams) ->
+            Issue.all_issues($stateParams.munged_title)
+          ]
+        controller:  [ "$scope", "issues", ($scope, issues) ->
+          #$scope.issues_deferred_test_data = issues
+          $scope.issues = issues.data
+          $scope.test = ->
+            console.log "test in home state controller"
+        ]
+      )
 
+      .state( 'issue',
+        url: "/issue/{munged_title}"
+        templateUrl: '<%= path_to_asset "issue.html" %>'
+        resolve:
+          issue: ["Issue", "$stateParams", (Issue, $stateParams) ->
+            Issue.issue_data($stateParams.munged_title)
+          ]
+        controller: [ "$scope", "issue", ($scope, issue) ->
+          console.log "in issue/munged_title state"
+          $scope.issue = issue
+        ]
+      )
 
       .state('about', {
         url: '/about',
@@ -57,35 +72,32 @@ ce2_app.config ( [ '$stateProvider', '$routeProvider', '$urlRouterProvider',
             , 100
           ]
       })
-      .state('state_temp_prov', {
-        url: '/state_temp_prov',
-        templateProvider:
-          [        '$timeout', ($timeout) ->
-            $timeout ->
-              "I am now in state1"
-            , 100
-          ]
-      })
-
-      .state('issue', {
-        url: '/',
-        templateUrl: '<%= path_to_asset "issue.html" %>'
-      })
 
       .state('edit-profile', {
         url: '/edit-profile'
         templateUrl: '<%= path_to_asset "edit-profile.html" %>'
       })
 
+      .state('state_temp_prov', {
+          url: '/state_temp_prov',
+          templateProvider:
+            [        '$timeout', ($timeout) ->
+              $timeout ->
+                "I am now in state1"
+              , 100
+            ]
+        })
+
+
       .state('state1', {
-        url: '/state1',
-        templateUrl: '<%= path_to_asset "test/state1.html" %>'
-        data:
-          custom_id: 10
-          custom_desc: 'circle'
-        controller: ($state) ->
-          console.log "$state.current.data.custom_desc: #{$state.current.data.custom_desc}"
-      })
+          url: '/state1',
+          templateUrl: '<%= path_to_asset "test/state1.html" %>'
+          data:
+            custom_id: 10
+            custom_desc: 'circle'
+          controller: ($state) ->
+            console.log "$state.current.data.custom_desc: #{$state.current.data.custom_desc}"
+        })
 
       .state('state2', {
         url: '/state2',
@@ -177,7 +189,6 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
     $rootScope.$state = $state
     $rootScope.$stateParams = $stateParams
     $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
-    $rootScope.issue = Issue.data
 
     $rootScope.autoGrow = (oField) ->
       if oField.scrollHeight > oField.clientHeight
@@ -235,12 +246,14 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
     $rootScope.converter = converter
     $rootScope.editor = editor
 
+    init_ctr = 1
     init_editor = ->
-      #console.log "check init_editor"
-      if editor && editor.run
+      #console.log "check init_editor, attempt # #{init_ctr}"
+      edit_input = document.getElementById('wmd-input')
+      if edit_input && editor && editor.run
         #console.log "init_editor now"
         editor.run()
-      else
+      else if (init_ctr += 1 ) < 10
         #console.log "try to init editor in 1 sec"
         $timeout ->
           init_editor()

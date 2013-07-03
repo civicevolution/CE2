@@ -667,3 +667,29 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
             record_current_place_holders()
 
 ])
+
+ce2_directives.directive('ceIssueCard', ->
+  restrict: 'A'
+  templateUrl: "<%= path_to_asset "ce-issue-card.html" %>"
+  replace: true
+  scope: true
+  controller: [ "$scope", "CommentData",
+    ($scope, CommentData) ->
+      $scope.name = 'ceIssueCard'
+
+      $scope.open_issue = (munged_title) ->
+        console.log "open_issue #{munged_title}"
+        false
+
+      $scope.test = ->
+        console.log "Clicked ceIssueCard test link"
+        debugger
+
+  ]
+)
+
+ce2_directives.directive 'stopEvent', ->
+  restrict: 'A',
+  link: (scope, element, attr) ->
+    element.bind attr.stopEvent, (e) ->
+      e.stopPropagation()

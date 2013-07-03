@@ -1,1 +1,12 @@
-%h3 CivicEvolution home page
+#issues_list
+  %h3 CivicEvolution home page
+
+  .row-fluid
+    .span12.conversation
+      %div(ng-repeat="issue in issues" )
+        %div(ce-issue-card)
+
+  %p
+    %a(ng-click="test()")
+      Test
+

@@ -29,6 +29,29 @@ Ce2::Application.routes.draw do
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :initiatives do
+        get 'issues', on: :member
+      end
+    end
+    #scope module: :v2, constraints: ApiConstraints.new(version: 2, default: true) do
+    #  resources :products
+    #end
+  end
+
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :issues do
+        #get 'history', :on => :member
+      end
+
+    end
+    #scope module: :v2, constraints: ApiConstraints.new(version: 2, default: true) do
+    #  resources :products
+    #end
+  end
+
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :attachments do
         get 'history', :on => :member
       end
@@ -56,11 +79,12 @@ Ce2::Application.routes.draw do
 
   get "conversation/index"
 
-  #authenticated :user do
-  #  root :to => 'home#index'
-  #end
+  #get '/' => 'home#home', constraints: { subdomain: 'www' }
+  #get '/' => 'home#home', constraints: { subdomain: '' }
+  root :to => "home#app"
+
   #root :to => "home#index"
-  root to: "conversations#index"
+  #root to: "conversations#index"
   
   devise_for :users
   resources :users

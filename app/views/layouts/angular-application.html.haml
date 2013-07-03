@@ -8,6 +8,7 @@
     = stylesheet_link_tag "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css", :media => "all"
     = stylesheet_link_tag "application", :media => "all"
     = csrf_meta_tags
+    <base href="/" />
     = yield(:head)
     /[if lt IE 9]
       <script src="/assets/jquery-1.9.1.js"></script>
@@ -28,7 +29,3 @@
     / ! end of #main
 
     = javascript_include_tag "angular-application"
-    :javascript
-      var _timestamp = #{Time.new.to_i}
-      var issue_data = #{@issue_data.to_json}
-      var firebase_auth_token = "#{@firebase_token}"

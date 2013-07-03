@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130621155825) do
+ActiveRecord::Schema.define(version: 20130703221300) do
 
   create_table "attachments", force: true do |t|
     t.integer  "attachable_id",                           null: false
@@ -76,10 +76,11 @@ ActiveRecord::Schema.define(version: 20130621155825) do
   end
 
   create_table "initiatives", force: true do |t|
-    t.string   "title",       null: false
-    t.text     "description", null: false
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.string   "title",        null: false
+    t.text     "description",  null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.string   "munged_title"
   end
 
   create_table "issues", force: true do |t|

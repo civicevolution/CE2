@@ -32,6 +32,7 @@ module Api
     def rescue_generic_exception(exception)
       notify_airbrake(exception) unless Rails.env == 'development'
 
+      Rails.logger.error "\n\nError detected: #{exception.class.to_s}: #{exception.message}"
       exception.backtrace[0..5].each_index do |ind|
         Rails.logger.error "    #{ind}: #{exception.backtrace[ind]}"
       end
