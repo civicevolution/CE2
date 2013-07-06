@@ -12,7 +12,6 @@ module Modules
     # TODO I want to override Firebase.push so it automatically adds a timestamp
     # Right now I need to make sure I add the timestamp: updated_at: Time.now.getutc
     def send_to_firebase
-      return if @_cancel_firebase_send
       action = @_is_new_record ? "create" : destroyed? ? "delete" : "update"
       Firebase.base_uri = "https://civicevolution.firebaseio.com/issues/#{conversation.question.issue_id}/conversations/#{conversation_id}/updates/"
       Firebase.push '', self.as_json_for_firebase( action )

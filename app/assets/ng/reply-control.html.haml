@@ -53,12 +53,6 @@
                     %button#wmd-redo-button.wmd-button{:disabled => "", :title => "Redo - Ctrl+Shift+Z"}
 
                 %textarea#wmd-input.noscrollbars(ng-model="newComment.text"){placeholder: "Enter your comment..."}
-                %input(ng-model="newComment.attachment_ids"){type: 'hidden'}
-                -#%div.attachments
-                  %div.attachment(ng-repeat="att in newComment.attachments" )
-                    %img.icon(ng-src="{{att.icon_url}}")
-                    %p.name {{att.attachment_file_name}}
-                    %img.delete(ng-click="delete_attachment({{att.id}})")
 
                 %input(ng-model="newComment.id"){type: 'hidden' }
                 %input(ng-model="newComment.conversation_id"){type: 'hidden' }

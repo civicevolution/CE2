@@ -14,13 +14,6 @@
           %p.author
           %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
 
-          %div.attachments
-            %div.attachment(ng-repeat="attachment in comment.attachments" )
-              %a(ng-href="{{attachment.url}}"){target: "_blank"}
-                %img.icon(ng-src="{{attachment.medium_url}}")
-                %p.name
-                  {{attachment.attachment_file_name}}
-
           %div.history.clear(ng-include src="history_url")
 
           %div(ce-rating-slider)
@@ -71,13 +64,6 @@
 
         .span8.conversation-comment-body(ng-mouseup="text_select_by_mouse()")
           %div.comment-body(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
-
-          %div.attachments
-            %div.attachment(ng-repeat="attachment in comment.attachments" )
-              %a(ng-href="{{attachment.url}}"){target: "_blank"}
-                %img.icon(ng-src="{{attachment.medium_url}}")
-                %p.name
-                  {{attachment.attachment_file_name}}
 
           %div.history.clear(ng-include src="history_url")
 
