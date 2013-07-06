@@ -36,15 +36,16 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
     $stateProvider
       # registers the urls with $urlRouterProvider
       .state('home',
-        url: '/home/{munged_title}'
+        url: '/home/:munged_title'
         templateUrl: '<%= path_to_asset "home.html" %>'
         resolve:
           issues: ["Issue", "$stateParams", (Issue, $stateParams) ->
+            #console.log "home.resolve with $stateParams.munged_title: #{$stateParams.munged_title}"
             Issue.all_issues($stateParams.munged_title)
           ]
-        controller:  [ "$scope", "issues", ($scope, issues) ->
-          #$scope.issues_deferred_test_data = issues
-          $scope.issues = issues.data
+        controller:  [ "$scope", "issues", "$stateParams", ($scope, issues, $stateParams) ->
+          $scope.initiative = issues.data
+          $scope.$root.initiative_munged_title = issues.data.munged_title
           $scope.test = ->
             console.log "test in home state controller"
         ]

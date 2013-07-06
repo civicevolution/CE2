@@ -5,7 +5,13 @@ module Api
       #load_and_authorize_resource
 
       def issues
-        respond_with Initiative.where(munged_title: params[:id]).first.issues, scope: { list_issues_only_mode: true}
+        if params[:id] =~ /\A\d*\z/
+          initiative = Initiative.find(params[:id])
+        else
+          initiative = Initiative.where(munged_title: params[:id]).first
+        end
+
+        respond_with initiative, scope: { list_issues_only_mode: true}
       end
 
       def index

@@ -91,6 +91,8 @@ services.factory "Issue", ["$http", "$rootScope",
           #conversation_comments: (comment for comment in response.data.comments when comment.type is "ConversationComment")
           #.sort((a,b)-> a.order_id - b.order_id)
           $rootScope.timestamp = response.data.current_timestamp
+          $rootScope.issue_data = response.data
+          $rootScope.initiative_munged_title = response.data.initiative.munged_title
           response.data
 
     all_issues: (munged_title) ->

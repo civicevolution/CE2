@@ -1,9 +1,10 @@
 #issues_list
-  %h3 CivicEvolution home page
+  %h3 {{initiative.title}}
+  %div(ng-bind-html-unsafe="converter.makeHtml(initiative.description)")
 
   .row-fluid
     .span12.conversation
-      %div(ng-repeat="issue in issues" )
+      %div(ng-repeat="issue in initiative.issues" )
         %div(ce-issue-card)
 
   %p
