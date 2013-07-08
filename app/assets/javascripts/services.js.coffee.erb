@@ -97,7 +97,10 @@ services.factory "Issue", ["$http", "$rootScope",
 
     all_issues: (munged_title) ->
       console.log "Load issues for initiative #{munged_title}"
-      $http.get("/api/initiatives/#{munged_title}/issues.json")
+      $http.get("/api/initiatives/#{munged_title}/issues.json").then (response) ->
+        if response.status is 200
+          console.log "process all_issues data for munged_title: #{munged_title}"
+          response
 ]
 
 

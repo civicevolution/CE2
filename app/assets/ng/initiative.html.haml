@@ -8,7 +8,7 @@
         %div(ce-issue-card)
 
   %p
-    %input.btn-primary.btn(ng-click="addIssue()"){type: 'button', value: 'Add an issue'}
+    %input.btn-primary.btn(ng-click="$state.transitionTo('add-an-issue')"){type: 'button', value: 'Add an issue'}
 
     %a(ng-click="test()")
       Test

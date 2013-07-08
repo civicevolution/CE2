@@ -43,6 +43,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             Issue.all_issues($stateParams.munged_title)
           ]
         controller:  [ "$scope", "issues", "$stateParams", ($scope, issues, $stateParams) ->
+          console.log "In initiative state controller"
           $scope.initiative = issues.data
           $scope.$root.initiative_munged_title = issues.data.munged_title
           $scope.test = ->
@@ -50,6 +51,17 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           $scope.addIssue = ->
             console.log "initiative addIssue"
         ]
+      )
+
+      .state('add-an-issue',
+        url: '/add-an-issue'
+        templateUrl: '<%= path_to_asset "add-an-issue.html" %>'
+        controller: [ "$scope","Issue", ($scope, Issue) ->
+          console.log "In add-an-issue state controller"
+          $scope.submit_issue = ->
+            console.log "add-an-issue:submit_issue"
+        ]
+
       )
 
       .state( 'issue',
@@ -60,7 +72,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             Issue.issue_data($stateParams.munged_title)
           ]
         controller: [ "$scope", "issue", ($scope, issue) ->
-          console.log "in issue/munged_title state"
+          console.log "In issue state controller"
           $scope.issue = issue
         ]
       )
