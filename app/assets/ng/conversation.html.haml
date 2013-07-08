@@ -11,8 +11,7 @@
     .row-fluid(ng-switch-default )
       .span8
         %p
-          %a(ng-click="show_comment_form('summary')")
-            Add another summary comment
+          %input.btn-primary.btn(ng-click="show_comment_form('summary')"){type: 'button', value: 'Add summary comment'}
 
     .row-fluid(ng-switch-when="true")
       .span8
@@ -28,8 +27,6 @@
   .row-fluid
     .span8
       %p
-        %a(ng-click="show_comment_form('conversation')")
-          Add another conversation comment
-
+        %input.btn-primary.btn(ng-click="show_comment_form('conversation')"){type: 'button', value: 'Add conversation comment'}
 
   %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")

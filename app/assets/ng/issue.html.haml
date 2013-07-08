@@ -1,7 +1,7 @@
 .row-fluid
   .span9.issue
     %h2 {{issue.title}}
-    %p {{issue.description}}
+    %div(ng-bind-html-unsafe="converter.makeHtml(issue.description)")
 
     %div.question(ng-repeat="question in issue.questions" )
       %div(ce-question)
