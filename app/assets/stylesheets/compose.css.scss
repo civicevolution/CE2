@@ -1,7 +1,7 @@
 @import "foundation/variables";
 @import "foundation/mixins";
 
-div.comment-form{
+div.comment-form, div.issue-form{
   //border: 1px solid green;
   //width: 330px;
   //padding: 18px 10px 10px 10px;
@@ -444,5 +444,25 @@ div.ac-wrap {
 
 #reply-control{
   margin-left: -40px;
+  &.add-an-issue-description{
+    position: static;
+    height: 240px;
+    .reply-area{
+      position: relative;
+    }
+    .contents{
+      min-width: 600px;
+    }
+    .comment-form{
+      height: 200px;
+    }
+    .toggler{
+      display: none;
+    }
+    .wmd-controls{
+      top: 10px;
+      bottom: 10px;
+    }
+  }
 
 }

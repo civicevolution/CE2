@@ -36,6 +36,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
     $stateProvider
       # registers the urls with $urlRouterProvider
       .state('initiative',
+        abstract: true
         url: '/initiative/:munged_title'
         templateUrl: '<%= path_to_asset "initiative.html" %>'
         resolve:
@@ -53,11 +54,30 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
-      .state('add-an-issue',
+      .state('initiative.issues',
+        url: '/issues'
+        templateUrl: '<%= path_to_asset "initiative-issues.html" %>'
+        resolve:
+          issues: ["Issue", "$stateParams", (Issue, $stateParams) ->
+            Issue.all_issues($stateParams.munged_title)
+          ]
+        controller:  [ "$scope", "issues", "$stateParams", ($scope, issues, $stateParams) ->
+          console.log "In initiative state controller"
+          $scope.initiative = issues.data
+          $scope.$root.initiative_munged_title = issues.data.munged_title
+          $scope.test = ->
+            console.log "test in initiative state controller"
+          $scope.addIssue = ->
+            console.log "initiative addIssue"
+        ]
+      )
+
+      .state('initiative.add-an-issue',
         url: '/add-an-issue'
         templateUrl: '<%= path_to_asset "add-an-issue.html" %>'
         controller: [ "$scope","Issue", ($scope, Issue) ->
           console.log "In add-an-issue state controller"
+          $scope.initialize_markdown_editor()
           $scope.submit_issue = ->
             console.log "add-an-issue:submit_issue"
         ]
@@ -71,9 +91,10 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           issue: ["Issue", "$stateParams", (Issue, $stateParams) ->
             Issue.issue_data($stateParams.munged_title)
           ]
-        controller: [ "$scope", "issue", ($scope, issue) ->
+        controller: [ "$scope", "issue", "$timeout", ($scope, issue, $timeout) ->
           console.log "In issue state controller"
           $scope.issue = issue
+          $scope.initialize_markdown_editor()
         ]
       )
 
@@ -260,22 +281,17 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
     $rootScope.converter = converter
     $rootScope.editor = editor
 
-    init_ctr = 1
-    init_editor = ->
-      #console.log "check init_editor, attempt # #{init_ctr}"
-      edit_input = document.getElementById('wmd-input')
+    $rootScope.initialize_markdown_editor = (editor_id = 'wmd-input', init_ctr = 5) ->
+      #console.log "initialize_markdown_editor with editor_id: #{editor_id} and init_ctr: #{init_ctr}"
+      edit_input = document.getElementById(editor_id)
       if edit_input && editor && editor.run
         #console.log "init_editor now"
         editor.run()
-      else if (init_ctr += 1 ) < 10
+      else if (init_ctr -= 1 ) > 0
         #console.log "try to init editor in 1 sec"
         $timeout ->
-          init_editor()
+          $rootScope.initialize_markdown_editor(editor_id, init_ctr )
         , 1000
-
-    $timeout ->
-      init_editor()
-    , 2000
 
     $http.get("<%= path_to_asset "quote.html" %>", {cache:$templateCache};)
 
@@ -426,8 +442,4 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
     )
     dialog.open()
     $rootScope.$$phase || $rootScope.$apply()
-
-
-
-
   return [converter,editor]

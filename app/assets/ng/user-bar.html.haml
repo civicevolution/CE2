@@ -1,6 +1,6 @@
 %div.ce-user-bar
   .logo
-    %a(href="/#/initiative/{{initiative_munged_title}}")
+    %a(ng-click="$state.transitionTo('initiative.issues', {munged_title: initiative_munged_title})")
       %img{src: path_to_asset("ce-white-blue-20.gif") }
     %p.tagline Think together to Act together
 

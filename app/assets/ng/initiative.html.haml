@@ -2,14 +2,5 @@
   %h3 {{initiative.title}}
   %div(ng-bind-html-unsafe="converter.makeHtml(initiative.description)")
 
-  .row-fluid
-    .span12.conversation
-      %div(ng-repeat="issue in initiative.issues" )
-        %div(ce-issue-card)
-
-  %p
-    %input.btn-primary.btn(ng-click="$state.transitionTo('add-an-issue')"){type: 'button', value: 'Add an issue'}
-
-    %a(ng-click="test()")
-      Test
+  %div(ui-view)
 
