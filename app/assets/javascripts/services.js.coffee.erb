@@ -166,15 +166,6 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
 
 ]
 
-services.factory "AttachmentData", ["$log", "$http",
-  ($log, $http) ->
-    name: "AttachmentData"
-    delete_attachment: (attachment_id) ->
-      #console.log "AttachmentData:destroy_attachment id: #{attachment_id}"
-      $http.delete("/api/attachments/#{attachment_id}.json")
-
-]
-
 # The controllers are responsible for requesting their data and storing it to scope
 # The data is requested from a service
 # In the callback, the controllers assigns the data to a scope object

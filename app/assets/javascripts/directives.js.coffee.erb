@@ -135,13 +135,13 @@ ce2_directives.directive('ceConversation', ->
         # by firebase updates and still be bound to the view for this directive
         $scope.SummaryComments = response.summary_comments
         $scope.ConversationComments = response.conversation_comments
-        $scope.newComment = { attachments: [] }
+        $scope.newComment = { }
 
         
         $scope.show_comment_form = (type) ->
           console.log "show_comment_form type: #{type}"
           # clear new comment
-          $scope.newComment = { conversation_id: $scope.conversation.id, attachments: [] }
+          $scope.newComment = { conversation_id: $scope.conversation.id }
           if type == 'summary'
             console.log "#### Set the type for summary"
             $scope.newComment.type = 'SummaryComment'
@@ -159,7 +159,7 @@ ce2_directives.directive('ceConversation', ->
 
         $scope.$on 'clear-edit', (event) ->
           console.log "clear-edit"
-          $scope.newComment = { attachments: [] }
+          $scope.newComment = { }
           $timeout -> $scope.$root.editor.refreshPreview()
           angular.element( document.getElementById('reply-control')).removeClass('open')
 
@@ -172,7 +172,7 @@ ce2_directives.directive('ceConversation', ->
 
         $scope.$on 'cancel-edit', (event) ->
           console.log "XXXX cancel-edit"
-          $scope.newComment = { attachments: [] }
+          $scope.newComment = { }
           $timeout -> $scope.$root.editor.refreshPreview()
           angular.element( document.getElementById('reply-control')).removeClass('open')
 
@@ -277,8 +277,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       #angular.element( document.getElementById('reply-control')).addClass('open show-preview')
     , 100
 
-  controller: [ "$scope", "CommentData", "AttachmentData",
-    ($scope, CommentData, AttachmentData) ->
+  controller: [ "$scope", "CommentData",
+    ($scope, CommentData) ->
       $scope.name = 'ceCommentForm'
 
       debug = false
@@ -289,16 +289,13 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       $scope.addComment = ->
         CommentData.persist_change_to_ror 'save', $scope.newComment,
           angular.bind $scope, ->
-            this.newComment.attachments = []
             this.newComment.id = null
             this.newComment.text = null
             $scope.$emit('clear-edit')
 
       $scope.clear_form = ->
-        # if there are any attachments, they need to be deleted
-        # or don't clear attachments
-        console.log "ceCommentForm:clear, if there are any attachments, they need to be deleted"
-        $scope.newComment = { attachments: [] }
+        console.log "ceCommentForm:clear"
+        $scope.newComment = { }
 
       $scope.cancel_edit = ->
         #console.log "cancel the comment edit"
