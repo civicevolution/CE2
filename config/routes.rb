@@ -81,7 +81,10 @@ Ce2::Application.routes.draw do
 
   #get '/' => 'home#home', constraints: { subdomain: 'www' }
   #get '/' => 'home#home', constraints: { subdomain: '' }
+  get '/home' => 'home#home'
   root :to => "home#app"
+
+  post 'follow' => 'home#follow'
 
   #root :to => "home#index"
   #root to: "conversations#index"

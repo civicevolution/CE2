@@ -1,1 +1,10 @@
 %h3 Civicevolution home page placeholder
+
+.follow
+  %form#subscribe_form.orig{"accept-charset" => "UTF-8", :action => "/follow", :method => "post"}
+    %div{:style => "margin:0;padding:0;display:inline"}
+    %p Follow our evolution
+    %p
+      Email:
+      %input#email{:name => "email", :type => "text"}/
+      %input{:name => "commit", :type => "submit", :value => "Follow Us"}/
