@@ -2,10 +2,16 @@
 
   .row-fluid
     .span12.summary
+      %div
+        %div.comment-outer
+          %div(ce-comment type="call-to-action")
+
+  .row-fluid
+    .span12.summary
       %h4 Summary
       %div
         %div.comment-outer(ng-repeat="comment in SummaryComments" )
-          %div(ce-sortable ce-comment)
+          %div(ce-sortable ce-comment type="summary")
 
   .div(ng-switch="add_summary_comment" )
     .row-fluid(ng-switch-default )
@@ -22,7 +28,7 @@
     .span12.conversation
       %h4 Conversation
       %div.comment-outer(ng-repeat="comment in ConversationComments" )
-        %div(ce-comment)
+        %div(ce-comment type="conversation")
 
   .row-fluid
     .span8

@@ -107,8 +107,8 @@ services.factory "Issue", ["$http", "$rootScope",
 services.factory "ConversationData", ["$http",
   ($http) ->
     name: "ConversationData"
-    conversation: (conversation_id) ->
-      # conversation(conversation_id) is called by the directive or controller that uses this data
+    conversation: (conversation_code) ->
+      # conversation(conversation_code) is called by the directive or controller that uses this data
       # this request returns a promise to the directive
       # a promise is also resolved in this original call
       # the promise segragates the data and sorts it into order
@@ -117,16 +117,27 @@ services.factory "ConversationData", ["$http",
       # and subscribing to Firebase updates on this data
       # The updates are broadcast and controllers can update their scope data
       # see description below with FirebaseService
-      $http.get("/api/conversations/#{conversation_id}.json").then (response) ->
+
+      $http.get("/api/conversations/#{conversation_code}.json").then (response) ->
         if response.status is 200
+          summary_comments = []
+          conversation_comments = []
+          for comment in response.data.comments
+            switch comment.type
+              when "SummaryComment" then summary_comments.push comment
+              when "ConversationComment" then conversation_comments.push comment
+              when "TitleComment" then title_comment = comment
+              when "CallToActionComment" then call_to_action_comment = comment
+
           #console.log "conversation_id: #{conversation_id}"
           # extract and setup some data for the directive controller
           firebase_token: response.data.firebase_token
-          question: response.data.question
-          summary_comments: (comment for comment in response.data.comments when comment.type is "SummaryComment")
-            .sort((a,b)-> a.order_id - b.order_id)
-          conversation_comments: (comment for comment in response.data.comments when comment.type is "ConversationComment")
-            .sort((a,b)-> a.order_id - b.order_id)
+          summary_comments: summary_comments.sort((a,b)-> a.order_id - b.order_id)
+          conversation_comments: conversation_comments.sort((a,b)-> a.order_id - b.order_id)
+          title_comment: title_comment
+          call_to_action_comment: call_to_action_comment
+          conversation_title: response.data.title
+          conversation_code: response.data.code
 
     persist_summary_comment_order_to_ror: (conversation_id, comments_order) ->
       console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_id} with order #{comments_order}"

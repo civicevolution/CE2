@@ -128,109 +128,110 @@ ce2_directives.directive('ceConversation', ->
   controller: [ "$scope", "ConversationData", "FirebaseService", "$timeout",
     ($scope, ConversationData, FirebaseService, $timeout) ->
       $scope.name = 'ceConversation'
+      # the data was resolved and attached to scope in the state definition
 
-      ConversationData.conversation($scope.conversation.id).then (response) ->
-        # when the promise is fulfilled, set the arrays to $scope for display
-        # and set the arrays as properties on the service for they can be updated
-        # by firebase updates and still be bound to the view for this directive
-        $scope.SummaryComments = response.summary_comments
-        $scope.ConversationComments = response.conversation_comments
-        $scope.newComment = { }
-
-        
-        $scope.show_comment_form = (type) ->
-          console.log "show_comment_form type: #{type}"
-          # clear new comment
+      $scope.show_comment_form = (type) ->
+        console.log "show_comment_form type: #{type}"
+        # clear new comment
           $scope.newComment = { conversation_id: $scope.conversation.id }
-          if type == 'summary'
-            console.log "#### Set the type for summary"
-            $scope.newComment.type = 'SummaryComment'
-          else
-            console.log "#### Set the type for conversation"
-            $scope.newComment.type = 'ConversationComment'
-          $timeout -> $scope.$root.editor.refreshPreview()
-          angular.element( document.getElementById('reply-control')).addClass('open show-preview')
-
-
-        $scope.$on 'request-edit', (event, comment) ->
-          $scope.newComment = angular.copy(comment)
-          $timeout -> $scope.$root.editor.refreshPreview()
-          angular.element( document.getElementById('reply-control')).addClass('open show-preview')
-
-        $scope.$on 'clear-edit', (event) ->
-          console.log "clear-edit"
-          $scope.newComment = { }
-          $timeout -> $scope.$root.editor.refreshPreview()
-          angular.element( document.getElementById('reply-control')).removeClass('open')
-
-        $scope.$on 'conversation-comment-edit', (event) ->
-          console.log "conversation-comment-edit"
+        if type == 'summary'
+          console.log "#### Set the type for summary"
+          $scope.newComment.type = 'SummaryComment'
+        else
+          console.log "#### Set the type for conversation"
           $scope.newComment.type = 'ConversationComment'
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
+
+      $scope.$on 'request-edit', (event, comment) ->
+        $scope.newComment = angular.copy(comment)
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
+      $scope.$on 'clear-edit', (event) ->
+        console.log "clear-edit"
+        $scope.newComment = { }
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).removeClass('open')
+
+      $scope.$on 'conversation-comment-edit', (event) ->
+        console.log "conversation-comment-edit"
+        $scope.newComment.type = 'ConversationComment'
           $scope.newComment.conversation_id = $scope.conversation.id
-          $timeout -> $scope.$root.editor.refreshPreview()
-          angular.element( document.getElementById('reply-control')).addClass('open')
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).addClass('open')
 
-        $scope.$on 'cancel-edit', (event) ->
-          console.log "XXXX cancel-edit"
-          $scope.newComment = { }
-          $timeout -> $scope.$root.editor.refreshPreview()
-          angular.element( document.getElementById('reply-control')).removeClass('open')
+      $scope.$on 'cancel-edit', (event) ->
+        console.log "XXXX cancel-edit"
+        $scope.newComment = { }
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).removeClass('open')
 
-        $scope.$on 'toggle-compose-window', ->
-          console.log "toggle_compose_window"
-          composer = angular.element( document.getElementById('reply-control') )
-          if composer.hasClass('open')
-            composer.removeClass('open show-preview')
-            $scope.$root.editor.refreshPreview()
-          else
-            composer.addClass('open show-preview')
+      $scope.$on 'toggle-compose-window', ->
+        console.log "toggle_compose_window"
+        composer = angular.element( document.getElementById('reply-control') )
+        if composer.hasClass('open')
+          composer.removeClass('open show-preview')
+          $scope.$root.editor.refreshPreview()
+        else
+          composer.addClass('open show-preview')
 
-        # Subscribe to updates for this data
+      # Subscribe to updates for this data
         url = "https://civicevolution.firebaseio.com/issues/1/conversations/#{$scope.conversation.id}/updates/"
         FirebaseService.initialize_source(url, response.firebase_token)
 
-        # register the listeners for the firebase updates
-        $scope.$on 'ConversationComment_update', (event, data) ->
-          #console.log "received broadcast ConversationComment_update"
-          [original_rec, updated_rec] = FirebaseService.process_update($scope.ConversationComments, data)
-          if updated_rec && original_rec
-            updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+      # register the listeners for the firebase updates
+      $scope.$on 'ConversationComment_update', (event, data) ->
+        #console.log "received broadcast ConversationComment_update"
+        [original_rec, updated_rec] = FirebaseService.process_update($scope.ConversationComments, data)
+        if updated_rec && original_rec
+          updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
 
-        $scope.$on 'SummaryComment_update', (event, data) ->
-          #console.log "received broadcast SummaryComment_update"
-          [original_rec, updated_rec] = FirebaseService.process_update($scope.SummaryComments, data)
-          if updated_rec && original_rec
-            updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+      $scope.$on 'SummaryComment_update', (event, data) ->
+        #console.log "received broadcast SummaryComment_update"
+        [original_rec, updated_rec] = FirebaseService.process_update($scope.SummaryComments, data)
+        if updated_rec && original_rec
+          updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
 
-        $scope.ConversationCommentLength = 1500
-        $scope.SummaryCommentLength = 0
+      $scope.ConversationCommentLength = 1500
+      $scope.SummaryCommentLength = 0
 
-        # register a listener for summary_comments ordered ids
-        $scope.$on 'Conversation_update', (event, data) ->
-          #console.log "received broadcast Conversation_update"
+      # register a listener for summary_comments ordered ids
+      $scope.$on 'Conversation_update', (event, data) ->
+        #console.log "received broadcast Conversation_update"
 
           # make sure it is the correct conversation_id
           # $scope.conversation.id
           if Number(data.data.conversation_id) is Number($scope.conversation.id)
-            ordered_ids = data.data.ordered_ids
-            # reorder $scope.SummaryComments according to these ids
-            if ordered_ids
-              # update the order_id for the comments
-              for comment in $scope.SummaryComments
-                comment.order_id = ordered_ids[comment.id]
-              #resort the SummaryComments according to order_id
-              $scope.SummaryComments.sort((a, b) -> return a.order_id > b.order_id )
-             $scope.$$phase || $scope.$apply()
+          ordered_ids = data.data.ordered_ids
+          # reorder $scope.SummaryComments according to these ids
+          if ordered_ids
+            # update the order_id for the comments
+            for comment in $scope.SummaryComments
+              comment.order_id = ordered_ids[comment.id]
+            #resort the SummaryComments according to order_id
+            $scope.SummaryComments.sort((a, b) -> return a.order_id > b.order_id )
+           $scope.$$phase || $scope.$apply()
 
 
   ]
 )
 ce2_directives.directive('ceComment', ->
   restrict: 'A'
-  templateUrl: "<%= path_to_asset "comment.html" %>"
+  templateUrl: (tElement, tAttrs) ->
+    #console.log "function to select correct comment template"
+    switch tAttrs.type
+      when "conversation" then "<%= path_to_asset "comment-conversation.html" %>"
+      when "summary" then "<%= path_to_asset "comment-summary.html" %>"
+      when "call-to-action" then "<%= path_to_asset "comment-call-to-action.html" %>"
   replace: true
   scope: true
   priority: 100
+  link: (scope, element, attrs) ->
+    switch attrs.type
+      when "call-to-action" then scope.comment = scope.CallToActionComment
+
   controller: [ "$scope", "CommentData",
     ($scope, CommentData) ->
       $scope.name = 'ceComment'

@@ -1,0 +1,17 @@
+%div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}")
+  .span10.summary-comment-body(ng-mouseup="text_select_by_mouse()")
+    %p.author
+    %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+
+    %div.history.clear(ng-include src="history_url")
+
+  .span2.share
+    %p Call to action
+    %p.time {{comment.updated_at | from_now}}
+
+    %a(ng-show="comment.version>1" ng-click="view_history({{comment.id}})")
+      History v{{comment.version}}
+
+    %a(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
+      -#%i.icon-pencil
+      Edit

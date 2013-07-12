@@ -98,6 +98,29 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
+      .state( 'conversation',
+        url: "/conversation/{code}/{munged_title}"
+        templateUrl: '<%= path_to_asset "convo.html" %>'
+        resolve:
+          conversation: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
+            ConversationData.conversation($stateParams.code)#.then (response) ->
+              # when the promise is fulfilled, set the arrays to $scope for display
+              # and set the arrays as properties on the service for they can be updated
+              # by firebase updates and still be bound to the view for this directive
+          ]
+        controller: [ "$scope", "conversation", ($scope, conversation, $timeout) ->
+          console.log "In conversation state controller"
+          $scope.conversationTitle = conversation.conversation_title
+          $scope.conversation_code = conversation.conversation_code
+          $scope.TitleComment = conversation.title_comment
+          $scope.CallToActionComment = conversation.call_to_action_comment
+          $scope.SummaryComments = conversation.summary_comments
+          $scope.ConversationComments = conversation.conversation_comments
+          $scope.newComment = { }
+          $scope.initialize_markdown_editor()
+        ]
+      )
+
       .state('about', {
         url: '/about',
         templateProvider:
@@ -111,71 +134,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('edit-profile', {
         url: '/edit-profile'
         templateUrl: '<%= path_to_asset "edit-profile.html" %>'
-      })
-
-      .state('state_temp_prov', {
-          url: '/state_temp_prov',
-          templateProvider:
-            [        '$timeout', ($timeout) ->
-              $timeout ->
-                "I am now in state1"
-              , 100
-            ]
-        })
-
-
-      .state('state1', {
-          url: '/state1',
-          templateUrl: '<%= path_to_asset "test/state1.html" %>'
-          data:
-            custom_id: 10
-            custom_desc: 'circle'
-          controller: ($state) ->
-            console.log "$state.current.data.custom_desc: #{$state.current.data.custom_desc}"
-        })
-
-      .state('state2', {
-        url: '/state2',
-        templateUrl: '<%= path_to_asset "test/state2.html" %>'
-      })
-      .state('state3', {
-        url: '/state3',
-        templateUrl: '<%= path_to_asset "test/state3.html" %>'
-        controller:  [ "$scope", "$state", "$timeout", ($scope, $state, $timeout) ->
-          $scope.user = 'Brian Sullivan'
-          $scope.goto_state1 = ->
-            console.log "hey, I want to go to state1"
-            $state.transitionTo('state1')
-            $timeout ->
-              $state.transitionTo('state2')
-            , 2000
-        ]
-      })
-      .state('state4', {
-        url: '/state4/{userID}',
-        views:
-          "":
-            templateUrl: '<%= path_to_asset "test/state4.html" %>'
-            resolve: { resolved_data: ->
-              title: 'My Contacts'
-              duration: '1 hour'
-              weight: '5 pounds'
-              height: '22 inches'
-            }
-            controller: [ "$scope", "$state", "$timeout", "resolved_data", "$stateParams", "$routeParams", "$location",
-              ($scope, $state, $timeout, resolved_data, $stateParams, $routeParams, $location) ->
-                $scope.user = 'Brian Sullivan'
-                $scope.data = resolved_data
-                $scope.goto_state1 = ->
-                  console.log "hey, I want to go to state4"
-                  $state.transitionTo('state1')
-                  $timeout ->
-                    $state.transitionTo('state2')
-                  , 2000
-            ]
-
-          "footer":
-            template: "The footer"
       })
 
       .state('test-autogrow', {

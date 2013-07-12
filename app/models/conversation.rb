@@ -1,3 +1,4 @@
+require 'securerandom'
 class Conversation < ActiveRecord::Base
   def active_model_serializer
     ConversationSerializer
@@ -6,14 +7,29 @@ class Conversation < ActiveRecord::Base
   attr_accessible :question_id, :status
   attr_accessor :firebase_token
 
-  belongs_to :question
+  has_one :title_comment, -> { includes author: :profile   }
+  has_one :call_to_action_comment, -> { includes author: :profile   }
   has_many  :comments, -> { includes author: :profile   }
   has_many  :conversation_comments, -> { includes author: :profile }
   has_many :summary_comments, -> { includes author: :profile }
 
   has_many :attachments, :as => :attachable
 
-  validates :question_id, :status, :presence => true
+  validate :conversation_code_is_unique, on: :create
+
+  def conversation_code_is_unique
+    self.code = Conversation.create_random_conversation_code
+    while( Conversation.where(code: self.code).exists? ) do
+      self.code = Conversation.create_random_conversation_code
+    end
+    self.question_id = 0 # need to be non null till, but not used anymore
+  end
+
+  def self.create_random_conversation_code
+    # I want each conversation to have a unique code for identification
+    o =  [('a'..'z'),(0..9)].map{|i| i.to_a}.flatten
+    (0...10).map{ o[rand(o.length)] }.join
+  end
 
 
   def self.reorder_summary_comments( id, ordered_ids )

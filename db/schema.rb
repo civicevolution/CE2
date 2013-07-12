@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130710222434) do
+ActiveRecord::Schema.define(version: 20130711211733) do
 
   create_table "attachments", force: true do |t|
     t.integer  "attachable_id",                           null: false
@@ -65,7 +65,11 @@ ActiveRecord::Schema.define(version: 20130710222434) do
     t.string   "status",      default: "open", null: false
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
+    t.string   "code"
+    t.integer  "user_id"
   end
+
+  add_index "conversations", ["code"], name: "index_conversations_on_code", using: :btree
 
   create_table "endorsements", force: true do |t|
     t.integer  "issue_id"
