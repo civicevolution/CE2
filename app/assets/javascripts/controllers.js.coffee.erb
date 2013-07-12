@@ -100,7 +100,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state( 'conversation',
         url: "/conversation/{code}/{munged_title}"
-        templateUrl: '<%= path_to_asset "convo.html" %>'
+        templateUrl: '<%= path_to_asset "conversation.html" %>'
         resolve:
           conversation: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
             ConversationData.conversation($stateParams.code)#.then (response) ->
@@ -108,17 +108,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               # and set the arrays as properties on the service for they can be updated
               # by firebase updates and still be bound to the view for this directive
           ]
-        controller: [ "$scope", "conversation", ($scope, conversation, $timeout) ->
-          console.log "In conversation state controller"
-          $scope.conversationTitle = conversation.conversation_title
-          $scope.conversation_code = conversation.conversation_code
-          $scope.TitleComment = conversation.title_comment
-          $scope.CallToActionComment = conversation.call_to_action_comment
-          $scope.SummaryComments = conversation.summary_comments
-          $scope.ConversationComments = conversation.conversation_comments
-          $scope.newComment = { }
-          $scope.initialize_markdown_editor()
-        ]
+        controller: conversation_controller
       )
 
       .state('about', {
@@ -401,3 +391,102 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
     dialog.open()
     $rootScope.$$phase || $rootScope.$apply()
   return [converter,editor]
+
+conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", ($scope, conversation, FirebaseService, $timeout) ->
+  console.log "In conversation state controller at bottom"
+  $scope.conversationTitle = conversation.conversation_title
+  $scope.conversation_code = conversation.conversation_code
+  $scope.TitleComment = conversation.title_comment
+  $scope.CallToActionComment = conversation.call_to_action_comment
+  $scope.SummaryComments = conversation.summary_comments
+  $scope.ConversationComments = conversation.conversation_comments
+  $scope.newComment = { }
+  $scope.initialize_markdown_editor()
+
+  $scope.name = 'ceConversation'
+  # the data was resolved and attached to scope in the state definition
+
+  $scope.show_comment_form = (type) ->
+    console.log "show_comment_form type: #{type}"
+    # clear new comment
+    $scope.newComment = { conversation_id: $scope.conversation.id }
+    if type == 'summary'
+      console.log "#### Set the type for summary"
+      $scope.newComment.type = 'SummaryComment'
+    else
+      console.log "#### Set the type for conversation"
+      $scope.newComment.type = 'ConversationComment'
+    $timeout -> $scope.$root.editor.refreshPreview()
+    angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
+
+  $scope.$on 'request-edit', (event, comment) ->
+    $scope.newComment = angular.copy(comment)
+    $timeout -> $scope.$root.editor.refreshPreview()
+    angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
+  $scope.$on 'clear-edit', (event) ->
+    console.log "clear-edit"
+    $scope.newComment = { }
+    $timeout -> $scope.$root.editor.refreshPreview()
+    angular.element( document.getElementById('reply-control')).removeClass('open')
+
+  $scope.$on 'conversation-comment-edit', (event) ->
+    console.log "conversation-comment-edit"
+    $scope.newComment.type = 'ConversationComment'
+    $scope.newComment.conversation_id = $scope.conversation.id
+    $timeout -> $scope.$root.editor.refreshPreview()
+    angular.element( document.getElementById('reply-control')).addClass('open')
+
+  $scope.$on 'cancel-edit', (event) ->
+    console.log "XXXX cancel-edit"
+    $scope.newComment = { }
+    $timeout -> $scope.$root.editor.refreshPreview()
+    angular.element( document.getElementById('reply-control')).removeClass('open')
+
+  $scope.$on 'toggle-compose-window', ->
+    console.log "toggle_compose_window"
+    composer = angular.element( document.getElementById('reply-control') )
+    if composer.hasClass('open')
+      composer.removeClass('open show-preview')
+      $scope.$root.editor.refreshPreview()
+    else
+      composer.addClass('open show-preview')
+
+    # Subscribe to updates for this data
+    url = "https://civicevolution.firebaseio.com/issues/1/conversations/#{$scope.conversation.id}/updates/"
+  #FirebaseService.initialize_source(url, response.firebase_token)
+
+  # register the listeners for the firebase updates
+  $scope.$on 'ConversationComment_update', (event, data) ->
+    #console.log "received broadcast ConversationComment_update"
+    [original_rec, updated_rec] = FirebaseService.process_update($scope.ConversationComments, data)
+    if updated_rec && original_rec
+      updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+
+  $scope.$on 'SummaryComment_update', (event, data) ->
+    #console.log "received broadcast SummaryComment_update"
+    [original_rec, updated_rec] = FirebaseService.process_update($scope.SummaryComments, data)
+    if updated_rec && original_rec
+      updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+
+  $scope.ConversationCommentLength = 1500
+  $scope.SummaryCommentLength = 0
+
+  # register a listener for summary_comments ordered ids
+  $scope.$on 'Conversation_update', (event, data) ->
+    #console.log "received broadcast Conversation_update"
+
+    # make sure it is the correct conversation_id
+    # $scope.conversation.id
+    if Number(data.data.conversation_id) is Number($scope.conversation.id)
+      ordered_ids = data.data.ordered_ids
+      # reorder $scope.SummaryComments according to these ids
+      if ordered_ids
+        # update the order_id for the comments
+        for comment in $scope.SummaryComments
+          comment.order_id = ordered_ids[comment.id]
+        #resort the SummaryComments according to order_id
+        $scope.SummaryComments.sort((a, b) -> return a.order_id > b.order_id )
+      $scope.$$phase || $scope.$apply()
+]
