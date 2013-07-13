@@ -393,13 +393,9 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
   return [converter,editor]
 
 conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", ($scope, conversation, FirebaseService, $timeout) ->
-  console.log "In conversation state controller at bottom"
-  $scope.conversationTitle = conversation.conversation_title
-  $scope.conversation_code = conversation.conversation_code
-  $scope.TitleComment = conversation.title_comment
-  $scope.CallToActionComment = conversation.call_to_action_comment
-  $scope.SummaryComments = conversation.summary_comments
-  $scope.ConversationComments = conversation.conversation_comments
+  #console.log "In conversation state controller at bottom"
+  $scope.conversation = conversation
+  $scope.$root.timestamp = conversation.current_timestamp
   $scope.newComment = { }
   $scope.initialize_markdown_editor()
 
@@ -409,7 +405,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
   $scope.show_comment_form = (type) ->
     console.log "show_comment_form type: #{type}"
     # clear new comment
-    $scope.newComment = { conversation_id: $scope.conversation.id }
+    $scope.newComment = { conversation_code: $scope.conversation.code }
     if type == 'summary'
       console.log "#### Set the type for summary"
       $scope.newComment.type = 'SummaryComment'
@@ -453,20 +449,21 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     else
       composer.addClass('open show-preview')
 
-    # Subscribe to updates for this data
-    url = "https://civicevolution.firebaseio.com/issues/1/conversations/#{$scope.conversation.id}/updates/"
-  #FirebaseService.initialize_source(url, response.firebase_token)
+  # Subscribe to updates for this data
+  url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"
+  #console.log "firebase url: #{url}"
+  FirebaseService.initialize_source(url, $scope.conversation.firebase_token)
 
   # register the listeners for the firebase updates
   $scope.$on 'ConversationComment_update', (event, data) ->
-    #console.log "received broadcast ConversationComment_update"
-    [original_rec, updated_rec] = FirebaseService.process_update($scope.ConversationComments, data)
+    console.log "received broadcast ConversationComment_update"
+    [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.conversation_comments, data)
     if updated_rec && original_rec
       updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
 
   $scope.$on 'SummaryComment_update', (event, data) ->
     #console.log "received broadcast SummaryComment_update"
-    [original_rec, updated_rec] = FirebaseService.process_update($scope.SummaryComments, data)
+    [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.summary_comments, data)
     if updated_rec && original_rec
       updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
 
@@ -481,12 +478,12 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     # $scope.conversation.id
     if Number(data.data.conversation_id) is Number($scope.conversation.id)
       ordered_ids = data.data.ordered_ids
-      # reorder $scope.SummaryComments according to these ids
+      # reorder $scope.conversation.summary_comments according to these ids
       if ordered_ids
         # update the order_id for the comments
-        for comment in $scope.SummaryComments
+        for comment in $scope.conversation.summary_comments
           comment.order_id = ordered_ids[comment.id]
-        #resort the SummaryComments according to order_id
-        $scope.SummaryComments.sort((a, b) -> return a.order_id > b.order_id )
+        #resort the summary_comments according to order_id
+        $scope.conversation.summary_comments.sort((a, b) -> return a.order_id > b.order_id )
       $scope.$$phase || $scope.$apply()
 ]

@@ -6,7 +6,7 @@ class Comment < ActiveRecord::Base
     CommentSerializer
   end
 
-  attr_accessor :my_rating
+  attr_accessor :my_rating, :conversation_code
 
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
@@ -18,7 +18,7 @@ class Comment < ActiveRecord::Base
 
   has_many :ratings, :as => :ratable
 
-  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references
+  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references, :conversation_code
 
   after_initialize :read_previous_text_on_init
   before_update :increment_comment_version

@@ -134,7 +134,7 @@ ce2_directives.directive('ceComment', ->
   priority: 100
   link: (scope, element, attrs) ->
     switch attrs.type
-      when "call-to-action" then scope.comment = scope.CallToActionComment
+      when "call-to-action" then scope.comment = scope.conversation.call_to_action_comment
 
   controller: [ "$scope", "CommentData",
     ($scope, CommentData) ->
@@ -192,7 +192,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         $scope.$emit('toggle-compose-window')
 
       $scope.addComment = ->
-        CommentData.persist_change_to_ror 'save', $scope.newComment,
+        #CommentData.persist_change_to_ror 'save', $scope.newComment,
+        CommentData.create_in_ror 'save', $scope.newComment,
           angular.bind $scope, ->
             this.newComment.id = null
             this.newComment.text = null

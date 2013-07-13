@@ -1,6 +1,6 @@
 class ConversationSerializer < ActiveModel::Serializer
   #embed :ids, :include => true
-  attributes :url, :updated_at, :firebase_token, :code, :title, :munged_title
+  attributes :url, :updated_at, :firebase_token, :code, :title, :munged_title, :current_timestamp
   has_many :comments
 
   def include_comments?
@@ -18,5 +18,10 @@ class ConversationSerializer < ActiveModel::Serializer
   def title
     object.title_comment.try{ |title_comment| title_comment.text} || 'Untitled conversation'
   end
+
+  def current_timestamp
+    Time.new.to_i
+  end
+
 
 end

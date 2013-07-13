@@ -1,6 +1,6 @@
 .row-fluid
   .span9.issue
-    %h3 {{conversationTitle}}
+    %h3 {{conversation.title}}
 
     %div.conversation
       .row-fluid
@@ -13,7 +13,7 @@
         .span12.summary
           %h4 Conversation Summary
           %div
-            %div.comment-outer(ng-repeat="comment in SummaryComments" )
+            %div.comment-outer(ng-repeat="comment in conversation.summary_comments" )
               %div(ce-sortable ce-comment type="summary")
 
       .div(ng-switch="add_summary_comment" )
@@ -30,7 +30,7 @@
       .row-fluid
         .span12.conversation
           %h4 Conversation
-          %div.comment-outer(ng-repeat="comment in ConversationComments" )
+          %div.comment-outer(ng-repeat="comment in conversation.conversation_comments" )
             %div(ce-comment type="conversation")
 
       .row-fluid

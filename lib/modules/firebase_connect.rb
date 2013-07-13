@@ -13,7 +13,7 @@ module Modules
     # Right now I need to make sure I add the timestamp: updated_at: Time.now.getutc
     def send_to_firebase
       action = @_is_new_record ? "create" : destroyed? ? "delete" : "update"
-      Firebase.base_uri = "https://civicevolution.firebaseio.com/issues/#{conversation.question.issue_id}/conversations/#{conversation_id}/updates/"
+      Firebase.base_uri = "https://civicevolution.firebaseio.com/conversations/#{conversation_code}/updates/"
       Firebase.push '', self.as_json_for_firebase( action )
     end
 

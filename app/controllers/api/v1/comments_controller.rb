@@ -15,13 +15,34 @@ module Api
       end
 
       def create
+        Rails.logger.debug "Create the comment with params: #{params.inspect}"
+        conversation = Conversation.where(code: params[:conversation_code]).first
+
+        authorize! :create, conversation
+
         params[:comment][:user_id] = current_user.id
-        respond_with Comment.create(params[:comment])
+        params[:comment][:conversation_code] = conversation.code
+        case params[:type]
+          when "ConversationComment"
+            comment = conversation.conversation_comments.create params[:comment]
+          when "SummaryComment"
+            comment = conversation.summary_comments.create params[:comment]
+          when "CallToActionComment"
+            comment = conversation.create_call_to_action_comment params[:comment]
+          when "TitleComment"
+            comment = conversation.create_title_comment params[:comment]
+        end
+
+        respond_with comment
       end
 
       def update
         logger.debug "update the comment with id: #{params[:id]}"
-        respond_with Comment.update(params[:id], params[:comment])
+        comment = Comment.find(params[:id])
+        conversation = comment.conversation
+        comment.conversation_code = conversation.code
+        respond_with comment.update(params[:comment])
+        #respond_with Comment.update(params[:id], params[:comment])
       end
 
       def destroy

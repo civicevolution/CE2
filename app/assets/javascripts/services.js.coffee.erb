@@ -136,8 +136,9 @@ services.factory "ConversationData", ["$http",
           conversation_comments: conversation_comments.sort((a,b)-> a.order_id - b.order_id)
           title_comment: title_comment
           call_to_action_comment: call_to_action_comment
-          conversation_title: response.data.title
-          conversation_code: response.data.code
+          title: response.data.title
+          code: response.data.code
+          current_timestamp: response.data.current_timestamp
 
     persist_summary_comment_order_to_ror: (conversation_id, comments_order) ->
       console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_id} with order #{comments_order}"
@@ -170,6 +171,29 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
             source: "#{action}Comment"
           }
         , err_func
+
+    create_in_ror: (action, data, ok_cb, err_cb) ->
+      _this._ok_cb = ok_cb
+      _this._err_cb = err_cb
+      if data.id
+        action = 'update'
+        method = 'put'
+        url = "/api/comments/#{data.id}.json"
+      else
+        method = 'post'
+        url = "/api/conversations/#{data.conversation_code}/comments.json"
+      #console.log "method: #{method}, url: #{url}"
+      $http[method](url, data).then (response) =>
+        _this._ok_cb() if _this._ok_cb
+        $rootScope.$broadcast "#{response.data.type}_update", {
+          action: action
+          class: response.data.type
+          data: response.data
+          updated_at: response.data.updated_at
+          source: "#{action}Comment"
+        }
+
+
 
     persist_rating_to_ror: (comment_id, rating) ->
       #console.log "send rating to RoR id: #{comment_id} with rating #{rating}"
