@@ -345,8 +345,7 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
       controller: ["$scope", "$timeout", ($scope, $timeout) ->
         debug = false
         $scope.type = 'local'
-        #$scope.image = {conversation_id: angular.element(document.getElementById('wmd-input')).scope().newComment.conversation_id}
-        $scope.image = {conversation_id: angular.element(document.getElementById('wmd-input')).scope().conversation.id }
+        $scope.image = {conversation_code: angular.element(document.getElementById('wmd-input')).scope().conversation.code }
 
         console.log "in dialog, $scope.image.conversation_id: #{$scope.image.conversation_id} "
 

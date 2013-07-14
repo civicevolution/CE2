@@ -32,7 +32,7 @@ class Conversation < ActiveRecord::Base
   end
 
 
-  def self.reorder_summary_comments( id, ordered_ids )
+  def self.reorder_summary_comments( code, ordered_ids )
     ordered_ids.reject!{|id| id.to_i == 0}
 
     if !( ordered_ids.nil? || ordered_ids.empty?)
@@ -42,7 +42,7 @@ class Conversation < ActiveRecord::Base
       sql =
 %Q|UPDATE comments SET order_id = new_order_id
 FROM ( SELECT * FROM (VALUES #{order_string}) vals (new_order_id,comment_id)	) t
-WHERE id = t.comment_id AND conversation_id = #{id} AND type = 'SummaryComment'|
+WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHERE code = '#{code}') AND type = 'SummaryComment'|
       Rails.logger.debug "Use sql: #{sql}"
       ActiveRecord::Base.connection.update_sql(sql)
 

@@ -20,10 +20,10 @@ GIT
 
 GIT
   remote: git://github.com/plataformatec/devise.git
-  revision: 69f79ad446101b45bf7ec29d290dc2be96142686
+  revision: 6b5988d756d780903bf8c9ccb3e2b3b724ccebe8
   branch: rails4
   specs:
-    devise (2.2.3)
+    devise (2.2.4)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.1)
       railties (>= 3.2.6, < 5)
@@ -90,12 +90,12 @@ GEM
       json
     angularjs-rails (1.0.6)
     arel (4.0.0)
-    atomic (1.1.9)
+    atomic (1.1.10)
     aws-sdk (1.9.5)
       json (~> 1.4)
       nokogiri (>= 1.4.4)
       uuidtools (~> 2.1)
-    bcrypt-ruby (3.0.1)
+    bcrypt-ruby (3.1.1)
     better_errors (0.9.0)
       coderay (>= 1.0.0)
       erubis (>= 2.6.6)
@@ -181,7 +181,7 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.23)
-    minitest (4.7.4)
+    minitest (4.7.5)
     multi_json (1.7.7)
     nokogiri (1.5.9)
     orm_adapter (0.4.0)
@@ -210,7 +210,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
     raindrops (0.11.0)
-    rake (10.0.4)
+    rake (10.1.0)
     responders (0.6.5)
     right_aws (3.1.0)
       right_http_connection (>= 1.2.5)
@@ -266,7 +266,7 @@ GEM
       rack
       raindrops (~> 0.7)
     uuidtools (2.1.4)
-    warden (1.2.1)
+    warden (1.2.2)
       rack (>= 1.0)
     xpath (2.0.0)
       nokogiri (~> 1.3)

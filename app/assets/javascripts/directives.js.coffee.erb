@@ -192,7 +192,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         $scope.$emit('toggle-compose-window')
 
       $scope.addComment = ->
-        #CommentData.persist_change_to_ror 'save', $scope.newComment,
         CommentData.create_in_ror 'save', $scope.newComment,
           angular.bind $scope, ->
             this.newComment.id = null
@@ -378,7 +377,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
       return unless scope.comment.editable_by_user
       startX = startY = initialMouseX = initialMouseY = mouseY = 0
       placeholder = dragged = placeholder_upper = placeholder_lower = {}
-      item_name = collection_name = ''
+      item_name = collection_name = collection_subname = ''
 
       # construct the html structure that will allow the sorting to work
       # in order to be draggable, item must be positioned absolute
@@ -456,15 +455,15 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
           # update the scope model
           #console.log "update the scope_model"
           #model_collection = dom_scope_collection
-          elm.scope().$parent[collection_name] = dom_scope_collection
+          elm.scope().$parent[collection_name][collection_subname] = dom_scope_collection
           $rootScope = elm.scope().$root
           $rootScope.$$phase || $rootScope.$apply()
 
           # persist the new collection ordered ids
           #console.log "persist the new collection order"
-          conversation_id = elm.scope().$parent.conversation?.id || 22
+          conversation_code = elm.scope().$parent.conversation?.code
           comments_order = (item.id for item in dom_scope_collection )
-          ConversationData.persist_summary_comment_order_to_ror(conversation_id, comments_order)
+          ConversationData.persist_summary_comment_order_to_ror(conversation_code, comments_order)
           $timeout ->
             angular.element(document.body).removeClass('drag_in_process')
           , 1000
@@ -484,15 +483,15 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
 
 
       get_scope_collection_for_dom_items_and_model = ->
-        [x, item_name, collection_name ] = elm.parent().attr('ng-repeat').match(/(\w+)\s+in\s+(\w+)/)
-        #console.log "item_name: #{item_name}, collection_name: #{collection_name}"
+        [x, item_name, collection_name, collection_subname ] = elm.parent().attr('ng-repeat').match(/(\w+)\s+in\s+(\w+)\.(\w+)/)
+        #console.log "item_name: #{item_name}, collection_name: #{collection_name},  collection_subname: #{collection_subname}"
 
         # get the DOM items for the collection
         dom_items = elm.parent().parent().children()
         # get the scope items for each dom_item
         scope_collection = (angular.element(dom_item).scope()[item_name] for dom_item in dom_items)
 
-        model_collection = elm.scope().$parent[collection_name]
+        model_collection = elm.scope().$parent[collection_name][collection_subname]
         [model_collection, scope_collection]
 
 
