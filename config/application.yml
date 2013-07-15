@@ -9,13 +9,9 @@
 #
 GMAIL_USERNAME: Your_Username
 GMAIL_PASSWORD: Your_Password
-ADMIN_NAME: First User
-ADMIN_FIRST_NAME: First
-ADMIN_LAST_NAME: User
-ADMIN_EMAIL: user@example.com
-ADMIN_PASSWORD: changeme
+ADMIN_NAME: Brian Sullivan
+ADMIN_FIRST_NAME: Brian
+ADMIN_LAST_NAME: Sullivan
+ADMIN_EMAIL: brian@civicevolution.org
+ADMIN_PASSWORD: evolution
 ROLES: [admin, user, VIP]
-DEMO_FIRST_NAME: 'Demo'
-DEMO_LAST_NAME: 'User'
-DEMO_EMAIL: 'demo_user@civicevolution.org'
-DEMO_PASSWORD: 'evolution'

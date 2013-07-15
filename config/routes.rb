@@ -28,28 +28,6 @@ Ce2::Application.routes.draw do
     #end
   end
 
-  namespace :api, defaults: {format: 'json'} do
-    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-      resources :initiatives do
-        get 'issues', on: :member
-      end
-    end
-    #scope module: :v2, constraints: ApiConstraints.new(version: 2, default: true) do
-    #  resources :products
-    #end
-  end
-
-  namespace :api, defaults: {format: 'json'} do
-    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-      resources :issues do
-        #get 'history', :on => :member
-      end
-
-    end
-    #scope module: :v2, constraints: ApiConstraints.new(version: 2, default: true) do
-    #  resources :products
-    #end
-  end
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
@@ -72,9 +50,6 @@ Ce2::Application.routes.draw do
   #get '/api/users(.:format)',            api/v1/comments#index {:format=>"json"}
 
   #resources :comments
-
-  get "issues/:issue_id" => "issues#show", constraints: {issue_id: /\d+/}
-  get "issues/:munged_title" => "issues#show", constraints: {munged_title: /[\w&-]+/}
 
   match "comments/:comment_id/rate/:rating" => "api/v1/comments#rate", constraints: {comment_id: /\d+/, rating: /\d+/}, via: [:post, :get], format: :json
 

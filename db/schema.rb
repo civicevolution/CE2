@@ -11,24 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130711211733) do
+ActiveRecord::Schema.define(version: 20130710222434) do
 
   create_table "attachments", force: true do |t|
     t.integer  "attachable_id",                           null: false
     t.string   "attachable_type",                         null: false
     t.integer  "user_id",                                 null: false
-    t.string   "title"
-    t.text     "description"
     t.integer  "version",                 default: 1,     null: false
     t.string   "status",                  default: "new", null: false
     t.string   "attachment_file_name"
     t.string   "attachment_content_type"
     t.integer  "attachment_file_size"
     t.datetime "attachment_updated_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.integer  "image_height"
     t.integer  "image_width"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "comment_versions", force: true do |t|
@@ -52,8 +50,8 @@ ActiveRecord::Schema.define(version: 20130711211733) do
     t.integer  "order_id"
     t.string   "purpose"
     t.string   "references"
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "ratings_cache",                                array: true
   end
 
@@ -61,49 +59,19 @@ ActiveRecord::Schema.define(version: 20130711211733) do
   add_index "comments", ["user_id"], name: "index_comments_on_user_id", using: :btree
 
   create_table "conversations", force: true do |t|
-    t.integer  "question_id",                  null: false
-    t.string   "status",      default: "open", null: false
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-    t.string   "code"
-    t.integer  "user_id"
-  end
-
-  add_index "conversations", ["code"], name: "index_conversations_on_code", using: :btree
-
-  create_table "endorsements", force: true do |t|
-    t.integer  "issue_id"
-    t.integer  "user_id"
-    t.text     "text"
+    t.string   "code",                        null: false
+    t.integer  "user_id",                     null: false
+    t.string   "status",     default: "open", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "conversations", ["code"], name: "index_conversations_on_code", unique: true, using: :btree
 
   create_table "follow_ces", force: true do |t|
-    t.string   "email"
+    t.string   "email",      null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "initiatives", force: true do |t|
-    t.string   "title",        null: false
-    t.text     "description",  null: false
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-    t.string   "munged_title"
-  end
-
-  create_table "issues", force: true do |t|
-    t.integer  "initiative_id",                  null: false
-    t.integer  "user_id",                        null: false
-    t.string   "title",                          null: false
-    t.text     "description",                    null: false
-    t.integer  "version",       default: 1
-    t.string   "status",        default: "open", null: false
-    t.string   "purpose"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.string   "munged_title"
   end
 
   create_table "profiles", force: true do |t|
@@ -114,18 +82,6 @@ ActiveRecord::Schema.define(version: 20130711211733) do
     t.datetime "photo_updated_at"
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "questions", force: true do |t|
-    t.integer  "issue_id",                    null: false
-    t.integer  "user_id",                     null: false
-    t.text     "text",                        null: false
-    t.integer  "version",    default: 1
-    t.string   "status",     default: "open", null: false
-    t.string   "purpose"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.integer  "order_id"
   end
 
   create_table "ratings", force: true do |t|
@@ -140,8 +96,8 @@ ActiveRecord::Schema.define(version: 20130711211733) do
     t.string   "name"
     t.integer  "resource_id"
     t.string   "resource_type"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id", using: :btree
@@ -158,16 +114,16 @@ ActiveRecord::Schema.define(version: 20130711211733) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.string   "name"
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
     t.string   "authentication_token"
-    t.string   "first_name"
-    t.string   "last_name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "name"
+    t.string   "first_name",                          null: false
+    t.string   "last_name",                           null: false
   end
 
   add_index "users", ["authentication_token"], name: "index_users_on_authentication_token", unique: true, using: :btree
