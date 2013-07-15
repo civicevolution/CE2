@@ -212,7 +212,7 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "Temp
         $rootScope.$$phase || $rootScope.$apply()
 
       catch error
-        console.log "conversation_select had an error: #{error}"
+        #console.log "conversation_select had an error: #{error}"
 
     $rootScope.add_quote_to_reply = ->
       sel = $rootScope.selection
@@ -465,6 +465,23 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.summary_comments, data)
     if updated_rec && original_rec
       updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+
+  $scope.$on 'RatingsCache_update', (event, data) ->
+    #console.log "received broadcast RatingsCache_update"
+    data = data.data
+    item_array = switch data.type
+      when "SummaryComment" then $scope.conversation.summary_comments
+      when "ConversationComment" then $scope.conversation.conversation_comments
+    if item_array
+      for rec in item_array
+        if rec.id == data.id
+          comment = rec
+          break
+      if comment
+        #console.log "Update the ratings on comment id: #{comment.id}"
+        comment.number_of_votes = data.number_of_votes
+        comment.ratings_cache = data.ratings_cache
+        $scope.$$phase || $scope.$apply()
 
   $scope.ConversationCommentLength = 1500
   $scope.SummaryCommentLength = 0

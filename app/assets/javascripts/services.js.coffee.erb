@@ -228,10 +228,16 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
     conversation_updates_ref = new Firebase(url);
     conversation_updates_ref.auth( token )
     conversation_updates_ref.on 'child_added', (data) ->
-      $rootScope.$broadcast( "#{data.val().class}_update", data.val() )
+      data = data.val()
+      #console.log "Firebase $broadcast #{data.val().class}_update"
+      update_all = false
+      if update_all || (Date.fromISO(data.updated_at).getTime() / 1000 ) - $rootScope.timestamp > 0
+        $rootScope.$broadcast( "#{data.class}_update", data )
+      #else
+      #  console.log "Ignore this old update"
 
   process_update: (item_array, data) ->
-    #console.log "Firebase.process_update for #{data.class}"
+    console.log "Firebase.process_update for #{data.class}"
     # Only apply updates newer than the page load time
     update_all = false
     if update_all || (Date.fromISO(data.updated_at).getTime() / 1000 ) - $rootScope.timestamp > 0

@@ -22,5 +22,13 @@ module Modules
       data = as_json root: false, except: [:user_id]
       { class: self.class.to_s, action: action, data: data, updated_at: Time.now.getutc, source: "RoR-Firebase" }
     end
+
+    def send_ratings_update_to_firebase
+      Firebase.base_uri = "https://civicevolution.firebaseio.com/conversations/#{self.conversation.code}/updates/"
+      data = { type: type, id: id, ratings_cache: ratings_cache, number_of_votes: ratings_cache.inject{|sum,x| sum + x } }
+      Firebase.push '', { class: 'RatingsCache', action: 'update_ratings', data: data, updated_at: Time.now.getutc, source: "RoR-Firebase" }
+    end
+
   end
+
 end
