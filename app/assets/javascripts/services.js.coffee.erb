@@ -76,34 +76,6 @@ services.factory "Comment", ["$resource", ($resource) ->
   $resource("/api/comments/:id", {id: "@id"}, {update: {method: "PUT"}})
 ]
 
-services.factory "Issue", ["$http", "$rootScope",
-  ($http, $rootScope) ->
-    issue_data: (munged_title) ->
-      console.log "load issue data for munged_title: #{munged_title}"
-      $http.get("/api/issues/#{munged_title}.json").then (response) ->
-        if response.status is 200
-          console.log "process issue data for munged_title: #{munged_title}"
-          # extract and setup some data for the directive controller
-          #firebase_token: response.data.firebase_token
-          #question: response.data.question
-          #summary_comments: (comment for comment in response.data.comments when comment.type is "SummaryComment")
-          #.sort((a,b)-> a.order_id - b.order_id)
-          #conversation_comments: (comment for comment in response.data.comments when comment.type is "ConversationComment")
-          #.sort((a,b)-> a.order_id - b.order_id)
-          $rootScope.timestamp = response.data.current_timestamp
-          $rootScope.issue_data = response.data
-          $rootScope.initiative_munged_title = response.data.initiative.munged_title
-          response.data
-
-    all_issues: (munged_title) ->
-      console.log "Load issues for initiative #{munged_title}"
-      $http.get("/api/initiatives/#{munged_title}/issues.json").then (response) ->
-        if response.status is 200
-          console.log "process all_issues data for munged_title: #{munged_title}"
-          response
-]
-
-
 services.factory "ConversationData", ["$http",
   ($http) ->
     name: "ConversationData"

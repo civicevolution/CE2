@@ -31,72 +31,14 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
     $urlRouterProvider
       # provides redirects
       .when('/c?id', '/contacts/:id')
-      .otherwise('/');
+      .otherwise('/home');
 
     $stateProvider
       # registers the urls with $urlRouterProvider
-      .state('initiative',
-        abstract: true
-        url: '/initiative/:munged_title'
-        templateUrl: '<%= path_to_asset "initiative.html" %>'
-        resolve:
-          issues: ["Issue", "$stateParams", (Issue, $stateParams) ->
-            Issue.all_issues($stateParams.munged_title)
-          ]
-        controller:  [ "$scope", "issues", "$stateParams", ($scope, issues, $stateParams) ->
-          console.log "In initiative state controller"
-          $scope.initiative = issues.data
-          $scope.$root.initiative_munged_title = issues.data.munged_title
-          $scope.test = ->
-            console.log "test in initiative state controller"  
-          $scope.addIssue = ->
-            console.log "initiative addIssue"
-        ]
-      )
-
-      .state('initiative.issues',
-        url: '/issues'
-        templateUrl: '<%= path_to_asset "initiative-issues.html" %>'
-        resolve:
-          issues: ["Issue", "$stateParams", (Issue, $stateParams) ->
-            Issue.all_issues($stateParams.munged_title)
-          ]
-        controller:  [ "$scope", "issues", "$stateParams", ($scope, issues, $stateParams) ->
-          console.log "In initiative state controller"
-          $scope.initiative = issues.data
-          $scope.$root.initiative_munged_title = issues.data.munged_title
-          $scope.test = ->
-            console.log "test in initiative state controller"
-          $scope.addIssue = ->
-            console.log "initiative addIssue"
-        ]
-      )
-
-      .state('initiative.add-an-issue',
-        url: '/add-an-issue'
-        templateUrl: '<%= path_to_asset "add-an-issue.html" %>'
-        controller: [ "$scope","Issue", ($scope, Issue) ->
-          console.log "In add-an-issue state controller"
-          $scope.initialize_markdown_editor()
-          $scope.submit_issue = ->
-            console.log "add-an-issue:submit_issue"
-        ]
-
-      )
-
-      .state( 'issue',
-        url: "/issue/{munged_title}"
-        templateUrl: '<%= path_to_asset "issue.html" %>'
-        resolve:
-          issue: ["Issue", "$stateParams", (Issue, $stateParams) ->
-            Issue.issue_data($stateParams.munged_title)
-          ]
-        controller: [ "$scope", "issue", "$timeout", ($scope, issue, $timeout) ->
-          console.log "In issue state controller"
-          $scope.issue = issue
-          $scope.initialize_markdown_editor()
-        ]
-      )
+      .state('home', {
+        url: '/home',
+        templateUrl: '<%= path_to_asset "home.html" %>'
+      })
 
       .state( 'conversation',
         url: "/conversation/{code}/{munged_title}"
@@ -167,8 +109,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
 ])
 
-ce2_app.run( ['$rootScope', '$state', '$stateParams', "Issue", "$timeout", "TemplateEngine", "$http", "$templateCache", "$dialog",
-  ($rootScope,   $state,   $stateParams, Issue, $timeout, TemplateEngine, $http, $templateCache, $dialog) ->
+ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngine", "$http", "$templateCache", "$dialog",
+  ($rootScope,   $state,   $stateParams, $timeout, TemplateEngine, $http, $templateCache, $dialog) ->
     $rootScope.$state = $state
     $rootScope.$stateParams = $stateParams
     $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')

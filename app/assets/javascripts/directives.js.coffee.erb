@@ -114,13 +114,6 @@ ce2_directives.directive('ceFocus', [ "$timeout", ($timeout) ->
 
 ])
 
-
-ce2_directives.directive('ceQuestion', ->
-  restrict: 'A'
-  templateUrl: "<%= path_to_asset "question.html" %>"
-  replace: true
-)
-
 ce2_directives.directive('ceComment', ->
   restrict: 'A'
   templateUrl: (tElement, tAttrs) ->
@@ -567,28 +560,8 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
             elm.parent().after(prev_elm)
             placeholder.y = elm.parent().prop('offsetTop')
             record_current_place_holders()
-
 ])
 
-ce2_directives.directive('ceIssueCard', ->
-  restrict: 'A'
-  templateUrl: "<%= path_to_asset "ce-issue-card.html" %>"
-  replace: true
-  scope: true
-  controller: [ "$scope", "CommentData",
-    ($scope, CommentData) ->
-      $scope.name = 'ceIssueCard'
-
-      $scope.open_issue = (munged_title) ->
-        console.log "open_issue #{munged_title}"
-        false
-
-      $scope.test = ->
-        console.log "Clicked ceIssueCard test link"
-        debugger
-
-  ]
-)
 
 ce2_directives.directive 'stopEvent', ->
   restrict: 'A',

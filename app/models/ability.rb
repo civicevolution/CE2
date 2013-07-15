@@ -21,11 +21,8 @@ class Ability
 
         can :manage, Conversation
 
-        can :issues, [ Initiative ]
-
       else
-        can :read, [ Conversation, Comment, Initiative ]
-        can :issues, [ Initiative ]
+        can :read, [ Conversation, Comment ]
 
 
     end
