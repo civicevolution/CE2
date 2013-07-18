@@ -4,7 +4,7 @@ class Conversation < ActiveRecord::Base
     ConversationSerializer
   end
 
-  attr_accessible :question_id, :status
+  attr_accessible :user_id, :status
   attr_accessor :firebase_token
 
   has_one :title_comment, -> { includes author: :profile   }
@@ -22,7 +22,6 @@ class Conversation < ActiveRecord::Base
     while( Conversation.where(code: self.code).exists? ) do
       self.code = Conversation.create_random_conversation_code
     end
-    self.question_id = 0 # need to be non null till, but not used anymore
   end
 
   def self.create_random_conversation_code

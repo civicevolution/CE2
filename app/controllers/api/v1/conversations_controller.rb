@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      load_and_authorize_resource
+      #load_and_authorize_resource
       #def default_serializer_options
       #  {
       #      root: false
@@ -10,9 +10,7 @@ module Api
       #end
 
       def index
-        #respond_with Conversations.comments.where(id: params[:id])
-        respond_with Conversations.find(  params[:id])
-        #Conversation.first.summary_comments(:includes=> :author)
+        respond_with Conversation.all, scope: { shallow_serialization_mode: true}
       end
 
       def show
@@ -47,6 +45,16 @@ module Api
 
       def destroy
         respond_with Comment.destroy(params[:id])
+      end
+
+      def title
+        conversation = Conversation.where(code: params[:id]).first
+        title_comment = TitleComment.where(conversation_id: conversation.id).first_or_create do |tc|
+          tc.user_id = current_user.id
+        end
+        title_comment.text = params[:title]
+        title_comment.save
+        respond_with title_comment
       end
 
       def summary_comment_order

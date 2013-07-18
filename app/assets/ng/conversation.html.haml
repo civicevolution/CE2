@@ -1,47 +1,70 @@
-.row-fluid
-  .span9.issue
-    %h3 {{conversation.title}}
+.row-fluid.conversation
+  .span9
+    %h3.title
+      %span.actual-title(ng-click="edit_title()" ng-if="conversation.title && !conversation.edit_title")
+        {{conversation.title}}
+      %span.placeholder(ng-click="edit_title()" ng-if="!conversation.title && !conversation.edit_title" )
+        Click here to edit this conversation's question
+      %span.edit(ng-if="conversation.edit_title")
+        %h4 Update the question for this conversation:
+        %input(ng-model="conversation.title")
+        %div
+          %button.btn.btn-primary(ng-click="save_title()"){:type => "submit"} Save changes
+          %button.btn Cancel
 
-    %div.conversation
-      .row-fluid
-        .span12.summary
-          %div
-            %div.comment-outer
-              %div(ce-comment type="call-to-action")
 
-      .row-fluid
-        .span12.summary
-          %h4 Conversation Summary
-          %div
-            %div.comment-outer(ng-repeat="comment in conversation.summary_comments" )
-              %div(ce-sortable ce-comment type="summary")
 
-      .div(ng-switch="add_summary_comment" )
-        .row-fluid(ng-switch-default )
-          .span8
-            %p
-              %input.btn-primary.btn(ng-click="show_comment_form('summary')"){type: 'button', value: 'Add summary comment'}
+    .row-fluid
+      .span12.summary
+        %div.call-to-action
+          %div.comment-outer
+            %div(ce-comment type="call-to-action" ng-if="conversation.call_to_action_comment")
+            %div.placeholder(ng-if="!conversation.call_to_action_comment" ng-click="edit_call_to_action()")
+              %p
+                Click here to describe this conversation and create the first call-to-action.
+                Your conversation's call-to-action should ask people to contribute their comments.
+                You can edit this description and call to action as often as your like.
 
-        .row-fluid(ng-switch-when="true")
-          .span8
-            %h4 Add a summary comment to help capture this conversation
-            %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
 
-      .row-fluid
-        .span12.conversation
-          %h4 Conversation
-          %div.comment-outer(ng-repeat="comment in conversation.conversation_comments" )
-            %div(ce-comment type="conversation")
+    .row-fluid
+      .span12.summary
+        %h4 Conversation Summary
+        %div
+          %div.comment-outer(ng-repeat="comment in conversation.summary_comments" )
+            %div(ce-sortable ce-comment type="summary")
 
-      .row-fluid
+          %div.placeholder(ng-if="conversation.summary_comments.length==0")
+            %p Conversation summary placeholder
+
+    .div(ng-switch="add_summary_comment" )
+      .row-fluid(ng-switch-default )
         .span8
           %p
-            %input.btn-primary.btn(ng-click="show_comment_form('conversation')"){type: 'button', value: 'Add conversation comment'}
+            %input.btn-primary.btn(ng-click="show_comment_form('summary')"){type: 'button', value: 'Add summary comment'}
 
-      %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")
+      .row-fluid(ng-switch-when="true")
+        .span8
+          %h4 Add a summary comment to help capture this conversation
+          %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
+
+    .row-fluid
+      .span12.conversation
+        %h4 Conversation
+        %div.comment-outer(ng-repeat="comment in conversation.conversation_comments" )
+          %div(ce-comment type="conversation")
+
+        %div.placeholder(ng-if="conversation.conversation_comments.length == 0")
+          %p Conversation placeholder
+
+    .row-fluid
+      .span8
+        %p
+          %input.btn-primary.btn(ng-click="show_comment_form('conversation')"){type: 'button', value: 'Add conversation comment'}
+
+    %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")
 
   .span3.right-bar
-    Right bar
+    %div(ce-conversation-right-bar)
 
 
 

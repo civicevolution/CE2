@@ -79,6 +79,17 @@ services.factory "Comment", ["$resource", ($resource) ->
 services.factory "ConversationData", ["$http",
   ($http) ->
     name: "ConversationData"
+
+    conversations: ->
+      $http.get("/api/conversations.json").then (response) ->
+        #console.log "/api/conversations.json then"
+        #if response.status is 200
+        response.data
+
+    save_title: (conversation_code, title) ->
+      console.log "save_title to RoR code: #{conversation_code} with title #{title}"
+      $http.post("/api/conversations/#{conversation_code}/title.json", {title: title})
+
     conversation: (conversation_code) ->
       # conversation(conversation_code) is called by the directive or controller that uses this data
       # this request returns a promise to the directive

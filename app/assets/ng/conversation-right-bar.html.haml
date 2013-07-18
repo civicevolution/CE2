@@ -1,0 +1,20 @@
+%div.right-bar-template
+  .days_remaining
+    %h4(ng-bind="conversation_stats.days_remaining | days_remaining"
+      ng-if="conversation_stats.days_remaining != 'undefined'")
+    %p.placeholder(ng-if="conversation_stats.days_remaining == 'undefined'" ng-click="edit_duration()")
+      Click here to set # of days for this conversation
+
+
+
+  %p Stats
+  %p Notification options
+  %p Invite friends
+  %p Share/Embed
+  %p Print•PDF•Download
+
+
+  %p Privacy settings
+  %p Tags
+  %p Members/ trust/role
+  %p Review comments

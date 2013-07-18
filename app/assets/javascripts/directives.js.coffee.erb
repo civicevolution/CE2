@@ -199,9 +199,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         #console.log "cancel the comment edit"
         $scope.$emit('cancel-edit')
 
-      $scope.cancel_summary_form = ->
-        $scope.$emit('cancel-edit')
-
       $scope.$on 'update-new-comment-text', ->
         console.log "do update-new-comment-text"
         $scope.newComment.text = document.getElementById('wmd-input').value
@@ -568,3 +565,33 @@ ce2_directives.directive 'stopEvent', ->
   link: (scope, element, attr) ->
     element.bind attr.stopEvent, (e) ->
       e.stopPropagation()
+
+ce2_directives.directive('ceConversationRightBar', ->
+  restrict: 'A'
+  templateUrl: '<%= path_to_asset "conversation-right-bar.html" %>'
+  replace: true
+  scope: false
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = "ceConversationRightBar"
+      $scope.conversation_stats =
+        days_remaining: 'undefined' # or # of days
+      $scope.edit_duration = ->
+        console.log "edit the duration of this conversation and set the time zone"
+    
+
+  ]
+)
+
+ce2_directives.directive('ceConversationCard', ->
+  restrict: 'A'
+  templateUrl: "<%= path_to_asset "conversation-card.html" %>"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceConversationCard'
+
+
+  ]
+)

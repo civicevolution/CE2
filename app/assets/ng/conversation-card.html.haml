@@ -1,0 +1,7 @@
+%div.ce-conversation-card
+
+  %h3
+    %a(href="/#/conversation/{{conversation.code}}/{{conversation.munged_title}}")
+      {{conversation.title}}
+
+  %div(ng-bind-html-unsafe="converter.makeHtml(conversation.call_to_action)")

@@ -1,3 +1,40 @@
 // Place all the styles related to the conversation controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.conversation{
+  .placeholder{
+    font-style: italic;
+  }
+  .title{
+    .placeholder{
+      font-style: italic;
+      cursor: pointer;
+    }
+    input{
+      font-size: 1em;
+      font-weight: bold;
+      width: 80%;
+    }
+  }
+  .call-to-action{
+    .placeholder{
+      font-style: italic;
+      cursor: pointer;
+    }
+  }
+
+}
+
+.conversation{
+  .right-bar{
+    .days_remaining{
+      .placeholder{
+        font-style: italic;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+

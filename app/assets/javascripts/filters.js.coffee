@@ -28,6 +28,13 @@ ce2_filters.filter 'characters_remaining', ->
       when count == -1 then "<span class='warn'>1 character over</span>"
       when count < -1 then "<span class='warn'>#{count} characters over</span>"
 
+ce2_filters.filter 'days_remaining', ->
+  (count) ->
+    switch
+      when count == 0 then "Ends today!!!"
+      when count == 1 then "Only #{count} day remaining"
+      when count <5 then "Only #{count} days remaining"
+      else "#{count} days remaining"
 
 ce2_filters.filter 'vote_count', ->
   (count) ->

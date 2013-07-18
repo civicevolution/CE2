@@ -62,19 +62,12 @@
             .preview#wmd-preview
 
         %div.submit-panel
-          %span(ng-if="newComment.id == null && newComment.type == 'ConversationComment'")
-            %input.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit', value: 'Add'}
-            %a(ng-click="cancel_edit()")
-              Cancel
-
-          %span(ng-if="newComment.id == null && newComment.type == 'SummaryComment'")
-            %input.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit', value: 'Add'}
-            %a(ng-click="cancel_summary_form()")
-              Cancel
+          %span(ng-if="newComment.id == null")
+            %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Add
+            %button.btn(ng-click="cancel_edit()") Cancel
 
           %span(ng-if="newComment.id > 0")
-            %input.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit', value: 'Update'}
-            %a(ng-click="cancel_edit()")
-              Cancel
+            %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Update
+            %button.btn(ng-click="cancel_edit()") Cancel
 
-          %span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")
+          -#%span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")

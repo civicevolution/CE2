@@ -38,6 +38,15 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('home', {
         url: '/home',
         templateUrl: '<%= path_to_asset "home.html" %>'
+        resolve:
+          conversations: ["ConversationData", (ConversationData) ->
+            ConversationData.conversations()
+          ]
+        controller: [ "$scope", "conversations",
+          ($scope, conversations) ->
+            console.log "In home state controller"
+            $scope.conversations = conversations
+        ]
       })
 
       .state( 'conversation',
@@ -45,10 +54,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         templateUrl: '<%= path_to_asset "conversation.html" %>'
         resolve:
           conversation: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
-            ConversationData.conversation($stateParams.code)#.then (response) ->
-              # when the promise is fulfilled, set the arrays to $scope for display
-              # and set the arrays as properties on the service for they can be updated
-              # by firebase updates and still be bound to the view for this directive
+            console.log "resolve get ConversationData.conversation"
+            ConversationData.conversation($stateParams.code)
           ]
         controller: conversation_controller
       )
@@ -114,6 +121,16 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
     $rootScope.$state = $state
     $rootScope.$stateParams = $stateParams
     $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
+
+    $rootScope.$on '$stateChangeError', (event, toState, toParams, fromState, fromParams, error) ->
+      console.log "$stateChangeError tostate: #{toState.url}, fromState: #{fromState.url}"
+    $rootScope.$on '$stateChangeStart', (event, toState, toParams, fromState, fromParams) ->
+      console.log "$stateChangeStart tostate: #{toState.url}, fromState: #{fromState.url}"
+    $rootScope.$on '$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) ->
+      console.log "$stateChangeSuccess tostate: #{toState.url}, fromState: #{fromState.url}"
+
+    $rootScope.$on '$viewContentLoaded', (obj) ->
+      console.log "$viewContentLoaded"
 
     $rootScope.autoGrow = (oField) ->
       if oField.scrollHeight > oField.clientHeight
@@ -333,115 +350,150 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
     $rootScope.$$phase || $rootScope.$apply()
   return [converter,editor]
 
-conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", ($scope, conversation, FirebaseService, $timeout) ->
-  #console.log "In conversation state controller at bottom"
-  $scope.conversation = conversation
-  $scope.$root.timestamp = conversation.current_timestamp
-  $scope.newComment = { }
-  $scope.initialize_markdown_editor()
+conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", "ConversationData",
+  ($scope, conversation, FirebaseService, $timeout, ConversationData) ->
+    console.log "In conversation state controller at bottom"
+    $scope.conversation = conversation
+    $scope.$root.timestamp = conversation.current_timestamp
+    $scope.newComment = { }
+    $scope.initialize_markdown_editor()
 
-  $scope.name = 'ceConversation'
-  # the data was resolved and attached to scope in the state definition
+    $scope.name = 'ceConversation'
+    # the data was resolved and attached to scope in the state definition
 
-  $scope.show_comment_form = (type) ->
-    console.log "show_comment_form type: #{type}"
-    # clear new comment
-    $scope.newComment = { conversation_code: $scope.conversation.code }
-    if type == 'summary'
-      console.log "#### Set the type for summary"
-      $scope.newComment.type = 'SummaryComment'
-    else
-      console.log "#### Set the type for conversation"
+    $scope.show_comment_form = (type) ->
+      #console.log "show_comment_form type: #{type}"
+      # clear new comment
+      $scope.newComment = { conversation_code: $scope.conversation.code }
+      if type == 'summary'
+        console.log "#### Set the type for summary"
+        $scope.newComment.type = 'SummaryComment'
+      else
+        #console.log "Set the type for conversation"
+        $scope.newComment.type = 'ConversationComment'
+      $timeout -> $scope.$root.editor.refreshPreview()
+      angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
+
+    $scope.$on 'request-edit', (event, comment) ->
+      $scope.newComment = angular.copy(comment)
+      $timeout -> $scope.$root.editor.refreshPreview()
+      angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
+    $scope.$on 'clear-edit', (event) ->
+      #console.log "clear-edit"
+      $scope.newComment = { }
+      $timeout -> $scope.$root.editor.refreshPreview()
+      angular.element( document.getElementById('reply-control')).removeClass('open')
+
+    $scope.$on 'conversation-comment-edit', (event) ->
+      #console.log "conversation-comment-edit"
       $scope.newComment.type = 'ConversationComment'
-    $timeout -> $scope.$root.editor.refreshPreview()
-    angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+      $scope.newComment.conversation_id = $scope.conversation.id
+      $timeout -> $scope.$root.editor.refreshPreview()
+      angular.element( document.getElementById('reply-control')).addClass('open')
+
+    $scope.$on 'cancel-edit', (event) ->
+      #console.log "cancel-edit"
+      $scope.newComment = { }
+      $timeout -> $scope.$root.editor.refreshPreview()
+      angular.element( document.getElementById('reply-control')).removeClass('open')
+
+    $scope.$on 'toggle-compose-window', ->
+      #console.log "toggle_compose_window"
+      composer = angular.element( document.getElementById('reply-control') )
+      if composer.hasClass('open')
+        composer.removeClass('open show-preview')
+        $scope.$root.editor.refreshPreview()
+      else
+        composer.addClass('open show-preview')
+
+    # Subscribe to updates for this data
+    url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"
+    #console.log "firebase url: #{url}"
+    FirebaseService.initialize_source(url, $scope.conversation.firebase_token)
+
+    # register the listeners for the firebase updates
+    $scope.$on 'ConversationComment_update', (event, data) ->
+      console.log "received broadcast ConversationComment_update"
+      [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.conversation_comments, data)
+      if updated_rec && original_rec
+        updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+
+    $scope.$on 'SummaryComment_update', (event, data) ->
+      #console.log "received broadcast SummaryComment_update"
+      [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.summary_comments, data)
+      if updated_rec && original_rec
+        updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+
+    $scope.$on 'RatingsCache_update', (event, data) ->
+      #console.log "received broadcast RatingsCache_update"
+      data = data.data
+      item_array = switch data.type
+        when "SummaryComment" then $scope.conversation.summary_comments
+        when "ConversationComment" then $scope.conversation.conversation_comments
+      if item_array
+        for rec in item_array
+          if rec.id == data.id
+            comment = rec
+            break
+        if comment
+          #console.log "Update the ratings on comment id: #{comment.id}"
+          comment.number_of_votes = data.number_of_votes
+          comment.ratings_cache = data.ratings_cache
+          $scope.$$phase || $scope.$apply()
 
 
-  $scope.$on 'request-edit', (event, comment) ->
-    $scope.newComment = angular.copy(comment)
-    $timeout -> $scope.$root.editor.refreshPreview()
-    angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+    $scope.$on 'CallToActionComment_update', (event, data) ->
+      #console.log "received broadcast CallToActionComment_update"
+      if not $scope.conversation.call_to_action_comment
+        # is user the curator? must be as conversation cannot be pusblished without a cta
+        $scope.conversation.call_to_action_comment = { editable_by_user: true }
+      editable_by_user = $scope.conversation.call_to_action_comment.editable_by_user
+      $scope.conversation.call_to_action_comment[prop] = data.data[prop] for prop of data.data when not prop.match(/^\$/)
+      $scope.conversation.call_to_action_comment.editable_by_user = editable_by_user
+      $scope.$$phase || $scope.$apply()
 
-  $scope.$on 'clear-edit', (event) ->
-    console.log "clear-edit"
-    $scope.newComment = { }
-    $timeout -> $scope.$root.editor.refreshPreview()
-    angular.element( document.getElementById('reply-control')).removeClass('open')
+    $scope.ConversationCommentLength = 1500
+    $scope.SummaryCommentLength = 0
 
-  $scope.$on 'conversation-comment-edit', (event) ->
-    console.log "conversation-comment-edit"
-    $scope.newComment.type = 'ConversationComment'
-    $scope.newComment.conversation_id = $scope.conversation.id
-    $timeout -> $scope.$root.editor.refreshPreview()
-    angular.element( document.getElementById('reply-control')).addClass('open')
+    # register a listener for summary_comments ordered ids
+    $scope.$on 'Conversation_update', (event, data) ->
+      #console.log "received broadcast Conversation_update"
 
-  $scope.$on 'cancel-edit', (event) ->
-    console.log "XXXX cancel-edit"
-    $scope.newComment = { }
-    $timeout -> $scope.$root.editor.refreshPreview()
-    angular.element( document.getElementById('reply-control')).removeClass('open')
-
-  $scope.$on 'toggle-compose-window', ->
-    console.log "toggle_compose_window"
-    composer = angular.element( document.getElementById('reply-control') )
-    if composer.hasClass('open')
-      composer.removeClass('open show-preview')
-      $scope.$root.editor.refreshPreview()
-    else
-      composer.addClass('open show-preview')
-
-  # Subscribe to updates for this data
-  url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"
-  #console.log "firebase url: #{url}"
-  FirebaseService.initialize_source(url, $scope.conversation.firebase_token)
-
-  # register the listeners for the firebase updates
-  $scope.$on 'ConversationComment_update', (event, data) ->
-    console.log "received broadcast ConversationComment_update"
-    [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.conversation_comments, data)
-    if updated_rec && original_rec
-      updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
-
-  $scope.$on 'SummaryComment_update', (event, data) ->
-    #console.log "received broadcast SummaryComment_update"
-    [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.summary_comments, data)
-    if updated_rec && original_rec
-      updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
-
-  $scope.$on 'RatingsCache_update', (event, data) ->
-    #console.log "received broadcast RatingsCache_update"
-    data = data.data
-    item_array = switch data.type
-      when "SummaryComment" then $scope.conversation.summary_comments
-      when "ConversationComment" then $scope.conversation.conversation_comments
-    if item_array
-      for rec in item_array
-        if rec.id == data.id
-          comment = rec
-          break
-      if comment
-        #console.log "Update the ratings on comment id: #{comment.id}"
-        comment.number_of_votes = data.number_of_votes
-        comment.ratings_cache = data.ratings_cache
+      # make sure it is the correct conversation_id
+      # $scope.conversation.id
+      if Number(data.data.conversation_id) is Number($scope.conversation.id)
+        ordered_ids = data.data.ordered_ids
+        # reorder $scope.conversation.summary_comments according to these ids
+        if ordered_ids
+          # update the order_id for the comments
+          for comment in $scope.conversation.summary_comments
+            comment.order_id = ordered_ids[comment.id]
+          #resort the summary_comments according to order_id
+          $scope.conversation.summary_comments.sort((a, b) -> return a.order_id > b.order_id )
         $scope.$$phase || $scope.$apply()
 
-  $scope.ConversationCommentLength = 1500
-  $scope.SummaryCommentLength = 0
+    $scope.edit_title = ->
+      #console.log "edit the title"
+      $scope.conversation.edit_title = true
 
-  # register a listener for summary_comments ordered ids
-  $scope.$on 'Conversation_update', (event, data) ->
-    #console.log "received broadcast Conversation_update"
+    $scope.save_title = ->
+      ConversationData.save_title($scope.conversation.code, $scope.conversation.title).then (response) ->
+        #console.log "return from save_title"
+        $scope.conversation.title = response.data.text
+        $scope.conversation.edit_title = false
 
-    # make sure it is the correct conversation_id
-    # $scope.conversation.id
-    if Number(data.data.conversation_id) is Number($scope.conversation.id)
-      ordered_ids = data.data.ordered_ids
-      # reorder $scope.conversation.summary_comments according to these ids
-      if ordered_ids
-        # update the order_id for the comments
-        for comment in $scope.conversation.summary_comments
-          comment.order_id = ordered_ids[comment.id]
-        #resort the summary_comments according to order_id
-        $scope.conversation.summary_comments.sort((a, b) -> return a.order_id > b.order_id )
-      $scope.$$phase || $scope.$apply()
+    $scope.edit_call_to_action = ->
+      #console.log "edit the call to action"
+      #set scope.newComment to the right type or the right copy
+      if $scope.conversation.call_to_action_comment
+        $scope.newComment = angular.copy($scope.conversation.call_to_action_comment)
+      else
+        $scope.newComment =
+          type: 'CallToActionComment'
+          conversation_code: $scope.conversation.code
+      $timeout -> $scope.$root.editor.refreshPreview()
+      angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
 ]
