@@ -566,23 +566,6 @@ ce2_directives.directive 'stopEvent', ->
     element.bind attr.stopEvent, (e) ->
       e.stopPropagation()
 
-ce2_directives.directive('ceConversationRightBar', ->
-  restrict: 'A'
-  templateUrl: '<%= path_to_asset "conversation-right-bar.html" %>'
-  replace: true
-  scope: false
-  controller: [ "$scope",
-    ($scope) ->
-      $scope.name = "ceConversationRightBar"
-      $scope.conversation_stats =
-        days_remaining: 'undefined' # or # of days
-      $scope.edit_duration = ->
-        console.log "edit the duration of this conversation and set the time zone"
-    
-
-  ]
-)
-
 ce2_directives.directive('ceConversationCard', ->
   restrict: 'A'
   templateUrl: "<%= path_to_asset "conversation-card.html" %>"
@@ -590,8 +573,193 @@ ce2_directives.directive('ceConversationCard', ->
   scope: true
   controller: [ "$scope",
     ($scope) ->
-      $scope.name = 'ceConversationCard'
+                $scope.name = 'ceConversationCard'
+  ]
+)
 
+ce2_directives.directive('ceConversationRightBar', [ "$compile",
+  ($compile) ->
+    restrict: 'A'
+    templateUrl: '<%= path_to_asset "conversation-right-bar.html" %>'
+    replace: true
+    scope: false
+    link: (scope, element, attrs) ->
+      scope.$watch 'right_bar_panel_directive', (oldValue, newValue) ->
+        if scope.right_bar_panel_directive
+          #console.log "time to compile scope.right_bar_panel_directive: #{scope.right_bar_panel_directive}"
+          directive = angular.element(document.getElementById('right-panel-directive'))
+          $compile(directive)(scope);
 
+    controller: [ "$scope", "$templateCache",
+      ($scope, $templateCache) ->
+        $scope.name = "ceConversationRightBar"
+        $scope.conversation_stats =
+          days_remaining: 'undefined' # or # of days
+        $scope.edit_duration = ->
+          console.log "edit the duration of this conversation and set the time zone"
+        $scope.open_panel = (link) ->
+          if $scope.active_link == link
+            return $scope.close_panel()
+
+          if $scope.$root.dev_mode
+            $templateCache.removeAll()
+            dev = true
+          else
+            dev = false
+          #console.log "open_panel for #{link}"
+          $scope.right_bar_panel_directive = "<div id='right-panel-directive' ce-#{link}-panel dev='#{dev}'>Compile directive ce-#{link}-panel</div>"
+          $scope.active_link = link
+        $scope.close_panel = ->
+          console.log "close the panel"
+          $scope.active_link = null
+    ]
+])
+
+# Directives for the panels
+
+ce2_directives.directive('ceStatsPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/stats.html" %>#{prefix}"
+  replace: false
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceStatsPanel'
+  ]
+)
+
+ce2_directives.directive('ceNotificationPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/notification.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceNotificationPanel'
+      console.log "In ceNotificationPanel controller"
+  ]
+)
+
+ce2_directives.directive('ceInvitePanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/invite.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceInvitePanel'
+  ]
+)
+
+ce2_directives.directive('ceSharePanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/share.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceSharePanel'
+  ]
+)
+
+ce2_directives.directive('cePrintPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/print.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'cePrintPanel'
+  ]
+)
+
+ce2_directives.directive('cePdfPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/pdf.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'cePdfPanel'
+      console.log "In cePdfPanel controller"
+  ]
+)
+
+ce2_directives.directive('ceDownloadPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/download.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceDownloadPanel'
+      console.log "In ceDownloadPanel controller"
+  ]
+)
+
+ce2_directives.directive('cePrivacyPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/privacy.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'cePrivacyPanel'
+      console.log "In cePrivacyPanel controller"
+  ]
+)
+
+ce2_directives.directive('ceTagsPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/tags.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceTagsPanel'
+  ]
+)
+
+ce2_directives.directive('ceParticipantsPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/participants.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceParticipantsPanel'
+  ]
+)
+
+ce2_directives.directive('ceReviewPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/review.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope",
+    ($scope) ->
+      $scope.name = 'ceReviewPanel'
   ]
 )

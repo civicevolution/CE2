@@ -1,20 +1,39 @@
 %div.right-bar-template
-  .days_remaining
-    %h4(ng-bind="conversation_stats.days_remaining | days_remaining"
-      ng-if="conversation_stats.days_remaining != 'undefined'")
-    %p.placeholder(ng-if="conversation_stats.days_remaining == 'undefined'" ng-click="edit_duration()")
-      Click here to set # of days for this conversation
+  -#%div#right-bar-panel(ng-show="active_link" ng-animate="'fade'")
+  -#%div#right-bar-panel(ng-class="{active: active_link, inactive: !active_link}")
+    %div(ng-bind-html-unsafe="right_bar_panel_directive")
+  %div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}")
+    %div(ng-bind-html-unsafe="right_bar_panel_directive")
+
+  #right-bar-menu
+    .days_remaining
+      %h4(ng-bind="conversation_stats.days_remaining | days_remaining"
+        ng-if="conversation_stats.days_remaining != 'undefined'")
+      %p.placeholder(ng-if="conversation_stats.days_remaining == 'undefined'" ng-click="edit_duration()")
+        Click here to set # of days for this conversation
 
 
+    %ul
+      %li
+        %a(ng-click="open_panel('stats')" ng-class="{selected: active_link == 'stats'}") Stats
+      %li
+        %a(ng-click="open_panel('notification')" ng-class="{selected: active_link == 'notification'}") Notification options
+      %li
+        %a(ng-click="open_panel('invite')" ng-class="{selected: active_link == 'invite'}") Invite friends
+      %li
+        %a(ng-click="open_panel('share')" ng-class="{selected: active_link == 'share'}") Share/Embed
+      %li
+        %a(ng-click="open_panel('print')" ng-class="{selected: active_link == 'print'}") Print
+        •
+        %a(ng-click="open_panel('pdf')" ng-class="{selected: active_link == 'pdf'}") PDF
+        •
+        %a(ng-click="open_panel('download')" ng-class="{selected: active_link == 'download'}") Download
 
-  %p Stats
-  %p Notification options
-  %p Invite friends
-  %p Share/Embed
-  %p Print•PDF•Download
-
-
-  %p Privacy settings
-  %p Tags
-  %p Members/ trust/role
-  %p Review comments
+      %li
+        %a(ng-click="open_panel('privacy')" ng-class="{selected: active_link == 'privacy'}") Privacy settings
+      %li
+        %a(ng-click="open_panel('tags')" ng-class="{selected: active_link == 'tags'}") Tags
+      %li
+        %a(ng-click="open_panel('participants')" ng-class="{selected: active_link == 'participants'}") Participants
+      %li
+        %a(ng-click="open_panel('review')" ng-class="{selected: active_link == 'review'}") Review comments

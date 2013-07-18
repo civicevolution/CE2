@@ -116,8 +116,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
 ])
 
-ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngine", "$http", "$templateCache", "$dialog",
-  ($rootScope,   $state,   $stateParams, $timeout, TemplateEngine, $http, $templateCache, $dialog) ->
+ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngine", "$http", "$templateCache", "$dialog", "$location",
+  ($rootScope,   $state,   $stateParams, $timeout, TemplateEngine, $http, $templateCache, $dialog, $location) ->
+    $rootScope.dev_mode = if $location.host().match(/dev$/) then true else false
     $rootScope.$state = $state
     $rootScope.$stateParams = $stateParams
     $rootScope.CSRF = document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
