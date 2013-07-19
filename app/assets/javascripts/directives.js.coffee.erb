@@ -380,7 +380,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
       elm.addClass('ce-sortable-item')
       elm.wrap('<div class="ce-sortable-item-carrier"></div>')
       item_carrier = elm.parent();
-      
+
       if typeof item_carrier.parent().attr('ng-repeat')
         #console.log "Build up item using the ng-repeat parent element"
         item_pair = item_carrier.parent()
@@ -718,10 +718,36 @@ ce2_directives.directive('cePrivacyPanel', ->
     "<%= path_to_asset "panel/privacy.html" %>#{prefix}"
   replace: true
   scope: true
+  controller: [ "$scope", "ConversationData", "$timeout",
+    ($scope, ConversationData, $timeout) ->
+      $scope.name = 'cePrivacyPanel'
+      $scope.form_submit_status = 'Update settings'
+      #console.log "In cePrivacyPanel controller"
+      $scope.privacy = $scope.conversation.privacy
+      $scope.updatePrivacy = ->
+        #console.log "Update the privacy settings to RoR"
+        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
+        ConversationData.persist_privacy_to_ror($scope.conversation.code, $scope.privacy).then (response)->
+          #console.log "ConversationData.persist_privacy_to_ror received response"
+          $scope.form_submit_status = 'Updated'
+          $timeout ->
+            $scope.close_panel()
+            $scope.form_submit_status = 'Update settings'
+          ,800
+  ]
+)
+
+ce2_directives.directive('ceTimePanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/time.html" %>#{prefix}"
+  replace: true
+  scope: true
   controller: [ "$scope",
     ($scope) ->
-      $scope.name = 'cePrivacyPanel'
-      console.log "In cePrivacyPanel controller"
+      $scope.name = 'ceTimePanel'
+      console.log "In ceTimePanel controller"
   ]
 )
 

@@ -1,0 +1,12 @@
+#
+# Add definitions for CONVERSATION_PROPERTIES and defaults here
+#
+
+CONVERSATION_PROPERTIES:
+  privacy:
+    list: "true"
+    summary: "true"
+    comments: "true"
+    invite: "true"
+    screen: "true"
+    unknown_users: "true"

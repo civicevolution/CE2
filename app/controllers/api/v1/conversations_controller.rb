@@ -69,6 +69,16 @@ module Api
 
         render json: 'ok'
       end
+
+      def privacy
+        Rails.logger.debug "api/conversations_controller.privacy for conversation #{params[:id]}"
+        conversation = Conversation.where(code: params[:id]).first
+        conversation.privacy = params[:privacy]
+        conversation.save
+        render json: 'ok'
+      end
+
+
     end
 
   end

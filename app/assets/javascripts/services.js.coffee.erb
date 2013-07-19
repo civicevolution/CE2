@@ -122,10 +122,14 @@ services.factory "ConversationData", ["$http",
           title: response.data.title
           code: response.data.code
           current_timestamp: response.data.current_timestamp
+          privacy: angular.fromJson(response.data.privacy)
 
     persist_summary_comment_order_to_ror: (conversation_code, comments_order) ->
       #console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_code} with order #{comments_order}"
       $http.post("/api/conversations/#{conversation_code}/summary_comment_order.json", {ordered_ids: comments_order})
+
+    persist_privacy_to_ror: (conversation_code, privacy) ->
+      $http.post("/api/conversations/#{conversation_code}/privacy.json", {privacy: privacy})
 
 ]
 

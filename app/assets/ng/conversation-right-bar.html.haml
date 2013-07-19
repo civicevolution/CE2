@@ -29,8 +29,13 @@
         •
         %a(ng-click="open_panel('download')" ng-class="{selected: active_link == 'download'}") Download
 
+
+      %li.label Curator settings
+
       %li
         %a(ng-click="open_panel('privacy')" ng-class="{selected: active_link == 'privacy'}") Privacy settings
+      %li
+        %a(ng-click="open_panel('time')" ng-class="{selected: active_link == 'time'}") Ending time
       %li
         %a(ng-click="open_panel('tags')" ng-class="{selected: active_link == 'tags'}") Tags
       %li

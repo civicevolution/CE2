@@ -16,6 +16,7 @@ class Conversation < ActiveRecord::Base
   has_many :attachments, :as => :attachable
 
   validate :conversation_code_is_unique, on: :create
+  before_create :initialize_conversation_privacy
 
   def conversation_code_is_unique
     self.code = Conversation.create_random_conversation_code
@@ -30,6 +31,9 @@ class Conversation < ActiveRecord::Base
     (0...10).map{ o[rand(o.length)] }.join
   end
 
+  def initialize_conversation_privacy
+    self.privacy = CONVERSATION_PROPERTIES['privacy'].dup
+  end
 
   def self.reorder_summary_comments( code, ordered_ids )
     ordered_ids.reject!{|id| id.to_i == 0}
