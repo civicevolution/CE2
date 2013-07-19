@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130718233610) do
+ActiveRecord::Schema.define(version: 20130719161040) do
 
   create_table "attachments", force: true do |t|
     t.integer  "attachable_id",                           null: false
@@ -72,6 +72,12 @@ ActiveRecord::Schema.define(version: 20130718233610) do
 
   add_index "conversations", ["code"], name: "index_conversations_on_code", unique: true, using: :btree
 
+  create_table "conversations_tags", force: true do |t|
+    t.integer "conversation_id"
+    t.integer "tag_id"
+    t.integer "published",       default: 1
+  end
+
   create_table "follow_ces", force: true do |t|
     t.string   "email",      null: false
     t.datetime "created_at"
@@ -106,6 +112,15 @@ ActiveRecord::Schema.define(version: 20130718233610) do
 
   add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id", using: :btree
   add_index "roles", ["name"], name: "index_roles_on_name", using: :btree
+
+  create_table "tags", force: true do |t|
+    t.string   "name",                         null: false
+    t.boolean  "published",     default: true
+    t.integer  "user_id"
+    t.integer  "admin_user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "users", force: true do |t|
     t.string   "email",                  default: "", null: false

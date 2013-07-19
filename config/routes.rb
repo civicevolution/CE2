@@ -22,6 +22,7 @@ Ce2::Application.routes.draw do
         post 'summary_comment_order', on: :member
         post 'title', on: :member
         post 'privacy', on: :member
+        post 'tags', on: :member
         resources :comments, shallow: true
       end
     end

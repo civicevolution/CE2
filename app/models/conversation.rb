@@ -15,6 +15,8 @@ class Conversation < ActiveRecord::Base
 
   has_many :attachments, :as => :attachable
 
+  has_and_belongs_to_many :tags
+
   validate :conversation_code_is_unique, on: :create
   before_create :initialize_conversation_privacy
 

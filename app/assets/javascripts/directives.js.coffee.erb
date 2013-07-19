@@ -758,9 +758,50 @@ ce2_directives.directive('ceTagsPanel', ->
     "<%= path_to_asset "panel/tags.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope",
-    ($scope) ->
+  link: (scope, element, attrs) ->
+    element.find('input').bind 'blur', ->
+      scope.create_new_tag( event.target )
+      scope.$root.$$phase || scope.$root.$apply()
+
+  controller: [ "$scope", "ConversationData", "$timeout",
+    ($scope, ConversationData, $timeout) ->
       $scope.name = 'ceTagsPanel'
+      $scope.form_submit_status = 'Update tags'
+      #console.log "In ceTagsPanel controller"
+      $scope.delete_tag = ->
+        event.stopPropagation()
+        remove_tag = angular.element(event.target).parent().find('div').text()
+        #console.log "delete_tag: #{tag}"
+        for tag, index in $scope.conversation.tags
+          if tag is remove_tag
+            $scope.conversation.tags.splice(index,1)
+            break
+      $scope.focus_to_input = (el) ->
+        #console.log "set focus to input"
+        input = angular.element(event.target).find('input')[0]?.focus()
+      $scope.keydown = (el) ->
+        #console.log "keydown event.keyCode: #{event.keyCode}"
+        if event.keyCode == 13
+          $scope.create_new_tag( event.target )
+        if event.keyCode == 8 && event.currentTarget.value == ""
+          #console.log "edit the previous tag"
+          # get the last tag
+          event.currentTarget.value = $scope.conversation.tags.pop() + ' '
+      $scope.create_new_tag = (el) ->
+        if el.value != ""
+          $scope.conversation.tags.push el.value
+          el.value = ""
+
+      $scope.updateTags = ->
+        console.log "Update the tags to RoR"
+        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
+        ConversationData.persist_tags_to_ror($scope.conversation.code, $scope.conversation.tags).then (response)->
+          console.log "ConversationData.persist_tags_to_ror received response"
+          $scope.form_submit_status = 'Updated'
+          $timeout ->
+            $scope.close_panel()
+            $scope.form_submit_status = 'Update tags'
+          ,800
   ]
 )
 

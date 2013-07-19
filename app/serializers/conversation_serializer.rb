@@ -1,7 +1,7 @@
 class ConversationSerializer < ActiveModel::Serializer
   #embed :ids, :include => true
   attributes :url, :updated_at, :firebase_token, :code, :title, :munged_title, :call_to_action,
-             :current_timestamp, :privacy, :published, :ends_at, :list
+             :current_timestamp, :privacy, :published, :ends_at, :list, :tags
   has_many :comments
 
   def include_comments?
@@ -26,6 +26,10 @@ class ConversationSerializer < ActiveModel::Serializer
 
   def current_timestamp
     Time.new.to_i
+  end
+
+  def tags
+    object.tags.map(&:name)
   end
 
 

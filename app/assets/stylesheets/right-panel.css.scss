@@ -104,6 +104,9 @@ div.privacy-panel{
 }
 
 div.panel{
+  fieldset { overflow:hidden; margin-bottom: 1em;}
+  p.title{ font-weight: bold; margin-bottom: .2em;}
+
   div.status{
     font-weight: bold;
     float: left;
@@ -116,4 +119,32 @@ div.panel{
   button.close{
     float: right;
   }
+}
+
+div.tags-panel{
+  div.tags{
+    border: 1px solid grey;
+    padding: 4px;
+  }
+  div.tag{
+    float: left;
+    white-space: nowrap;
+    border: 1px solid grey;
+    padding: 4px 20px 4px 4px;
+    position: relative;
+    margin: 0 8px 8px 0;
+    button{
+      position: absolute;
+      right: -16px;
+      top: 0;
+    }
+  }
+  input{
+    margin: 4px 0;
+    border: 0 !important;
+    box-shadow: none;
+    outline: none;
+    width: 235px;
+  }
+
 }
