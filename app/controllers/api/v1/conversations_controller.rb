@@ -81,23 +81,7 @@ module Api
       def tags
         #Rails.logger.debug "api/conversations_controller.tags for conversation #{params[:id]}"
         conversation = Conversation.where(code: params[:id]).first
-        # keep track of any current tags that are not included in the param for new tags
-        current_tags = conversation.tags.map(&:name)
-        params[:tags].each do |tag_name|
-          #Rails.logger.debug "Process tag_name: #{tag_name}"
-          tag = Tag.where(name: tag_name).first_or_create  do |tag|
-            tag.user_id = current_user.id
-          end
-
-          if !current_tags.include? tag_name
-            conversation.tags << tag
-          end
-          current_tags.delete(tag_name)
-        end
-        # now check if any of the current tags need to be removed
-        current_tags.each do |tag_name|
-          conversation.tags.delete( Tag.where(name: tag_name).first )
-        end
+        conversation.update_tags params[:tags], current_user
         render json: 'ok'
       end
 

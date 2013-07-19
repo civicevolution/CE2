@@ -58,4 +58,25 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     end
   end
 
+  def update_tags new_tags, user
+    # keep track of any current tags that are not included in the param for new tags
+    current_tags = self.tags.map(&:name)
+    new_tags.each do |tag_name|
+      #Rails.logger.debug "Process tag_name: #{tag_name}"
+      if current_tags.include? tag_name
+        current_tags.delete(tag_name)
+      else
+        tag = Tag.where(name: tag_name).first_or_create do |tag|
+          tag.user_id = user.id
+        end
+        self.tags << tag
+      end
+    end
+    # now check if any of the current tags need to be removed
+    current_tags.each do |tag_name|
+      self.tags.delete( Tag.where(name: tag_name).first )
+    end
+
+  end
+
 end
