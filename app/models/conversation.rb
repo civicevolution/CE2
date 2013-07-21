@@ -79,4 +79,11 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
 
   end
 
+  def update_schedule dates
+    Rails.logger.debug "Update the schedule start_date: #{dates[:start]} & end_date: #{dates[:end]}"
+    self.starts_at = dates[:start]
+    self.ends_at = dates[:end]
+    self.save
+  end
+
 end

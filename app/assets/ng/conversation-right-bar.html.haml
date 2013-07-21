@@ -6,12 +6,8 @@
     %div(ng-bind-html-unsafe="right_bar_panel_directive")
 
   #right-bar-menu
-    .days_remaining
-      %h4(ng-bind="conversation_stats.days_remaining | days_remaining"
-        ng-if="conversation_stats.days_remaining != 'undefined'")
-      %p.placeholder(ng-if="conversation_stats.days_remaining == 'undefined'" ng-click="edit_duration()")
-        Click here to set # of days for this conversation
-
+    .schedule
+      %div(ng-bind-html-unsafe="conversation.schedule_announcement")
 
     %ul
       %li
@@ -35,7 +31,7 @@
       %li
         %a(ng-click="open_panel('privacy')" ng-class="{selected: active_link == 'privacy'}") Privacy settings
       %li
-        %a(ng-click="open_panel('time')" ng-class="{selected: active_link == 'time'}") Ending time
+        %a(ng-click="open_panel('schedule')" ng-class="{selected: active_link == 'schedule'}") Schedule
       %li
         %a(ng-click="open_panel('tags')" ng-class="{selected: active_link == 'tags'}") Tags
       %li

@@ -1,0 +1,33 @@
+%div.schedule-panel.panel
+  %button.close(ng-click="close_panel()") &times;
+  %h3 Conversation schedule
+
+  %h4 Conversation state date & time:
+
+  %div.set
+    %div.start
+      %div.date(ng-click="toggle_start_calendar()"){title: "Click to change the date" }
+        %em {{start_date | date:'fullDate' }}
+        %i.icon-calendar.icon-1x
+
+      %div.time(timepicker ng-model="start_time" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian")
+
+    %div( ng-show="show_start_calendar" )
+      %div(datepicker ng-model="start_date" show-weeks="showWeeks" starting-day="0" date-disabled="disabled(date, mode)" min="minDate" max="'2015-06-22'")
+
+
+  %div.set
+    %h4 Conversation end date & time:
+    %div.end
+      %div.date(ng-click="toggle_end_calendar()"){title: "Click to change the date" }
+        %em {{end_date | date:'fullDate' }}
+        %i.icon-calendar.icon-1x
+
+      %div.time(timepicker ng-model="end_time" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian")
+
+    %div( ng-show="show_end_calendar" )
+      %div(datepicker ng-model="end_date" show-weeks="showWeeks" starting-day="0" date-disabled="disabled(date, mode)" min="minDate" max="'2015-06-22'")
+
+  %fieldset
+    %button.btn-primary.btn(ng-click="updateSchedule()" ng-bind-html-unsafe="form_submit_status"){type: 'submit'}
+    %button.btn(ng-click="close_panel()") Cancel

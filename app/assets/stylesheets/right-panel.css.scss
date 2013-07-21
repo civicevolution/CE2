@@ -2,10 +2,13 @@
   .right-bar{
     position: relative;
     height: 100%;
-    .days_remaining{
-      .placeholder{
-        font-style: italic;
-        cursor: pointer;
+    .schedule{
+      font-weight: bold;
+      margin: 0 0 20px 20px;
+      span{
+        display: block;
+        font-size: 1.6em;
+        text-align: center;
       }
     }
     .selected{
@@ -147,4 +150,22 @@ div.tags-panel{
     width: 235px;
   }
 
+}
+
+div.schedule-panel{
+  h4{margin-bottom: 0;}
+  div.set{margin-bottom: 40px; clear: both;}
+  div.date{
+    float: left;
+    cursor: pointer;
+    margin-right: 20px;
+    padding-top: 36px;
+  }
+  div.time{
+    float: left;
+    margin-left: 60px;
+  }
+  input.span1{
+    width: 40px;
+  }
 }

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130719161040) do
+ActiveRecord::Schema.define(version: 20130719184632) do
 
   create_table "attachments", force: true do |t|
     t.integer  "attachable_id",                           null: false
@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(version: 20130719161040) do
     t.boolean  "published",  default: false
     t.datetime "ends_at"
     t.boolean  "list"
+    t.datetime "starts_at"
   end
 
   add_index "conversations", ["code"], name: "index_conversations_on_code", unique: true, using: :btree

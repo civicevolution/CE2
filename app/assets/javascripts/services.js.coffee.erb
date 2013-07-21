@@ -124,6 +124,8 @@ services.factory "ConversationData", ["$http",
           current_timestamp: response.data.current_timestamp
           privacy: response.data.privacy
           tags: response.data.tags.sort()
+          starts_at: new Date(response.data.starts_at)
+          ends_at: new Date(response.data.ends_at)
 
     persist_summary_comment_order_to_ror: (conversation_code, comments_order) ->
       #console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_code} with order #{comments_order}"
@@ -134,6 +136,9 @@ services.factory "ConversationData", ["$http",
 
     persist_tags_to_ror: (conversation_code, tags) ->
       $http.post("/api/conversations/#{conversation_code}/tags.json", {tags: tags})
+
+    persist_schedule_to_ror: (conversation_code, starts_at, ends_at) ->
+      $http.post("/api/conversations/#{conversation_code}/schedule.json", {start: starts_at, end: ends_at})
 
 ]
 

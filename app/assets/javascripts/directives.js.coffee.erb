@@ -593,10 +593,6 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
     controller: [ "$scope", "$templateCache",
       ($scope, $templateCache) ->
         $scope.name = "ceConversationRightBar"
-        $scope.conversation_stats =
-          days_remaining: 'undefined' # or # of days
-        $scope.edit_duration = ->
-          console.log "edit the duration of this conversation and set the time zone"
         $scope.open_panel = (link) ->
           if $scope.active_link == link
             return $scope.close_panel()
@@ -612,6 +608,36 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
         $scope.close_panel = ->
           #console.log "close the panel"
           $scope.active_link = null
+        $scope.format_schedule_announcement = ->
+          #console.log "scope.format_schedule_announcement starts_at: #{$scope.conversation.starts_at}, ends_at: #{$scope.conversation.ends_at}"
+          now = new Date()
+          convert_time_difference_to_dhm = (t1, t2) ->
+            remaining_days = (t2-t1)/ (1000*60*60*24)
+            days = Math.floor(remaining_days)
+            remaining_hours = (remaining_days - days) * 24
+            hours = Math.floor(remaining_hours)
+            minutes = Math.floor((remaining_hours - hours) * 60)
+            #[days, hours, minutes]
+            if days > 1
+              "#{days} days"
+            else if days == 1 or hours > 1
+              "#{days*24 + hours} hours"
+            else
+              "#{hours*60 + minutes} minutes"
+
+          if $scope.conversation.starts_at > now
+            # conversation has not started yet
+            time_text = convert_time_difference_to_dhm( now, $scope.conversation.starts_at )
+            "Conversation starts in <span>#{time_text}</span>"
+          else if $scope.conversation.ends_at < now
+            # conversation ended already
+            time_text = convert_time_difference_to_dhm( $scope.conversation.ends_at, now )
+            "Conversation ended <span>#{time_text}</span>ago"
+          else
+            # conversation in progress
+            time_text = convert_time_difference_to_dhm( now, $scope.conversation.ends_at )
+            "Conversation ends in <span>#{time_text}</span>"
+        $scope.conversation.schedule_announcement = $scope.format_schedule_announcement()
     ]
 ])
 
@@ -737,17 +763,116 @@ ce2_directives.directive('cePrivacyPanel', ->
   ]
 )
 
-ce2_directives.directive('ceTimePanel', ->
+ce2_directives.directive('ceSchedulePanel', ->
   restrict: 'A'
   templateUrl: (tElement, tAttrs) ->
     prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
-    "<%= path_to_asset "panel/time.html" %>#{prefix}"
+    "<%= path_to_asset "panel/schedule.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope",
-    ($scope) ->
-      $scope.name = 'ceTimePanel'
-      console.log "In ceTimePanel controller"
+  link: (scope, element, attrs) ->
+    scope.$watch 'start_date', (oldValue, newValue) ->
+      scope.show_start_calendar = false
+      scope.show_end_calendar = false
+    scope.$watch 'end_date', (oldValue, newValue) ->
+      scope.show_start_calendar = false
+      scope.show_end_calendar = false
+    temp.right_bar_scope = scope
+
+  controller: [ "$scope", "ConversationData", "$timeout", "$document",
+    ($scope, ConversationData, $timeout, $document) ->
+      $scope.name = 'ceSchedulePanel'
+      $scope.form_submit_status = 'Update schedule'
+
+      $scope.show_start_calendar = false
+      $scope.show_end_calendar = false
+      $scope.toggle_start_calendar = ->
+        $scope.show_start_calendar = !$scope.show_start_calendar
+        if $scope.show_start_calendar
+          $scope.show_end_calendar = false
+
+      $scope.toggle_end_calendar = ->
+        $scope.show_end_calendar = !$scope.show_end_calendar
+        if $scope.show_end_calendar
+          $scope.show_start_calendar = false
+
+      # conversation start time
+      if $scope.conversation.starts_at
+        date = new Date($scope.conversation.starts_at)
+        $scope.start_date = date
+        $scope.start_time = date
+      else
+        $scope.today_start = ->
+          $scope.start_date = new Date()
+        $scope.today_start()
+
+        $scope.start_time = new Date()
+        # round down to the last hour
+        $scope.start_time.setMinutes(0)
+
+
+      # conversation end time
+      if $scope.conversation.ends_at
+        date = new Date($scope.conversation.ends_at)
+        $scope.end_date = date
+        $scope.end_time = date
+      else
+        $scope.today_end = ->
+          $scope.end_date = new Date()
+        $scope.today_end()
+
+        $scope.end_time = new Date()
+        # round down to the last hour
+        $scope.end_time.setMinutes(0)
+
+
+      close_calendars= ->
+        $document.unbind('mouseup', close_calendars)
+        $scope.show_start_calendar = false
+        $scope.show_end_calendar = false
+
+      $scope.hstep = 1
+      $scope.mstep = 15
+
+      $scope.ismeridian = true
+      $scope.toggleMode = ->
+        $scope.ismeridian = ! $scope.ismeridian
+
+
+      $scope.showWeeks = false
+
+      $scope.toggleMin = ->
+        $scope.minDate = ( $scope.minDate ) ? null : new Date()
+
+      $scope.toggleMin()
+
+      $scope.updateSchedule = ->
+        #console.log "Update the schedule to RoR"
+        $scope.show_start_calendar = false
+        $scope.show_end_calendar = false
+        starts_at = $scope.start_date
+        starts_at.setHours( $scope.start_time.getHours() )
+        starts_at.setMinutes( $scope.start_time.getMinutes() )
+        starts_at.setSeconds( 0 )
+
+        ends_at = $scope.end_date
+        ends_at.setHours( $scope.end_time.getHours() )
+        ends_at.setMinutes( $scope.end_time.getMinutes() )
+        ends_at.setSeconds( 0 )
+
+        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
+        ConversationData.persist_schedule_to_ror($scope.conversation.code, starts_at, ends_at).then (response)->
+          #console.log "ConversationData.persist_schedule_to_ror received response"
+          $scope.conversation.starts_at = starts_at
+          $scope.conversation.ends_at = ends_at
+          $scope.form_submit_status = 'Updated'
+          $timeout ->
+            $scope.close_panel()
+            $scope.form_submit_status = 'Update schedule'
+            $scope.conversation.schedule_announcement = $scope.format_schedule_announcement()
+          ,800
+
+
   ]
 )
 

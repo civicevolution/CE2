@@ -85,6 +85,12 @@ module Api
         render json: 'ok'
       end
 
+      def schedule
+        Rails.logger.debug "api/conversations_controller.schedule for conversation #{params[:id]}"
+        conversation = Conversation.where(code: params[:id]).first
+        conversation.update_schedule start: params[:start], end: params[:end]
+        render json: 'ok'
+      end
 
     end
 
