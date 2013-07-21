@@ -23,6 +23,7 @@ Ce2::Application.routes.draw do
         post 'title', on: :member
         post 'privacy', on: :member
         post 'tags', on: :member
+        post 'schedule', on: :member
         resources :comments, shallow: true
       end
     end
@@ -72,6 +73,9 @@ Ce2::Application.routes.draw do
   resources :users
 
   post "api/users/photo" => "api/v1/profiles#upload_photo", format: :json
+
+  # access ui templates that are normally stored in js file but cleared by dev's clear cache command
+  get '/template/*path/*file.*pre', to: redirect("http://app.civicevolution.dev/assets/ui/%{path}/%{file}.%{pre}")
 
 
   # The priority is based upon order of creation: first created -> highest priority.
