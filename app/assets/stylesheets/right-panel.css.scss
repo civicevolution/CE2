@@ -1,3 +1,29 @@
+#create-conversation-wizard{
+  position: fixed;
+  top: 300px;
+  left: 300px;
+  display: block;
+  padding: 1em;
+  z-index: 1000;
+  -o-transition:  all 800ms;
+  -moz-transition:  all 800ms;
+  -webkit-transition:  all 800ms;
+  transition: all 800ms;
+
+
+  div.wizard-navigation{
+    i{
+      font-weight: bold;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+    > div{
+      white-space: nowrap;
+    }
+  }
+
+}
+
 .conversation{
   .right-bar{
     position: relative;

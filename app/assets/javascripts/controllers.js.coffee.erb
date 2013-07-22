@@ -362,6 +362,8 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     $scope.name = 'ceConversation'
     # the data was resolved and attached to scope in the state definition
 
+    $scope.$root.conversation_wizard_mode = true
+
     $scope.show_comment_form = (type) ->
       #console.log "show_comment_form type: #{type}"
       # clear new comment
@@ -477,6 +479,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
 
     $scope.edit_title = ->
       #console.log "edit the title"
+      $scope.title_temp = $scope.conversation.title
       $scope.conversation.edit_title = true
 
     $scope.save_title = ->
@@ -484,6 +487,10 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
         #console.log "return from save_title"
         $scope.conversation.title = response.data.text
         $scope.conversation.edit_title = false
+
+    $scope.cancel_title_edit = ->
+      $scope.conversation.title = $scope.title_temp
+      $scope.conversation.edit_title = false
 
     $scope.edit_call_to_action = ->
       #console.log "edit the call to action"

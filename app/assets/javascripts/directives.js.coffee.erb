@@ -955,3 +955,117 @@ ce2_directives.directive('ceReviewPanel', ->
       $scope.name = 'ceReviewPanel'
   ]
 )
+
+ce2_directives.directive('ceCreateConversationWizard', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/create-conversation-wizard.html" %>#{prefix}"
+  replace: true
+  scope: true
+  compile: (tElement, tAttrs) ->
+    console.log "compile for wizard"
+    # read the wizard template to generate a map of step targets
+    wizard_map = {}
+    num_steps = 0
+    for div in tElement.find('div')
+      div = angular.element(div)
+      if div.hasClass('page')
+        #console.log "div id: #{div.attr('ng-switch-when')}"
+        wizard_map["page#{div.attr('ng-switch-when')}"] = div.attr('wiz-pos')
+        num_steps += 1
+    # Create a postlink function to share this map with scope & start wizard
+    (scope, iElement, iAttrs) ->
+      console.log "this is the postlink function"
+      scope.$root.wizard_map = wizard_map
+      scope.conversation_wizard_step = 0
+      scope.conversation_wizard_num_steps = num_steps
+      scope.wizard_navigation('right')
+      #for page of scope.$root.wizard_map
+      #  console.log "#{page}: #{scope.$root.wizard_map[page]}"
+  controller: [ "$scope", "$timeout",
+    ($scope, $timeout) ->
+      $scope.name = 'ceCreateConversationWizard'
+      $scope.conversation_wizard_complete = false
+      $scope.form_submit_status = "Publish conversation"
+      $scope.wizard_navigation = (direction) ->
+        if direction == 'left' and $scope.conversation_wizard_step > 1
+          $scope.conversation_wizard_step -= 1
+        else if direction == 'right' and $scope.conversation_wizard_step < $scope.conversation_wizard_num_steps
+          $scope.conversation_wizard_step += 1
+
+        $timeout ->
+          adjust_popup()
+
+        adjust_popup = ->
+          #console.log "$scope.conversation_wizard_step: #{$scope.conversation_wizard_step}, num: #{$scope.conversation_wizard_num_steps}"
+          step = $scope.conversation_wizard_step
+          wizard = angular.element( document.getElementById('create-conversation-wizard'))
+          wizard.attr('class','popover')
+          wizard_width = wizard.prop('offsetWidth')
+          wizard_height = wizard.prop('offsetHeight')
+          console.log "wizard_height: #{wizard_height}, wizard_width: #{wizard_width}"
+
+          position = $scope.$root.wizard_map['page' + step].split(':')
+          switch position[0]
+            when 'el'
+              console.log "Position #{position[2]} of #{position[1]}"
+              el = document.getElementById(position[1])
+              offset = _.offset(el)
+              el = angular.element(el)
+              width = el.prop('offsetWidth')
+              height = el.prop('offsetHeight')
+              console.log "height: #{height}, width: #{width}"
+              switch position[2]
+                when 'below'
+                  console.log "relative position below"
+                  top = offset.top + height
+                  left = offset.left
+                  wizard.addClass('bottom')
+                when 'above'
+                  console.log "relative position above"
+                  top = offset.top - wizard_height
+                  left = offset.left
+                  wizard.addClass('top')
+                when 'left'
+                  console.log "relative position left"
+                  top = offset.top - wizard_height/2 + height/2
+                  left = offset.left - wizard_width
+                  wizard.addClass('left')
+                when 'right'
+                  console.log "relative position right"
+                  top = offset.top - wizard_height/2 + height/2
+                  left = offset.left + width
+                  wizard.addClass('right')
+                else console.log "Don't understand relative position: #{position[2]}"
+
+            when 'window'
+                console.log "Position in window at #{position[1]}, #{position[2]}"
+                left = switch position[1]
+                  when 'left' then 0
+                  when 'center' then (window.innerWidth)/2 - wizard_width/2
+                  when 'right' then window.innerWidth - wizard_width
+                  else "Don't understand window left position: #{position[1]}"
+                top = switch position[2]
+                  when 'top' then 0
+                  when 'center' then (window.innerHeight)/2 - wizard_height/2
+                  when 'bottom' then (window.innerHeight) - wizard_height
+                  else "Don't understand window top position: #{position[1]}"
+
+
+              else
+                console.log "Don't know how to position type: #{position[0]}"
+
+          console.log "Old position top: #{wizard.css('top')}, left: #{wizard.css('left')}"
+          console.log "New position top: #{top}, left: #{left}"
+
+          wizard.css
+            position: 'absolute'
+            top:  "#{top}px"
+            left: "#{left}px"
+
+
+      $scope.publishConversation = ->
+        console.log "publishConversation"
+  ]
+)

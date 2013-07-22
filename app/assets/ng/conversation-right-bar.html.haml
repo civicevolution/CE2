@@ -10,15 +10,15 @@
       %div(ng-bind-html-unsafe="conversation.schedule_announcement")
 
     %ul
-      %li
+      %li#conversation-stats-link
         %a(ng-click="open_panel('stats')" ng-class="{selected: active_link == 'stats'}") Stats
-      %li
+      %li#conversation-notification-link
         %a(ng-click="open_panel('notification')" ng-class="{selected: active_link == 'notification'}") Notification options
-      %li
+      %li#conversation-invite-link
         %a(ng-click="open_panel('invite')" ng-class="{selected: active_link == 'invite'}") Invite friends
-      %li
+      %li#conversation-share-link
         %a(ng-click="open_panel('share')" ng-class="{selected: active_link == 'share'}") Share/Embed
-      %li
+      %li#conversation-print-link
         %a(ng-click="open_panel('print')" ng-class="{selected: active_link == 'print'}") Print
         •
         %a(ng-click="open_panel('pdf')" ng-class="{selected: active_link == 'pdf'}") PDF
@@ -28,13 +28,13 @@
 
       %li.label Curator settings
 
-      %li
-        %a(ng-click="open_panel('privacy')" ng-class="{selected: active_link == 'privacy'}") Privacy settings
-      %li
-        %a(ng-click="open_panel('schedule')" ng-class="{selected: active_link == 'schedule'}") Schedule
-      %li
+      %li#conversation-tags-link
         %a(ng-click="open_panel('tags')" ng-class="{selected: active_link == 'tags'}") Tags
-      %li
+      %li#conversation-privacy-link
+        %a(ng-click="open_panel('privacy')" ng-class="{selected: active_link == 'privacy'}") Privacy settings
+      %li#conversation-schedule-link
+        %a(ng-click="open_panel('schedule')" ng-class="{selected: active_link == 'schedule'}") Schedule
+      %li#conversation-participants-link
         %a(ng-click="open_panel('participants')" ng-class="{selected: active_link == 'participants'}") Participants
-      %li
+      %li#conversation-review-link
         %a(ng-click="open_panel('review')" ng-class="{selected: active_link == 'review'}") Review comments

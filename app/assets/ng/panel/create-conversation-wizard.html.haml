@@ -1,0 +1,31 @@
+%div#create-conversation-wizard.popover.in.fade
+  %div.arrow
+  %div.popover-inner
+    %div#wizard-pages(ng-switch="conversation_wizard_step")
+      -#%div(ng-switch-when="0" pos="fixed:middle")
+        %h4 Create conversation wizard
+      %div.page(ng-switch-when="1" wiz-pos="el:conversation-title:below")
+        %h4 Step 1: Title
+
+      %div.page(ng-switch-when="2" wiz-pos="el:call-to-action:below")
+        %h4 Step 2: CTA
+      %div.page(ng-switch-when="3" wiz-pos="el:add-conversation-comment:above")
+        %h4 Step 3: First comment
+      %div.page(ng-switch-when="4" wiz-pos="el:conversation-tags-link:left")
+        %h4 Step 4: Tags
+      %div.page(ng-switch-when="5" wiz-pos="el:conversation-privacy-link:left")
+        %h4 Step 5: Privacy
+      %div.page(ng-switch-when="6" wiz-pos="el:conversation-schedule-link:left")
+        %h4 Step 6: Schedule
+      %div.page(ng-switch-when="7" wiz-pos="window:center:center")
+        %h4 Step 7: Click the button to publish your conversation
+        %button.btn-primary.btn(ng-click="publishConversation()" ng-bind-html-unsafe="form_submit_status" ng-disabled="!conversation_wizard_complete"){type: 'submit'}
+      %div(ng-switch-default )
+        %h4.warn Please set conversation_wizard_step to a value between 1 and 7
+
+    %div.wizard-navigation
+      %button.btn-primary.btn(ng-click="wizard_navigation('right')" ng-hide="conversation_wizard_step == 7") Next
+      %div
+        %i.icon-angle-left(ng-hide="conversation_wizard_step==1" ng-click="wizard_navigation('left')")
+        %span Step {{conversation_wizard_step}} of {{conversation_wizard_num_steps}}
+        %i.icon-angle-right(ng-hide="conversation_wizard_step==conversation_wizard_num_steps" ng-click="wizard_navigation('right')")

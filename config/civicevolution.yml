@@ -3,6 +3,7 @@
 #
 
 CONVERSATION_PROPERTIES:
+  duration_in_days: 14
   privacy:
     list: "true"
     summary: "true"
