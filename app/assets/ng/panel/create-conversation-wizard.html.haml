@@ -1,31 +1,51 @@
 %div#create-conversation-wizard.popover.in.fade
   %div.arrow
   %div.popover-inner
-    %div#wizard-pages(ng-switch="conversation_wizard_step")
-      -#%div(ng-switch-when="0" pos="fixed:middle")
-        %h4 Create conversation wizard
-      %div.page(ng-switch-when="1" wiz-pos="el:conversation-title:below")
-        %h4 Step 1: Title
+    %div#wizard-pages(ng-switch="wizard_step")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below")
+        %h4 Ask a question
+        %p Productive conversations are guided by strong questions
 
-      %div.page(ng-switch-when="2" wiz-pos="el:call-to-action:below")
-        %h4 Step 2: CTA
-      %div.page(ng-switch-when="3" wiz-pos="el:add-conversation-comment:above")
-        %h4 Step 3: First comment
-      %div.page(ng-switch-when="4" wiz-pos="el:conversation-tags-link:left")
-        %h4 Step 4: Tags
-      %div.page(ng-switch-when="5" wiz-pos="el:conversation-privacy-link:left")
-        %h4 Step 5: Privacy
-      %div.page(ng-switch-when="6" wiz-pos="el:conversation-schedule-link:left")
-        %h4 Step 6: Schedule
-      %div.page(ng-switch-when="7" wiz-pos="window:center:center")
-        %h4 Step 7: Click the button to publish your conversation
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below")
+        %h4 Enter your question here
+        %p
+          Click
+          %b Save changes
+          when you are done
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:call-to-action:below")
+        %h4 Tell your friends how they can participate
+        %p A clear call-to-action focuses and motivates people.
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:add-conversation-comment:above")
+        %h4 Start the conversation
+        %p
+          No one likes to be the first person to speak up.
+          Tell us what you think about this question.
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-tags-link:left")
+        %h4 Categorize your conversation
+        %p Click this link to add tags that help people find your conversation.
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-privacy-link:left")
+        %h4 Set your privacy
+        %p Is this public or private and who can join?
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-schedule-link:left")
+        %h4 Schedule this conversation
+        %p When does this conversation start and end?
+
+      %div.page(ng-switch-when="TBD" wiz-pos="window:center:center")
+        %h4 Now publish your conversation
         %button.btn-primary.btn(ng-click="publishConversation()" ng-bind-html-unsafe="form_submit_status" ng-disabled="!conversation_wizard_complete"){type: 'submit'}
+
+
       %div(ng-switch-default )
-        %h4.warn Please set conversation_wizard_step to a value between 1 and 7
+        %h4.warn No instructions defined for code: {{wizard_code}}
 
     %div.wizard-navigation
       %button.btn-primary.btn(ng-click="wizard_navigation('right')" ng-hide="conversation_wizard_step == 7") Next
-      %div
+      -#%div
         %i.icon-angle-left(ng-hide="conversation_wizard_step==1" ng-click="wizard_navigation('left')")
         %span Step {{conversation_wizard_step}} of {{conversation_wizard_num_steps}}
         %i.icon-angle-right(ng-hide="conversation_wizard_step==conversation_wizard_num_steps" ng-click="wizard_navigation('right')")
