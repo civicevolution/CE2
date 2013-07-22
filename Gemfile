@@ -27,7 +27,7 @@ gem "capybara", ">= 2.0.3", :group => :test
 gem "factory_girl_rails", ">= 4.2.0", :group => [:development, :test]
 gem "spork", :group => [:development, :test]
 gem "bootstrap-sass", ">= 2.3.0.0"
-gem 'devise', github: 'plataformatec/devise', branch: 'rails4'
+gem 'devise' #, github: 'plataformatec/devise', branch: 'rails4'
 gem "cancan", ">= 1.6.9"
 gem "rolify", ">= 3.2.0"
 gem "simple_form", github: 'plataformatec/simple_form', branch: 'master'

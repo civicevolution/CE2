@@ -36,7 +36,8 @@ module Api
       end
 
       def create
-        respond_with ConversationComment.create(params[:comment])
+        # create a new conversation with defaults from civicevolution.yml
+        respond_with Conversation.create( user_id: current_user.id )
       end
 
       def update

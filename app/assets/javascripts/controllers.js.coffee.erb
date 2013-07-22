@@ -42,10 +42,15 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           conversations: ["ConversationData", (ConversationData) ->
             ConversationData.conversations()
           ]
-        controller: [ "$scope", "conversations",
-          ($scope, conversations) ->
+        controller: [ "$scope", "conversations", "ConversationData",
+          ($scope, conversations, ConversationData) ->
             console.log "In home state controller"
             $scope.conversations = conversations
+            $scope.create_conversation = ->
+              console.log "create a new conversation and nav to it or show error"
+              ConversationData.create_new_conversation().then (response) ->
+                console.log "RoR response to ConversationData.create_new_conversation"
+
         ]
       })
 

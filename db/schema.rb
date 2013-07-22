@@ -11,7 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130719184632) do
+ActiveRecord::Schema.define(version: 20130719161040) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+  enable_extension "hstore"
 
   create_table "attachments", force: true do |t|
     t.integer  "attachable_id",                           null: false
@@ -59,16 +63,16 @@ ActiveRecord::Schema.define(version: 20130719184632) do
   add_index "comments", ["user_id"], name: "index_comments_on_user_id", using: :btree
 
   create_table "conversations", force: true do |t|
-    t.string   "code",                        null: false
-    t.integer  "user_id",                     null: false
-    t.string   "status",     default: "open", null: false
+    t.string   "code",                       null: false
+    t.integer  "user_id",                    null: false
+    t.datetime "starts_at"
+    t.datetime "ends_at"
+    t.hstore   "privacy"
+    t.boolean  "list",       default: false
+    t.boolean  "published",  default: false
+    t.string   "status",     default: "new", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.hstore   "privacy"
-    t.boolean  "published",  default: false
-    t.datetime "ends_at"
-    t.boolean  "list"
-    t.datetime "starts_at"
   end
 
   add_index "conversations", ["code"], name: "index_conversations_on_code", unique: true, using: :btree

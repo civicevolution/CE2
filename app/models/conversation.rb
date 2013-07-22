@@ -18,7 +18,7 @@ class Conversation < ActiveRecord::Base
   has_and_belongs_to_many :tags
 
   validate :conversation_code_is_unique, on: :create
-  before_create :initialize_conversation_privacy
+  before_create :initialize_conversation
 
   def conversation_code_is_unique
     self.code = Conversation.create_random_conversation_code
@@ -33,8 +33,12 @@ class Conversation < ActiveRecord::Base
     (0...10).map{ o[rand(o.length)] }.join
   end
 
-  def initialize_conversation_privacy
+  def initialize_conversation
     self.privacy = CONVERSATION_PROPERTIES['privacy'].dup
+    self.list = false
+    self.status = 'new'
+    self.starts_at = Time.now
+    self.ends_at = (self.starts_at + (CONVERSATION_PROPERTIES['duration_in_days']).days).end_of_day
   end
 
   def self.reorder_summary_comments( code, ordered_ids )
