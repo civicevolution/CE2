@@ -13,7 +13,8 @@
         %h3
         %ul.topics
     .control
-      %a.toggler(ng-click="toggle_compose_window()" ){:href => "#", :title => "hide or show the composer panel"}
+      %h4.form_title {{reply_control_title}}
+      %a.toggler(ng-click="toggle_compose_window()"){:title => "hide or show the composer panel"}
       .control-row.reply-area
         -#.reply-to
           %script#metamorph-129-start{:type => "text/x-placeholder"}>

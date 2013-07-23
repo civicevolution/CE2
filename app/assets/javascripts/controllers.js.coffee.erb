@@ -378,15 +378,21 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       if type == 'summary'
         console.log "#### Set the type for summary"
         $scope.newComment.type = 'SummaryComment'
+        $scope.reply_control_title = "Add summary comment"
       else
         #console.log "Set the type for conversation"
         $scope.newComment.type = 'ConversationComment'
+        $scope.reply_control_title = "Add conversation comment"
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
       $scope.$root.$broadcast "user-event-notification", { action: "open comment-form #{$scope.newComment.type}"}
 
     $scope.$on 'request-edit', (event, comment) ->
       $scope.newComment = angular.copy(comment)
+      $scope.reply_control_title = switch $scope.newComment.type
+        when 'ConversationComment' then "Edit conversation comment"
+        when 'SummaryComment' then "Edit summary comment"
+        when 'CallToActionComment' then "Edit call-to-action"
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
 
@@ -510,6 +516,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
         $scope.newComment =
           type: 'CallToActionComment'
           conversation_code: $scope.conversation.code
+        $scope.reply_control_title = "Add call-to-action"
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
       $scope.$root.$broadcast "user-event-notification", { action: 'open call-to-action edit'}
