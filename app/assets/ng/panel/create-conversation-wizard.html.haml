@@ -94,11 +94,13 @@
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-notification-link:left" trigger="open panel notification" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-notification-link:left"
+        trigger="open panel notification" action="next" test="conversation.notification_request.default")
         %h4 Keep up-to-date with this conversation
         %p Select how you want to be informed about this conversation
 
-      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel schedule" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top"
+        trigger="update panel notification" action="next" test="conversation.notification_request.default")
         %h4 Check these settings
         %p We recommend notifications.
 

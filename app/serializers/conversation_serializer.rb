@@ -1,7 +1,7 @@
 class ConversationSerializer < ActiveModel::Serializer
   #embed :ids, :include => true
   attributes :url, :updated_at, :firebase_token, :code, :title, :munged_title, :call_to_action,
-             :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags
+             :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags, :notification_request
   has_many :comments
 
   def include_comments?
@@ -30,6 +30,22 @@ class ConversationSerializer < ActiveModel::Serializer
 
   def tags
     object.tags.map(&:name)
+  end
+
+  def include_notification_request?
+    !( scope && scope[:shallow_serialization_mode] )
+  end
+
+  def notification_request
+    request = NotificationRequest.where(conversation_id: object.id, user_id: current_user.id ).first
+    if request.nil?
+      {immediate: 'mine', daily: true, default: true}
+    else
+      {
+          immediate: (request.immediate_all ? 'every' : request.immediate_me ? 'mine' : 'none'),
+          daily: request.send_at ? true : false
+      }
+    end
   end
 
 

@@ -66,10 +66,16 @@ services.factory 'User', [ "$http", "$window", ($http, $window) ->
     )
 
   edit_profile: ->
-    console.log 'User:edit_profile'   
-  test: ->
-    console.log "User.test"
-    console.log "User.test is done"
+    console.log 'User:edit_profile'
+
+]
+
+services.factory 'NotificationRequest', [ "$http", ($http) ->
+  # a static method to retrieve current User
+  name: "NotificationRequest"
+  save_settings: (conversation_code, settings) ->
+    $http.post("/api/notification_requests.json", {conversation_code: conversation_code, settings: settings})
+
 ]
 
 services.factory "Comment", ["$resource", ($resource) ->
@@ -129,6 +135,7 @@ services.factory "ConversationData", ["$http",
           published: response.data.published
           list: response.data.list
           status: response.data.status
+          notification_request  : response.data.notification_request
 
     persist_summary_comment_order_to_ror: (conversation_code, comments_order) ->
       #console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_code} with order #{comments_order}"
