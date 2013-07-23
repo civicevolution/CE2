@@ -72,31 +72,26 @@ module Api
       end
 
       def privacy
-        Rails.logger.debug "api/conversations_controller.privacy for conversation #{params[:id]}"
         conversation = Conversation.where(code: params[:id]).first
-        conversation.privacy = params[:privacy]
-        conversation.save
+        conversation.update_privacy current_user, params[:privacy]
         render json: 'ok'
       end
 
       def tags
-        #Rails.logger.debug "api/conversations_controller.tags for conversation #{params[:id]}"
         conversation = Conversation.where(code: params[:id]).first
-        conversation.update_tags params[:tags], current_user
+        conversation.update_tags current_user, params[:tags]
         render json: 'ok'
       end
 
       def schedule
-        Rails.logger.debug "api/conversations_controller.schedule for conversation #{params[:id]}"
         conversation = Conversation.where(code: params[:id]).first
-        conversation.update_schedule start: params[:start], end: params[:end]
+        conversation.update_schedule current_user, {start: params[:start], end: params[:end]}
         render json: 'ok'
       end
 
       def publish
-        Rails.logger.debug "api/conversations_controller.publish for conversation #{params[:id]}"
         conversation = Conversation.where(code: params[:id]).first
-        conversation.publish
+        conversation.publish current_user
         render json: 'ok'
       end
 

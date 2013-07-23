@@ -665,10 +665,25 @@ ce2_directives.directive('ceNotificationPanel', ->
     "<%= path_to_asset "panel/notification.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope",
-    ($scope) ->
+  controller: [ "$scope", "ConversationData", "$timeout",
+    ($scope, ConversationData, $timeout) ->
       $scope.name = 'ceNotificationPanel'
-      console.log "In ceNotificationPanel controller"
+      $scope.form_submit_status = 'Update settings'
+      #console.log "In cePrivacyPanel controller"
+      $scope.notification =
+        immediate: 'mine'
+        periodic: 'daily'
+      $scope.updatePrivacy = ->
+        #console.log "Update the privacy settings to RoR"
+        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
+        ConversationData.persist_privacy_to_ror($scope.conversation.code, $scope.privacy).then (response)->
+          #console.log "ConversationData.persist_privacy_to_ror received response"
+          $scope.form_submit_status = 'Updated'
+          $timeout ->
+            $scope.close_panel()
+            $scope.form_submit_status = 'Update settings'
+            $scope.$root.$broadcast "user-event-notification", { action: 'update panel privacy'}
+          ,800
   ]
 )
 
@@ -749,7 +764,7 @@ ce2_directives.directive('cePrivacyPanel', ->
   controller: [ "$scope", "ConversationData", "$timeout",
     ($scope, ConversationData, $timeout) ->
       $scope.name = 'cePrivacyPanel'
-      $scope.form_submit_status = 'Update settings'
+      $scope.form_submit_status = if $scope.conversation.privacy?.confirmed_privacy then 'Update settings' else "Confirm settings"
       #console.log "In cePrivacyPanel controller"
       $scope.privacy = $scope.conversation.privacy
       $scope.updatePrivacy = ->
@@ -785,7 +800,7 @@ ce2_directives.directive('ceSchedulePanel', ->
   controller: [ "$scope", "ConversationData", "$timeout", "$document",
     ($scope, ConversationData, $timeout, $document) ->
       $scope.name = 'ceSchedulePanel'
-      $scope.form_submit_status = 'Update schedule'
+      $scope.form_submit_status = if $scope.conversation.privacy?.confirmed_schedule then 'Update schedule' else "Confirm schedule"
 
       $scope.show_start_calendar = false
       $scope.show_end_calendar = false
@@ -985,6 +1000,7 @@ ce2_directives.directive('ceCreateConversationWizard', ->
           pos: div.attr('wiz-pos')
           trigger:  div.attr('trigger')
           action:  div.attr('action')
+          test:  div.attr('test')
 
         # set the template switch code to match the map code
         div.attr('ng-switch-when', "page_#{code}")
@@ -1024,9 +1040,22 @@ ce2_directives.directive('ceCreateConversationWizard', ->
 
         # else reloads the current page
 
+        if not current_step
+          console.log "No more wizard pages to display, clear/remove wizard"
+          $timeout ->
+            $scope.$root.conversation_wizard_mode = false
+          return
+
         $scope.wizard_step = current_step['code']
         $scope.wizard_current_step = current_step
         console.log "current_step: " + ("#{key}: #{current_step[key]}" for key of current_step).join(', ')
+
+        # is the test valid for this wizaard page
+        console.log "test: #{current_step.test} "
+
+        if current_step.test && !$scope.$eval(current_step.test)
+          $scope.wizard_navigation('next')
+          return
 
         $timeout ->
           adjust_popup()
@@ -1122,15 +1151,15 @@ ce2_directives.directive('ceCreateConversationWizard', ->
 
 
       $scope.$on "user-event-notification", (event, data) ->
-        console.log "user-event-notification for data.action: #{data.action}"
+        #console.log "user-event-notification for data.action: #{data.action}"
         # is this a trigger for the current state?
         if data.action is $scope.wizard_current_step['trigger']
-          console.log "The current step has been triggered by #{data.action} to do action: #{$scope.wizard_current_step['action']}"
+          #console.log "The current step has been triggered by #{data.action} to do action: #{$scope.wizard_current_step['action']}"
           switch $scope.wizard_current_step['action']
             when 'next' then $scope.wizard_navigation('next')
             else  console.log "Don't know what to do with wizard notification action #{$scope.wizard_current_step['action']}"
         else
-          console.log "The current step has NOT been triggered by #{data.action}"
+          #console.log "The current step has NOT been triggered by #{data.action}"
 
       $scope.publishConversation = ->
         #console.log "publishConversation"

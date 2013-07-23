@@ -4,11 +4,13 @@
     %div#wizard-pages(ng-switch="wizard_step")
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below" trigger="open title edit" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below"
+        trigger="open title edit" action="next" test="conversation.title == null")
         %h4 Ask a question
         %p Productive conversations are guided by strong questions.
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below" trigger="save title edit" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below"
+        trigger="save title edit" action="next" test="conversation.title == null")
         %h4 Enter your question here
         %p
           Click
@@ -17,34 +19,40 @@
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:call-to-action:below" trigger="open call-to-action edit" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:call-to-action:below"
+        trigger="open call-to-action edit" action="next" test="conversation.call_to_action_comment == null")
         %h4 Tell your friends how they can participate
         %p A clear call-to-action focuses and motivates people.
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:reply-control:above" trigger="save comment CallToActionComment" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:reply-control:above"
+        trigger="save comment CallToActionComment" action="next" test="conversation.call_to_action_comment == null")
         %h4 Enter your call to action here
         %p Enter a brief description of your conversation and what you hope to accomplish.
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:add-conversation-comment:above" trigger="open comment-form ConversationComment" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:add-conversation-comment:above"
+        trigger="open comment-form ConversationComment" action="next" test="conversation.conversation_comments.length == 0")
         %h4 Start the conversation
         %p
           No one likes to be the first person to speak up.
           Tell us what you think about this question.
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:reply-control:above" trigger="save comment ConversationComment" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:reply-control:above"
+        trigger="save comment ConversationComment" action="next" test="conversation.conversation_comments.length == 0")
         %h4 Enter your comment here
         %p
           Invite people to share their ideas and concerns about this question.
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-tags-link:left" trigger="open panel tags" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-tags-link:left"
+        trigger="open panel tags" action="next" test="conversation.tags.length == 0")
         %h4 Categorize your conversation
         %p Click this link to add tags that help people find your conversation.
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:panel-tags:below" trigger="update panel tags" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:panel-tags:below"
+        trigger="update panel tags" action="next" test="conversation.tags.length == 0")
         %h4 Type some descriptive words in the box
         %p
           Click the
@@ -53,28 +61,33 @@
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-privacy-link:left" trigger="open panel privacy" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-privacy-link:left"
+        trigger="open panel privacy" action="next" test="conversation.privacy.confirmed_privacy == null")
         %h4 Set your privacy
         %p Is this public or private and who can join?
 
-      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel privacy" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top"
+        trigger="update panel privacy" action="next" test="conversation.privacy.confirmed_privacy == null")
         %h4 Check these privacy settings
         %p These are the recommended settings.
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-schedule-link:left" trigger="open panel schedule" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-schedule-link:left"
+        trigger="open panel schedule" action="next" test="conversation.privacy.confirmed_schedule == null")
         %h4 Schedule this conversation
         %p When does this conversation start and end?
 
-      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel schedule" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top"
+        trigger="update panel schedule" action="next" test="conversation.privacy.confirmed_schedule == null")
         %h4 Set the start and end date
         %p We recommend 14 days to keep the conversation focused and moving.
 
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="box:window:center:center" trigger="conversation published" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="box:window:center:center"
+        trigger="conversation published" action="next" test="conversation.published == false")
         %h4 Now publish your conversation
         -#%button.btn-primary.btn(ng-click="publishConversation()" ng-bind-html-unsafe="form_submit_status" ng-disabled="!conversation_wizard_complete"){type: 'submit'}
         %button.btn-primary.btn(ng-click="publishConversation()" ng-bind-html-unsafe="form_submit_status" ){type: 'submit'}

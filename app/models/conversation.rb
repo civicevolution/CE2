@@ -62,7 +62,7 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     end
   end
 
-  def update_tags new_tags, user
+  def update_tags user, new_tags
     # keep track of any current tags that are not included in the param for new tags
     current_tags = self.tags.map(&:name)
     new_tags.each do |tag_name|
@@ -83,14 +83,28 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
 
   end
 
-  def update_schedule dates
-    Rails.logger.debug "Update the schedule start_date: #{dates[:start]} & end_date: #{dates[:end]}"
-    self.starts_at = dates[:start]
-    self.ends_at = dates[:end]
+  def update_privacy user, privacy_params
+    privacy_params["confirmed_privacy"] = "true"
+    if self.privacy['confirmed_schedule']
+      privacy_params["confirmed_schedule"] = "true"
+    end
+    self.privacy = privacy_params
     self.save
   end
 
-  def publish
+  def update_schedule user, dates
+    Rails.logger.debug "Update the schedule start_date: #{dates[:start]} & end_date: #{dates[:end]}"
+    self.starts_at = dates[:start]
+    self.ends_at = dates[:end]
+    # I have to trick Rails into updating the hstore by creating and assigning a new object
+    privacy_params = {}
+    self.privacy.each_pair{ |key,value| privacy_params[key] = value}
+    privacy_params["confirmed_schedule"] = "true"
+    self.privacy = privacy_params
+    self.save
+  end
+
+  def publish user
     # validate conversation setup is complete and then publish
     self.status = 'ready'
     self.published = true

@@ -1,2 +1,46 @@
-%div#notification-panel
-  %h3 Notification panel template
+%div#notification-panel.panel
+  #panel-notification.radio-options
+    %button.close(ng-click="close_panel()") &times;
+
+    %h3.panel-title Email notification options
+
+    %fieldset
+      %p.title Which immediate emails do you want?
+      %p We can send you an email notification whenever comments are made:
+      %p.clear
+        %input.radio#r1(type="radio" ng-model="notification.immediate" value="every")
+        %label{for: "r1"} Email me for every comment
+
+      %p.clear
+        %input.radio#r2(type="radio" ng-model="notification.immediate" value="mine")
+        %label{for: "r2"} Email me for every comment that mentions me or replies to my comments
+
+      %p.clear
+        %input.radio#r3(type="radio" ng-model="notification.immediate" value="none")
+        %label{for: "r3"} I don't want any immediate emails
+
+
+    %fieldset
+      %p.title How often do you want periodic emails of significant comments?
+      %p We will collect comments posted to this conversation and send them as a group
+      %p.clear
+        %input.radio#r4(type="radio" ng-model="notification.periodic" value="multiple")
+        %label{for: "r4"} Up to a few emails per day for good stuff
+
+      %p.clear
+        %input.radio#r5(type="radio" ng-model="notification.periodic" value="daily")
+        %label{for: "r5"} No more than one email per day
+
+      %p.clear
+        %input.radio#r6(type="radio" ng-model="notification.periodic" value="few-days")
+        %label{for: "r6"} No more than one email every few days
+
+      %p.clear
+        %input.radio#r7(type="radio" ng-model="notification.periodic" value="none")
+        %label{for: "r7"} No emails at all
+
+
+    %fieldset
+      %button.btn-primary.btn(ng-click="updatePrivacy()" ng-bind-html-unsafe="form_submit_status"){type: 'submit'}
+      %button.btn(ng-click="close_panel()") Cancel
+      -#%div.status(ng-bind-html-unsafe="form_submit_status")

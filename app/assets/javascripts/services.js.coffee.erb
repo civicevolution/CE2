@@ -126,6 +126,9 @@ services.factory "ConversationData", ["$http",
           tags: response.data.tags.sort()
           starts_at: new Date(response.data.starts_at)
           ends_at: new Date(response.data.ends_at)
+          published: response.data.published
+          list: response.data.list
+          status: response.data.status
 
     persist_summary_comment_order_to_ror: (conversation_code, comments_order) ->
       #console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_code} with order #{comments_order}"
