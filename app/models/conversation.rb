@@ -90,4 +90,10 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     self.save
   end
 
+  def publish
+    # validate conversation setup is complete and then publish
+    self.status = 'ready'
+    self.published = true
+    self.save
+  end
 end

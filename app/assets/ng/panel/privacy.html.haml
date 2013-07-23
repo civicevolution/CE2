@@ -1,75 +1,76 @@
 %div.privacy-panel.panel
-  %button.close(ng-click="close_panel()") &times;
+  #panel-privacy
+    %button.close(ng-click="close_panel()") &times;
 
-  %h3.panel-title Privacy settings
+    %h3.panel-title Privacy settings
 
-  %fieldset
-    %p.title List conversation
-    %p.clear
-      %input.radio#r1(type="radio" ng-model="privacy.list" value="true")
-      %label{for: "r1"} List this conversation in CivicEvolution so people can find it
+    %fieldset
+      %p.title List conversation
+      %p.clear
+        %input.radio#r1(type="radio" ng-model="privacy.list" value="true")
+        %label{for: "r1"} List this conversation in CivicEvolution so people can find it
 
-    %p.clear
-      %input.radio#r2(type="radio" ng-model="privacy.list" value="false")
-      %label{for: "r2"} Don't list this conversation in CivicEvolution
-
-
-  %fieldset
-    %p.title Summary privacy
-    %p.clear
-      %input.radio#r3(type="radio" ng-model="privacy.summary" value="true")
-      %label{for: "r3"} Anyone can read the conversation summary
-
-    %p.clear
-      %input.radio#r4(type="radio" ng-model="privacy.summary" value="false")
-      %label{for: "r4"} Only participants can read the conversation summary
+      %p.clear
+        %input.radio#r2(type="radio" ng-model="privacy.list" value="false")
+        %label{for: "r2"} Don't list this conversation in CivicEvolution
 
 
-  %fieldset
-    %p.title Comments privacy
-    %p.clear
-      %input.radio#r5(type="radio" ng-model="privacy.comments" value="true")
-      %label{for: "r5"} Anyone can read the conversation's comments
+    %fieldset
+      %p.title Summary privacy
+      %p.clear
+        %input.radio#r3(type="radio" ng-model="privacy.summary" value="true")
+        %label{for: "r3"} Anyone can read the conversation summary
 
-    %p.clear
-      %input.radio#r6(type="radio" ng-model="privacy.comments" value="false")
-      %label{for: "r6"} Only participants can read the conversation comments
-
-
-  %fieldset
-    %p.title Who can invite
-    %p.clear
-      %input.radio#r7(type="radio" ng-model="privacy.invite" value="true")
-      %label{for: "r7"} Participants can invite friends to join this conversation
-
-    %p.clear
-      %input.radio#r8(type="radio" ng-model="privacy.invite" value="false")
-      %label{for: "r8"} Only the curator can invite friends to join this conversation
+      %p.clear
+        %input.radio#r4(type="radio" ng-model="privacy.summary" value="false")
+        %label{for: "r4"} Only participants can read the conversation summary
 
 
-  %fieldset
-    %p.title Pre-screening
-    %p.clear
-      %input.radio#r9(type="radio" ng-model="privacy.screen" value="true")
-      %label{for: "r9"} Posts from new participants will be pre-screened by the curator
+    %fieldset
+      %p.title Comments privacy
+      %p.clear
+        %input.radio#r5(type="radio" ng-model="privacy.comments" value="true")
+        %label{for: "r5"} Anyone can read the conversation's comments
 
-    %p.clear
-      %input.radio#r10(type="radio" ng-model="privacy.screen" value="false")
-      %label{for: "r10"} Only posts from new participants that contain links, images, and videos will be pre-screened by the curator
-
-
-  %fieldset
-    %p.title Unknown users
-    %p.clear
-      %input.radio#r11(type="radio" ng-model="privacy.unknown_users" value="true")
-      %label{for: "r11"} Posts from unknown users will be pre-screened by the curator
-
-    %p.clear
-      %input.radio#r12(type="radio" ng-model="privacy.unknown_users" value="false")
-      %label{for: "r12"} Posts from unknown users are not accepted
+      %p.clear
+        %input.radio#r6(type="radio" ng-model="privacy.comments" value="false")
+        %label{for: "r6"} Only participants can read the conversation comments
 
 
-  %fieldset
-    %button.btn-primary.btn(ng-click="updatePrivacy()" ng-bind-html-unsafe="form_submit_status"){type: 'submit'}
-    %button.btn(ng-click="close_panel()") Cancel
-    -#%div.status(ng-bind-html-unsafe="form_submit_status")
+    %fieldset
+      %p.title Who can invite
+      %p.clear
+        %input.radio#r7(type="radio" ng-model="privacy.invite" value="true")
+        %label{for: "r7"} Participants can invite friends to join this conversation
+
+      %p.clear
+        %input.radio#r8(type="radio" ng-model="privacy.invite" value="false")
+        %label{for: "r8"} Only the curator can invite friends to join this conversation
+
+
+    %fieldset
+      %p.title Pre-screening
+      %p.clear
+        %input.radio#r9(type="radio" ng-model="privacy.screen" value="true")
+        %label{for: "r9"} Posts from new participants will be pre-screened by the curator
+
+      %p.clear
+        %input.radio#r10(type="radio" ng-model="privacy.screen" value="false")
+        %label{for: "r10"} Only posts from new participants that contain links, images, and videos will be pre-screened by the curator
+
+
+    %fieldset
+      %p.title Unknown users
+      %p.clear
+        %input.radio#r11(type="radio" ng-model="privacy.unknown_users" value="true")
+        %label{for: "r11"} Posts from unknown users will be pre-screened by the curator
+
+      %p.clear
+        %input.radio#r12(type="radio" ng-model="privacy.unknown_users" value="false")
+        %label{for: "r12"} Posts from unknown users are not accepted
+
+
+    %fieldset
+      %button.btn-primary.btn(ng-click="updatePrivacy()" ng-bind-html-unsafe="form_submit_status"){type: 'submit'}
+      %button.btn(ng-click="close_panel()") Cancel
+      -#%div.status(ng-bind-html-unsafe="form_submit_status")

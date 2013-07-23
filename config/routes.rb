@@ -24,6 +24,7 @@ Ce2::Application.routes.draw do
         post 'privacy', on: :member
         post 'tags', on: :member
         post 'schedule', on: :member
+        post 'publish', on: :member
         resources :comments, shallow: true
       end
     end

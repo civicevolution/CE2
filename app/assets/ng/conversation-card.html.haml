@@ -1,7 +1,8 @@
 %div.ce-conversation-card
 
   %h3
-    %a(href="/#/conversation/{{conversation.code}}/{{conversation.munged_title}}")
+    -#%a(href="/#/conversation/{{conversation.code}}/{{conversation.munged_title}}")
+    %a(ng-click="$state.transitionTo('conversation', {code: conversation.code, munged_title: conversation.munged_title||'new'})")
       {{conversation.title || 'New conversation'}}
 
   %div(ng-bind-html-unsafe="converter.makeHtml(conversation.call_to_action || 'New conversation')")

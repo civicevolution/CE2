@@ -2,50 +2,110 @@
   %div.arrow
   %div.popover-inner
     %div#wizard-pages(ng-switch="wizard_step")
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below")
-        %h4 Ask a question
-        %p Productive conversations are guided by strong questions
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below")
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below" trigger="open title edit" action="next")
+        %h4 Ask a question
+        %p Productive conversations are guided by strong questions.
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-title:below" trigger="save title edit" action="next")
         %h4 Enter your question here
         %p
           Click
           %b Save changes
-          when you are done
+          when you are done.
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:call-to-action:below")
+
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:call-to-action:below" trigger="open call-to-action edit" action="next")
         %h4 Tell your friends how they can participate
         %p A clear call-to-action focuses and motivates people.
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:add-conversation-comment:above")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:reply-control:above" trigger="save comment CallToActionComment" action="next")
+        %h4 Enter your call to action here
+        %p Enter a brief description of your conversation and what you hope to accomplish.
+
+
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:add-conversation-comment:above" trigger="open comment-form ConversationComment" action="next")
         %h4 Start the conversation
         %p
           No one likes to be the first person to speak up.
           Tell us what you think about this question.
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-tags-link:left")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:reply-control:above" trigger="save comment ConversationComment" action="next")
+        %h4 Enter your comment here
+        %p
+          Invite people to share their ideas and concerns about this question.
+
+
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-tags-link:left" trigger="open panel tags" action="next")
         %h4 Categorize your conversation
         %p Click this link to add tags that help people find your conversation.
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-privacy-link:left")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:panel-tags:below" trigger="update panel tags" action="next")
+        %h4 Type some descriptive words in the box
+        %p
+          Click the
+          %b Update tags
+          button when you are done.
+
+
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-privacy-link:left" trigger="open panel privacy" action="next")
         %h4 Set your privacy
         %p Is this public or private and who can join?
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-schedule-link:left")
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel privacy" action="next")
+        %h4 Check these privacy settings
+        %p These are the recommended settings.
+
+
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-schedule-link:left" trigger="open panel schedule" action="next")
         %h4 Schedule this conversation
         %p When does this conversation start and end?
 
-      %div.page(ng-switch-when="TBD" wiz-pos="window:center:center")
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel schedule" action="next")
+        %h4 Set the start and end date
+        %p We recommend 14 days to keep the conversation focused and moving.
+
+
+
+
+      %div.page(ng-switch-when="TBD" wiz-pos="box:window:center:center" trigger="conversation published" action="next")
         %h4 Now publish your conversation
-        %button.btn-primary.btn(ng-click="publishConversation()" ng-bind-html-unsafe="form_submit_status" ng-disabled="!conversation_wizard_complete"){type: 'submit'}
+        -#%button.btn-primary.btn(ng-click="publishConversation()" ng-bind-html-unsafe="form_submit_status" ng-disabled="!conversation_wizard_complete"){type: 'submit'}
+        %button.btn-primary.btn(ng-click="publishConversation()" ng-bind-html-unsafe="form_submit_status" ){type: 'submit'}
+
+
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-notification-link:left" trigger="open panel notification" action="next")
+        %h4 Keep up-to-date with this conversation
+        %p Select how you want to be informed about this conversation
+
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel schedule" action="next")
+        %h4 Check these settings
+        %p We recommend notifications.
+
+
+
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-invite-link:left" trigger="open panel invite" action="next")
+        %h4 Invite your friends to this conversation
+        %p The more the merrier
+
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel invite" action="next")
+        %h4 Send invites to your friends
+        %p We need names and email addresses
 
 
       %div(ng-switch-default )
         %h4.warn No instructions defined for code: {{wizard_code}}
 
     %div.wizard-navigation
-      %button.btn-primary.btn(ng-click="wizard_navigation('right')" ng-hide="conversation_wizard_step == 7") Next
+      %button.btn-primary.btn(ng-click="wizard_navigation('next')" ng-hide="conversation_wizard_step == 7") Next
       -#%div
-        %i.icon-angle-left(ng-hide="conversation_wizard_step==1" ng-click="wizard_navigation('left')")
+        %i.icon-angle-left(ng-hide="conversation_wizard_step==1" ng-click="wizard_navigation('previous')")
         %span Step {{conversation_wizard_step}} of {{conversation_wizard_num_steps}}
-        %i.icon-angle-right(ng-hide="conversation_wizard_step==conversation_wizard_num_steps" ng-click="wizard_navigation('right')")
+        %i.icon-angle-right(ng-hide="conversation_wizard_step==conversation_wizard_num_steps" ng-click="wizard_navigation('next')")

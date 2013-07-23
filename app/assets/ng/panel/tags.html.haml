@@ -1,19 +1,20 @@
 %div.tags-panel.panel
-  %button.close(ng-click="close_panel()") &times;
+  #panel-tags
+    %button.close(ng-click="close_panel()") &times;
 
-  %h3.panel-title Tags that describe this conversation
+    %h3.panel-title Tags that describe this conversation
 
-  %fieldset
-    %p.title Please add one or more tags that will help people find your conversation
+    %fieldset
+      %p.title Please add one or more tags that will help people find your conversation
 
-    %div.tags(ng-click="focus_to_input(this)")
-      %div.tag(ng-repeat="tag in conversation.tags" )
-        %div {{tag}}
-        %button.close(ng-click="delete_tag()") &times;
+      %div.tags(ng-click="focus_to_input(this)")
+        %div.tag(ng-repeat="tag in conversation.tags" )
+          %div {{tag}}
+          %button.close(ng-click="delete_tag()") &times;
 
-      %input.tag(ng-keydown="keydown(this)")
+        %input.tag(ng-keydown="keydown(this)")
 
-  %fieldset
-    %button.btn-primary.btn(ng-click="updateTags()" ng-bind-html-unsafe="form_submit_status"){type: 'submit'}
-    %button.btn(ng-click="close_panel()") Cancel
+    %fieldset
+      %button.btn-primary.btn(ng-click="updateTags()" ng-bind-html-unsafe="form_submit_status"){type: 'submit'}
+      %button.btn(ng-click="close_panel()") Cancel
 

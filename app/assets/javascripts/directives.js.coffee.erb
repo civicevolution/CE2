@@ -187,6 +187,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       $scope.addComment = ->
         CommentData.create_in_ror 'save', $scope.newComment,
           angular.bind $scope, ->
+            $scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
             this.newComment.id = null
             this.newComment.text = null
             $scope.$emit('clear-edit')
@@ -605,6 +606,7 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
           #console.log "open_panel for #{link}"
           $scope.right_bar_panel_directive = "<div id='right-panel-directive' ce-#{link}-panel dev='#{dev}'>Compile directive ce-#{link}-panel</div>"
           $scope.active_link = link
+          $scope.$root.$broadcast "user-event-notification", { action: "open panel #{link}"}
         $scope.close_panel = ->
           #console.log "close the panel"
           $scope.active_link = null
@@ -759,6 +761,7 @@ ce2_directives.directive('cePrivacyPanel', ->
           $timeout ->
             $scope.close_panel()
             $scope.form_submit_status = 'Update settings'
+            $scope.$root.$broadcast "user-event-notification", { action: 'update panel privacy'}
           ,800
   ]
 )
@@ -870,6 +873,7 @@ ce2_directives.directive('ceSchedulePanel', ->
             $scope.close_panel()
             $scope.form_submit_status = 'Update schedule'
             $scope.conversation.schedule_announcement = $scope.format_schedule_announcement()
+            $scope.$root.$broadcast "user-event-notification", { action: 'update panel schedule'}
           ,800
 
 
@@ -918,14 +922,15 @@ ce2_directives.directive('ceTagsPanel', ->
           el.value = ""
 
       $scope.updateTags = ->
-        console.log "Update the tags to RoR"
+        #console.log "Update the tags to RoR"
         $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
         ConversationData.persist_tags_to_ror($scope.conversation.code, $scope.conversation.tags).then (response)->
-          console.log "ConversationData.persist_tags_to_ror received response"
+          #console.log "ConversationData.persist_tags_to_ror received response"
           $scope.form_submit_status = 'Updated'
           $timeout ->
             $scope.close_panel()
             $scope.form_submit_status = 'Update tags'
+            $scope.$root.$broadcast "user-event-notification", { action: 'update panel tags'}
           ,800
   ]
 )
@@ -996,11 +1001,11 @@ ce2_directives.directive('ceCreateConversationWizard', ->
       scope.$root.wizard_map = wizard_map
       scope.wizard_step = 'page_1'
       scope.wizard_num_steps = num_steps
-      scope.wizard_navigation()
+      scope.wizard_navigation(1)
       #for page of scope.$root.wizard_map
       #  console.log "#{page}: #{scope.$root.wizard_map[page]}"
-  controller: [ "$scope", "$timeout",
-    ($scope, $timeout) ->
+  controller: [ "$scope", "$timeout", "ConversationData",
+    ($scope, $timeout, ConversationData) ->
       $scope.name = 'ceCreateConversationWizard'
       $scope.wizard_complete = false
       $scope.form_submit_status = "Publish conversation"
@@ -1008,15 +1013,19 @@ ce2_directives.directive('ceCreateConversationWizard', ->
 
       $scope.wizard_navigation = (direction) ->
         current_step = $scope.$root.wizard_map[$scope.wizard_step]
-        if direction == 'left' and current_step['prev_code']
+        if direction == 'previous' and current_step['prev_code']
           #console.log "wizard_navigation to prev"
           current_step = $scope.$root.wizard_map[ current_step['prev_code'] ]
-        else if direction == 'right' and current_step['next_code']
+        else if direction == 'next' and current_step['next_code']
           #console.log "wizard_navigation to next"
           current_step = $scope.$root.wizard_map[ current_step['next_code'] ]
-        #else
-          #console.log "reload current page #{current_step['code']}"
+        else if !isNaN(direction)
+          current_step = $scope.$root.wizard_map[ "page_#{direction}" ]
+
+        # else reloads the current page
+
         $scope.wizard_step = current_step['code']
+        $scope.wizard_current_step = current_step
         console.log "current_step: " + ("#{key}: #{current_step[key]}" for key of current_step).join(', ')
 
         $timeout ->
@@ -1038,6 +1047,11 @@ ce2_directives.directive('ceCreateConversationWizard', ->
             when 'el'
               console.log "Position #{position[2]} of #{position[1]}" if debug_position
               el = document.getElementById(position[1])
+              if not el
+                $timeout ->
+                  adjust_popup()
+                ,400
+                return
               offset = _.offset(el)
               el = angular.element(el)
               width = el.prop('offsetWidth')
@@ -1066,17 +1080,33 @@ ce2_directives.directive('ceCreateConversationWizard', ->
                   wizard.addClass('right')
                 else console.log "Don't understand relative position: #{position[2]}"
 
-            when 'window'
-                console.log "Position in window at #{position[1]}, #{position[2]}" if debug_position
-                left = switch position[1]
-                  when 'left' then 0
-                  when 'center' then (window.innerWidth)/2 - wizard_width/2
-                  when 'right' then window.innerWidth - wizard_width
+            when 'box'
+                # box:panel-privacy:right:top
+                if position[1] == 'window'
+                  box =  angular.element( window )
+                  offset = {top: 0, left: 0}
+                  width = window.innerWidth
+                  height = window.innerHeight
+                else
+                  box = angular.element( document.getElementById(position[1]))
+                  if box.length == 0
+                    $timeout ->
+                      adjust_popup()
+                    ,400
+                    return
+                  offset = _.offset(box)
+                  width = box.prop('offsetWidth')
+                  height = box.prop('offsetHeight')
+                console.log "Position in box: #{position[1]}, at #{position[2]}, #{position[3]}" if debug_position
+                left = switch position[2]
+                  when 'left' then 0 + offset.left
+                  when 'center' then (width)/2 - wizard_width/2 + offset.left
+                  when 'right' then width - wizard_width + offset.left
                   else console.log "Don't understand window left position: #{position[1]}"
-                top = switch position[2]
-                  when 'top' then 0
-                  when 'center' then (window.innerHeight)/2 - wizard_height/2
-                  when 'bottom' then (window.innerHeight) - wizard_height
+                top = switch position[3]
+                  when 'top' then 0 + offset.top
+                  when 'center' then (height)/2 - wizard_height/2 + offset.top
+                  when 'bottom' then (height) - wizard_height + offset.top
                   else console.log "Don't understand window top position: #{position[1]}"
 
               else
@@ -1091,7 +1121,27 @@ ce2_directives.directive('ceCreateConversationWizard', ->
             left: "#{left}px"
 
 
+      $scope.$on "user-event-notification", (event, data) ->
+        console.log "user-event-notification for data.action: #{data.action}"
+        # is this a trigger for the current state?
+        if data.action is $scope.wizard_current_step['trigger']
+          console.log "The current step has been triggered by #{data.action} to do action: #{$scope.wizard_current_step['action']}"
+          switch $scope.wizard_current_step['action']
+            when 'next' then $scope.wizard_navigation('next')
+            else  console.log "Don't know what to do with wizard notification action #{$scope.wizard_current_step['action']}"
+        else
+          console.log "The current step has NOT been triggered by #{data.action}"
+
       $scope.publishConversation = ->
-        console.log "publishConversation"
+        #console.log "publishConversation"
+        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Publishing</i>'
+        ConversationData.publish_conversation($scope.conversation.code).then (response)->
+          #console.log "ConversationData.publish_conversation received response"
+          $scope.form_submit_status = 'Published'
+          $timeout ->
+            $scope.form_submit_status = 'Publish'
+            $scope.$root.$broadcast "user-event-notification", { action: 'conversation published'}
+          ,800
+
   ]
 )

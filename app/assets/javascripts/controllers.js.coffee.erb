@@ -383,7 +383,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
         $scope.newComment.type = 'ConversationComment'
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
-
+      $scope.$root.$broadcast "user-event-notification", { action: "open comment-form #{$scope.newComment.type}"}
 
     $scope.$on 'request-edit', (event, comment) ->
       $scope.newComment = angular.copy(comment)
@@ -488,12 +488,14 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       #console.log "edit the title"
       $scope.title_temp = $scope.conversation.title
       $scope.conversation.edit_title = true
+      $scope.$root.$broadcast "user-event-notification", { action: 'open title edit'}
 
     $scope.save_title = ->
       ConversationData.save_title($scope.conversation.code, $scope.conversation.title).then (response) ->
         #console.log "return from save_title"
         $scope.conversation.title = response.data.text
         $scope.conversation.edit_title = false
+        $scope.$root.$broadcast "user-event-notification", { action: 'save title edit'}
 
     $scope.cancel_title_edit = ->
       $scope.conversation.title = $scope.title_temp
@@ -510,5 +512,6 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
           conversation_code: $scope.conversation.code
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+      $scope.$root.$broadcast "user-event-notification", { action: 'open call-to-action edit'}
 
 ]

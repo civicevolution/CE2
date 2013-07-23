@@ -93,6 +93,13 @@ module Api
         render json: 'ok'
       end
 
+      def publish
+        Rails.logger.debug "api/conversations_controller.publish for conversation #{params[:id]}"
+        conversation = Conversation.where(code: params[:id]).first
+        conversation.publish
+        render json: 'ok'
+      end
+
     end
 
   end

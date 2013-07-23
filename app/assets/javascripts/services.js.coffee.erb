@@ -143,6 +143,9 @@ services.factory "ConversationData", ["$http",
     create_new_conversation: ->
       $http.post("/api/conversations.json")
 
+    publish_conversation: (conversation_code) ->
+      $http.post("/api/conversations/#{conversation_code}/publish.json")
+
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
