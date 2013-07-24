@@ -6,6 +6,6 @@ FactoryGirl.define do
     user_id 1
     immediate_me false
     immediate_all false
-    send_at "2013-07-23 14:34:08"
+    send_email_at "2013-07-23 14:34:08"
   end
 end

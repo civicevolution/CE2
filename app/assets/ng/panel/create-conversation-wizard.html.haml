@@ -106,19 +106,29 @@
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-invite-link:left" trigger="open panel invite" action="next")
+      -#%div.page(ng-switch-when="TBD" wiz-pos="el:conversation-invite-link:left" trigger="open panel invite" action="next")
         %h4 Invite your friends to this conversation
         %p The more the merrier
 
-      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel invite" action="next")
+      -#%div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel invite" action="next")
         %h4 Send invites to your friends
         %p We need names and email addresses
 
 
-      %div(ng-switch-default )
-        %h4.warn No instructions defined for code: {{wizard_code}}
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-invite-link:left"
+        trigger="update panel notification" action="next" test="conversation.notification_request.default")
+        %h4 Thanks for setting up your conversation.
+        %p
+          You're all set to invite your friends and start
+          %i Thinking together to act together.
 
-    %div.wizard-navigation
+        %button.btn-primary.btn(ng-click="wizard_navigation('next')") Ok
+
+
+
+
+
+    -#%div.wizard-navigation
       %button.btn-primary.btn(ng-click="wizard_navigation('next')" ng-hide="conversation_wizard_step == 7") Next
       -#%div
         %i.icon-angle-left(ng-hide="conversation_wizard_step==1" ng-click="wizard_navigation('previous')")

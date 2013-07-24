@@ -37,13 +37,13 @@ class ConversationSerializer < ActiveModel::Serializer
   end
 
   def notification_request
-    request = NotificationRequest.where(conversation_id: object.id, user_id: current_user.id ).first
+    request = NotificationRequest.where(conversation_id: object.id, user_id: current_user.try{ |u| u.id}||0 ).first
     if request.nil?
       {immediate: 'mine', daily: true, default: true}
     else
       {
           immediate: (request.immediate_all ? 'every' : request.immediate_me ? 'mine' : 'none'),
-          daily: request.send_at ? true : false
+          daily: request.send_email_at ? true : false
       }
     end
   end

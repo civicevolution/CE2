@@ -19,9 +19,9 @@ class NotificationRequest < ActiveRecord::Base
     self.immediate_me = settings[:immediate] == 'mine' ? true : false
     self.immediate_all = settings[:immediate] == 'every' ? true : false
     if settings[:daily]
-      self.send_at = Time.now.change(:hour => 20)
+      self.send_email_at = Time.now.change(:hour => 20)
     else
-      self.send_at = nil
+      self.send_email_at = nil
     end
     self.save
 

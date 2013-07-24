@@ -1,6 +1,6 @@
 require 'differ'
 class Comment < ActiveRecord::Base
-  include Modules::FirebaseConnect
+  include Modules::PostProcess
 
   def active_model_serializer
     CommentSerializer

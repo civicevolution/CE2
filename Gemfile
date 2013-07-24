@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-gem 'rails', '4.0.0.rc2'
+gem 'rails', '4.0.0'
 gem 'pg'
 
 gem 'sass-rails',   '~> 4.0.0.rc2'
@@ -58,3 +58,7 @@ gem 'actionpack-page_caching'
 gem 'actionpack-action_caching'
 #gem 'activeresource', github: 'rails/activeresource'
 
+gem 'delayed_job',
+    git: 'git://github.com/collectiveidea/delayed_job.git'
+gem 'delayed_job_active_record',
+    git: 'git://github.com/collectiveidea/delayed_job_active_record.git'
