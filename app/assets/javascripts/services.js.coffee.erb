@@ -9,61 +9,25 @@ services.factory 'User', [ "$http", "$window", ($http, $window) ->
     $http.get('/api/users/user.json').then (response) ->
       response.data
 
-  sign_in: (dialog_scope, user, dialog) ->
+  sign_in: (user) ->
     #console.log "User.sign_in  with data: #{user.email}/#{user.password}"
-    $http.post('/users/sign_in.json', {user: user }).then(
-      (response)->
-        #console.log "signin received response"
-        dialog.close()
-        $window.location.reload()
-    ,
-    (reason) ->
-      #console.log "signin received reason"
-      dialog_scope.error_message = reason.data.error
-    )
+    $http.post('/users/sign_in.json', {user: user })
 
   sign_out: ->
     #console.log "User:sign_out"
-    $http({method: 'DELETE', url: '/users/sign_out.json'}).then(
-      (response)->
-        #console.log "signout received response"
-        $window.location.reload()
-      ,
-      (reason) ->
-        console.log "signout received reason"
-    )
+    $http({method: 'DELETE', url: '/users/sign_out.json'})
 
-  sign_up: (dialog_scope, user, dialog) ->
+  sign_up: (user) ->
     #console.log "User.sign_up with credentials: #{user.name}/#{user.email}/#{user.password}"
-    $http.post('/users.json', {user: user }).then(
-      (response)->
-        #console.log 'signup received response'
-        dialog.close()
-        $window.location.reload()
-    ,
-    (reason) ->
-      #console.log 'signup received reason'
-      if reason.data.errors
-        dialog_scope.error_messages = reason.data.errors
-      else
-        console.log "a bigger error in sign up"
-    )
+    $http.post('/users.json', {user: user })
 
-  forgot_password: (dialog_scope, user, dialog) ->
+  forgot_password: (user) ->
     #console.log "User.sign_up with credentials: #{user.name}/#{user.email}/#{user.password}"
-    $http.post('/users/password.json', {user: user }).then(
-      (response)->
-        console.log 'forgot_password received response'
-        dialog.close()
-        dialog_scope.acknowledge_dialog("An email has been sent to #{user.email}")
-    ,
-    (reason) ->
-      #console.log 'signup received reason'
-      if reason.data.errors
-        dialog_scope.error_messages = reason.data.errors
-      else
-        console.log "a bigger error in forgot_password"
-    )
+    $http.post('/users/password.json', {user: user })
+
+  request_confirmation: (user) ->
+    console.log "User.request_confirmation with credentials: #{user.email}"
+    $http.post('/users/confirmation.json', {user: user })
 
   edit_profile: ->
     console.log 'User:edit_profile'

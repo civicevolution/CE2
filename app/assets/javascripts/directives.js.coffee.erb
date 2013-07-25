@@ -9,8 +9,8 @@ ce2_directives.directive('ceUserBar', ->
   templateUrl: '<%= path_to_asset "user-bar.html" %>'
   replace: true
   scope: false
-  controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state" ,
-    ($scope, User, $dialog, $http, $timeout, $state) ->
+  controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state", "$window",
+    ($scope, User, $dialog, $http, $timeout, $state, $window) ->
       #$scope.user = User.get()
       $scope.user = {}
       User.get().then(
@@ -19,71 +19,145 @@ ce2_directives.directive('ceUserBar', ->
           $scope.user = response
       )
       $scope.sign_in = ->
-        console.log "open sign in form"
-        dialog = $dialog.dialog(
+        $scope.dialog?.close()
+        $scope.dialog = $dialog.dialog(
           backdrop: true
           keyboard: true
           backdropClick: true
           templateUrl: '<%= path_to_asset "signin_form.html" %>'
           controller: ->
             # for testing
-            $scope.user =
-              email: 'alice@civicevolution.org'
-              password: 'aaaaaaaa'
-              remember_me: 1
+            $scope.user = {}
+            #  email: 'alice@civicevolution.org'
+            #  password: 'aaaaaaaa'
+            #  remember_me: 1
             $scope.submit_sign_in = (user) ->
               console.log "Submit by calling User.sign_in with credentials: #{user.email}/#{user.password}"
               $scope.error_message = null
-              User.sign_in($scope, user, dialog)
+              User.sign_in(user).then(
+                (response)->
+                  #console.log "signin received response"
+                  $scope.dialog.close()
+                  $window.location.reload()
+                ,
+                (reason) ->
+                  #console.log "signin received reason"
+                  $scope.error_message = reason.data.error
+              )
             $scope.cancel = ->
-              dialog.close()
+              $scope.dialog.close()
         )
-        dialog.open()
+        $scope.dialog.open()
 
       $scope.sign_out = ->
-        User.sign_out()
+        User.sign_out().then(
+          (response)->
+            #console.log "signout received response"
+            $window.location.reload()
+          ,
+          (reason) ->
+            console.log "signout received reason"
+        )
+
       $scope.sign_up = ->
-        console.log "open sign up form"
-        dialog = $dialog.dialog(
+        $scope.dialog?.close()
+        $scope.dialog = $dialog.dialog(
           backdrop: true
           keyboard: false
           backdropClick: false
           templateUrl: '<%= path_to_asset "signup_form.html" %>'
           controller: ->
             # for testing
-            $scope.user =
-              first_name: 'Test'
-              last_name: 'User'
-              email: 'test@civicevolution.org'
-              password: 'aaaaaaaa'
-              password_confirmation: 'aaaaaaaa'
+            $scope.user = {}
+            #  first_name: 'Test'
+            #  last_name: 'User'
+            #  email: 'test@civicevolution.org'
+            #  password: 'aaaaaaaa'
+            #  password_confirmation: 'aaaaaaaa'
             $scope.submit_sign_up = (user) ->
-              console.log "Submit by calling User.sign_up with data: #{user.name}/#{user.email}/#{user.password}"
+              #console.log "Submit by calling User.sign_up with data: #{user.name}/#{user.email}/#{user.password}"
               $scope.error_messages = null
-              User.sign_up($scope, user, dialog)
+              User.sign_up(user).then(
+                (response)->
+                  #console.log 'signup received response'
+                  $scope.dialog.close()
+                  $window.location.reload()
+                ,
+                (reason) ->
+                  #console.log 'signup received reason'
+                  if reason.data.errors
+                    $scope.error_messages = reason.data.errors
+                  else
+                    console.log "a bigger error in sign up"
+              )
             $scope.cancel = ->
-              dialog.close()
+              $scope.dialog.close()
         )
-        dialog.open()
+        $scope.dialog.open()
 
       $scope.forgot_password = ->
-        console.log "open forgot_password form"
-        dialog = $dialog.dialog(
+        $scope.dialog?.close()
+        $scope.dialog = $dialog.dialog(
           backdrop: true
           keyboard: true
           backdropClick: true
           templateUrl: '<%= path_to_asset "forgot_password_form.html" %>'
           controller: ->
-            $scope.user =
-              email: 'alice@civicevolution.org'
+            $scope.user = {}
+            #  email: 'alice@civicevolution.org'
             $scope.submit_forgot_password = (user) ->
-              console.log "Submit by calling User.forgot_password with email: #{user.email}"
-              $scope.error_message = null
-              User.forgot_password($scope, user, dialog)
+              #console.log "Submit by calling User.forgot_password with email: #{user.email}"
+              $scope.reset_error_message = null
+              User.forgot_password(user).then(
+                (response)->
+                  #console.log 'forgot_password received response'
+                  $scope.dialog.close()
+                  $scope.acknowledge_dialog("An email has been sent to #{user.email}")
+                ,
+                (reason) ->
+                  #console.log 'signup received reason'
+                  if reason.data.errors
+                    $scope.reset_error_message =
+                      ("#{field} #{reason.data.errors[field]}" for field of reason.data.errors).join("\n")
+                  else
+                    console.log "a bigger error in forgot_password"
+              )
             $scope.cancel = ->
-              dialog.close()
+              $scope.dialog.close()
         )
-        dialog.open()
+        $scope.dialog.open()
+
+      $scope.request_confirmation = ->
+        $scope.dialog?.close()
+        $scope.dialog = $dialog.dialog(
+          backdrop: true
+          keyboard: true
+          backdropClick: true
+          templateUrl: '<%= path_to_asset "request_confirmation_form.html" %>'
+          controller: ->
+            $scope.user = {}
+            #  email: 'brian@civicevolution.org'
+            $scope.submit_request_confirmation = (user) ->
+              #console.log "Submit by calling User.request_confirmation with email: #{user.email}"
+              $scope.conf_error_message = null
+              User.request_confirmation(user).then(
+                (response)->
+                  #console.log 'request_confirmation received response'
+                  $scope.dialog.close()
+                  $scope.acknowledge_dialog("An email has been sent to #{user.email}")
+                ,
+                (reason) ->
+                  #console.log 'request_confirmation received reason'
+                  if reason.data.errors
+                    $scope.conf_error_message =
+                      ("#{field} #{reason.data.errors[field]}" for field of reason.data.errors).join("\n")
+                  else
+                    console.log "a bigger error in request_confirmation"
+              )
+            $scope.cancel = ->
+              $scope.dialog.close()
+        )
+        $scope.dialog.open()
 
       $scope.edit_profile = ->
         $state.transitionTo('edit-profile')
@@ -92,7 +166,7 @@ ce2_directives.directive('ceUserBar', ->
         User.test()
 
       $scope.acknowledge_dialog = (message) ->
-        dialog = $dialog.dialog(
+        $scope.dialog = $dialog.dialog(
           backdrop: true
           keyboard: true
           backdropClick: true
@@ -100,9 +174,9 @@ ce2_directives.directive('ceUserBar', ->
           controller: ->
             $scope.message = message
             $scope.cancel = ->
-              dialog.close()
+              $scope.dialog.close()
         )
-        dialog.open()
+        $scope.dialog.open()
   ]
 )
 

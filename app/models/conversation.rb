@@ -176,7 +176,7 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     conversation.update_attribute(:last_report_sent_at,report_time)
     # create delayed_job request for tomorrow's daily report
     tomorrow_run_time = Time.now.change(hour: conversation.daily_report_hour, minute: 0, second: 0) + 1.day
-    Conversation.delay(run_at: tomorrow_run_time).run_daily_report(conversation.id)
+    Conversation.delay(run_at: tomorrow_run_time).run_daily_report(conversation.id) unless !Rails.env.production?
 
   end
 

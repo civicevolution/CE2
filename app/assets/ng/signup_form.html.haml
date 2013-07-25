@@ -47,7 +47,9 @@
 
 
       .modal-footer
-        %button.btn.btn-primary(ng-disabled='!signUp.$valid') Sign in
-        %button.btn.btn-primary(ng-click="cancel(result)") Cancel
+        %button.btn.btn-primary(ng-disabled='!signUp.$valid') Sign up
+        %button.btn.btn-primary(ng-click="cancel()") Cancel
+        %a(ng-click="sign_in()")
+          Sign in
 
   -#= render "devise/shared/links"
