@@ -2,6 +2,7 @@ class User < ActiveRecord::Base
   rolify
 
   has_one :profile
+  has_many :notification_requests
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,

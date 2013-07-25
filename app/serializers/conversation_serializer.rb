@@ -13,7 +13,7 @@ class ConversationSerializer < ActiveModel::Serializer
   end
 
   def munged_title
-      object.title_comment.try{ |title_comment| title_comment.text.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase}
+      object.title_comment.try{ |title_comment| title_comment.text.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50]}
   end
 
   def title

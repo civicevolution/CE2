@@ -17,6 +17,8 @@ class Conversation < ActiveRecord::Base
 
   has_and_belongs_to_many :tags
 
+  has_many :notification_requests
+
   validate :conversation_code_is_unique, on: :create
   before_create :initialize_conversation
 
@@ -110,4 +112,13 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     self.published = true
     self.save
   end
+
+  def munged_title
+    self.title_comment.try{ |title_comment| title_comment.text.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50]}
+  end
+
+  def title
+    self.title_comment.try{ |title_comment| title_comment.text}
+  end
+
 end

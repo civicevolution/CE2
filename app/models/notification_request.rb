@@ -1,5 +1,8 @@
 class NotificationRequest < ActiveRecord::Base
 
+  belongs_to :user
+  belongs_to :conversation
+
   def update_request settings
 
     if settings[:immediate] == 'every'

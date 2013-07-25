@@ -1,0 +1,24 @@
+%div#immediate_report
+  %p
+    %b #{@conversation.title}
+    just had a #{@post_type} posted by #{@author}
+
+  %p= @post.text
+
+
+  %p You can visit the conversation at http://app.civicevolution.dev/#/conversation/#{@conversation.code}/#{@conversation.munged_title}
+  -# at #{plan_url(:host=>@host,:team_id=>@team.id,:_mlc => @mcode)})
+
+-#
+  %hr
+  %p.unsubscribe
+    You can
+    =link_to 'adjust your notification settings',  notification_settings_form_url(:host=>@host, :team_id => @team.id, :_mlc => @mcode)
+    or
+    =link_to 'completely unsubscribe',  unsubscribe_url(:host=>@host, :_mlc => @mcode)
+    from CivicEvolution 
+    
+%style
+  :sass
+    body
+      width: 600px
