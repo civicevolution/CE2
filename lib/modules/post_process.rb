@@ -60,9 +60,5 @@ module Modules
     #  Firebase.push '', { class: 'RatingsCache', action: 'update_ratings', data: data, updated_at: Time.now.getutc, source: "RoR-Firebase" }
     #end
 
-
-
-
-
   end
 end

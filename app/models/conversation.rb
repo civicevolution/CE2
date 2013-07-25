@@ -111,7 +111,17 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     self.status = 'ready'
     self.published = true
     self.save
+    schedule_daily_report
   end
+
+  def schedule_daily_report
+    first_run_time = Time.now.change(hour: self.daily_report_hour, minute: 0, second: 0)
+    if first_run_time < Time.now + 1.hour
+      first_run_time += 1.day
+    end
+    Conversation.delay(run_at: first_run_time).run_daily_report(self.id)
+  end
+
 
   def munged_title
     self.title_comment.try{ |title_comment| title_comment.text.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50]}
@@ -120,5 +130,56 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
   def title
     self.title_comment.try{ |title_comment| title_comment.text}
   end
+
+
+  def self.run_daily_report conversation_id
+    Rails.logger.debug "run_daily_report for con_id: #{conversation_id}"
+    conversation = Conversation.find(conversation_id)
+    report_time = Time.now
+    requests = conversation.notification_requests.includes(:user).where(send_daily: true)
+    # if there is at least one request for this conversation, collect the comments to be sent
+    # Any SummaryComment or CallToAction comments that are new or are updated
+    # Any ConversationComments that are new
+    if requests.size > 0
+      # Collect the comments
+      time_to_run = Time.now
+      comments = conversation.comments.
+          where( %Q|type in ('SummaryComment', 'CallToActionComment') AND updated_at >= :last_report_time
+          OR type = 'ConversationComment' AND created_at >= :last_report_time|,
+          {last_report_time: conversation.last_report_sent_at || conversation.created_at} )
+      # if there are any new comments to send, organize them and then iterate through the recipients
+      if comments.size > 0
+        # organize the comments into CTA, Summary and Conversation, order_id
+        summary_comments = []
+        conversation_comments = []
+        call_to_action_comment = nil
+        comments.each do |comment|
+          case comment.type
+          when "SummaryComment" then summary_comments.push comment
+          when "ConversationComment" then conversation_comments.push comment
+          when "CallToActionComment" then call_to_action_comment = comment
+          end
+        end
+        # sort them by order_id
+        summary_comments.sort{|a,b| a.order_id <=> b.order_id}
+        conversation_comments.sort{|a,b| a.order_id <=> b.order_id}
+
+        # iterate through the recipients
+        requests.each do |request|
+          Rails.logger.debug "Email daily report to #{request.user.email}"
+          NotificationMailer.delay.
+            periodic(request.user, conversation, summary_comments, conversation_comments, call_to_action_comment, report_time, "mcode", "host")
+        end
+      end # comments.size > 0
+    end # request.size > 0
+
+    conversation.update_attribute(:last_report_sent_at,report_time)
+    # create delayed_job request for tomorrow's daily report
+    tomorrow_run_time = Time.now.change(hour: conversation.daily_report_hour, minute: 0, second: 0) + 1.day
+    Conversation.delay(run_at: tomorrow_run_time).run_daily_report(conversation.id)
+
+  end
+
+
 
 end

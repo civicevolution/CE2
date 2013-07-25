@@ -1,0 +1,34 @@
+%div#periodic_report
+  %p Report time: #{@report_time.strftime("%B %d at %I:%M %p")}
+
+  - if @summary_comments.size > 0
+    %h4 New and updated summary comments
+    - @summary_comments.each do |com|
+      %p.summary= com.text
+
+
+
+  - if @call_to_action_comment
+    %h4 Updated call-to-action
+    %p.cta= @call_to_action_comment.text
+
+
+
+  - if @conversation_comments.size > 0
+    %h4 New conversation comments
+    - @conversation_comments.each do |com|
+      %div.comment
+        %p= com.text
+        %p
+          %i from "#{com.author.first_name} #{com.author.last_name}, id: #{com.id}"
+
+
+:scss
+  body{
+    width: 600px;
+    h4{ margin-top: 40px;}
+    p.cta, p.summary{margin-left: 20px; margin-bottom: 20px;}
+    div.comment{
+      margin: 0 20px 40px 20px;
+    }
+  }

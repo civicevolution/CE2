@@ -1,0 +1,42 @@
+Report time: #{@report_time.strftime("%B %d at %I:%M %p")}
+~''
+~''
+
+- if @summary_comments.size > 0
+  New and updated summary comments
+  ~''
+  - @summary_comments.each do |com|
+    #{com.text}
+-#:plain
+~''
+~''
+~''
+
+
+- if @call_to_action_comment
+  Updated call-to-action
+  ~''
+  #{@call_to_action_comment.text}
+-#:plain
+~''
+~''
+~''
+
+
+
+- if @conversation_comments.size > 0
+  New conversation comments
+  ~''
+  ~''
+  - @conversation_comments.each do |com|
+    #{com.text}
+    from #{com.author.first_name} #{com.author.last_name}
+    ~''
+    ~''
+    ~''
+
+
+Report time: #{@report_time}
+
+
+Unsubscribe

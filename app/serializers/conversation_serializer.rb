@@ -43,7 +43,7 @@ class ConversationSerializer < ActiveModel::Serializer
     else
       {
           immediate: (request.immediate_all ? 'every' : request.immediate_me ? 'mine' : 'none'),
-          daily: request.send_email_at ? true : false
+          daily: request.send_daily
       }
     end
   end

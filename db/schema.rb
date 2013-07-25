@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130724215245) do
+ActiveRecord::Schema.define(version: 20130725080949) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -63,16 +63,18 @@ ActiveRecord::Schema.define(version: 20130724215245) do
   add_index "comments", ["user_id"], name: "index_comments_on_user_id", using: :btree
 
   create_table "conversations", force: true do |t|
-    t.string   "code",                       null: false
-    t.integer  "user_id",                    null: false
+    t.string   "code",                                null: false
+    t.integer  "user_id",                             null: false
     t.datetime "starts_at"
     t.datetime "ends_at"
     t.hstore   "privacy"
-    t.boolean  "list",       default: false
-    t.boolean  "published",  default: false
-    t.string   "status",     default: "new", null: false
+    t.boolean  "list",                default: false
+    t.boolean  "published",           default: false
+    t.string   "status",              default: "new", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "daily_report_hour",   default: 7
+    t.datetime "last_report_sent_at"
   end
 
   add_index "conversations", ["code"], name: "index_conversations_on_code", unique: true, using: :btree
@@ -110,9 +112,9 @@ ActiveRecord::Schema.define(version: 20130724215245) do
     t.integer  "user_id",         null: false
     t.boolean  "immediate_me"
     t.boolean  "immediate_all"
-    t.datetime "send_email_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "send_daily"
   end
 
   add_index "notification_requests", ["conversation_id", "user_id"], name: "index_notification_requests_on_conversation_id_and_user_id", using: :btree

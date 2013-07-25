@@ -23,19 +23,21 @@ class NotificationMailer < ActionMailer::Base
   end
 
 
-  #def periodic_report(recip, app, teams, ideas, comments, reports, mcode,sent_at = Time.now)
-  #  @recip=recip
-  #  @teams=teams
-  #  @ideas = ideas
-  #  @comments = comments
-  #  @reports = reports
-  #  @mcode = mcode
-  #  mail(:to => "#{recip.first_name} #{recip.last_name} <#{recip.email}>",
-  #       :subject => "Your #{app} CivicEvolution proposal has been updated",
-  #       :from => "#{app} at CivicEvolution <support@civicevolution.org>",
-  #       :date => sent_at
-  #  )
-  #end
+  def periodic(recip, conversation, summary_comments, conversation_comments, call_to_action_comment, report_time, mcode, host)
+    @recip=recip
+    @conversation = conversation
+    @summary_comments = summary_comments
+    @conversation_comments = conversation_comments
+    @call_to_action_comment = call_to_action_comment
+    @report_time = report_time
+    @mcode = mcode
+    @host = host
+    mail(:to => "#{recip.first_name} #{recip.last_name} <#{recip.email}>",
+         :subject => "Daily report for #{@conversation.title}",
+         :from => "CivicEvolution <support@civicevolution.org>",
+         :from => "CivicEvolution <support@civicevolution.org>"
+    )
+  end
 
 
 
