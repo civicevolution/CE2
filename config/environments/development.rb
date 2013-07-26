@@ -14,7 +14,7 @@ Ce2::Application.configure do
   config.action_controller.perform_caching = false
 
   # ActionMailer Config
-  config.action_mailer.default_url_options = { :host => 'localhost' }
+  config.action_mailer.default_url_options = { :host => 'civicevolution.dev' }
   
   # change to true to allow email to be sent during development
   config.action_mailer.perform_deliveries = true
