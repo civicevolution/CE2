@@ -159,6 +159,37 @@ ce2_directives.directive('ceUserBar', ->
         )
         $scope.dialog.open()
 
+      $scope.change_password = ->
+        $scope.dialog?.close()
+        $scope.dialog = $dialog.dialog(
+          backdrop: true
+          keyboard: true
+          backdropClick: true
+          templateUrl: '<%= path_to_asset "change-password-form.html" %>'
+          controller: ->
+            $scope.update_pw = {}
+            $scope.submit_change_password = (update_pw) ->
+              $scope.change_password_error_message = null
+              User.change_password(update_pw).then(
+                (response)->
+                  console.log 'submit_change_password received response'
+                  $scope.dialog.close()
+                  $scope.acknowledge_dialog("Your password has been updated")
+              ,
+              (reason) ->
+                #console.log 'request_confirmation received reason'
+                if reason.data.errors
+                  $scope.change_password_error_message =
+                    ("#{field} #{reason.data.errors[field]}" for field of reason.data.errors).join("</br>")
+                else
+                  console.log "a bigger error in change_password"
+              )
+            $scope.cancel = ->
+              $scope.dialog.close()
+        )
+        $scope.dialog.open()
+
+
       $scope.edit_profile = ->
         $state.transitionTo('edit-profile')
       $scope.test = ->

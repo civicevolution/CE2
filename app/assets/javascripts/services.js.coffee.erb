@@ -26,8 +26,12 @@ services.factory 'User', [ "$http", "$window", ($http, $window) ->
     $http.post('/users/password.json', {user: user })
 
   request_confirmation: (user) ->
-    console.log "User.request_confirmation with credentials: #{user.email}"
+    #console.log "User.request_confirmation with credentials: #{user.email}"
     $http.post('/users/confirmation.json', {user: user })
+
+  change_password: (user) ->
+    #console.log "User.change_password with credentials: cp: #{user.current_password} np: #{user.password} pc: #{user.password_confirmation}"
+    $http.put('/users.json', {user: user })
 
   edit_profile: ->
     console.log 'User:edit_profile'

@@ -4,7 +4,7 @@
     %h3 Send me the confirmation email
   .modal-body
     %div.alert.alert-error(ng-show="conf_error_message")
-      %p.message {{conf_error_message}}
+      %p.message(ng-bind-html-unsafe="conf_error_message")
 
     %form(ng-submit="submit_request_confirmation(user)"){name: 'requestConfirmation'}
       %p
