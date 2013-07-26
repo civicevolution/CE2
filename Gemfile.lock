@@ -300,6 +300,7 @@ DEPENDENCIES
   capybara (>= 2.0.3)
   coffee-rails (~> 4.0.0)
   cucumber-rails!
+  daemons
   database_cleaner (>= 1.0.0.RC1)
   delayed_job!
   delayed_job_active_record!

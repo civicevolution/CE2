@@ -58,6 +58,8 @@ gem 'actionpack-page_caching'
 gem 'actionpack-action_caching'
 #gem 'activeresource', github: 'rails/activeresource'
 
+gem 'daemons'
+
 gem 'delayed_job',
     git: 'git://github.com/collectiveidea/delayed_job.git'
 gem 'delayed_job_active_record',
