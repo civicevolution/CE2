@@ -521,4 +521,16 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
       $scope.$root.$broadcast "user-event-notification", { action: 'open call-to-action edit'}
 
+    $scope.$on 'Publish conversation', (event, data) ->
+      console.log "publishConversation with code: #{data.conversation_code}"
+      $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Publishing</i>'
+      ConversationData.publish_conversation(data.conversation_code).then (response)->
+        #console.log "ConversationData.publish_conversation received response"
+        $scope.form_submit_status = 'Published'
+        $timeout ->
+          $scope.form_submit_status = 'Publish'
+          $scope.$root.$broadcast "user-event-notification", { action: 'conversation published'}
+        ,800
+
+
 ]

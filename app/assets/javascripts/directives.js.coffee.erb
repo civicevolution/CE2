@@ -1085,7 +1085,7 @@ ce2_directives.directive('ceCreateConversationWizard', ->
   replace: true
   scope: true
   compile: (tElement, tAttrs) ->
-    console.log "compile for wizard"
+    #console.log "compile for wizard"
     # read the wizard template to generate a map of step targets
     wizard_map = {}
     num_steps = 0
@@ -1126,6 +1126,7 @@ ce2_directives.directive('ceCreateConversationWizard', ->
       $scope.name = 'ceCreateConversationWizard'
       $scope.wizard_complete = false
       $scope.form_submit_status = "Publish conversation"
+      debug_wizard = false
 
 
       $scope.wizard_navigation = (direction) ->
@@ -1142,17 +1143,17 @@ ce2_directives.directive('ceCreateConversationWizard', ->
         # else reloads the current page
 
         if not current_step
-          console.log "No more wizard pages to display, clear/remove wizard"
+          console.log "No more wizard pages to display, clear/remove wizard" if debug_wizard
           $timeout ->
             $scope.$root.conversation_wizard_mode = false
           return
 
         $scope.wizard_step = current_step['code']
         $scope.wizard_current_step = current_step
-        console.log "current_step: " + ("#{key}: #{current_step[key]}" for key of current_step).join(', ')
+        console.log "current_step: " + ("#{key}: #{current_step[key]}" for key of current_step).join(', ') if debug_wizard
 
         # is the test valid for this wizaard page
-        console.log "test: #{current_step.test} "
+        console.log "test: #{current_step.test}" if debug_wizard
 
         if current_step.test && !$scope.$eval(current_step.test)
           $scope.wizard_navigation('next')
@@ -1261,17 +1262,5 @@ ce2_directives.directive('ceCreateConversationWizard', ->
             else  console.log "Don't know what to do with wizard notification action #{$scope.wizard_current_step['action']}"
         else
           #console.log "The current step has NOT been triggered by #{data.action}"
-
-      $scope.publishConversation = ->
-        #console.log "publishConversation"
-        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Publishing</i>'
-        ConversationData.publish_conversation($scope.conversation.code).then (response)->
-          #console.log "ConversationData.publish_conversation received response"
-          $scope.form_submit_status = 'Published'
-          $timeout ->
-            $scope.form_submit_status = 'Publish'
-            $scope.$root.$broadcast "user-event-notification", { action: 'conversation published'}
-          ,800
-
   ]
 )
