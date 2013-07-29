@@ -18,10 +18,7 @@
       .span12.summary
         %div#call-to-action.call-to-action
           %div.comment-outer
-            %div(ce-comment type="call-to-action" ng-if="conversation.call_to_action_comment")
-            %div.placeholder(ng-if="!conversation.call_to_action_comment" ng-click="edit_call_to_action()")
-              %p
-                Click here to describe this conversation and create the first call-to-action.
+            %div(ce-comment type="call-to-action")
 
     .row-fluid
       .span12.summary

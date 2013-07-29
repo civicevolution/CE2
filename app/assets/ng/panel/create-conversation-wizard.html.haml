@@ -19,10 +19,13 @@
 
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:call-to-action:below"
-        trigger="open call-to-action edit" action="next" test="conversation.call_to_action_comment == null")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:edit-cta-link:below"
+        trigger="open call-to-action edit" action="next" test="conversation.call_to_action_comment.id == 0")
         %h4 Tell your friends how they can participate
-        %p A clear call-to-action focuses and motivates people.
+        %p
+          Click the
+          %b edit
+          link to add a clear call-to-action that focuses and motivates people.
 
       %div.page(ng-switch-when="TBD" wiz-pos="el:reply-control:above"
         trigger="save comment CallToActionComment" action="next" test="conversation.call_to_action_comment == null")

@@ -399,7 +399,15 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       $scope.reply_control_title = switch $scope.newComment.type
         when 'ConversationComment' then "Edit conversation comment"
         when 'SummaryComment' then "Edit summary comment"
-        when 'CallToActionComment' then "Edit call-to-action"
+        when 'CallToActionComment'
+          if $scope.newComment.id is 0
+            $scope.newComment.id = null
+            $scope.newComment.text = ''
+            $scope.newComment.conversation_code = $scope.conversation.code
+            $scope.$root.$broadcast "user-event-notification", { action: 'open call-to-action edit'}
+            "Add your first call-to-action"
+          else
+            "Edit call-to-action"
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
 
@@ -438,7 +446,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
 
     # register the listeners for the firebase updates
     $scope.$on 'ConversationComment_update', (event, data) ->
-      console.log "received broadcast ConversationComment_update"
+      #console.log "received broadcast ConversationComment_update"
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.conversation_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user

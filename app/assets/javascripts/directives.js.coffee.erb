@@ -232,8 +232,8 @@ ce2_directives.directive('ceComment', ->
   priority: 100
   link: (scope, element, attrs) ->
     switch attrs.type
-      when "call-to-action" then scope.comment = scope.conversation.call_to_action_comment
-
+      when "call-to-action" then scope.comment =
+        scope.conversation.call_to_action_comment
   controller: [ "$scope", "CommentData",
     ($scope, CommentData) ->
       $scope.name = 'ceComment'
@@ -1187,12 +1187,12 @@ ce2_directives.directive('ceCreateConversationWizard', ->
               el = angular.element(el)
               width = el.prop('offsetWidth')
               height = el.prop('offsetHeight')
-              console.log "height: #{height}, width: #{width}" if debug_position
+              console.log "offset.top: #{offset.top}, offset.left: #{offset.left}, height: #{height}, width: #{width}" if debug_position
               switch position[2]
                 when 'below'
                   console.log "relative position below" if debug_position
                   top = offset.top + height
-                  left = offset.left
+                  left = offset.left - wizard_width/2 + width/2
                   wizard.addClass('bottom')
                 when 'above'
                   console.log "relative position above" if debug_position

@@ -92,7 +92,15 @@ services.factory "ConversationData", ["$http",
           summary_comments: summary_comments.sort((a,b)-> a.order_id - b.order_id)
           conversation_comments: conversation_comments.sort((a,b)-> a.order_id - b.order_id)
           title_comment: title_comment
-          call_to_action_comment: call_to_action_comment
+          call_to_action_comment: call_to_action_comment || {
+            editable_by_user: true
+            id: 0
+            purpose: "Call to action"
+            text: "This area is for your call-to-action. Here you describe this conversation and suggest ways for people to contribute."
+            type: "CallToActionComment"
+            updated_at: new Date()
+            version: 0
+          }
           title: response.data.title
           code: response.data.code
           current_timestamp: response.data.current_timestamp
