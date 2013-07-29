@@ -30,7 +30,7 @@ module Modules
       requests = self.conversation.notification_requests.includes(:user).where(immediate_all: true)
       requests.each do |request|
         Rails.logger.debug "Email post to #{request.user.email}"
-        NotificationMailer.delay.immediate(request.user, self, "mcode", "host")
+        ConversationMailer.delay.immediate_notification(request.user, self, "mcode", "host")
       end
 
     end

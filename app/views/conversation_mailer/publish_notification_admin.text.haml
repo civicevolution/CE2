@@ -1,0 +1,20 @@
+:plain
+  A new conversation has been published at CivicEvolution
+
+      #{@conversation.title}
+
+
+  http://app.civicevolution.dev/#/conversation/#{@conversation.code}/#{@conversation.munged_title}
+
+  With these tags
+
+- @conversation.tags.each do |tag|
+  :plain
+      #{tag.name}
+
+
+~''
+:plain
+  Curator
+    #{@curator.first_name} #{@curator.last_name}
+    #{@curator.email}

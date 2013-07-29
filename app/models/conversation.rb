@@ -112,6 +112,9 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     self.published = true
     self.save
     schedule_daily_report
+    curator = User.find( self.user_id)
+    ConversationMailer.delay.publish_notification_admin( curator, self)
+    ConversationMailer.delay.publish_notification_curator( curator, self)
   end
 
   def schedule_daily_report
@@ -167,8 +170,8 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
         # iterate through the recipients
         requests.each do |request|
           Rails.logger.debug "Email daily report to #{request.user.email}"
-          NotificationMailer.delay.
-            periodic(request.user, conversation, summary_comments, conversation_comments, call_to_action_comment, report_time, "mcode", "host")
+          ConversationMailer.delay.
+              periodic_report(request.user, conversation, summary_comments, conversation_comments, call_to_action_comment, report_time, "mcode", "host")
         end
       end # comments.size > 0
     end # request.size > 0
