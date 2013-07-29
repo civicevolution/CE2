@@ -64,6 +64,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             console.log "resolve get ConversationData.conversation"
             ConversationData.conversation($stateParams.code)
           ]
+        onEnter: ($rootScope) ->
+          $rootScope.initialize_markdown_system()
         controller: conversation_controller
       )
 
@@ -192,21 +194,10 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
         display: "none"
       $rootScope.$$phase || $rootScope.$apply()
 
-    [converter,editor] = initialize_markdown_converter( TemplateEngine, $timeout, $dialog, $rootScope )
-    $rootScope.converter = converter
-    $rootScope.editor = editor
-
-    $rootScope.initialize_markdown_editor = (editor_id = 'wmd-input', init_ctr = 5) ->
-      #console.log "initialize_markdown_editor with editor_id: #{editor_id} and init_ctr: #{init_ctr}"
-      edit_input = document.getElementById(editor_id)
-      if edit_input && editor && editor.run
-        #console.log "init_editor now"
-        editor.run()
-      else if (init_ctr -= 1 ) > 0
-        #console.log "try to init editor in 1 sec"
-        $timeout ->
-          $rootScope.initialize_markdown_editor(editor_id, init_ctr )
-        , 1000
+    $rootScope.initialize_markdown_system = ->
+      #console.log "initialize_markdown_system"
+      # which will call initialize_markdown_editor
+      initialize_markdown_converter( TemplateEngine, $timeout, $dialog, $rootScope )
 
     $http.get("<%= path_to_asset "quote.html" %>", {cache:$templateCache};)
 
@@ -356,7 +347,24 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
     )
     dialog.open()
     $rootScope.$$phase || $rootScope.$apply()
-  return [converter,editor]
+  $timeout ->
+    initialize_markdown_editor(editor)
+  , 1000
+  $rootScope.converter = converter
+  $rootScope.editor = editor
+
+
+initialize_markdown_editor = (editor, editor_id = 'wmd-input', init_ctr = 5) ->
+  #console.log "initialize_markdown_editor with editor_id: #{editor_id} and init_ctr: #{init_ctr}"
+  edit_input = document.getElementById(editor_id)
+  if edit_input && editor && editor.run
+    #console.log "init_editor now"
+    editor.run()
+  else if (init_ctr -= 1 ) > 0
+    #console.log "try to init editor in 1 sec"
+    $timeout ->
+      initialize_markdown_editor(editor, editor_id, init_ctr )
+    , 1000
 
 conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", "ConversationData",
   ($scope, conversation, FirebaseService, $timeout, ConversationData) ->
@@ -364,7 +372,6 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     $scope.conversation = conversation
     $scope.$root.timestamp = conversation.current_timestamp
     $scope.newComment = { }
-    $scope.initialize_markdown_editor()
 
     $scope.name = 'ceConversation'
     # the data was resolved and attached to scope in the state definition
