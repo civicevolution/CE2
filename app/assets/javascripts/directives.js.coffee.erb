@@ -272,18 +272,34 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         debugger
 
       $scope.show_reply_target = (id) ->
-        console.log "show_reply_target for id: #{id}"
+        #console.log "show_reply_target for id: #{id}"
+        $scope.comment.reply_target_expanded = ! $scope.comment.reply_target_expanded
+        #console.log "toggle_in_comment_quote $scope.comment.reply_target_expanded: #{$scope.comment.reply_target_expanded}"
+        if $scope.comment.reply_target_expanded && not $scope.comment.reply_full_text
+          $scope.comment.reply_full_text = "Loading..."
+          CommentData.get_comment(id).then (response) ->
+            $scope.comment.reply_full_text = $scope.$root.converter.makeHtml(response.data.text)
+
 
       $scope.show_replies = (ids) ->
-        console.log "show_replies for ids: #{ids}"  
-
+        #console.log "show_replies for ids: #{ids}"
+        $scope.comment.replies_expanded = ! $scope.comment.replies_expanded
+        #console.log "toggle_in_comment_quote $scope.comment.replies_expanded: #{$scope.comment.replies_expanded}"
+        #converter.makeHtml(comment.text)
+        if $scope.comment.replies_expanded && not $scope.comment.replies
+          $scope.comment.replies_full_text = "Loading..."
+          CommentData.get_comments(ids).then (response) ->
+            $scope.comment.replies = response.data
+            for reply in $scope.comment.replies
+              reply.text = $scope.$root.converter.makeHtml(reply.text)
   ]
 ])
 
 ce2_directives.directive('ceQuotedComment', ->
   restrict: 'A'
   templateUrl: "<%= path_to_asset "quote-in-comment.html" %>"
-  replace: false
+  replace: true
+  scope: true
   transclude: true
   link: (scope, element, attrs) ->
     #console.log "assign quote attributes to the scope"
@@ -292,20 +308,20 @@ ce2_directives.directive('ceQuotedComment', ->
     scope.quote.type = attrs.type
     scope.quote.userName = attrs.userName
 
-  controller: [ "$scope", "$compile", "$timeout", "$element", "$transclude", "ConversationData", ($scope, $compile, $timeout, $element, $transclude, ConversationData) ->
+  controller: [ "$scope", "$compile", "$timeout", "$element", "$transclude", "CommentData", ($scope, $compile, $timeout, $element, $transclude, CommentData) ->
     #console.log "in the controller for ceQuotedComment"
     $scope.quote = {expanded: false}
     #console.log "quote.text = #{$transclude().text()}"
     #$timeout ->
     $scope.quote.text = $transclude().text()
 
-    $scope.toggle_in_comment_quote = ->
+    $scope.toggle_in_comment_quote = (id) ->
       $scope.quote.expanded = ! $scope.quote.expanded
       console.log "toggle_in_comment_quote $scope.quote.expanded: #{$scope.quote.expanded}"
       #converter.makeHtml(comment.text)
       if $scope.quote.expanded && not $scope.quote.full_text
         $scope.quote.full_text = "Loading..."
-        ConversationData.get_comment(23).then (response) ->
+        CommentData.get_comment(id).then (response) ->
           $scope.quote.full_text = $scope.$root.converter.makeHtml(response.data.text)
 
     $scope.comment_quote_expand = ->
@@ -314,7 +330,7 @@ ce2_directives.directive('ceQuotedComment', ->
 
     $scope.comment_quote_up = (id) ->
       event.stopPropagation()
-      console.log "comment_quote_up"
+      console.log "comment_quote_up to ##{id}"
 
   ]
 )

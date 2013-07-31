@@ -24,9 +24,16 @@
           .arrow
           .comment-body-container(ng-mouseup="text_select_by_mouse()")
 
+            %div(ng-if="comment.reply_target_expanded")
+              %div.comment-body(ng-bind-html-unsafe="comment.reply_full_text")
+
+
             %div.header
               %div.in-reply(ng-if="comment.in_reply" ng-click="show_reply_target({{comment.in_reply.id}})")
                 In reply to {{comment.in_reply.name}}
+                %span(ng-if="comment.reply_target_expanded")
+                  %i.icon-chevron-down
+
 
               %p.time {{comment.updated_at | from_now}}
               %p {{comment.purpose}}
@@ -38,8 +45,10 @@
             %div(ce-rating-slider)
 
             %div.footer
-              %div.replies(ng-if="comment.replies.length>0" ng-click="show_replies({{comment.replies}})")
-                {{comment.replies.length}} replies
+              %div.replies(ng-if="comment.reply_ids.length>0" ng-click="show_replies({{comment.reply_ids}})")
+                {{comment.reply_ids.length}} replies
+                %span(ng-if="comment.replies_expanded")
+                  %i.icon-chevron-up
 
 
               %a(ng-click="share({{comment.id}})")
@@ -57,3 +66,7 @@
               %a(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
                 -#%i.icon-pencil
                 Edit
+
+            %div.replies(ng-if="comment.replies_expanded")
+              %div(ng-repeat="reply in comment.replies")
+                %div(ng-bind-html-unsafe="reply.text")

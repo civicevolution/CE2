@@ -5,7 +5,12 @@ module Api
       load_and_authorize_resource
       
       def index
-        respond_with Comment.includes(:author).all
+        if params[:ids]
+          respond_with Comment.includes(:author).where(id: params[:ids].scan(/\d+/) )
+        else
+          respond_with Comment.includes(:author).all
+        end
+
         #Conversation.first.summary_comments(:includes=> :author)
       end
 

@@ -89,9 +89,9 @@ services.factory "ConversationData", ["$http",
           for comment in conversation_comments
             comment.quote_expanded = "false"
             if comment.id is 23
-              comment.replies = [33,34]
+              comment.reply_ids = [33,34]
             else
-              comment.replies = []
+              comment.reply_ids = []
             if comment.id is 33
               comment.in_reply = { id: 23, name: 'Brian Sullivan'}
             else
@@ -142,9 +142,6 @@ services.factory "ConversationData", ["$http",
     publish_conversation: (conversation_code) ->
       $http.post("/api/conversations/#{conversation_code}/publish.json")
 
-    get_comment: (id) ->
-      $http.get("/api/comments/#{id}")
-
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
@@ -194,11 +191,15 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
           source: "#{action}Comment"
         }
 
-
-
     persist_rating_to_ror: (comment_id, rating) ->
       #console.log "send rating to RoR id: #{comment_id} with rating #{rating}"
       $http.post("/comments/#{comment_id}/rate/#{rating}.json")
+
+    get_comment: (id) ->
+      $http.get("/api/comments/#{id}")
+
+    get_comments: (ids) ->
+      $http.get("/api/comments?ids=#{ids.join(',')}")
 
 ]
 
