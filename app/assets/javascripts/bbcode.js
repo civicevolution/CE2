@@ -237,7 +237,15 @@ Markdown.BBCode = {
       if (opts && opts.environment) templateName = "quote_" + opts.environment;
       //debugger;
       // Apply the template
-      text = text.replace(matches[0], "</p>" + opts.TemplateEngine.interpolate(templateName,args) + "<p>");
+      //text = text.replace(matches[0], "</p>" + opts.TemplateEngine.interpolate(templateName,args) + "<p>");
+      text = text.replace(matches[0],
+        '</p><quote ce-quoted-comment ' +
+        'user-name="' + params[0] + '" ' +
+        'type="' + params[1] + '" ' +
+        'id="' + params[2] + '" ' +
+        'photo_code="' + params[3] + '" ' +
+        '>' + content + '</quote><p>'
+      );
 
     }
     return text;

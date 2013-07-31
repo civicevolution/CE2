@@ -19,7 +19,14 @@ class User < ActiveRecord::Base
   validates :first_name, :last_name, :presence => true
 
   after_create :add_participant_role, :add_profile
-  
+
+  before_create :create_unique_name_count
+
+  def create_unique_name_count
+    num_similar_names = User.where("lower(first_name) = lower(?) AND lower(last_name) = lower(?)",self.first_name, self.last_name).maximum(:name_count) || 0
+    self.name_count = num_similar_names += 1
+  end
+
   def add_participant_role
     add_role :participant
   end

@@ -44,6 +44,9 @@ ins{
 
 .hidden { display: none}
 
+html > body{
+  background-color: #eeeeee;
+}
 
 div.profile-photo-form{
   iframe{
@@ -102,7 +105,6 @@ div.profile-photo-form{
   padding-right: 40px;
   .content{
     margin-top: 40px;
-    background-color: white;
   }
 }
 

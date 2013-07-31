@@ -219,7 +219,7 @@ ce2_directives.directive('ceFocus', [ "$timeout", ($timeout) ->
 
 ])
 
-ce2_directives.directive('ceComment', ->
+ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeout) ->
   restrict: 'A'
   templateUrl: (tElement, tAttrs) ->
     #console.log "function to select correct comment template"
@@ -234,8 +234,17 @@ ce2_directives.directive('ceComment', ->
     switch attrs.type
       when "call-to-action" then scope.comment =
         scope.conversation.call_to_action_comment
-  controller: [ "$scope", "CommentData",
-    ($scope, CommentData) ->
+
+  compile: ->
+    post: (scope, iElement, iAttrs, controller) ->
+      #console.log "ceComment postLink function"
+      if scope.comment?.text.match(/\[quote/)
+        #console.log "XXX compile this node"
+        $timeout ->
+          $compile(iElement.find('quote'))(scope)
+
+  controller: [ "$scope", "CommentData", "$compile",
+    ($scope, CommentData, $compile) ->
       $scope.name = 'ceComment'
 
       $scope.edit = (comment_type, comment_id) ->
@@ -261,6 +270,51 @@ ce2_directives.directive('ceComment', ->
       $scope.test = ->
         console.log "Clicked Comment test link"
         debugger
+
+      $scope.show_reply_target = (id) ->
+        console.log "show_reply_target for id: #{id}"
+
+      $scope.show_replies = (ids) ->
+        console.log "show_replies for ids: #{ids}"  
+
+  ]
+])
+
+ce2_directives.directive('ceQuotedComment', ->
+  restrict: 'A'
+  templateUrl: "<%= path_to_asset "quote-in-comment.html" %>"
+  replace: false
+  transclude: true
+  link: (scope, element, attrs) ->
+    #console.log "assign quote attributes to the scope"
+    scope.quote.id = attrs.id
+    scope.quote.photoCode = attrs.photoCode
+    scope.quote.type = attrs.type
+    scope.quote.userName = attrs.userName
+
+  controller: [ "$scope", "$compile", "$timeout", "$element", "$transclude", "ConversationData", ($scope, $compile, $timeout, $element, $transclude, ConversationData) ->
+    #console.log "in the controller for ceQuotedComment"
+    $scope.quote = {expanded: false}
+    #console.log "quote.text = #{$transclude().text()}"
+    #$timeout ->
+    $scope.quote.text = $transclude().text()
+
+    $scope.toggle_in_comment_quote = ->
+      $scope.quote.expanded = ! $scope.quote.expanded
+      console.log "toggle_in_comment_quote $scope.quote.expanded: #{$scope.quote.expanded}"
+      #converter.makeHtml(comment.text)
+      if $scope.quote.expanded && not $scope.quote.full_text
+        $scope.quote.full_text = "Loading..."
+        ConversationData.get_comment(23).then (response) ->
+          $scope.quote.full_text = $scope.$root.converter.makeHtml(response.data.text)
+
+    $scope.comment_quote_expand = ->
+      event.stopPropagation()
+      console.log "comment_quote_expand"
+
+    $scope.comment_quote_up = (id) ->
+      event.stopPropagation()
+      console.log "comment_quote_up"
 
   ]
 )

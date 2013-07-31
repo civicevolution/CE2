@@ -6,8 +6,14 @@ class SummaryComment < Comment
 
   belongs_to :conversation
 
-  before_validation :set_order_id_for_new_summary_comment
+  before_create :initialize_purpose_to_summary
 
+  def initialize_purpose_to_summary
+    self.purpose = "Summary"
+  end
+
+
+  before_validation :set_order_id_for_new_summary_comment
 
   def set_order_id_for_new_summary_comment
     # set order_id to the max order_id +1 for this conversation, starting at 1

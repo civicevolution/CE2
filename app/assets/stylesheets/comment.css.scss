@@ -69,7 +69,7 @@ div.comment-outer{
         margin-left: 20px
       }
     }
-    &.ConversationComment div.rating{ padding-bottom: 40px; }
+    //&.ConversationComment div.rating{ padding-bottom: 40px; }
     &.SummaryComment div.rating{ padding-bottom: 0px; }
 
   }
@@ -149,3 +149,67 @@ div.rating{
   }
 }
 
+.comment-body-container{
+  background-color: white;
+  padding: 10px;
+  margin-bottom: 16px;
+  padding: 0 20px 0px 20px;
+  -webkit-border-radius: 0 6px 6px 6px;
+  -moz-border-radius: 0 6px 6px 6px;
+  border-radius: 0 6px 6px 6px;
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+
+
+  .header{
+    //border: 1px solid green;
+    height: 30px;
+    p{
+      float: right;
+      margin-left: 16px;
+    }
+    div.in-reply{
+      float: left;
+      padding: 2px 6px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+  }
+  .comment-body{ clear: both;}
+  .footer{
+    //border: 1px solid blue;
+    background-color: #fafafa;
+    height: 30px;
+    a{
+      display: block;
+      float: right;
+      margin-left: 10px;
+    }
+    div.replies{
+      float: left;
+      padding: 2px 6px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+  }
+
+}
+
+.body-with-arrow{
+  position: relative;
+  }
+
+.arrow {
+  position: absolute;
+  top: 12px;
+  left: -20px;
+  margin-top: -11px;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  //border-color: transparent;
+  //border: solid;
+  //border-width: 20px 10px 20px 10px;
+  border-right-color: white;
+}

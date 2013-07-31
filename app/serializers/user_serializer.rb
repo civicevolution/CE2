@@ -1,7 +1,23 @@
 class UserSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :id, :first_name, :last_name, :email, :small_photo_url, :sm1, :sm2, :sm3, :sm4
+  attributes :id, :first_name, :last_name, :name, :email, :small_photo_url, :sm1, :sm2, :sm3, :sm4
+
+  def last_name
+    if object.name_count == 1
+      object.last_name
+    else
+      "#{object.last_name}[#{object.name_count}]"
+    end
+  end
+
+  def name
+    if object.name_count == 1
+      "#{object.first_name}_#{object.last_name}"
+    else
+      "#{object.first_name}_#{object.last_name}_#{object.name_count}"
+    end
+  end
 
   def small_photo_url
     object.profile.try{|profile| profile.photo.url(:sm)} || '/assets/default-user.jpg'

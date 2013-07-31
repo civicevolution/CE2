@@ -1,0 +1,14 @@
+%div
+  -#%p quote.expanded: {{quote.expanded}}
+  %div.quote{ id: "{{quote.id}}", type: "{{quote.type}}", }
+    %p.title(ng-click="toggle_in_comment_quote()")
+      %img{src: "http://assets.civicevolution.org/users/civic_dev/{{quote.photoCode}}/sm1/p.jpg"}
+      {{quote.userName}} said:
+      %i.icon-chevron-down(ng-click="comment_quote_expand()")
+      %i.icon-arrow-up(ng-click="comment_quote_up()")
+
+    %div(ng-switch="quote.expanded")
+      %div(ng-switch-when="true" )
+        %div.comment-body(ng-bind-html-unsafe="quote.full_text")
+      %div(ng-switch-when="false" )
+        %blockquote {{quote.text}}

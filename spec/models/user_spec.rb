@@ -4,7 +4,6 @@ describe User do
 
   before(:each) do
     @attr = {
-      :name => "Example User",
       :first_name => 'Test',
       :last_name => 'User',
       :email => "user@example.com",
@@ -115,6 +114,38 @@ describe User do
       @user.encrypted_password.should_not be_blank
     end
 
+  end
+
+
+  describe "increment user names" do
+
+    before(:each) do
+      @user = User.new(@attr)
+    end
+
+    it "should increment count of identical user names" do
+      @user1 = User.create(@attr)
+      pp "#{@user1.first_name}, #{@user1.last_name}, #{@user1.name_count}"
+      expect(@user1.name_count).to eq( 1 )
+      @user2 = User.create( @attr.merge(:email => "1@a.b") )
+      pp "#{@user2.first_name}, #{@user2.last_name}, #{@user2.name_count}"
+      expect(@user2.name_count).to eq( 2 )
+      @user3 = User.create( @attr.merge(:email => "2x@a.b") )
+      pp "#{@user3.first_name}, #{@user3.last_name}, #{@user3.name_count}"
+      expect(@user3.name_count).to eq( 3 )
+    end
+
+    it "should increment count of similar users regardless of capitalization" do
+      @user1 = User.create(@attr)
+      pp "#{@user1.first_name}, #{@user1.last_name}, #{@user1.name_count}"
+      expect(@user1.name_count).to eq( 1 )
+      @user2 = User.create( @attr.merge(:email => "1@a.b", first_name: 'test') )
+      pp "#{@user2.first_name}, #{@user2.last_name}, #{@user2.name_count}"
+      expect(@user2.name_count).to eq( 2 )
+      @user3 = User.create( @attr.merge(:email => "2x@a.b", last_name: 'USER') )
+      pp "#{@user3.first_name}, #{@user3.last_name}, #{@user3.name_count}"
+      expect(@user3.name_count).to eq( 3 )
+    end
   end
 
 end
