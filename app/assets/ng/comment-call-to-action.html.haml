@@ -1,11 +1,11 @@
-%div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}")
-  .span12.summary-comment-body(ng-mouseup="text_select_by_mouse()")
-    .comment-body-container(ng-mouseup="text_select_by_mouse()")
+%div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}"){id: "com-cta"}
+  .span12.summary-comment-body
+    .comment-body-container
       %div.header
         %p.time {{comment.updated_at | from_now}}
         %p {{comment.purpose}}
 
-      %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+      %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
 
       %div.history.clear(ng-include src="history_url")
 

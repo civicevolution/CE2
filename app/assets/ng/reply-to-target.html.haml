@@ -1,0 +1,17 @@
+%div.comment-reply.target
+  %div.reply-outer
+    .span2.author
+      %img(ng-src="{{comment.target_comment.sm5}}")
+      %p.name {{comment.target_comment.first_name}} {{comment.target_comment.last_name}}
+
+    .span10.body-with-arrow
+      .arrow
+      .comment-body-container
+
+        %div.header
+          %p.time {{comment.target_comment.updated_at | from_now}}
+          %p {{comment.target_comment.purpose}}
+
+        %div.comment-body(ng-bind-html-unsafe="comment.target_comment.text")
+        %p.footer
+          %i.icon-arrow-up(ng-click="goto_comment(comment.target_comment.id)")

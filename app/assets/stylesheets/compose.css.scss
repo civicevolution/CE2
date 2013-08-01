@@ -39,23 +39,6 @@ div.attachment_form{
   }
 }
 
-
-.quote_reply{
-  display: none;
-  position: absolute;
-}
-
-//div.conversation{ margin-bottom: 150px; }
-
-.quote{
-  border: 1px solid #dddddd;
-  .title{
-    padding: 4px;
-    background-color: #dddddd;
-
-  }
-}
-
 #reply-control {
   .toggle-preview, #draft-status, #image-uploading {
     position: absolute;

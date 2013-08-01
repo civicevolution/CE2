@@ -1,21 +1,21 @@
-%div
+%div.quote
   %div(ng-switch="quote.expanded")
     %div(ng-switch-when="true" )
-      %div.quote{ id: "{{quote.id}}", type: "{{quote.type}}", }
+      %div{ id: "{{quote.id}}", type: "{{quote.type}}", }
         %p.title(ng-click="toggle_in_comment_quote(quote.id)")
           %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{quote.photoCode}}/sm1/p.jpg")
           {{quote.userName}} said:
           %i.icon-chevron-up
-          %i.icon-arrow-up(ng-click="comment_quote_up()")
+          %i.icon-arrow-up(ng-click="goto_comment(quote.id)")
       %div.comment-body(ng-bind-html-unsafe="quote.full_text")
 
     %div(ng-switch-when="false" )
-      %div.quote{ id: "{{quote.id}}", type: "{{quote.type}}", }
+      %div{ id: "{{quote.id}}", type: "{{quote.type}}", }
         %p.title(ng-click="toggle_in_comment_quote(quote.id)")
           %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{quote.photoCode}}/sm1/p.jpg")
           {{quote.userName}} said:
           %i.icon-chevron-down
-          %i.icon-arrow-up(ng-click="comment_quote_up(quote.id)")
-      %blockquote {{quote.text}}
+          %i.icon-arrow-up(ng-click="goto_comment(quote.id)")
+      %div {{quote.text}}
 
 

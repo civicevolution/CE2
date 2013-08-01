@@ -93,7 +93,7 @@ services.factory "ConversationData", ["$http",
             else
               comment.reply_ids = []
             if comment.id is 33
-              comment.in_reply = { id: 23, name: 'Brian Sullivan'}
+              comment.in_reply = { id: 23, name: 'Brian Sullivan', photoCode: 'default-user'}
             else
               comment.in_reply = null
           #console.log "conversation_id: #{conversation_id}"

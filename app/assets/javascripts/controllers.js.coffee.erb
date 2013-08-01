@@ -58,11 +58,13 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state( 'conversation',
         url: "/conversation/{code}/{munged_title}"
+        #url: "/conversation/{code}/{munged_title:[^/]*}{path:.*}"
         templateUrl: '<%= path_to_asset "conversation.html" %>'
         resolve:
           conversation: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
             console.log "resolve get ConversationData.conversation"
             ConversationData.conversation($stateParams.code)
+            #console.log "conversation state with path: #{$stateParams.path}"
           ]
         onEnter: ($rootScope) ->
           $rootScope.initialize_markdown_system()

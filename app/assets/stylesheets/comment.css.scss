@@ -172,7 +172,8 @@ div.rating{
     div.in-reply{
       float: left;
       padding: 2px 6px;
-      border: 1px solid #ccc;
+      background-color: #E9E6E6;
+      font-size: .8em;
       cursor: pointer;
     }
   }
@@ -189,8 +190,9 @@ div.rating{
     div.replies{
       float: left;
       padding: 2px 6px;
-      border: 1px solid #ccc;
       cursor: pointer;
+      margin-top: 6px;
+      background-color: #e9e6e6;
     }
   }
 
@@ -212,4 +214,41 @@ div.rating{
   //border: solid;
   //border-width: 20px 10px 20px 10px;
   border-right-color: white;
+}
+
+div.comment-replies, div.comment-target{
+  background-color: #e9e6e6;
+  padding-right: 20px;
+  padding-top: 20px;
+  margin: 0 -20px;
+  .comment-reply{
+    clear: both;
+    p.footer{
+      height: 20px;
+      i{
+        float: right;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.quote_reply{
+  display: none;
+  position: absolute;
+}
+
+.quote{
+  background-color: #f1f1f1;
+  border-left: 4px solid #d7d7d7;
+  padding: 0 10px 10px 10px;
+  .title{
+    padding: 4px 4px 4px 0;
+    //background-color: #dddddd;
+    i{
+      float: right;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+  }
 }

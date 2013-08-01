@@ -243,8 +243,8 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         $timeout ->
           $compile(iElement.find('quote'))(scope)
 
-  controller: [ "$scope", "CommentData", "$compile",
-    ($scope, CommentData, $compile) ->
+  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll",
+    ($scope, CommentData, $compile, $location, $anchorScroll) ->
       $scope.name = 'ceComment'
 
       $scope.edit = (comment_type, comment_id) ->
@@ -276,22 +276,26 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         $scope.comment.reply_target_expanded = ! $scope.comment.reply_target_expanded
         #console.log "toggle_in_comment_quote $scope.comment.reply_target_expanded: #{$scope.comment.reply_target_expanded}"
         if $scope.comment.reply_target_expanded && not $scope.comment.reply_full_text
-          $scope.comment.reply_full_text = "Loading..."
+          $scope.comment.target_comment = {text: "Loading..."}
           CommentData.get_comment(id).then (response) ->
-            $scope.comment.reply_full_text = $scope.$root.converter.makeHtml(response.data.text)
-
+            $scope.comment.target_comment = response.data
 
       $scope.show_replies = (ids) ->
         #console.log "show_replies for ids: #{ids}"
         $scope.comment.replies_expanded = ! $scope.comment.replies_expanded
         #console.log "toggle_in_comment_quote $scope.comment.replies_expanded: #{$scope.comment.replies_expanded}"
-        #converter.makeHtml(comment.text)
         if $scope.comment.replies_expanded && not $scope.comment.replies
           $scope.comment.replies_full_text = "Loading..."
           CommentData.get_comments(ids).then (response) ->
             $scope.comment.replies = response.data
             for reply in $scope.comment.replies
               reply.text = $scope.$root.converter.makeHtml(reply.text)
+
+      $scope.goto_comment = (id) ->
+        event.stopPropagation()
+        $location.hash("com-#{id}")
+        $anchorScroll()
+        console.log "goto_comment to ##{id}"
   ]
 ])
 
@@ -308,30 +312,32 @@ ce2_directives.directive('ceQuotedComment', ->
     scope.quote.type = attrs.type
     scope.quote.userName = attrs.userName
 
-  controller: [ "$scope", "$compile", "$timeout", "$element", "$transclude", "CommentData", ($scope, $compile, $timeout, $element, $transclude, CommentData) ->
-    #console.log "in the controller for ceQuotedComment"
-    $scope.quote = {expanded: false}
-    #console.log "quote.text = #{$transclude().text()}"
-    #$timeout ->
-    $scope.quote.text = $transclude().text()
+  controller: [ "$scope", "$compile", "$timeout", "$element", "$transclude", "CommentData", "$location", "$anchorScroll",
+    ($scope, $compile, $timeout, $element, $transclude, CommentData, $location, $anchorScroll) ->
+      #console.log "in the controller for ceQuotedComment"
+      $scope.quote = {expanded: false}
+      #console.log "quote.text = #{$transclude().text()}"
+      #$timeout ->
+      $scope.quote.text = $transclude().text()
 
-    $scope.toggle_in_comment_quote = (id) ->
-      $scope.quote.expanded = ! $scope.quote.expanded
-      console.log "toggle_in_comment_quote $scope.quote.expanded: #{$scope.quote.expanded}"
-      #converter.makeHtml(comment.text)
-      if $scope.quote.expanded && not $scope.quote.full_text
-        $scope.quote.full_text = "Loading..."
-        CommentData.get_comment(id).then (response) ->
-          $scope.quote.full_text = $scope.$root.converter.makeHtml(response.data.text)
+      $scope.toggle_in_comment_quote = (id) ->
+        $scope.quote.expanded = ! $scope.quote.expanded
+        console.log "toggle_in_comment_quote $scope.quote.expanded: #{$scope.quote.expanded}"
+        #converter.makeHtml(comment.text)
+        if $scope.quote.expanded && not $scope.quote.full_text
+          $scope.quote.full_text = "Loading..."
+          CommentData.get_comment(id).then (response) ->
+            $scope.quote.full_text = $scope.$root.converter.makeHtml(response.data.text)
 
-    $scope.comment_quote_expand = ->
-      event.stopPropagation()
-      console.log "comment_quote_expand"
+      $scope.comment_quote_expand = ->
+        event.stopPropagation()
+        console.log "comment_quote_expand"
 
-    $scope.comment_quote_up = (id) ->
-      event.stopPropagation()
-      console.log "comment_quote_up to ##{id}"
-
+      $scope.goto_comment = (id) ->
+        event.stopPropagation()
+        $location.hash("com-#{id}")
+        $anchorScroll()
+        console.log "goto_comment to ##{id}"
   ]
 )
 
