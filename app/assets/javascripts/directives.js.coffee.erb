@@ -230,18 +230,20 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
   replace: true
   scope: true
   priority: 100
-  link: (scope, element, attrs) ->
-    switch attrs.type
-      when "call-to-action" then scope.comment =
-        scope.conversation.call_to_action_comment
-
   compile: ->
     post: (scope, iElement, iAttrs, controller) ->
       #console.log "ceComment postLink function"
+      switch iAttrs.type
+        when "call-to-action" then scope.comment =
+          scope.conversation.call_to_action_comment
+
       if scope.comment?.text.match(/\[quote/)
         #console.log "XXX compile this node"
         $timeout ->
-          $compile(iElement.find('quote'))(scope)
+          $compile(iElement.find('blockquote'))(scope)
+      scope.comment.quote_expanded = false
+      if scope.comment.reply_to_targets
+        scope.comment.in_reply_tag = reply for reply in scope.comment.reply_to_targets when reply.quote is false
 
   controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll",
     ($scope, CommentData, $compile, $location, $anchorScroll) ->
@@ -258,18 +260,11 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         $scope.history_url = null
         delete $scope.history
 
-      $scope.share = ->
-        console.log "Clicked Comment share link"
+      $scope.share = (id) ->
+        console.log "Clicked Comment share link id: #{id}"
 
-      $scope.reply = ->
-        console.log "Clicked Comment reply link"
-
-      $scope.flag = ->
-        console.log "Clicked Comment flag link"
-
-      $scope.test = ->
-        console.log "Clicked Comment test link"
-        debugger
+      $scope.flag = (id) ->
+        console.log "Clicked Comment flag link id: #{id}"
 
       $scope.show_reply_target = (id) ->
         #console.log "show_reply_target for id: #{id}"
@@ -280,15 +275,16 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
           CommentData.get_comment(id).then (response) ->
             $scope.comment.target_comment = response.data
 
-      $scope.show_replies = (ids) ->
+      $scope.show_replies = ->
+        ids = (reply.id for reply in $scope.comment.replies)
         #console.log "show_replies for ids: #{ids}"
         $scope.comment.replies_expanded = ! $scope.comment.replies_expanded
         #console.log "toggle_in_comment_quote $scope.comment.replies_expanded: #{$scope.comment.replies_expanded}"
-        if $scope.comment.replies_expanded && not $scope.comment.replies
-          $scope.comment.replies_full_text = "Loading..."
+        if $scope.comment.replies_expanded && not $scope.comment.reply_comments
+          $scope.comment.reply_comments = [{text: "Loading..."}]
           CommentData.get_comments(ids).then (response) ->
-            $scope.comment.replies = response.data
-            for reply in $scope.comment.replies
+            $scope.comment.reply_comments = response.data
+            for reply in $scope.comment.reply_comments
               reply.text = $scope.$root.converter.makeHtml(reply.text)
 
       $scope.goto_comment = (id) ->

@@ -10,7 +10,8 @@ module Modules
     def post_process
       Rails.logger.debug "do post_process"
       send_to_firebase
-      record_replies_and_mentions
+      record_replies
+      record_mentions
       check_immediate_notifications
       add_to_activity_feed
 
@@ -25,6 +26,9 @@ module Modules
     end
 
     def check_immediate_notifications
+
+      return if !@_is_new_record && self.type == 'ConversationComment'
+
       Rails.logger.debug " I need to implement check_immediate_notifications"
       # any requests for this conversation with immediate_all
       requests = self.conversation.notification_requests.includes(:user).where(immediate_all: true)
@@ -35,8 +39,138 @@ module Modules
 
     end
 
-    def record_replies_and_mentions
-      Rails.logger.debug " I need to implement record_replies_and_mentions"
+
+    # When do I create a record
+    # comment params has in_reply_to_id and in_reply_to_version keys
+    # comment text has embedded quotes
+    #
+    # Don't record as a reply to if the comment is sequential to its target
+    #
+    # reply comment is the comment being saved
+    # target comment is the comment being targeted by the quote or reply to button
+    #
+    # Reply
+    #     id:             Assigned
+    #     comment_id:     id of reply comment
+    #     reply_to_id:    id of the target comment from in_reply_to_id and from id in embedded quotes
+    #     version:        version of the target comment
+    #     quote:          true if embedded quote token, otherwise false
+    #     author:         author of reply comment
+    #     code:           photo code of the author of the reply comment
+    #
+    # Fully update the replies each time the comment is edited
+    #
+    # I need to save in_reply_to_id on the comment so I don't lose it the next time I edit the comment
+    # newComment.in_reply_to_id, newComment.in_reply_to_version
+    # Or can I just retrieve it from the replies record?
+    #
+    # Don't create duplicate records
+    # open new records
+    # remove duplicates
+    # eager load the target comment(s) versions
+    # add target data
+    # and then save them
+    #
+    #'user-name="' + params[0] + '" ' +
+    #'purpose="' + params[1] + '" ' +
+    #'id="' + params[2] + '" ' +
+    #'photo_code="' + params[3] + '" ' +
+    #'version="' + params[4] + '" ' +
+
+    # Don't record as a reply to if the comment is sequential to its target
+    # maintain the reply record if this was a quote
+
+    def record_replies
+      Rails.logger.debug "Post process record replies"
+
+      reply_to_records = []
+
+      # Now parse the comment text for embedded quotes
+
+      quote_regex = /\[quote=([^\]]*)\]((?:[\s\S](?!\[quote=[^\]]*\]))*?)\[\/quote\]/im
+
+      self.text.scan(quote_regex).each do |match|
+        #puts match[0]
+        params = match[0].split(/~/)
+        reply_to_records.push Reply.new comment_id: self.id, reply_to_id: params[2], version: params[4], quote: true
+        puts "com_id #{params[2]}"
+      end
+
+      # now remove duplicate records, but retain any record with quote = false
+      reply_to_records.uniq!{|r| r[:reply_to_id]}
+
+
+      if self.in_reply_to_id
+        # if there is a reply record for an embedded quote, delete it before adding a reply record for a reply comment
+        reply_to_records.reject!{|r| r.reply_to_id == self.in_reply_to_id }
+        reply_to_records.push Reply.new comment_id: self.id, reply_to_id: self.in_reply_to_id, version: self.in_reply_to_version, quote: false
+      end
+
+      if !reply_to_records.empty?
+        # eager load the target_comments so I can get the author name and code
+        comments = Comment.includes(:author).where( id: reply_to_records.map(&:reply_to_id) )
+        reply_to_records.each do |reply|
+          com = comments.detect{|c| c.id == reply.reply_to_id}
+          reply.author = "#{com.author.first_name} #{com.author.last_name}"
+          reply.code = com.author.code
+        end
+      end
+
+      update_replies_collection(self,reply_to_records )
+
+    end
+
+    # update_replies_collection
+
+    #  reply_to_records maintain the collection of replies
+    #  reply_to_records is the set for the current version of the reply comment
+    #
+    #  Iterate through the associated records
+    #    Test each record
+    #      Is quote = false?
+    #        Maintain a record that has quote = false
+    #        Remove matching record in reply_to_records (matching is comment_id, reply_to_id, quote)
+    #      Does record exist in reply_to_records (matching is comment_id, reply_to_id, quote)
+    #        Remove from reply_to_records
+    #
+    #    Does reply_to_records have any remaining records?
+    #      Add them to the association with <<
+
+    def update_replies_collection(comment,reply_to_records )
+      reply_to_records.each do |rec|
+        puts "pending new rec #{rec.inspect}"
+      end
+
+      comment.reply_to_targets.each do |current_reply_rec|
+        if current_reply_rec.quote == false
+          # keep the reply rec with quote false for ever as this indicates comment started as a reply to another comment
+          reply_to_records.reject!{|r| r.comment_id == current_reply_rec.comment_id && r.reply_to_id == current_reply_rec.reply_to_id && quote == false }
+        else
+          rec = reply_to_records.detect{|r| r.comment_id == current_reply_rec.comment_id && r.reply_to_id == current_reply_rec.reply_to_id }
+          puts "rec: #{rec}"
+          if rec # if it is part of assoc remove from the pending list
+            reply_to_records.reject!{|r| r.comment_id == current_reply_rec.comment_id && r.reply_to_id == current_reply_rec.reply_to_id }
+          else # if it is part of assoc and not in the pending list, mark for removal from assoc
+            puts "Mark for removal #{current_reply_rec.inspect}"
+            current_reply_rec.comment_id = nil # mark to delete
+          end
+        end
+      end
+      comment.reply_to_targets.each do |rec|
+        if rec.comment_id.nil?
+          rec.destroy
+        end
+      end
+      reply_to_records.each do |rec|
+        puts "add new rec to reply_to_records #{rec.inspect}"
+        comment.reply_to_targets << rec
+      end
+
+    end
+
+
+    def record_mentions
+      Rails.logger.debug " I need to implement record_mentions"
     end
 
     def send_to_firebase

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130730180045) do
+ActiveRecord::Schema.define(version: 20130801223330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -137,6 +137,17 @@ ActiveRecord::Schema.define(version: 20130730180045) do
     t.integer "rating",       null: false
   end
 
+  create_table "replies", force: true do |t|
+    t.integer  "comment_id",  null: false
+    t.integer  "reply_to_id", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "version"
+    t.boolean  "quote"
+    t.string   "author"
+    t.string   "code"
+  end
+
   create_table "roles", force: true do |t|
     t.string   "name"
     t.integer  "resource_id"
@@ -186,9 +197,11 @@ ActiveRecord::Schema.define(version: 20130730180045) do
     t.string   "last_name",                             null: false
     t.boolean  "email_ok",               default: true
     t.integer  "name_count"
+    t.string   "code"
   end
 
   add_index "users", ["authentication_token"], name: "index_users_on_authentication_token", unique: true, using: :btree
+  add_index "users", ["code"], name: "index_users_on_code", unique: true, using: :btree
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree

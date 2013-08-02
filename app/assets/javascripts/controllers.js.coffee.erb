@@ -152,17 +152,17 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
       debug_mode = false
       console.log "text_select_by_mouse" if debug_mode
       try
-        [text, id, type, name, photo, coords] = capture_selection()
-
-        $rootScope.selection =
-          text: text
-          id: id
-          type: type
-          name:name
-          photo: photo
-
+        [text, comment, coords] = capture_selection()
         if text
-          console.log "use this string in form:\n#{text}" if debug_mode
+          #console.log "use this string in form:\n#{text}" if debug_mode
+          $rootScope.selection =
+            text: text
+            id: comment.id
+            purpose: comment.purpose
+            name: "#{comment.first_name} #{comment.last_name}"
+            version: comment.version
+            photo: comment.sm1.match(/\/([^\/]+)\/sm\d\//)[1]
+
           body = document.documentElement || document.body
           scrollX = window.pageXOffset || body.scrollLeft
           scrollY = window.pageYOffset || body.scrollTop
@@ -187,7 +187,7 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
 
     $rootScope.add_quote_to_reply = ->
       sel = $rootScope.selection
-      quote_insert = "[quote=#{sel.name}~#{sel.type}~#{sel.id}~#{sel.photo}]#{sel.text}[/quote]"
+      quote_insert = "[quote=#{sel.name}~#{sel.purpose}~#{sel.id}~#{sel.photo}~#{sel.version}]#{sel.text}[/quote]"
       #console.log "Add this quote to textarea: #{quote_insert}"
       $rootScope.$broadcast('conversation-comment-edit')
       textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
@@ -248,16 +248,9 @@ capture_selection = ->
     console.log "coords top: #{coords.top}, left: #{coords.left}" if debug_mode
 
   if str
-    # now find the parent with comment_id attr
-    #node = node.parentNode until node.attributes && node.attributes.select_reference
-    #select_reference = node.attributes.select_reference.value
-    com_scope = angular.element(node).scope()
-    img_code = com_scope.comment.sm1.match(/\/([^\/]+)\/sm\d\//)[1]
-    name = "#{com_scope.comment.first_name} #{com_scope.comment.last_name}"
-    console.log "img_code: #{img_code}, name: #{name}" if debug_mode
-    [str, com_scope.comment.id, com_scope.comment.type, name, img_code, coords]
+    [str, angular.element(node).scope().comment, coords]
   else
-    [null,null,null,null,null,null]
+    [null,null,null]
 
 clear_capture_selection_button = ->
   #console.log "clear_capture_selection_button mouseup, then clear"
@@ -382,18 +375,37 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
 
     $scope.$root.conversation_wizard_mode = true
 
-    $scope.show_comment_form = (type) ->
-      #console.log "show_comment_form type: #{type}"
+    $scope.show_comment_form = (type, in_reply_to_id = null, in_reply_to_version = null) ->
+      console.log "show_comment_form type: #{type}, in_reply_to_id: #{in_reply_to_id}"
       # clear new comment
       $scope.newComment = { conversation_code: $scope.conversation.code }
       if type == 'summary'
         console.log "#### Set the type for summary"
         $scope.newComment.type = 'SummaryComment'
         $scope.reply_control_title = "Add summary comment"
-      else
+      else if type == 'conversation'
         #console.log "Set the type for conversation"
         $scope.newComment.type = 'ConversationComment'
         $scope.reply_control_title = "Add conversation comment"
+      else if type == 'conversation-reply'
+        console.log "Set the type for converation-reply"
+        $scope.newComment.type = 'ConversationComment'
+        $scope.reply_control_title = "Reply to conversation comment"
+        $scope.newComment.in_reply_to_id = in_reply_to_id
+        $scope.newComment.in_reply_to_version = in_reply_to_version
+      else if type == 'summary-reply'
+        console.log "Set the type for summary-reply"
+        $scope.newComment.type = 'ConversationComment'
+        $scope.reply_control_title = "Reply to summary comment"
+        $scope.newComment.in_reply_to_id = in_reply_to_id
+        $scope.newComment.in_reply_to_version = in_reply_to_version
+      else if type == 'call-to-action-reply'
+        console.log "Set the type for cta-reply"
+        $scope.newComment.type = 'ConversationComment'
+        $scope.reply_control_title = "Reply to call-to-action"
+        $scope.newComment.in_reply_to_id = in_reply_to_id
+        $scope.newComment.in_reply_to_version = in_reply_to_version
+
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
       $scope.$root.$broadcast "user-event-notification", { action: "open comment-form #{$scope.newComment.type}"}

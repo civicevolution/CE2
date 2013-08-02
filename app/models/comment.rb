@@ -6,19 +6,29 @@ class Comment < ActiveRecord::Base
     CommentSerializer
   end
 
-  attr_accessor :my_rating, :conversation_code
+  attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version
 
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
 
 
-  belongs_to :author,  -> { select :id, :first_name, :last_name}, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id'  #, photo_file_name'
+  belongs_to :author,  -> { select :id, :first_name, :last_name, :code, :name_count}, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id'  #, photo_file_name'
 
   belongs_to :conversation
 
   has_many :ratings, :as => :ratable
 
-  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose, :references, :conversation_code
+
+  has_many :reply_to_targets, class_name: 'Reply', foreign_key: :comment_id
+  has_many :reply_to_comments, through: :reply_to_targets, source: :reply_to_comments
+
+  has_many :replies, class_name: 'Reply', foreign_key: :reply_to_id
+  has_many :reply_comments, through: :replies, source: :reply_comments
+
+
+
+  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
+                  :references, :conversation_code, :in_reply_to_id, :in_reply_to_version
 
   after_initialize :read_previous_text_on_init
   before_update :increment_comment_version

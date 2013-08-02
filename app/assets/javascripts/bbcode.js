@@ -217,20 +217,21 @@ Markdown.BBCode = {
       //params = _results.join('; ')
 
       // typical paramsString
-      // "Alice Walton~ConversationComment~161~6e729a6b8841631a16d8a2656bcad029d77bd125"
+      // "Alice Walton~ConversationComment~161~6e729a6b8841631a16d8a2656bcad029d77bd125~1"
 
       var params = matches[1].split(/~/)
       // remove leading <br>s
       var content = matches[2].trim();
 
-      // Arguments for formatting
-      args = {
-        username: params[0],
-        type: params[1],
-        id: params[2],
-        photo_code: params[3],
-        quote: content
-      };
+      //// Arguments for formatting
+      //args = {
+      //  username: params[0],
+      //  purpose: params[1],
+      //  id: params[2],
+      //  photo_code: params[3],
+      //  version: params[4],
+      //  quote: content
+      //};
 
       // Name of the template
       templateName = 'quote';
@@ -239,12 +240,13 @@ Markdown.BBCode = {
       // Apply the template
       //text = text.replace(matches[0], "</p>" + opts.TemplateEngine.interpolate(templateName,args) + "<p>");
       text = text.replace(matches[0],
-        '</p><quote ce-quoted-comment ' +
+        '</p><blockquote ce-quoted-comment ' +
         'user-name="' + params[0] + '" ' +
-        'type="' + params[1] + '" ' +
+        'purpose="' + params[1] + '" ' +
         'id="' + params[2] + '" ' +
         'photo_code="' + params[3] + '" ' +
-        '>' + content + '</quote><p>'
+        'version="' + params[4] + '" ' +
+        '>' + content + '</blockquote><p>'
       );
 
     }

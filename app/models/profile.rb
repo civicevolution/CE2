@@ -6,12 +6,12 @@ class Profile < ActiveRecord::Base
 
   #  validates_attachment_size :photo, :less_than => 2.megabytes if :resource_type == 'upload'
   has_attached_file :photo,
-                    :hash_secret => "d7eeKHWw8ppW",
-                    :hash_data => ":class/:attachment/:id:updated_at",
+                    #:hash_secret => "d7eeKHWw8ppW",
+                    #:hash_data => ":class/:attachment/:id:updated_at",
                     :storage => :s3,
                     :s3_credentials => "#{Rails.root.to_s}/config/s3.yml",
-                    :path => "users/:res_base/:hash/:style/p.jpg",
-                    :url => "http://assets.civicevolution.org/users/:res_base/:hash/:style/p.jpg",
+                    :path => "users/:res_base/:user_code/:style/p.jpg",
+                    :url => "http://assets.civicevolution.org/users/:res_base/:user_code/:style/p.jpg",
                     :default_url => "http://assets.civicevolution.org/users/:res_base/default-user/:style/p.gif",
                     :bucket => 'assets.civicevolution.org',
                     :styles => {

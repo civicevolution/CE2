@@ -86,16 +86,6 @@ services.factory "ConversationData", ["$http",
               when "TitleComment" then title_comment = comment
               when "CallToActionComment" then call_to_action_comment = comment
 
-          for comment in conversation_comments
-            comment.quote_expanded = "false"
-            if comment.id is 23
-              comment.reply_ids = [33,34]
-            else
-              comment.reply_ids = []
-            if comment.id is 33
-              comment.in_reply = { id: 23, name: 'Brian Sullivan', photoCode: 'default-user'}
-            else
-              comment.in_reply = null
           #console.log "conversation_id: #{conversation_id}"
           # extract and setup some data for the directive controller
           firebase_token: response.data.firebase_token
@@ -249,6 +239,8 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
             return item_array.splice(index, 1)
       else
         new_rec = data.data
+        update_reply_data(new_rec,item_array)
+
         #console.log "looking at data with id: #{new_rec.id} and text: #{new_rec.text}"
         for rec, index in item_array
           if rec.id == new_rec.id
@@ -264,6 +256,20 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
       $rootScope.$$phase || $rootScope.$apply();
     [original_rec, updated_rec]
 ]
+update_reply_data = (new_rec,item_array) ->
+  if new_rec && new_rec.reply_to_targets # create in_reply_tag from reply_to_targets
+    new_rec.in_reply_tag = reply for reply in new_rec.reply_to_targets when reply.quote is false
+    # upate the replies[] for targets referenced here
+    for target in new_rec.reply_to_targets
+      console.log "add reply to replies for id: #{target.id}"
+      target_rec = item for item in item_array when item.id is target.id
+      if target_rec
+        console.log "found target_rec with id: #{target_rec.id} and replies: #{target_rec.replies}"
+        # add this reply to target_rec, if it isn't already there
+        cur_reply = reply for reply in target_rec.replies when reply.id is new_rec.id
+        if not cur_reply
+          target_rec.replies.push {id:new_rec.id, version: new_rec.version}
+
 
 services.factory "TemplateEngine",
   ($rootScope, $templateCache, $http, $interpolate) ->

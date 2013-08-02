@@ -22,9 +22,29 @@ class User < ActiveRecord::Base
 
   before_create :create_unique_name_count
 
+  before_create :create_unique_user_code
+
+  def create_unique_user_code
+    self.code = User.create_random_user_code
+    while( User.where(code: self.code).exists? ) do
+      self.code = User.create_random_user_code
+    end
+  end
+
+  def self.create_random_user_code
+    # I want each conversation to have a unique code for identification
+    o =  [('a'..'z'),(0..9)].map{|i| i.to_a}.flatten
+    (0...10).map{ o[rand(o.length)] }.join
+  end
+
+
   def create_unique_name_count
     num_similar_names = User.where("lower(first_name) = lower(?) AND lower(last_name) = lower(?)",self.first_name, self.last_name).maximum(:name_count) || 0
     self.name_count = num_similar_names += 1
+    self.name = "#{self.first_name}_#{self.last_name}"
+    if self.name_count > 1
+      self.name += "_#{self.name_count}"
+    end
   end
 
   def add_participant_role

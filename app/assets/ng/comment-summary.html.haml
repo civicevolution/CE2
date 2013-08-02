@@ -23,12 +23,12 @@
 
           %div.footer
 
+            %a(ng-click="show_comment_form('summary-reply', comment.id, comment.version)")
+              %i.icon-reply
+              %span Reply
             %a(ng-click="share({{comment.id}})")
               %i.icon-share-alt
               %span Share
-            %a(ng-click="reply({{comment.id}})")
-              %i.icon-reply
-              %span Reply
             %a(ng-click="flag({{comment.id}})")
               %i.icon-flag
               %span Flag
