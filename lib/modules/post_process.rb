@@ -9,9 +9,9 @@ module Modules
 
     def post_process
       Rails.logger.debug "do post_process"
-      send_to_firebase
       record_replies
       record_mentions
+      send_to_firebase
       check_immediate_notifications
       add_to_activity_feed
 
@@ -141,6 +141,7 @@ module Modules
         puts "pending new rec #{rec.inspect}"
       end
 
+      unused_reply_records_to_destroy = []
       comment.reply_to_targets.each do |current_reply_rec|
         if current_reply_rec.quote == false
           # keep the reply rec with quote false for ever as this indicates comment started as a reply to another comment
@@ -152,20 +153,20 @@ module Modules
             reply_to_records.reject!{|r| r.comment_id == current_reply_rec.comment_id && r.reply_to_id == current_reply_rec.reply_to_id }
           else # if it is part of assoc and not in the pending list, mark for removal from assoc
             puts "Mark for removal #{current_reply_rec.inspect}"
-            current_reply_rec.comment_id = nil # mark to delete
+            unused_reply_records_to_destroy.push current_reply_rec
+            #current_reply_rec.comment_id = nil # mark to delete
           end
         end
       end
-      comment.reply_to_targets.each do |rec|
-        if rec.comment_id.nil?
-          rec.destroy
-        end
+
+      unused_reply_records_to_destroy.each do |rec|
+        comment.reply_to_targets.destroy(rec)
       end
+
       reply_to_records.each do |rec|
         puts "add new rec to reply_to_records #{rec.inspect}"
         comment.reply_to_targets << rec
       end
-
     end
 
 

@@ -239,36 +239,67 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
             return item_array.splice(index, 1)
       else
         new_rec = data.data
-        update_reply_data(new_rec,item_array)
-
         #console.log "looking at data with id: #{new_rec.id} and text: #{new_rec.text}"
         for rec, index in item_array
           if rec.id == new_rec.id
             original_rec = angular.copy(item_array[index])
             updated_rec = item_array[index]
-            item_array[index][prop] = new_rec[prop] for prop of new_rec when not prop.match(/^\$/)
+            updated_rec[prop] = new_rec[prop] for prop of new_rec when not prop.match(/^\$/)
+            updated_rec.reply_to_targets = new_rec.reply_to_targets
             new_rec = null
+            update_reply_data(updated_rec,original_rec.reply_to_targets)
             break
         if new_rec
           new_obj = {}
           new_obj[prop] = new_rec[prop] for prop of new_rec when not prop.match(/^\$/)
           item_array.push new_obj
+          update_reply_data(new_obj)
       $rootScope.$$phase || $rootScope.$apply();
     [original_rec, updated_rec]
 ]
-update_reply_data = (new_rec,item_array) ->
+update_reply_data = (new_rec, old_reply_to_targets = null) ->
   if new_rec && new_rec.reply_to_targets # create in_reply_tag from reply_to_targets
     new_rec.in_reply_tag = reply for reply in new_rec.reply_to_targets when reply.quote is false
     # upate the replies[] for targets referenced here
     for target in new_rec.reply_to_targets
       console.log "add reply to replies for id: #{target.id}"
-      target_rec = item for item in item_array when item.id is target.id
+      target_rec = find_comment_in_conversation(target.id)
       if target_rec
         console.log "found target_rec with id: #{target_rec.id} and replies: #{target_rec.replies}"
         # add this reply to target_rec, if it isn't already there
         cur_reply = reply for reply in target_rec.replies when reply.id is new_rec.id
         if not cur_reply
           target_rec.replies.push {id:new_rec.id, version: new_rec.version}
+
+
+  if old_reply_to_targets && old_reply_to_targets.length > 0 # remove unused replies from targets
+    # is there an old reply target that is not a new reply target? If so, remove from target replies
+    console.log "check for and remove unused old replies"
+    for old_target in old_reply_to_targets
+      cur_target = new_target for new_target in (new_rec.reply_to_targets||[]) when new_target.id is old_target.id
+      if not cur_target
+        console.log "remove this reply from target is: #{old_target.id}"
+        target_rec = find_comment_in_conversation(old_target.id)
+        # remove this reply from target_rec.replies
+        for reply, index in (target_rec.replies||[])
+          if reply.id is new_rec.id
+            console.log "remove this entry from replies"
+            target_rec.replies.splice(index,1)
+
+find_comment_in_conversation = (id) ->
+  # find the comment in any of the arrays I use
+  #console.log "find_comment_in_conversation with id: #{id}"
+  conversation = angular.element(document.getElementById('conversation')).scope().conversation
+  for source in ['conversation_comments','summary_comments','call_to_action_comment']
+    item_array = conversation[source]
+    if !angular.isArray(item_array)
+      item_array = [item_array]
+    #console.log "Check in #{source} with length: #{item_array.length}"
+    for item in item_array
+      #console.log "Checking item with id: #{item.id}"
+      if item.id is id
+        return item
+
 
 
 services.factory "TemplateEngine",

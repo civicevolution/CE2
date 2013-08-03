@@ -195,6 +195,8 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
       $rootScope.show_add_quote_to_reply_style =
         display: "none"
       $rootScope.$$phase || $rootScope.$apply()
+      newComment = angular.element(textarea).scope().newComment
+      newComment.text = textarea.value
 
     $rootScope.initialize_markdown_system = ->
       #console.log "initialize_markdown_system"
@@ -411,7 +413,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       $scope.$root.$broadcast "user-event-notification", { action: "open comment-form #{$scope.newComment.type}"}
 
     $scope.$on 'request-edit', (event, comment) ->
-      $scope.newComment = angular.copy(comment)
+      $scope.newComment = {id: comment.id, text: comment.text, type: comment.type }
       $scope.reply_control_title = switch $scope.newComment.type
         when 'ConversationComment' then "Edit conversation comment"
         when 'SummaryComment' then "Edit summary comment"
@@ -537,20 +539,6 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     $scope.cancel_title_edit = ->
       $scope.conversation.title = $scope.title_temp
       $scope.conversation.edit_title = false
-
-    $scope.edit_call_to_action = ->
-      #console.log "edit the call to action"
-      #set scope.newComment to the right type or the right copy
-      if $scope.conversation.call_to_action_comment
-        $scope.newComment = angular.copy($scope.conversation.call_to_action_comment)
-      else
-        $scope.newComment =
-          type: 'CallToActionComment'
-          conversation_code: $scope.conversation.code
-        $scope.reply_control_title = "Add call-to-action"
-      $timeout -> $scope.$root.editor.refreshPreview()
-      angular.element( document.getElementById('reply-control')).addClass('open show-preview')
-      $scope.$root.$broadcast "user-event-notification", { action: 'open call-to-action edit'}
 
     $scope.$on 'Publish conversation', (event, data) ->
       console.log "publishConversation with code: #{data.conversation_code}"

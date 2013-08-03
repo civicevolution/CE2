@@ -22,6 +22,10 @@
           %div(ce-rating-slider)
 
           %div.footer
+            %div.replies(ng-if="comment.replies.length>0" ng-click="show_replies()")
+              {{comment.replies.length}} replies
+              %span(ng-if="comment.replies_expanded")
+                %i.icon-chevron-up
 
             %a(ng-click="show_comment_form('summary-reply', comment.id, comment.version)")
               %i.icon-reply
@@ -40,3 +44,7 @@
               -#%i.icon-pencil
               Edit
 
+          %div.comment-replies(ng-if="comment.replies_expanded")
+            %div(ng-repeat="reply in comment.reply_comments")
+              %div{'ng-include' => "'#{ path_to_asset("comment-reply.html") }'"}
+            %p.clear

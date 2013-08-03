@@ -240,7 +240,7 @@ Markdown.BBCode = {
       // Apply the template
       //text = text.replace(matches[0], "</p>" + opts.TemplateEngine.interpolate(templateName,args) + "<p>");
       text = text.replace(matches[0],
-        '</p><blockquote ce-quoted-comment ' +
+        '</p><blockquote ce-quoted-comment class="quote" ' +
         'user-name="' + params[0] + '" ' +
         'purpose="' + params[1] + '" ' +
         'id="' + params[2] + '" ' +

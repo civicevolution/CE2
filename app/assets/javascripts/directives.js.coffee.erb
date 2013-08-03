@@ -245,6 +245,12 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
       if scope.comment.reply_to_targets
         scope.comment.in_reply_tag = reply for reply in scope.comment.reply_to_targets when reply.quote is false
 
+      scope.$watch 'comment.text', (oldValue, newValue) ->
+        if scope.comment.text.match(/\[quote/)
+          console.log "recompile the comment with a quote in it"
+          $timeout ->
+            $compile(iElement.find('blockquote'))(scope)
+
   controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll",
     ($scope, CommentData, $compile, $location, $anchorScroll) ->
       $scope.name = 'ceComment'
