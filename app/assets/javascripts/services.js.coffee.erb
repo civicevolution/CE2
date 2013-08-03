@@ -229,7 +229,6 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
       #  console.log "Ignore this old update"
 
   process_update: (item_array, data) ->
-    console.log "Firebase.process_update for #{data.class}"
     # Only apply updates newer than the page load time
     update_all = false
     if update_all || (Date.fromISO(data.updated_at).getTime() / 1000 ) - $rootScope.timestamp > 0
@@ -262,10 +261,10 @@ update_reply_data = (new_rec, old_reply_to_targets = null) ->
     new_rec.in_reply_tag = reply for reply in new_rec.reply_to_targets when reply.quote is false
     # upate the replies[] for targets referenced here
     for target in new_rec.reply_to_targets
-      console.log "add reply to replies for id: #{target.id}"
+      #console.log "add reply to replies for id: #{target.id}"
       target_rec = find_comment_in_conversation(target.id)
       if target_rec
-        console.log "found target_rec with id: #{target_rec.id} and replies: #{target_rec.replies}"
+        #console.log "found target_rec with id: #{target_rec.id} and replies: #{target_rec.replies}"
         # add this reply to target_rec, if it isn't already there
         cur_reply = reply for reply in target_rec.replies when reply.id is new_rec.id
         if not cur_reply
@@ -274,16 +273,16 @@ update_reply_data = (new_rec, old_reply_to_targets = null) ->
 
   if old_reply_to_targets && old_reply_to_targets.length > 0 # remove unused replies from targets
     # is there an old reply target that is not a new reply target? If so, remove from target replies
-    console.log "check for and remove unused old replies"
+    #console.log "check for and remove unused old replies"
     for old_target in old_reply_to_targets
       cur_target = new_target for new_target in (new_rec.reply_to_targets||[]) when new_target.id is old_target.id
       if not cur_target
-        console.log "remove this reply from target is: #{old_target.id}"
+        #console.log "remove this reply from target is: #{old_target.id}"
         target_rec = find_comment_in_conversation(old_target.id)
         # remove this reply from target_rec.replies
         for reply, index in (target_rec.replies||[])
           if reply.id is new_rec.id
-            console.log "remove this entry from replies"
+            #console.log "remove this entry from replies"
             target_rec.replies.splice(index,1)
 
 find_comment_in_conversation = (id) ->

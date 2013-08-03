@@ -236,7 +236,8 @@ capture_selection = ->
     frag = range.cloneContents()
     child_nodes = frag.childNodes
     # get the text for each of the nodes, without formatting
-    strs = ( (if node.innerHTML then node.innerHTML else node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
+    #strs = ( (if node.innerHTML then node.innerHTML else node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
+    strs = ( (node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
 
     str = strs.join('\n\n').replace(/<br[^>]*>/ig, '\n')
 
@@ -250,6 +251,7 @@ capture_selection = ->
     console.log "coords top: #{coords.top}, left: #{coords.left}" if debug_mode
 
   if str
+    str = str.replace(/^ */gm, '').replace(/\r\n/g, '\n').replace(/\n{2,}/g,'\n\n')
     [str, angular.element(node).scope().comment, coords]
   else
     [null,null,null]

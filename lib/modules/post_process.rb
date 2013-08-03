@@ -103,7 +103,12 @@ module Modules
       if self.in_reply_to_id
         # if there is a reply record for an embedded quote, delete it before adding a reply record for a reply comment
         reply_to_records.reject!{|r| r.reply_to_id == self.in_reply_to_id }
-        reply_to_records.push Reply.new comment_id: self.id, reply_to_id: self.in_reply_to_id, version: self.in_reply_to_version, quote: false
+        # do not create this reply record if the reply is ordered immediately after the target
+        # I need the order_id of the target
+        order_id = Comment.where(id: self.in_reply_to_id).pluck(:order_id)[0]
+        if order_id != self.order_id - 1
+          reply_to_records.push Reply.new comment_id: self.id, reply_to_id: self.in_reply_to_id, version: self.in_reply_to_version, quote: false
+        end
       end
 
       if !reply_to_records.empty?
@@ -145,7 +150,7 @@ module Modules
       comment.reply_to_targets.each do |current_reply_rec|
         if current_reply_rec.quote == false
           # keep the reply rec with quote false for ever as this indicates comment started as a reply to another comment
-          reply_to_records.reject!{|r| r.comment_id == current_reply_rec.comment_id && r.reply_to_id == current_reply_rec.reply_to_id && quote == false }
+          reply_to_records.reject!{|r| r.comment_id == current_reply_rec.comment_id && r.reply_to_id == current_reply_rec.reply_to_id && r.quote == false }
         else
           rec = reply_to_records.detect{|r| r.comment_id == current_reply_rec.comment_id && r.reply_to_id == current_reply_rec.reply_to_id }
           puts "rec: #{rec}"
