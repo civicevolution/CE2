@@ -143,43 +143,15 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
       $http.get("/api/comments/#{comment_id}/history").then (response) ->
         response.data
 
-    persist_change_to_ror: (action, data, ok_cb, err_cb) ->
-        _this._ok_cb = ok_cb
-        _this._err_cb = err_cb
-        action = 'update' if data.id
-        Comment[action] data, (data,resp_headers_fn) =>
-          _this._ok_cb() if _this._ok_cb
-          # broadcast this new item available that needs an update
-          #console.log "broadcast this update"
-          $rootScope.$broadcast "#{data.type}_update", {
-            action: action
-            class: data.type
-            data: data
-            updated_at: data.updated_at
-            source: "#{action}Comment"
-          }
-        , err_func
-
-    create_in_ror: (action, data, ok_cb, err_cb) ->
-      _this._ok_cb = ok_cb
-      _this._err_cb = err_cb
-      if data.id
-        action = 'update'
+    create_in_ror: (action, data) ->
+      if action == 'update'
         method = 'put'
         url = "/api/comments/#{data.id}.json"
       else
         method = 'post'
         url = "/api/conversations/#{data.conversation_code}/comments.json"
       #console.log "method: #{method}, url: #{url}"
-      $http[method](url, data).then (response) =>
-        _this._ok_cb() if _this._ok_cb
-        $rootScope.$broadcast "#{response.data.type}_update", {
-          action: action
-          class: response.data.type
-          data: response.data
-          updated_at: response.data.updated_at
-          source: "#{action}Comment"
-        }
+      $http[method](url, data)
 
     persist_rating_to_ror: (comment_id, rating) ->
       #console.log "send rating to RoR id: #{comment_id} with rating #{rating}"
@@ -339,60 +311,3 @@ services.factory "TemplateEngine",
           ##$http.get("/assets/angular-views/#{templateName}.html")
           return "Initializing TemplateEngine for #{templateName}"
 
-
-
-
-###
-  ok_func(data,resp_headers_fn) 
-    data is the returned data
-    resp_headers_fn('Server') (e.g.)
-      "thin 1.5.1 codename Straight Razor"
-###
-
-ok_func = (data,resp_headers_fn) ->
-  console.log("ok_func");    
-  temp.data = data;
-
-
-###
-  err_func(error_object)
-    error_object.config.data  (The data that was sent, e.g.)
-      Resource {created_at: "2013-04-11T07:05:12Z", id: 18, liked: false, name: "Charley", text: "check it out"…}
-
-    error_object.config.method: "PUT"
-    error_object.config.url: "/comments/18" (The URL that was called)
-
-    error_object.headers() >> Response headers returned (e.g.)
-      error_object.headers('Server')
-        "thin 1.5.1 codename Straight Razor"
-
-    error_object.status
-      500
-
-    error_object.data (The error string that was returned e.g.)
-      "ActiveRecord::RecordNotFound at /comments/18
-      ============================================
-
-      > Couldn't find Comment without an ID
-
-      With full stack trace ...
-###    
-
-err_func = (error_object) ->
-  reported_error = error_object.data
-  key = ("#{name}" for name, msg of reported_error)[0]
-  errors = reported_error[key]
-  switch 
-    when error_object.status is 504
-      console.log "504 Gateway Time-out. The server didn't respond in time"
-
-    else
-      switch key
-        when 'errors'
-          error_message = ("Field: #{field}, Error: #{msg}" for field, msg of errors).join('\n')
-          console.log error_message
-        when 'system_error'
-          console.log "System Error: #{errors}"
-        else
-          console.log "Don't know how to handle this error"
-          #debugger

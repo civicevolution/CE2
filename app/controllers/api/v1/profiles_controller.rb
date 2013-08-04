@@ -9,17 +9,19 @@ module Api
         params[:attachment][:attachable_id] = 0
         params[:attachment][:attachable_type] = 'Undefined'
 
+        attachment = Attachment.create(params[:attachment])
         if env['HTTP_ACCEPT'].match(/json/)
-          respond_with Attachment.create(params[:attachment])
+          respond_with attachment
         else
-          respond_with Attachment.create(params[:attachment]), :content_type=>'text/plain'
+          respond_with attachment, :content_type=>'text/plain'
         end
       end
 
 
       def update
         logger.debug "update the comment with id: #{params[:id]}"
-        respond_with Attachment.update(params[:id], params[:comment])
+        attachment = Attachment.update(params[:id], params[:comment])
+        respond_with attachment
       end
 
       def destroy

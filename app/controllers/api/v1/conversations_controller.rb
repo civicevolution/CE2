@@ -37,15 +37,8 @@ module Api
 
       def create
         # create a new conversation with defaults from civicevolution.yml
-        respond_with Conversation.create( user_id: current_user.id )
-      end
-
-      def update
-        respond_with Comment.update(params[:id], params[:comment])
-      end
-
-      def destroy
-        respond_with Comment.destroy(params[:id])
+        conversation = Conversation.create( user_id: current_user.id )
+        respond_with conversation
       end
 
       def title

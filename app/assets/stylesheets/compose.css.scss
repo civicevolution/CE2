@@ -450,6 +450,16 @@ div.ac-wrap {
 
 }
 
-h4.form_title{
-  margin-left: 20px;
+#reply-control{
+  h4.form_title{
+    margin-left: 20px;
+    float:left;
+  }
+  div.form_errors{
+    float: left;
+    margin-left: 16px;
+    p{
+      margin: 0;
+    }
+  }
 }

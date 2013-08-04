@@ -368,12 +368,38 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         $scope.$emit('toggle-compose-window')
 
       $scope.addComment = ->
-        CommentData.create_in_ror 'save', $scope.newComment,
-          angular.bind $scope, ->
+        #$scope.newComment.form_errors = null
+        $scope.form_errors = null
+        action = if $scope.newComment.id then 'update' else 'save'
+        CommentData.create_in_ror(action, $scope.newComment).then(
+          (response)->
+            console.log "CommentData.create_in_ror success"
             $scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
-            this.newComment.id = null
-            this.newComment.text = null
+            $scope.newComment.id = null
+            $scope.newComment.text = null
             $scope.$emit('clear-edit')
+
+            $scope.$root.$broadcast "#{response.data.type}_update", {
+              action: action
+              class: response.data.type
+              data: response.data
+              updated_at: response.data.updated_at
+              source: "#{action}Comment"
+            }
+        ,
+          (reason) ->
+            console.log "CommentData.create_in_ror fail"
+            $scope.form_errors = []
+
+            for field of reason.data.errors
+              for message in reason.data.errors[field]
+                $scope.form_errors.push {field: field, message: message}
+
+            #for error in $scope.form_errors
+            #  console.log error.message
+        )
+
+
 
       $scope.clear_form = ->
         console.log "ceCommentForm:clear"

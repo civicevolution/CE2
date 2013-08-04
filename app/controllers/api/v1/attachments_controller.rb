@@ -22,7 +22,8 @@ module Api
 
       def update
         logger.debug "update the comment with id: #{params[:id]}"
-        respond_with Attachment.update(params[:id], params[:comment])
+        attachment = Attachment.update(params[:id], params[:comment])
+        respond_with attachment
       end
 
       def destroy

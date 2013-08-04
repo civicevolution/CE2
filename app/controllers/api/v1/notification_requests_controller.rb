@@ -13,15 +13,6 @@ module Api
         render json: 'ok'
       end
 
-      def update
-        respond_with Comment.update(params[:id], params[:comment])
-      end
-
-      def destroy
-        respond_with Comment.destroy(params[:id])
-      end
-
-
     end
 
   end

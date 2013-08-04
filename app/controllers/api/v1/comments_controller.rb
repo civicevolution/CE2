@@ -46,7 +46,8 @@ module Api
         comment = Comment.find(params[:id])
         conversation = comment.conversation
         comment.conversation_code = conversation.code
-        respond_with comment.update(params[:comment])
+        comment.update(params[:comment])
+        respond_with comment
         #respond_with Comment.update(params[:id], params[:comment])
       end
 
