@@ -14,7 +14,7 @@ module Api
       end
 
       def show
-        conversation = Conversation.includes(:comments).where( code: params[:id] ).first
+        conversation = Conversation.includes(:comments).find_by( code: params[:id] )
 
         current_user_id = current_user.try{ |user| user.id} || nil
 
@@ -42,7 +42,7 @@ module Api
       end
 
       def title
-        conversation = Conversation.where(code: params[:id]).first
+        conversation = Conversation.find_by(code: params[:id])
         title_comment = TitleComment.where(conversation_id: conversation.id).first_or_create do |tc|
           tc.user_id = current_user.id
         end
@@ -65,25 +65,25 @@ module Api
       end
 
       def privacy
-        conversation = Conversation.where(code: params[:id]).first
+        conversation = Conversation.find_by(code: params[:id])
         conversation.update_privacy current_user, params[:privacy]
         render json: 'ok'
       end
 
       def tags
-        conversation = Conversation.where(code: params[:id]).first
+        conversation = Conversation.find_by(code: params[:id])
         conversation.update_tags current_user, params[:tags]
         render json: 'ok'
       end
 
       def schedule
-        conversation = Conversation.where(code: params[:id]).first
+        conversation = Conversation.find_by(code: params[:id])
         conversation.update_schedule current_user, {start: params[:start], end: params[:end]}
         render json: 'ok'
       end
 
       def publish
-        conversation = Conversation.where(code: params[:id]).first
+        conversation = Conversation.find_by(code: params[:id])
         conversation.publish current_user
         render json: 'ok'
       end

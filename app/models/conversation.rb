@@ -80,7 +80,7 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     end
     # now check if any of the current tags need to be removed
     current_tags.each do |tag_name|
-      self.tags.delete( Tag.where(name: tag_name).first )
+      self.tags.delete( Tag.find_by(name: tag_name) )
     end
 
   end

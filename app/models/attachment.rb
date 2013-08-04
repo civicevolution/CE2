@@ -25,7 +25,7 @@ class Attachment < ActiveRecord::Base
     geo = Paperclip::Geometry.from_file(attachment.queued_for_write[:original])
     self.image_width = geo.width
     self.image_height = geo.height
-    Rails.logger.debug "saveimage dimnetsions heigth: #{self.image_height}, width: #{self.image_width}"
+    Rails.logger.debug "saveimage dimensions heigth: #{self.image_height}, width: #{self.image_width}"
   end
 
   def icon_url

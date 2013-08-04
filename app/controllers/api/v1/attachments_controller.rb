@@ -10,7 +10,7 @@ module Api
         params[:attachment][:attachable_type] = 'Undefined'
 
         attachment = Attachment.create(params[:attachment])
-        Conversation.find(params[:conversation_code]).attachments << attachment
+        Conversation.find_by(code: params[:conversation_code]).attachments << attachment
 
         if env['HTTP_ACCEPT'].match(/json/)
           respond_with attachment

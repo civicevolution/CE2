@@ -21,7 +21,7 @@ module Api
 
       def create
         Rails.logger.debug "Create the comment with params: #{params.inspect}"
-        conversation = Conversation.where(code: params[:conversation_code]).first
+        conversation = Conversation.find_by(code: params[:conversation_code])
 
         authorize! :create, conversation
 

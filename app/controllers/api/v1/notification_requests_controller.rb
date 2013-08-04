@@ -6,7 +6,7 @@ module Api
 
       def create
         Rails.logger.debug "NotificationRequestsController.create params: #{params.inspect}"
-        conversation = Conversation.where(code: params[:conversation_code]).first
+        conversation = Conversation.find_by(code: params[:conversation_code])
         request = NotificationRequest.where(conversation_id: conversation.id, user_id: current_user.id).first_or_create
         request.update_request params[:settings]
 
