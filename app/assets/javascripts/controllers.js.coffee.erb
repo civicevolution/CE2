@@ -438,11 +438,15 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       angular.element( document.getElementById('reply-control')).removeClass('open')
 
     $scope.$on 'conversation-comment-edit', (event) ->
-      #console.log "conversation-comment-edit"
-      $scope.newComment.type = 'ConversationComment'
-      $scope.newComment.conversation_code = $scope.conversation.code
-      $timeout -> $scope.$root.editor.refreshPreview()
-      angular.element( document.getElementById('reply-control')).addClass('open')
+      if angular.element( document.getElementById('reply-control')).hasClass('open')
+        #console.log "Reply form is already open, don't alter newComment properties"
+        return
+      else  
+        #console.log "Open and set reply form for conversation-comment-edit"
+        $scope.newComment.type = 'ConversationComment'
+        $scope.newComment.conversation_code = $scope.conversation.code
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).addClass('open')
 
     $scope.$on 'cancel-edit', (event) ->
       #console.log "cancel-edit"
