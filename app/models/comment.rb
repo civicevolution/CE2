@@ -6,7 +6,7 @@ class Comment < ActiveRecord::Base
     CommentSerializer
   end
 
-  attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version
+  attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark
 
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]

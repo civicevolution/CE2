@@ -6,7 +6,7 @@ class SummaryComment < Comment
 
   belongs_to :conversation
 
-  before_create :initialize_purpose_to_summary
+  before_validation :initialize_purpose_to_summary
 
   def initialize_purpose_to_summary
     self.purpose = "Summary"

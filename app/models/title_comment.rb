@@ -11,5 +11,11 @@ class TitleComment < Comment
     self.order_id = 1
   end
 
+  before_validation :initialize_purpose_to_title
+
+  def initialize_purpose_to_title
+    self.purpose = "Title"
+  end
+
 
 end

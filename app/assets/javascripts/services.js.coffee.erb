@@ -132,6 +132,8 @@ services.factory "ConversationData", ["$http",
     publish_conversation: (conversation_code) ->
       $http.post("/api/conversations/#{conversation_code}/publish.json")
 
+    adjust_conversation_bookmark: (action, code, version = 0) ->
+      $http[action]("/api/conversations/#{code}/bookmark.json", {version: version})
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
@@ -163,6 +165,8 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
     get_comments: (ids) ->
       $http.get("/api/comments?ids=#{ids.join(',')}")
 
+    adjust_comment_bookmark: (action, id, version = 0) ->
+      $http[action]("/api/comments/#{id}/bookmark.json", {version: version})
 ]
 
 # The controllers are responsible for requesting their data and storing it to scope

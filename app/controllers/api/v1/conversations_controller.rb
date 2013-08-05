@@ -18,8 +18,13 @@ module Api
 
         current_user_id = current_user.try{ |user| user.id} || nil
 
-        my_ratings = Rating.where( user_id: current_user_id, ratable_id: conversation.comments.map(&:id), ratable_type: 'Comment').inject({}){|hash, r| hash[r.ratable_id] = r.rating ; hash }
-        conversation.comments.each{|com| com.my_rating = my_ratings[com.id]}
+        comment_ids = conversation.comments.map(&:id)
+        my_ratings = Rating.where( user_id: current_user_id, ratable_id: comment_ids, ratable_type: 'Comment').inject({}){|hash, r| hash[r.ratable_id] = r.rating ; hash }
+        my_bookmarks = Bookmark.where( user_id: current_user_id, target_id: comment_ids, target_type: 'Comment').inject({}){|hash, b| hash[b.target_id] = true ; hash }
+        conversation.comments.each do |com|
+          com.my_rating = my_ratings[com.id]
+          com.bookmark = my_bookmarks[com.id]
+        end
 
         # everyone who can access this conversation can read the updates from Firebase
         firebase_auth_data = { conversations_read: { "#{conversation.code}" => true } }

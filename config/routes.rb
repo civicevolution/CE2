@@ -33,6 +33,11 @@ Ce2::Application.routes.draw do
     #end
   end
 
+  post "api/conversations/:id/bookmark" => "api/v1/bookmarks#create", format: :json, type: 'Conversation'
+  delete "api/conversations/:id/bookmark" => "api/v1/bookmarks#destroy", format: :json, type: 'Conversation'
+  post "api/comments/:id/bookmark" => "api/v1/bookmarks#create", format: :json, type: 'Comment'
+  delete "api/comments/:id/bookmark" => "api/v1/bookmarks#destroy", format: :json, type: 'Comment'
+
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do

@@ -33,6 +33,13 @@
             %a(ng-click="share({{comment.id}})")
               %i.icon-share-alt
               %span Share
+            %a(ng-click="bookmark()" ng-switch="comment.bookmark")
+              %span(ng-switch-when="true")
+                %i.icon-bookmark
+              %span(ng-switch-default)
+                %i.icon-bookmark-empty
+              %span Bookmark
+
             %a(ng-click="flag({{comment.id}})")
               %i.icon-flag
               %span Flag

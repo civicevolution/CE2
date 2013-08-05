@@ -6,7 +6,7 @@ class CallToActionComment < Comment
 
   belongs_to :conversation
 
-  before_create :initialize_purpose_to_call_to_action
+  before_validation :initialize_purpose_to_call_to_action
 
   def initialize_purpose_to_call_to_action
     self.purpose = "Call to action"

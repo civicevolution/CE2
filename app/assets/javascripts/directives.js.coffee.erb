@@ -266,6 +266,14 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         $scope.history_url = null
         delete $scope.history
 
+      $scope.bookmark = ->
+        #console.log "bookmark comment: #{$scope.comment.id}"
+        action = if $scope.comment.bookmark then 'delete' else 'post'
+        CommentData.adjust_comment_bookmark(action, $scope.comment.id, $scope.comment.version).then(
+          (response) ->
+            $scope.comment.bookmark = if action is 'delete' then false else true
+        )
+
       $scope.share = (id) ->
         console.log "Clicked Comment share link id: #{id}"
 
