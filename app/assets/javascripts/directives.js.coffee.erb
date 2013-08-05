@@ -364,8 +364,20 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
       debug = false
 
+      $scope.conversation.comment_purposes = [
+        {value: 'experience', key: 'My experience', labels: "Unhelpful~Helpful"},
+        {value: 'opinion', key: 'My opinion', labels: "Disagree~Agree"},
+        {value: 'fact', key: 'Factual information', labels: "Unhelpful~Helpful"},
+        {value: 'suggestion', key: 'My suggestion', labels: "Unhelpful~Helpful"},
+        {value: 'question', key: 'My question', labels: "Unimportant~Important"}
+      ]
+
       $scope.toggle_compose_window = ->
         $scope.$emit('toggle-compose-window')
+        
+      $scope.select_comment_purpose = ->
+        console.log "selected comment purpose: #{$scope.newComment.purpose}"   
+        console.log "Change the guidance!!!"
 
       $scope.addComment = ->
         #$scope.newComment.form_errors = null
@@ -373,7 +385,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         action = if $scope.newComment.id then 'update' else 'save'
         CommentData.create_in_ror(action, $scope.newComment).then(
           (response)->
-            console.log "CommentData.create_in_ror success"
+            #console.log "CommentData.create_in_ror success"
             $scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
             $scope.newComment.id = null
             $scope.newComment.text = null
@@ -436,17 +448,25 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
       #console.log "scope.persist_rating call on CommentData id: #{$scope.comment.id} with rating: #{$scope.rating}"
       CommentData.persist_rating_to_ror($scope.comment.id, $scope.comment.my_rating).then (response) ->
         $scope.comment.ratings_cache = response.data
+
+    $scope.redraw_rating_graph = (element) ->
+      for purpose in $scope.conversation.comment_purposes
+        if purpose.value is $scope.comment.purpose
+          labels = purpose.labels
+      labels ?= "Disagree~Agree"
+      canvas = element.find('canvas')[0]
+      G_vmlCanvasManager.initElement(canvas) if G_vmlCanvasManager?
+      ctx = canvas.getContext('2d');
+      grapher = new window.Graph();
+      grapher.draw_rating_results(ctx, $scope.comment.ratings_cache, $scope.comment.my_rating, labels);
+
   ]
 
   link: (scope, element, attrs) ->
     #console.log "link function to draw rating slider with scope: #{scope.$id} and comment.id: #{scope.comment.id}"
 
     scope.$watch('comment.ratings_cache', (oldValue, newValue) ->
-      canvas = element.find('canvas')[0]
-      G_vmlCanvasManager.initElement(canvas) if G_vmlCanvasManager?
-      ctx = canvas.getContext('2d');
-      grapher = new window.Graph();
-      grapher.draw_rating_results(ctx, scope.comment.ratings_cache, scope.comment.my_rating);
+      scope.redraw_rating_graph(element)
     , true)
 
     canvas = element.find('canvas')
@@ -514,6 +534,7 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
       scope.$apply( ->
         scope.persist_rating()
       )
+
 ])
 
 ce2_directives.directive('ceProfilePhotoForm', ->

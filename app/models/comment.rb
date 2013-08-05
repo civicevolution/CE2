@@ -49,7 +49,7 @@ class Comment < ActiveRecord::Base
   end
 
   validates :type, :user_id, :conversation_id, :version, :status, :order_id, :presence => true
-  validates :text, presence: true, if: :is_new_comment?
+  validates :purpose, presence: { message: 'Must select what you will share' }
   validates :text, length: { minimum: 20, too_short: "Must be at least %{count} characters"}
   #validates :text, length: { maximum: 1500, too_long: "Must be less than %{count} characters" }
 

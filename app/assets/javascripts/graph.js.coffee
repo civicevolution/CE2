@@ -4,7 +4,7 @@
 #
 
 class Graph
-  draw_rating_results: (ctx, vote_counts, my_rating) ->
+  draw_rating_results: (ctx, vote_counts, my_rating, labels) ->
     #console.log "Graph.draw_rating_results"
     width = 300 # also set $rating_width in scss, rating_slider.html, canvas_width in directives
     height = 40
@@ -52,12 +52,14 @@ class Graph
 
 
     if not my_rating
+      labels = labels.split('~')
       ctx.fillStyle = "white";
       ctx.font = "italic 16px Arial";
       ctx.textBaseline = "middle"
-      ctx.fillText("Disagree", 4, height/2 + text_offset);
+      ctx.textAlign = "left"
+      ctx.fillText(labels[0], 4, height/2 + text_offset);
       ctx.textAlign = "right"
-      ctx.fillText("Agree", width-4 - text_offset*2, height/2 + text_offset);
+      ctx.fillText(labels[1], width-4 - text_offset*2, height/2 + text_offset);
       return
 
     ctx.beginPath();
@@ -71,6 +73,18 @@ class Graph
       vote_coords.push height - vote * vote_scaler
 
     this.draw_curve(ctx, vote_coords,.5, true, 10, false);
+
+    # show faint labels below th graph
+    labels = labels.split('~')
+    ctx.fillStyle = "#888888";
+    ctx.font = "italic 12px Arial";
+    ctx.textBaseline = "bottom"
+    ctx.textAlign = "left"
+    ctx.fillText(labels[0], 4, height + text_offset);
+    ctx.textAlign = "right"
+    ctx.fillText(labels[1], width-4 - text_offset*2, height + text_offset);
+    ctx.fillStyle = lineargradient;
+
 
 
   #	Uses an array of points (x,y) to draw a smooth curve (cardinal spline).

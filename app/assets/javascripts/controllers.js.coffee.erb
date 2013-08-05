@@ -415,7 +415,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       $scope.$root.$broadcast "user-event-notification", { action: "open comment-form #{$scope.newComment.type}"}
 
     $scope.$on 'request-edit', (event, comment) ->
-      $scope.newComment = {id: comment.id, text: comment.text, type: comment.type }
+      $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
       $scope.reply_control_title = switch $scope.newComment.type
         when 'ConversationComment' then "Edit conversation comment"
         when 'SummaryComment' then "Edit summary comment"
@@ -470,6 +470,11 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.conversation_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+        if updated_rec.purpose isnt original_rec.purpose
+          console.log "update the graph to show new labels"
+          element = angular.element(document.getElementById("com-#{updated_rec.id}"))
+          canvas = element.find('canvas')
+          canvas.scope().redraw_rating_graph( element )
 
     $scope.$on 'SummaryComment_update', (event, data) ->
       #console.log "received broadcast SummaryComment_update"
