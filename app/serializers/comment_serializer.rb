@@ -3,7 +3,7 @@ class CommentSerializer < ActiveModel::Serializer
 
   attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :purpose,
              :version, :ratings_cache, :my_rating, :number_of_votes, :sm1, :sm2, :sm3, :sm4, :sm5,
-             :editable_by_user, :name_count, :code,
+             :editable_by_user, :name, :code,
              :replies, :reply_to_targets, :bookmark
              #:reply_comments, :reply_to_comments
 
@@ -19,8 +19,8 @@ class CommentSerializer < ActiveModel::Serializer
     object.author.last_name
   end
 
-  def name_count
-    object.author.name_count
+  def name
+    object.author.name
   end
 
   def code

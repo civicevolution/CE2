@@ -419,8 +419,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             #  console.log error.message
         )
 
-
-
       $scope.clear_form = ->
         console.log "ceCommentForm:clear"
         $scope.newComment = { }
@@ -433,8 +431,78 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         console.log "do update-new-comment-text"
         $scope.newComment.text = document.getElementById('wmd-input').value
 
-      $scope.test = ->
-        console.log "ceCommentForm: test"
+      last_monitored_key_code_non_printable = true
+      $scope.monitor_keydown = ->
+        #console.log "monitor_keydown #{event.keyCode}, last_monitored_key_code_non_printable: #{last_monitored_key_code_non_printable}, $scope.mention_mode: #{$scope.mention_mode}"
+        return if event.keyCode is 16 # ignore shift key
+        $mentions = angular.element(document.getElementById('mentions'))
+        if $scope.mention_mode && ( 38 <= event.keyCode <= 40 || event.keyCode == 13 )
+          #console.log "use the cursor (arrow) keys to navigate and select in mentions list"
+          # find the currently selected name, then move, if possible, or select
+          #selected_name = name1 for name2 in $mentions.find('li') when name.hasClass('selected')
+
+          selected_index = null
+          li_elements = $mentions.find('li')
+          for li, index in li_elements
+            li = angular.element(li)
+            if li.hasClass('selected')
+              selected_index = index
+              break;
+          li_elements.removeClass('selected')
+          switch event.keyCode
+            when 38
+              #console.log "move up"
+              selected_index = if selected_index > 0 then selected_index -= 1 else selected_index
+              li_elements.eq(selected_index).addClass('selected')
+            when 39, 13
+              name = li_elements.eq(selected_index).find('span').text()
+              #console.log "selected #{name}"
+              console.log "ceCommentForm select_mention name: #{name}"
+              insertTextAtCursor(document.getElementById('reply-control').getElementsByTagName('textarea')[0],name )
+              $scope.mention_mode = false
+              $mentions.addClass('hide')
+              event.preventDefault();
+
+            when 40
+              #console.log "move down"
+              selected_index = if selected_index < li_elements.length-1 then selected_index += 1 else selected_index
+              li_elements.eq(selected_index).addClass('selected')
+
+          #console.log "currently selected is #{selected_name.find('span').contents() }"
+        else if event.keyCode is 50 && last_monitored_key_code_non_printable
+          # the @ key has been pressed, show the autocomplete populated with conversation participants
+          #console.log "display autocomplete with #{$scope.conversation.participants.length}"
+          $scope.mention_mode = true
+          $mentions.removeClass('hide')
+          $mentions.find('li').removeClass('selected').eq(0).addClass('selected')
+          $textarea_wrapper = $mentions.parent()
+          $mentions.css({top: "-#{$mentions.prop('offsetHeight')}px", left: "#{$textarea_wrapper.prop('offsetWidth')/2 - $mentions.prop('offsetWidth')/2}px" })
+        else if $scope.mention_mode
+          #console.log "Dismiss the autocomplete popup"
+          $scope.mention_mode = false
+          $mentions.addClass('hide')
+        match_char = char for char in [9,13,16,17,18,27,32] when char is event.keyCode
+        last_monitored_key_code_non_printable = if match_char then true else false
+
+      # http://stackoverflow.com/questions/3308292/inserting-text-at-cursor-in-a-textarea-with-javascript/3308539#3308539
+      insertTextAtCursor = (el, text) ->
+        val = el.value
+        if (typeof el.selectionStart != "undefined" && typeof el.selectionEnd != "undefined")
+          endIndex = el.selectionEnd
+          el.value = val.slice(0, endIndex) + text + val.slice(endIndex)
+          el.selectionStart = el.selectionEnd = endIndex + text.length
+        else if (typeof document.selection != "undefined" && typeof document.selection.createRange != "undefined")
+          el.focus()
+          range = document.selection.createRange()
+          range.collapse(false)
+          range.text = text
+          range.select()
+
+      $scope.select_mention = ->
+        name = event.currentTarget.getElementsByTagName('span')[0].innerText
+        console.log "ceCommentForm select_mention name: #{name}"
+        insertTextAtCursor(document.getElementById('reply-control').getElementsByTagName('textarea')[0],name )
+        $mentions = angular.element(document.getElementById('mentions')).addClass('hide')
   ]
 ])
 

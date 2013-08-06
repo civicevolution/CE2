@@ -12,7 +12,7 @@ class Comment < ActiveRecord::Base
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
 
 
-  belongs_to :author,  -> { select :id, :first_name, :last_name, :code, :name_count}, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id'  #, photo_file_name'
+  belongs_to :author,  -> { select :id, :first_name, :last_name, :code, :name}, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id'  #, photo_file_name'
 
   belongs_to :conversation
 
@@ -25,7 +25,7 @@ class Comment < ActiveRecord::Base
   has_many :replies, class_name: 'Reply', foreign_key: :reply_to_id
   has_many :reply_comments, through: :replies, source: :reply_comments
 
-
+  has_many :mentions, dependent: :delete_all
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
                   :references, :conversation_code, :in_reply_to_id, :in_reply_to_version

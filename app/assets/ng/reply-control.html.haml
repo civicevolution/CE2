@@ -45,6 +45,12 @@
           -#%p
             %i comment form from directive scope id: {{$id}}
           .textarea-wrapper
+            %div#mentions.hide(ng-if="true")
+              %ul
+                %li(ng-repeat="participant in conversation.participants" ng-click="select_mention()")
+                  %img(src="http://assets.civicevolution.org/users/civic_dev/{{participant.photo_code}}/sm1/p.jpg")
+                  %span.user_name {{participant.name}}
+
             .form
               %div.edit-menu
                 %div.attachment_form
@@ -72,7 +78,7 @@
                     %button#wmd-undo-button.wmd-button{:disabled => "", :title => "Undo - Ctrl+Z"}
                     %button#wmd-redo-button.wmd-button{:disabled => "", :title => "Redo - Ctrl+Shift+Z"}
 
-                %textarea#wmd-input.noscrollbars(ng-model="newComment.text"){placeholder: "Enter your comment..."}
+                %textarea#wmd-input.noscrollbars(ng-model="newComment.text" ng-keydown="monitor_keydown()"){placeholder: "Enter your comment..."}
 
                 %input(ng-model="newComment.id"){type: 'hidden' }
                 %input(ng-model="newComment.conversation_code"){type: 'hidden' }

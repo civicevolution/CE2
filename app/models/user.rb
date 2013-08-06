@@ -4,6 +4,10 @@ class User < ActiveRecord::Base
   has_one :profile
   has_many :notification_requests
 
+  has_many :mentioneds, class_name: 'Mention', foreign_key: :mentioned_user_id
+  has_many :mentions, class_name: 'Mention', foreign_key: :user_id
+
+
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable

@@ -79,12 +79,15 @@ services.factory "ConversationData", ["$http",
         if response.status is 200
           summary_comments = []
           conversation_comments = []
+          authors = {}
           for comment in response.data.comments
             switch comment.type
               when "SummaryComment" then summary_comments.push comment
               when "ConversationComment" then conversation_comments.push comment
               when "TitleComment" then title_comment = comment
               when "CallToActionComment" then call_to_action_comment = comment
+            authors[comment.name] = comment.code
+          authors = ( {name: name, photo_code: authors[name]} for name of authors)
 
           #console.log "conversation_id: #{conversation_id}"
           # extract and setup some data for the directive controller
@@ -112,6 +115,7 @@ services.factory "ConversationData", ["$http",
           list: response.data.list
           status: response.data.status
           notification_request  : response.data.notification_request
+          participants: authors
 
     persist_summary_comment_order_to_ror: (conversation_code, comments_order) ->
       #console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_code} with order #{comments_order}"

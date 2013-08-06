@@ -177,6 +177,17 @@ module Modules
 
     def record_mentions
       Rails.logger.debug " I need to implement record_mentions"
+      # parse comment text for \s\@\w+\b
+
+      mentioned_names = self.text.scan(/(?<!\w)@\w+/).map{|n| n.sub('@','') }.uniq
+      mentioned_user_ids = User.where(name: mentioned_names).pluck(:id)
+
+      mentions = []
+      mentioned_user_ids.each do |mentioned_user_id|
+        mentions.push Mention.new comment_id: self.id, version: self.version, user_id: self.user_id, mentioned_user_id: mentioned_user_id
+      end
+
+      self.mentions = mentions
     end
 
     def send_to_firebase
