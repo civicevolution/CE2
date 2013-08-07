@@ -8,21 +8,6 @@ GIT
       railties (~> 4.0)
 
 GIT
-  remote: git://github.com/collectiveidea/delayed_job.git
-  revision: 44edd9473adbc415a3e51ead60a63107a9ad41e4
-  specs:
-    delayed_job (4.0.0.beta2)
-      activesupport (>= 3.0, < 4.1)
-
-GIT
-  remote: git://github.com/collectiveidea/delayed_job_active_record.git
-  revision: ba49bf6c5eb2a4c5197630b24702a06e7c61a416
-  specs:
-    delayed_job_active_record (4.0.0.beta3)
-      activerecord (>= 3.0, < 4.1)
-      delayed_job (>= 3.0, < 4.1)
-
-GIT
   remote: git://github.com/cucumber/cucumber-rails.git
   revision: 5fa9da37ab05213d2f46029ea476e09104ffe281
   branch: master_rails4_test
@@ -135,6 +120,11 @@ GEM
     daemons (1.1.9)
     database_cleaner (1.0.1)
     debug_inspector (0.0.2)
+    delayed_job (4.0.0)
+      activesupport (>= 3.0, < 4.1)
+    delayed_job_active_record (4.0.0)
+      activerecord (>= 3.0, < 4.1)
+      delayed_job (>= 3.0, < 4.1)
     devise (3.0.0)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.1)
@@ -302,8 +292,7 @@ DEPENDENCIES
   cucumber-rails!
   daemons
   database_cleaner (>= 1.0.0.RC1)
-  delayed_job!
-  delayed_job_active_record!
+  delayed_job_active_record
   devise
   differ
   factory_girl_rails (>= 4.2.0)
