@@ -5,7 +5,7 @@ FactoryGirl.define do
     type 'Comment'
     user_id 1
     conversation_id 1
-    text "Comment text"
+    text "12345678901234567890"
     version 1
     status "new"
     order_id 1

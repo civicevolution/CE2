@@ -14,4 +14,4 @@ ADMIN_FIRST_NAME: Brian
 ADMIN_LAST_NAME: Sullivan
 ADMIN_EMAIL: brian@civicevolution.org
 ADMIN_PASSWORD: evolution
-ROLES: [admin, user, VIP]
+ROLES: [admin, probationary_participant, participant, trusted_participant, curator, conversation_admin]

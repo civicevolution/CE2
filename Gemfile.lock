@@ -28,6 +28,20 @@ GIT
       activemodel (>= 4.0.0, < 4.1)
 
 GIT
+  remote: git://github.com/sporkrb/spork-rails.git
+  revision: 3224f84d8c31fcb0894e9a43f6c3ac67e3aa0d71
+  specs:
+    spork-rails (3.2.1)
+      rails (>= 3.0.0, < 5)
+      spork (>= 1.0rc0)
+
+GIT
+  remote: git://github.com/sporkrb/spork.git
+  revision: 38ab44f0968c23509912680a04f903fe4ad5c068
+  specs:
+    spork (1.0.0rc3)
+
+GIT
   remote: git://github.com/thoughtbot/paperclip.git
   revision: 65cc5c7d4ffd4d015be202d807220d2acd5d1f93
   branch: master
@@ -239,7 +253,6 @@ GEM
     sexp_processor (4.2.1)
     shoulda-matchers (2.2.0)
       activesupport (>= 3.0.0)
-    spork (0.9.2)
     sprockets (2.10.0)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -317,6 +330,7 @@ DEPENDENCIES
   sass-rails (~> 4.0.0.rc2)
   shoulda-matchers
   simple_form!
-  spork
+  spork!
+  spork-rails!
   thin (>= 1.5.0)
   unicorn (>= 4.3.1)

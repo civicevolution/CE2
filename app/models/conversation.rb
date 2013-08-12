@@ -5,11 +5,11 @@ class Conversation < ActiveRecord::Base
   end
 
   attr_accessible :user_id, :status
-  attr_accessor :firebase_token
+  attr_accessor :firebase_token, :display_mode
 
   has_one :title_comment, -> { includes author: :profile   }
   has_one :call_to_action_comment, -> { includes author: :profile   }
-  has_many  :comments, -> { includes [{author: :profile}, :replies, :reply_to_targets ]   }
+  has_many  :comments, -> { includes [{author: :profile}, :replies, :reply_to_targets ] }
   has_many  :conversation_comments, -> { includes author: :profile }
   has_many :summary_comments, -> { includes author: :profile }
 
@@ -19,8 +19,23 @@ class Conversation < ActiveRecord::Base
 
   has_many :notification_requests
 
+  validates :status, presence: true
   validate :conversation_code_is_unique, on: :create
   before_create :initialize_conversation
+  after_initialize :initialize_display_mode_to_show_all
+  after_find :initialize_display_mode_to_show_all
+
+  def displayed_comments
+    if display_mode == :show_all
+      comments
+    else
+      comments.where("type != 'ConversationComment'")
+    end
+  end
+
+  def initialize_display_mode_to_show_all
+    self.display_mode = :show_all
+  end
 
   def conversation_code_is_unique
     self.code = Conversation.create_random_conversation_code

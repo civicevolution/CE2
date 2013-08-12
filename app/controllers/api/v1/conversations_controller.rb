@@ -2,7 +2,6 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      #load_and_authorize_resource
       #def default_serializer_options
       #  {
       #      root: false
@@ -10,37 +9,26 @@ module Api
       #end
 
       def index
+        authorize! :index, Conversation
         respond_with Conversation.all, scope: { shallow_serialization_mode: true}
       end
 
       def show
-        conversation = Conversation.includes(:comments).find_by( code: params[:id] )
-
-        current_user_id = current_user.try{ |user| user.id} || nil
-
-        comment_ids = conversation.comments.map(&:id)
-        my_ratings = Rating.where( user_id: current_user_id, ratable_id: comment_ids, ratable_type: 'Comment').inject({}){|hash, r| hash[r.ratable_id] = r.rating ; hash }
-        my_bookmarks = Bookmark.where( user_id: current_user_id, target_id: comment_ids, target_type: 'Comment').inject({}){|hash, b| hash[b.target_id] = true ; hash }
-        conversation.comments.each do |com|
-          com.my_rating = my_ratings[com.id]
-          com.bookmark = my_bookmarks[com.id]
+        conversation = Conversation.find_by( code: params[:id] )
+        # determine if I can :show ()all comments) or try :show_summary_only
+        if can?(:show, conversation)
+          authorize! :show, conversation
+          presenter = ConversationPresenter.new( conversation, current_user, :show_all )
+        else
+          authorize! :show_summary_only, conversation
+          presenter = ConversationPresenter.new( conversation, current_user, :show_summary_only )
         end
 
-        # everyone who can access this conversation can read the updates from Firebase
-        firebase_auth_data = { conversations_read: { "#{conversation.code}" => true } }
-
-        # only authenticated users can read their user channel or potentially write to the conversation channel on firebase
-        if current_user_id
-          firebase_auth_data['userid'] = "#{current_user_id}"
-          firebase_auth_data['conversations_write'] = { "#{conversation.code}" => true }
-        end
-
-        conversation.firebase_token = Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data)
-
-        respond_with conversation
+        respond_with presenter.conversation
       end
 
       def create
+        authorize! :create, Conversation
         # create a new conversation with defaults from civicevolution.yml
         conversation = Conversation.create( user_id: current_user.id )
         respond_with conversation
@@ -48,6 +36,7 @@ module Api
 
       def title
         conversation = Conversation.find_by(code: params[:id])
+        authorize! :edit_title, conversation
         title_comment = TitleComment.where(conversation_id: conversation.id).first_or_create do |tc|
           tc.user_id = current_user.id
         end
@@ -58,6 +47,10 @@ module Api
 
       def summary_comment_order
         Rails.logger.debug "api/conversations_controller.summary_comment_order for conversation #{params[:id]}"
+
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :summary_comment_order, conversation
+
         ids_with_order_id = Conversation.reorder_summary_comments( params[:id], params[:ordered_ids] )
         if !ids_with_order_id.empty?
           conversation = Conversation.find( params[:id] )
@@ -71,24 +64,28 @@ module Api
 
       def privacy
         conversation = Conversation.find_by(code: params[:id])
+        authorize! :privacy, conversation
         conversation.update_privacy current_user, params[:privacy]
         render json: 'ok'
       end
 
       def tags
         conversation = Conversation.find_by(code: params[:id])
+        authorize! :tags, conversation
         conversation.update_tags current_user, params[:tags]
         render json: 'ok'
       end
 
       def schedule
         conversation = Conversation.find_by(code: params[:id])
+        authorize! :schedule, conversation
         conversation.update_schedule current_user, {start: params[:start], end: params[:end]}
         render json: 'ok'
       end
 
       def publish
         conversation = Conversation.find_by(code: params[:id])
+        authorize! :publish, conversation
         conversation.publish current_user
         render json: 'ok'
       end

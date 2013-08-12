@@ -21,7 +21,7 @@
           %option(value="" disabled selected) Select what you will share
 
         %div.form_errors
-          %p.warn(ng-repeat="error in form_errors")
+          %p.warn(ng-repeat="error in newComment.form_errors")
             {{error.message}}
 
       %div(ng-switch-default)
@@ -29,7 +29,7 @@
           {{reply_control_title}}
 
         %div.form_errors
-          %p.warn(ng-repeat="error in form_errors")
+          %p.warn(ng-repeat="error in newComment.form_errors")
             {{error.message}}
 
 

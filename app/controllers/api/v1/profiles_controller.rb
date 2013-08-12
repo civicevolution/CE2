@@ -2,7 +2,6 @@ module Api
   module V1
 
     class ProfilesController < Api::BaseController
-      load_and_authorize_resource
 
       def create
         params[:attachment][:user_id] = current_user.id

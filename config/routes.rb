@@ -91,7 +91,9 @@ Ce2::Application.routes.draw do
   post "api/users/photo" => "api/v1/profiles#upload_photo", format: :json
 
   # access ui templates that are normally stored in js file but cleared by dev's clear cache command
-  get '/template/*path/*file.*pre', to: redirect("http://app.civicevolution.dev/assets/ui/%{path}/%{file}.%{pre}")
+  get '/template/*path/*file.*pre', to: redirect("/assets/ui/%{path}/%{file}.%{pre}")
+
+  match '(errors)/:status', to: 'errors#show', constraints: {status: /\d{3}/}, via: :all
 
 
   # The priority is based upon order of creation: first created -> highest priority.

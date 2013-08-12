@@ -28,7 +28,7 @@ class Comment < ActiveRecord::Base
   has_many :mentions, dependent: :delete_all
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
-                  :references, :conversation_code, :in_reply_to_id, :in_reply_to_version
+                  :references, :conversation_code, :in_reply_to_id, :in_reply_to_version, :published
 
   after_initialize :read_previous_text_on_init
   before_update :increment_comment_version

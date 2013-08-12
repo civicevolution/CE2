@@ -2,15 +2,17 @@ module Api
   module V1
 
     class AttachmentsController < Api::BaseController
-      load_and_authorize_resource
 
       def create
+        conversation = Conversation.find_by(code: params[:conversation_code])
+        authorize! :attachment, conversation
+
         params[:attachment][:user_id] = current_user.id
         params[:attachment][:attachable_id] = 0
         params[:attachment][:attachable_type] = 'Undefined'
 
         attachment = Attachment.create(params[:attachment])
-        Conversation.find_by(code: params[:conversation_code]).attachments << attachment
+        conversation.attachments << attachment
 
         if env['HTTP_ACCEPT'].match(/json/)
           respond_with attachment

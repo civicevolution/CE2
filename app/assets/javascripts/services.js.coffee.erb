@@ -36,6 +36,9 @@ services.factory 'User', [ "$http", "$window", ($http, $window) ->
   edit_profile: ->
     console.log 'User:edit_profile'
 
+  test: ->
+    $http.get('/api/users/user.json')
+
 ]
 
 services.factory 'NotificationRequest', [ "$http", ($http) ->
@@ -80,7 +83,7 @@ services.factory "ConversationData", ["$http",
           summary_comments = []
           conversation_comments = []
           authors = {}
-          for comment in response.data.comments
+          for comment in response.data.displayed_comments
             switch comment.type
               when "SummaryComment" then summary_comments.push comment
               when "ConversationComment" then conversation_comments.push comment

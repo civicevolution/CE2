@@ -25,7 +25,8 @@ gem "cucumber-rails", github: 'cucumber/cucumber-rails', branch: 'master_rails4_
 gem "launchy", ">= 2.2.0", :group => :test
 gem "capybara", ">= 2.0.3", :group => :test
 gem "factory_girl_rails", ">= 4.2.0", :group => [:development, :test]
-gem "spork", :group => [:development, :test]
+gem "spork", :github => 'sporkrb/spork', :group => [:development, :test]
+gem "spork-rails", :github => 'sporkrb/spork-rails', :group => [:development, :test]
 gem "bootstrap-sass", ">= 2.3.0.0"
 gem 'devise' #, github: 'plataformatec/devise', branch: 'rails4'
 gem "cancan", ">= 1.6.9"

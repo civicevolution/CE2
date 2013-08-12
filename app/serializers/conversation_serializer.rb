@@ -1,10 +1,10 @@
 class ConversationSerializer < ActiveModel::Serializer
   #embed :ids, :include => true
   attributes :url, :updated_at, :firebase_token, :code, :title, :munged_title, :call_to_action,
-             :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags, :notification_request
-  has_many :comments
+             :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags, :notification_request, :display_mode
+  has_many :displayed_comments
 
-  def include_comments?
+  def include_displayed_comments?
     !( scope && scope[:shallow_serialization_mode] )
   end
 
@@ -13,15 +13,15 @@ class ConversationSerializer < ActiveModel::Serializer
   end
 
   def munged_title
-      object.title_comment.try{ |title_comment| title_comment.text.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50]}
+    object.displayed_comments.detect{|c| c.type == 'TitleComment'}.try{ |title_comment| title_comment.text.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50]}
   end
 
   def title
-    object.title_comment.try{ |title_comment| title_comment.text}
+    object.displayed_comments.detect{|c| c.type == 'TitleComment'}.try{ |title_comment| title_comment.text}
   end
 
   def call_to_action
-    object.call_to_action_comment.try{ |call_to_action| call_to_action.text}
+    object.displayed_comments.detect{|c| c.type == 'CallToActionComment'}.try{|cta| cta.text}
   end
 
   def current_timestamp

@@ -20,15 +20,19 @@ describe Comment do
     subject.save
     version_number = subject.version
     id = subject.id
+    pp subject.inspect
     new_comment = Comment.find(id)
-    new_comment.text = 'next version'
+    new_comment.text = '01234567890123456789-v2'
+    pp new_comment.inspect
     expect { new_comment.save }.to change { new_comment.version }.to(version_number+1)
   end
 
 
   it {should validate_presence_of (:user_id) }
   it {should validate_presence_of (:conversation_id) }
-  it {should validate_presence_of (:text) }
+
+  it { should ensure_length_of(:text).is_at_least(20).with_message(/at least 20 characters/) }
+
   it {should validate_presence_of (:status) }
   it {should validate_presence_of (:order_id) }
   it {should validate_presence_of (:type) }

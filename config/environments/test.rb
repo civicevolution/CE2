@@ -38,4 +38,6 @@ Ce2::Application.configure do
   # ActionMailer Config
   config.action_mailer.default_url_options = { :host => 'civicevolution.org' }
 
+  RES_BASE='civic_dev'
+
 end

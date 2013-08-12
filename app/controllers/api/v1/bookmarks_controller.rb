@@ -2,7 +2,6 @@ module Api
   module V1
 
     class BookmarksController < Api::BaseController
-      #load_and_authorize_resource
 
       def index
         #if params[:ids]
@@ -21,6 +20,15 @@ module Api
         Rails.logger.debug "Create the bookmark with params: #{params.inspect}"
 
         # TODO: they should only be able to bookmark if they have access to this conversation
+        conversation =
+          case params[:type]
+            when "Comment"
+              Comment.find(params[:id]).conversation
+            when "Conversation"
+              Conversation.find_by(code: params[:id])
+          end
+        authorize! :bookmark, conversation
+        params[:id] = conversation.id if params[:type] == "Conversation"
 
         bookmark = Bookmark.where(user_id: current_user.id, target_type: params[:type], target_id: params[:id] ).first_or_create do |bookmark|
           bookmark.version = params[:version]
@@ -31,6 +39,17 @@ module Api
 
       def destroy
         Rails.logger.debug "Destroy the bookmark with params: #{params.inspect}"
+
+        # TODO: they should only be able to bookmark if they have access to this conversation
+        conversation =
+            case params[:type]
+              when "Comment"
+                Comment.find(params[:id]).conversation
+              when "Conversation"
+                Conversation.find_by(code: params[:id])
+            end
+        authorize! :bookmark, conversation
+        params[:id] = conversation.id if params[:type] == "Conversation"
 
         bookmark = Bookmark.find_by(user_id: current_user.id, target_type: params[:type], target_id: params[:id] )
         bookmark.destroy unless !bookmark

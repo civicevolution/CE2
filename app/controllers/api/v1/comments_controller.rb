@@ -2,8 +2,7 @@ module Api
   module V1
 
     class CommentsController < Api::BaseController
-      load_and_authorize_resource
-      
+
       def index
         if params[:ids]
           respond_with Comment.includes(:author).where(id: params[:ids].scan(/\d+/) )
@@ -23,10 +22,14 @@ module Api
         Rails.logger.debug "Create the comment with params: #{params.inspect}"
         conversation = Conversation.find_by(code: params[:conversation_code])
 
-        authorize! :create, conversation
+        (auth_type, published, status) = auth_comment(conversation, params[:comment][:text])
+        authorize! auth_type, conversation
 
-        params[:comment][:user_id] = current_user.id
+        params[:comment][:user_id] = current_user.try{|cu| cu.id}
         params[:comment][:conversation_code] = conversation.code
+        params[:comment][:published] = published
+        params[:comment][:status] = status
+
         case params[:type]
           when "ConversationComment"
             comment = conversation.conversation_comments.create params[:comment]
@@ -45,10 +48,16 @@ module Api
         logger.debug "update the comment with id: #{params[:id]}"
         comment = Comment.find(params[:id])
         conversation = comment.conversation
-        comment.conversation_code = conversation.code
+
+        (auth_type, published, status ) = auth_comment(conversation, params[:comment][:text])
+        authorize! auth_type, conversation
+
+        params[:comment][:conversation_code] = conversation.code
+        params[:comment][:published] = published
+        params[:comment][:status] = status
+
         comment.update(params[:comment])
         respond_with comment
-        #respond_with Comment.update(params[:id], params[:comment])
       end
 
       def destroy
@@ -56,16 +65,61 @@ module Api
       end
 
       def history
-        respond_with @comment.history_diffs
+        comment = Comment.find(params[:id])
+        authorize! :history, comment.conversation
+        respond_with comment.history_diffs
         logger.debug "Show the history"
       end
 
       def rate
         @comment = Comment.find(params[:comment_id])
+        authorize! :rate_comment, @comment.conversation
         rating = @comment.ratings.where(user_id: current_user.id).first_or_initialize
         rating.rating = params[:rating]
         rating.save
         respond_with Comment.find(params[:comment_id]).ratings_cache
+      end
+
+      private
+
+      def auth_comment( conversation, text )
+        case params[:type]
+          when "ConversationComment"
+            # should this comment be published automatically, or does it need to be reviewed by curator?
+            case
+              when can?(:post_any, conversation)
+                auth_type = :post_any
+                published = true
+                status = 'new'
+              when can?(:post_no_attachments, conversation)
+                auth_type = :post_no_attachments
+                # check content of text for image/link/attachment
+                if text.match(/http/) || text.match(/<img/)
+                  published = false
+                  status = 'pre-review'
+                else
+                  published = true
+                  status = 'new'
+                end
+              when can?(:post_prescreen, conversation)
+                auth_type = :post_prescreen
+                published = false
+                status = 'pre-review'
+            end
+          when "SummaryComment"
+            auth_type = :edit_summary
+            published = true
+            status = 'ok'
+          when "CallToActionComment"
+            auth_type = :edit_cta
+            published = true
+            status = 'ok'
+          when "TitleComment"
+            auth_type = :edit_title
+            published = true
+            status = 'ok'
+        end
+        [auth_type, published, status]
       end
 
     end

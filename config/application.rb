@@ -83,5 +83,10 @@ module Ce2
       DeviseController.respond_to :html, :json
     end
 
+    # direct rails to handle error exceptions
+    config.exceptions_app = self.routes
+
+    config.autoload_paths += %W(#{config.root}/presenters)
+
   end
 end

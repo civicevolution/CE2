@@ -23,6 +23,37 @@ ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] =
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
+
+ce2_app.factory 'errorHttpInterceptor', ($q, $injector) ->
+  (promise) ->
+    promise.then (response) ->
+      # do something on success
+      #console.log "$httpProvider.responseInterceptors Success"
+      promise # pass the promise on to the calling function
+    , (response) ->
+      # do something on error
+      if (canRecover(response))
+        return promise # let the response promise continue and be dealt with
+      $dialog = $dialog || $injector.get("$dialog")
+      switch response.data.class
+        when "CanCan::AccessDenied"
+          title = 'Access denied'
+          msg = "Sorry, you are not authorized for this action [URL: #{response.config.url}, Controller: #{response.data.controller}, Action: #{response.data.action}]"
+        else
+          title = 'Server error'
+          msg = "#{response.data.error} [URL: #{response.config.url}, Controller: #{response.data.controller}, Action: #{response.data.action}]"
+      btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+      $dialog.messageBox(title, msg, btns).open()
+      #console.log "XXX $httpProvider.responseInterceptors Error\n#{response.data.error}"
+      return $q.reject(response)
+canRecover = (response) ->
+  if response.data.class?.match(/CanCan/)
+    return false
+  response.data.errors ? true : false
+
+ce2_app.config ($httpProvider) ->
+  $httpProvider.responseInterceptors.push('errorHttpInterceptor')
+
 ce2_app.value('Firebase', Firebase);
 
 ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',

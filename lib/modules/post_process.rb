@@ -13,6 +13,7 @@ module Modules
       record_mentions
       send_to_firebase
       check_immediate_notifications
+      notify_for_prescreen
       add_to_activity_feed
 
       #AdminMailer.delay.follow_us("PostProcess1A-#{Time.now}@ce.org")
@@ -218,7 +219,9 @@ module Modules
       end
     end
 
-
+    def notify_for_prescreen
+      Rails.logger.debug "notify_for_prescreen - do I need to notify curators of comments that must be prescreened"
+    end
 
     def add_to_activity_feed
       Rails.logger.debug "I need to implement add_to_activity_feed"

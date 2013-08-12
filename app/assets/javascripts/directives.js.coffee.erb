@@ -388,8 +388,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         console.log "Change the guidance!!!"
 
       $scope.addComment = ->
-        #$scope.newComment.form_errors = null
-        $scope.form_errors = null
+        $scope.newComment.form_errors = null
         action = if $scope.newComment.id then 'update' else 'save'
         CommentData.create_in_ror(action, $scope.newComment).then(
           (response)->
@@ -409,13 +408,13 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         ,
           (reason) ->
             console.log "CommentData.create_in_ror fail"
-            $scope.form_errors = []
+            $scope.newComment.form_errors = []
 
             for field of reason.data.errors
               for message in reason.data.errors[field]
-                $scope.form_errors.push {field: field, message: message}
+                $scope.newComment.form_errors.push {field: field, message: message}
 
-            #for error in $scope.form_errors
+            #for error in $scope.newComment.form_errors
             #  console.log error.message
         )
 
