@@ -29,10 +29,33 @@ module Api
         params[:comment][:conversation_code] = conversation.code
         params[:comment][:published] = published
         params[:comment][:status] = status
+        params[:comment][:auth_type] = auth_type
 
         case params[:type]
           when "ConversationComment"
             comment = conversation.conversation_comments.create params[:comment]
+            if auth_type == :post_unknown && comment.errors.size == 1
+              #Rails.logger.debug "Save this comment as a guest_comment"
+              guest_post = GuestPost.new  post_type: params[:type],
+                                          user_id: params[:comment][:user_id],
+                                          first_name: params[:first_name],
+                                          last_name: params[:last_name],
+                                          email: params[:email],
+                                          conversation_id: Conversation.find_by(code: params[:conversation_code]).id,
+                                          text: params[:text],
+                                          purpose: params[:purpose],
+                                          reply_to_id: params[:in_reply_to_id],
+                                          reply_to_version: params[:in_reply_to_version],
+                                          request_to_join: params[:join]
+
+              #Rails.logger.debug guest_post.inspect
+              guest_post.save
+              respond_with guest_post
+              return
+            else
+              comment.errors.delete(:auth_type)
+
+            end
           when "SummaryComment"
             comment = conversation.summary_comments.create params[:comment]
           when "CallToActionComment"
@@ -103,6 +126,10 @@ module Api
                 end
               when can?(:post_prescreen, conversation)
                 auth_type = :post_prescreen
+                published = false
+                status = 'pre-review'
+              when can?(:post_unknown, conversation)
+                auth_type = :post_unknown
                 published = false
                 status = 'pre-review'
             end

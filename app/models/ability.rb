@@ -41,6 +41,10 @@ class Ability
       conversation.privacy['comments'] == "true"
     end
 
+    can :post_unknown, Conversation do |conversation|
+      conversation.privacy['unknown_users'] == "true"
+    end
+
     # things anyone can do
     can :user, User
     can :upload_photo, Profile

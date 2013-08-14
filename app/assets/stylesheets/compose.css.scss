@@ -451,6 +451,13 @@ div.ac-wrap {
 }
 
 #reply-control{
+  &.unknown-user.open{
+    height: 380px;
+    .comment-form{
+      height: 200px;
+    }
+    div.not-signed-in{ display: block;}
+  }
   h4.form_title{
     margin-left: 20px;
     float:left;
@@ -466,6 +473,17 @@ div.ac-wrap {
     margin-left: 16px;
     p{
       margin: 0;
+    }
+  }
+
+  div.not-signed-in{
+    display: none;
+    p.instr{ margin-bottom: 0; color: red}
+    label{ display: inline; vertical-align: super;}
+    input[type='checkbox']{
+      font-size: 2em;
+      margin-bottom: 14px;
+      margin-left: 10px;
     }
   }
 }

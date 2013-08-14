@@ -6,7 +6,7 @@ class Comment < ActiveRecord::Base
     CommentSerializer
   end
 
-  attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark
+  attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark, :auth_type
 
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
@@ -28,7 +28,7 @@ class Comment < ActiveRecord::Base
   has_many :mentions, dependent: :delete_all
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
-                  :references, :conversation_code, :in_reply_to_id, :in_reply_to_version, :published
+                  :references, :conversation_code, :in_reply_to_id, :in_reply_to_version, :published, :auth_type
 
   after_initialize :read_previous_text_on_init
   before_update :increment_comment_version
@@ -48,10 +48,20 @@ class Comment < ActiveRecord::Base
     true
   end
 
-  validates :type, :user_id, :conversation_id, :version, :status, :order_id, :presence => true
+  validates :type, :conversation_id, :version, :status, :order_id, :presence => true
   validates :purpose, presence: { message: 'Must select what you will share' }
   validates :text, length: { minimum: 20, too_short: "Must be at least %{count} characters"}
   #validates :text, length: { maximum: 1500, too_long: "Must be less than %{count} characters" }
+  validates :user_id, :presence => true, unless: Proc.new { |c| c.auth_type == :post_unknown }
+  validate :do_not_save_comment_for_post_unknown, on: :create
+
+  def do_not_save_comment_for_post_unknown
+    if auth_type == :post_unknown
+      errors.add(:auth_type, "Cannot save comment with auth_type :post_unknown")
+      return false
+    end
+    return true
+  end
 
   def is_new_comment?
     !persisted?

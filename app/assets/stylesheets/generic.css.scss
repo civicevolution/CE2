@@ -68,6 +68,9 @@ div.profile-photo-form{
     .user-bar{
       color: white;
       text-align: center;
+      p.user-bar-links{
+        a{color:white;}
+      }
       div.ce-user-bar{
         position: relative;
         background-color: rgb(59,89,152);

@@ -87,13 +87,30 @@
           .preview-wrapper
             .preview#wmd-preview
 
-        %div.submit-panel
-          %span(ng-if="newComment.id == null")
-            %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Add
-            %button.btn(ng-click="cancel_edit()") Cancel
 
-          %span(ng-if="newComment.id > 0")
-            %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Update
-            %button.btn(ng-click="cancel_edit()") Cancel
+
+        %div.submit-panel
+          %div.not-signed-in
+            %p.instr
+              Please
+              %a(ng-click="sign_in()")
+                sign in
+              or identify yourself below to add your comment
+
+            %p
+              %input(ng-model='newComment.email' required ce-focus){type: 'text', placeholder: 'Email address'}
+              %input(ng-model='newComment.first_name' required){type: 'text', placeholder: 'First name'}
+              %input(ng-model='newComment.last_name' required){type: 'text', placeholder: 'Last name'}
+              %input#join(ng-model='newComment.join'){type: 'checkbox', checked: 'checked', value:1}
+              %label{for: "join"}I want to join this conversation
+
+          %div.buttons
+            %span(ng-if="newComment.id == null")
+              %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Add
+              %button.btn(ng-click="cancel_edit()") Cancel
+
+            %span(ng-if="newComment.id > 0")
+              %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Update
+              %button.btn(ng-click="cancel_edit()") Cancel
 
           -#%span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")

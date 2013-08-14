@@ -17,6 +17,8 @@ ce2_directives.directive('ceUserBar', ->
         (response)->
           #console.log "ceUserBar.User.get() received response"
           $scope.user = response
+          if $scope.user.id
+            $scope.conversation_wizard_mode = true
       )
       $scope.sign_in = ->
         $scope.dialog?.close()
@@ -366,8 +368,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       #angular.element( document.getElementById('reply-control')).addClass('open show-preview')
     , 100
 
-  controller: [ "$scope", "CommentData",
-    ($scope, CommentData) ->
+  controller: [ "$scope", "CommentData", "$dialog",
+    ($scope, CommentData, $dialog) ->
       $scope.name = 'ceCommentForm'
 
       debug = false
@@ -388,6 +390,16 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         console.log "Change the guidance!!!"
 
       $scope.addComment = ->
+        # if the user is not signed in, show email/name form
+        if not $scope.user.id
+          if not $scope.newComment.id_form
+            angular.element(document.getElementById('reply-control')).addClass('unknown-user')
+            $scope.newComment.id_form = true
+            $scope.newComment.join = true
+            #$scope.newComment.email = "brian@civicevolution.org"
+            #$scope.newComment.first_name = 'Brian'
+            #$scope.newComment.last_name = "Sullivan"
+            return false
         $scope.newComment.form_errors = null
         action = if $scope.newComment.id then 'update' else 'save'
         CommentData.create_in_ror(action, $scope.newComment).then(
@@ -397,14 +409,17 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             $scope.newComment.id = null
             $scope.newComment.text = null
             $scope.$emit('clear-edit')
-
-            $scope.$root.$broadcast "#{response.data.type}_update", {
-              action: action
-              class: response.data.type
-              data: response.data
-              updated_at: response.data.updated_at
-              source: "#{action}Comment"
-            }
+            if response.data.type
+              $scope.$root.$broadcast "#{response.data.type}_update", {
+                action: action
+                class: response.data.type
+                data: response.data
+                updated_at: response.data.updated_at
+                source: "#{action}Comment"
+              }
+            else
+              $timeout ->
+                $scope.acknowledge_guest_comment(response.data)
         ,
           (reason) ->
             console.log "CommentData.create_in_ror fail"
@@ -417,6 +432,17 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             #for error in $scope.newComment.form_errors
             #  console.log error.message
         )
+
+      $scope.acknowledge_guest_comment = (data) ->
+        data.dialog = $dialog.dialog(
+          templateUrl: '<%= path_to_asset "guest-post-acknowledge.html" %>'
+          resolve: {guest_post: -> data }
+          controller: ($scope, guest_post) ->
+            $scope.guest_post = guest_post
+            $scope.close = ->
+              $scope.guest_post.dialog.close()
+        )
+        data.dialog.open()
 
       $scope.clear_form = ->
         console.log "ceCommentForm:clear"

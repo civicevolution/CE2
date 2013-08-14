@@ -198,22 +198,24 @@ div.rating{
 
 }
 
-.body-with-arrow{
-  position: relative;
-  }
+.comment{
+  .body-with-arrow{
+    position: relative;
+    }
 
-.arrow {
-  position: absolute;
-  top: 12px;
-  left: -20px;
-  margin-top: -11px;
-  width: 0;
-  height: 0;
-  border: 10px solid transparent;
-  //border-color: transparent;
-  //border: solid;
-  //border-width: 20px 10px 20px 10px;
-  border-right-color: white;
+  .arrow {
+    position: absolute;
+    top: 12px;
+    left: -20px;
+    margin-top: -11px;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    //border-color: transparent;
+    //border: solid;
+    //border-width: 20px 10px 20px 10px;
+    border-right-color: white;
+  }
 }
 
 div.comment-replies, div.comment-target{
@@ -256,4 +258,10 @@ div.comment-replies, div.comment-target{
   .quote{
     padding-top: 10px;
   }
+}
+
+.acknowledge{
+  //padding: 1em;
+  .strong{font-weight: bold;}
+  .em{font-style: italic;}
 }

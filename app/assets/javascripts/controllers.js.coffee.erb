@@ -408,8 +408,6 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     $scope.name = 'ceConversation'
     # the data was resolved and attached to scope in the state definition
 
-    $scope.$root.conversation_wizard_mode = true
-
     $scope.show_comment_form = (type, in_reply_to_id = null, in_reply_to_version = null) ->
       console.log "show_comment_form type: #{type}, in_reply_to_id: #{in_reply_to_id}"
       # clear new comment
