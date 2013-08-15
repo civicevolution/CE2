@@ -198,6 +198,35 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
 
   end
 
+  def guest_posts
+    # get the guest_posts for this conversation
+    posts = GuestPost.where(conversation_id: self.id)
+    user_ids = posts.map{|p| p.user_id}.compact.uniq
+    users = User.where(id: user_ids).select('id, email, first_name, last_name, name, confirmed_at, code')
 
+    posts.each do |post|
+      if post.user_id
+        user = users.detect{|u| u.id = post.user_id}
+        post.email = user.email
+        post.first_name = user.first_name
+        post.last_name = user.last_name
+        post.code = user.code
+        if user.confirmed_at.nil?
+          post.member_status = "Unconfirmed member"
+        else
+          post.member_status = "Confirmed member"
+        end
+      else
+        post.member_status = 'Unknown guest'
+        post.code = 'default-user'
+      end
+    end
+
+    posts.sort{|a,b| a.id <=> b.id}
+  end
+
+  def pending_comments
+    self.comments.where(published: false, status: 'pre-review').order('id ASC').includes(:author)
+  end
 
 end

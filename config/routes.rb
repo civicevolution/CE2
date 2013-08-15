@@ -25,6 +25,8 @@ Ce2::Application.routes.draw do
         post 'tags', on: :member
         post 'schedule', on: :member
         post 'publish', on: :member
+        get 'guest_posts', on: :member
+        get 'pending_comments', on: :member
         resources :comments, shallow: true
       end
     end

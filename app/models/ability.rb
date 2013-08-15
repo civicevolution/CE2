@@ -8,25 +8,27 @@ class Ability
   #  I then look for the action to be included in the conversation_actions_by_role arrays
   #  for each role held by this user for this conversation
 
+  @@conversation_actions_by_role = {}
+  @@conversation_actions_by_role[:probationary_participant] = %i( show request_notification rate_comment history post_prescreen bookmark attachment )
+  @@conversation_actions_by_role[:participant] = %i( post_no_attachments  ).concat @@conversation_actions_by_role[:probationary_participant]
+  @@conversation_actions_by_role[:trusted_participant] = %i( post_any invite private_message  ).concat @@conversation_actions_by_role[:participant]
+  @@conversation_actions_by_role[:curator] = %i( edit_summary summary_comment_order edit_cta group_message approve_posts approve_participants moderate_posts ).concat @@conversation_actions_by_role[:trusted_participant]
+  @@conversation_actions_by_role[:conversation_admin] = %i( edit_title privacy tags schedule publish participant_privileges ).concat @@conversation_actions_by_role[:curator]
+
+
   def initialize(user)
     user ||= User.new # guest user (not logged in)
-
-    conversation_actions_by_role = {}
-    conversation_actions_by_role[:probationary_participant] = %i( show request_notification rate_comment history post_prescreen bookmark attachment )
-    conversation_actions_by_role[:participant] = %i( post_no_attachments  ).concat conversation_actions_by_role[:probationary_participant]
-    conversation_actions_by_role[:trusted_participant] = %i( post_any invite private_message  ).concat conversation_actions_by_role[:participant]
-    conversation_actions_by_role[:curator] = %i( edit_summary summary_comment_order edit_cta group_message approve_posts approve_participants moderate_posts ).concat conversation_actions_by_role[:trusted_participant]
-    conversation_actions_by_role[:conversation_admin] = %i( edit_title privacy tags schedule publish participant_privileges ).concat conversation_actions_by_role[:curator]
-
-    #puts conversation_actions_by_role[:conversation_admin].inspect
 
     can do |action, subject_class, subject|
       auth = false
       if [Conversation, ConversationComment, SummaryComment, TitleComment, CallToActionComment].include? subject.class
-        roles = Role.joins(:users).where(users: {id: user.id}, resource_type: subject_class, resource_id: subject.id).pluck(:name)
-        roles.each do |role|
-          auth = true if conversation_actions_by_role[ role.to_sym ].include?( action )
-        end
+        #roles = Role.joins(:users).where(users: {id: user.id}, resource_type: subject_class, resource_id: subject.id).pluck(:name)
+        #roles.each do |role|
+        #  auth = true if @conversation_actions_by_role[ role.to_sym ].include?( action )
+        #end
+
+        role = Role.joins(:users).find_by(users: {id: user.id}, resource_type: subject_class, resource_id: subject.id).try{|r| r.name}
+        auth = true if role && @@conversation_actions_by_role[ role.to_sym ].include?( action )
       end
       auth
     end
@@ -50,10 +52,11 @@ class Ability
     can :upload_photo, Profile
     can :create, Conversation
     can :index, Conversation
+  end
 
-
-
-
+  def self.abilities(user, type, id)
+    role = user && user.id ? Role.joins(:users).find_by(users: {id: user.id}, resource_type: type, resource_id: id).try{|r| r.name} || 'none' : 'none'
+    {name: role, abilities: role ? @@conversation_actions_by_role[ role.to_sym ] || [] : [] }
   end
 end
 

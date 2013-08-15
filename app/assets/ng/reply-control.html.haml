@@ -104,6 +104,25 @@
               %input#join(ng-model='newComment.join'){type: 'checkbox', checked: 'checked', value:1}
               %label{for: "join"}I want to join this conversation
 
+          %div.not-a-participant
+            %p
+              %input#join(ng-model='newComment.join'){type: 'checkbox', checked: 'checked', value:1}
+              %label{for: "join"}I want to join this conversation
+              %label.confirm(ng-if="!user.confirmed")
+                You must confirm your email –
+                %a(ng-click="request_confirmation()")
+                  Request
+                a new confirmation email
+
+          %div.not-confirmed
+            %p
+              %label.confirm(ng-if="!user.confirmed")
+                You must confirm your email –
+                %a(ng-click="request_confirmation()")
+                  Request
+                a new confirmation email
+
+
           %div.buttons
             %span(ng-if="newComment.id == null")
               %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Add

@@ -1,10 +1,14 @@
 class ConversationSerializer < ActiveModel::Serializer
   #embed :ids, :include => true
   attributes :url, :updated_at, :firebase_token, :code, :title, :munged_title, :call_to_action,
-             :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags, :notification_request, :display_mode
+             :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags, :notification_request, :display_mode, :role
   has_many :displayed_comments
 
   def include_displayed_comments?
+    !( scope && scope[:shallow_serialization_mode] )
+  end
+
+  def include_role?
     !( scope && scope[:shallow_serialization_mode] )
   end
 
@@ -48,5 +52,8 @@ class ConversationSerializer < ActiveModel::Serializer
     end
   end
 
+  def role
+    Ability.abilities(current_user, 'Conversation', object.id)
+  end
 
 end

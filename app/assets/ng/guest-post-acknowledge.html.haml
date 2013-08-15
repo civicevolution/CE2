@@ -6,15 +6,22 @@
     %div(ng-switch="guest_post.first_name==null")
       %p(ng-switch-when="false" ) {{guest_post.first_name}}, your comment has been sent to the conversation curator for review
       %p(ng-switch-when="true" ) Your comment has been sent to the conversation curator for review
-    %p.strong
-      Please reply to the confirmation email we sent to <{{guest_post.email}}> so we can
 
-      %span(ng-if="guest_post.request_to_join") notify you when your request to join the conversation has been approved
-      %span(ng-if="!guest_post.request_to_join") notify you when your comment is reviewed
+    %div(ng-switch="guest_post.user_confirmed")
+      %div(ng-switch-when="false" )
+        %p.strong
+          Please reply to the confirmation email we sent to <{{guest_post.email}}> so we can
 
-    %p.em
-      If you do not receive a confirmation email from CivicEvolution, please check your spam folder.
-      If you do not find the email or the email address above is incorrect, email us: support@civicevolution.org
+          %span(ng-if="guest_post.request_to_join") notify you when your request to join the conversation has been approved
+          %span(ng-if="!guest_post.request_to_join") notify you when your comment is reviewed
+
+        %p.em
+          If you do not receive a confirmation email from CivicEvolution, please check your spam folder.
+          If you do not find the email or the email address above is incorrect, email us: support@civicevolution.org
+      %div(ng-switch-default )
+        %p(ng-if="guest_post.request_to_join") We will notify you when your request to join the conversation has been approved
+        %p(ng-if="!guest_post.request_to_join") We will notify you when your comment is reviewed
+
 
   .modal-footer
     %button.btn-primary.btn(ng-click="close()") Ok

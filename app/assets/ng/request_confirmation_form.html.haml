@@ -1,20 +1,16 @@
-%div
+%div.modal-form-ce
 
   .modal-header
     %h3 Send me the confirmation email
-  .modal-body
-    %div.alert.alert-error(ng-show="conf_error_message")
-      %p.message(ng-bind-html-unsafe="conf_error_message")
-
-    %form(ng-submit="submit_request_confirmation(user)"){name: 'requestConfirmation'}
+  %form(ng-submit="submit_request_confirmation(user)"){name: 'requestConfirmation'}
+    .modal-body
+      %div.alert.alert-error(ng-show="conf_error_message")
+        %p.message(ng-bind-html-unsafe="conf_error_message")
       %p
         Email:
         %input(ng-model='user.email' required ce-focus){type: 'text', placeholder: 'Enter email...'}
-        -#ng-pattern='^\S+\@\S+\.\S+$'
-          %span(ng-show="form.email.$error.pattern")
-            Incorrect Format, should be MM/DD/YY!
 
-      .modal-footer
-        %button.btn.btn-primary(ng-disabled='!requestConfirmation.$valid') Send
-        %button.btn.btn-primary(ng-click="cancel(result)") Cancel
+    .modal-footer
+      %button.btn.btn-primary(ng-disabled='!requestConfirmation.$valid') Send
+      %button.btn.btn-primary(ng-click="cancel(result)") Cancel
 

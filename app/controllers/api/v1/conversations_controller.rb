@@ -90,6 +90,20 @@ module Api
         render json: 'ok'
       end
 
+      def guest_posts
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :approve_posts, conversation
+        guest_posts = conversation.guest_posts
+        respond_with guest_posts
+      end
+
+      def pending_comments
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :approve_posts, conversation
+        pending_comments = conversation.pending_comments
+        respond_with pending_comments
+      end
+
     end
 
   end

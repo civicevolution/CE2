@@ -1,0 +1,39 @@
+%div.post
+  %div.author
+    %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{post.code}}/sm2/p.jpg")
+    %p
+      {{post.first_name}} {{post.last_name}}
+      posted this {{post.purpose}} comment
+      {{post.updated_at | from_now}}
+    %p.clear
+
+  .body-with-arrow
+    .arrow
+    %div.comment-body(ng-bind-html-unsafe="converter.makeHtml(post.text)")
+
+  %div.invite(ng-if="post.request_to_join")
+    %span.warn {{must_select_join_radio}}
+    %label.radio
+      %input(type="radio" name="{{post.id}}_invite" value="true" ng-model="post.invite")
+        Accept {{post.first_name}}'s request to join this conversation
+    %label.radio
+      %input(type="radio" name="{{post.id}}_invite" value="false" ng-model="post.invite")
+        Reject {{post.first_name}}'s request to join this conversation
+
+    %a(ng-click="optional_message()")
+      Add optional message for {{post.first_name}}
+
+  %div(ng-switch="post.type != null")
+    %div.buttons(ng-switch-when="true" )
+      %button.btn-primary.btn.btn-small(ng-click="approve_guest_post()") Approve comment
+      %button.btn.btn-small(ng-click="reject_guest_post()") Reject comment
+      %p
+        %a(ng-click="update_privileges()")
+          Update {{post.first_name}}'s posting privileges
+        &bullet;
+        %a(ng-click="optional_message()")
+          Send optional message to {{post.first_name}}
+
+    %div.buttons(ng-switch-default)
+      %button.btn-primary.btn.btn-small(ng-click="approve_guest_post()") Approve comment
+      %button.btn.btn-small(ng-click="reject_guest_post()") Reject comment

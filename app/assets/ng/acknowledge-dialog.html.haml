@@ -1,8 +1,9 @@
 %div
 
   .modal-header
-    %h3 {{header}}
+    %h3 {{title}}
   .modal-body
-    %p {{message}}
+    %div(ng-bind-html-unsafe="converter.makeHtml(message)")
+  .modal-footer
     %button.btn.btn-primary(ng-click="cancel(result)") Close
 

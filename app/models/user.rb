@@ -22,8 +22,6 @@ class User < ActiveRecord::Base
 
   validates :first_name, :last_name, :presence => true
 
-  after_create :add_participant_role, :add_profile
-
   before_create :create_unique_name_count
 
   before_create :create_unique_user_code
@@ -49,10 +47,6 @@ class User < ActiveRecord::Base
     if self.name_count > 1
       self.name += "_#{self.name_count}"
     end
-  end
-
-  def add_participant_role
-    add_role :participant
   end
 
   def add_profile

@@ -458,6 +458,24 @@ div.ac-wrap {
     }
     div.not-signed-in{ display: block;}
   }
+  &.non-participant-user.open{
+    height: 350px;
+    .comment-form{
+      height: 200px;
+    }
+    div.not-a-participant{ display: block;}
+  }
+  &.non-confirmed-user.open{
+    height: 350px;
+    .comment-form{
+      height: 200px;
+    }
+    div.not-confirmed{ display: block;}
+  }
+  label.confirm{
+    font-weight: bold; margin-left: 20px; color: red;
+  }
+
   h4.form_title{
     margin-left: 20px;
     float:left;
@@ -477,6 +495,26 @@ div.ac-wrap {
   }
 
   div.not-signed-in{
+    display: none;
+    p.instr{ margin-bottom: 0; color: red}
+    label{ display: inline; vertical-align: super;}
+    input[type='checkbox']{
+      font-size: 2em;
+      margin-bottom: 14px;
+      margin-left: 10px;
+    }
+  }
+  div.not-a-participant{
+    display: none;
+    p.instr{ margin-bottom: 0; color: red}
+    label{ display: inline; vertical-align: super;}
+    input[type='checkbox']{
+      font-size: 2em;
+      margin-bottom: 14px;
+      margin-left: 10px;
+    }
+  }
+  div.not-confirmed{
     display: none;
     p.instr{ margin-bottom: 0; color: red}
     label{ display: inline; vertical-align: super;}

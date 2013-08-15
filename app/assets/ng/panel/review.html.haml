@@ -1,3 +1,14 @@
-%div#review-panel
-  %button.close(ng-click="close_panel()") &times;
-  %h3 Sorry, Review is under construction
+%div
+  %div#review-panel
+    %button.close(ng-click="close_panel()") &times;
+
+    %h3 Pending comments
+    %div(ng-repeat="post in pending_comments" data-ng-animate="'custom'")
+      %div(ce-review-comment dev)
+
+    %p(ng-if="pending_comments.length == 0") There are no pending comments at this time
+
+    %h3 Guest posts
+    %div(ng-repeat="post in guest_posts" data-ng-animate="'custom'")
+      %div(ce-review-comment dev)
+    %p(ng-if="guest_posts.length == 0") There are no guest posts at this time

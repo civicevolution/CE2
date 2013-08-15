@@ -30,7 +30,7 @@
           %div.placeholder(ng-if="conversation.summary_comments.length==0")
             %p Conversation summary placeholder
 
-    .div(ng-switch="add_summary_comment" )
+    %div(ng-switch="add_summary_comment" ng-if="conversation.can('edit_summary')")
       .row-fluid(ng-switch-default )
         .span8
           %p
@@ -41,7 +41,7 @@
           %h4 Add a summary comment to help capture this conversation
           %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
 
-    .row-fluid
+    .row-fluid(ng-if="conversation.privacy.comments=='true' || conversation.can('show')")
       .span12.conversation
         %h4 Conversation
         %div.comment-outer(ng-repeat="comment in conversation.conversation_comments" )
@@ -50,7 +50,7 @@
         %div.placeholder(ng-if="conversation.conversation_comments.length == 0")
           %p Conversation placeholder
 
-    .row-fluid
+    .row-fluid(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
       .span8
         %p#add-conversation-comment
           %input.btn-primary.btn(ng-click="show_comment_form('conversation')"){type: 'button', value: 'Add conversation comment'}

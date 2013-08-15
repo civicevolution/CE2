@@ -1,9 +1,7 @@
 %div.right-bar-template
-  -#%div#right-bar-panel(ng-show="active_link" ng-animate="'fade'")
-  -#%div#right-bar-panel(ng-class="{active: active_link, inactive: !active_link}")
-    %div(ng-bind-html-unsafe="right_bar_panel_directive")
-  %div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}")
-    %div(ng-bind-html-unsafe="right_bar_panel_directive")
+  %div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}" ng-style="specific_panel_style")
+    %div.right-panel-inner
+      %div(ng-bind-html-unsafe="right_bar_panel_directive")
 
   #right-bar-menu
     .schedule
@@ -26,6 +24,7 @@
         %a(ng-click="open_panel('download')" ng-class="{selected: active_link == 'download'}") Download
 
 
+    %ul(ng-if="conversation.role == 'conversation_admin'")
       %li.label Curator settings
 
       %li#conversation-tags-link

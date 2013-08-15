@@ -17,8 +17,6 @@ ce2_directives.directive('ceUserBar', ->
         (response)->
           #console.log "ceUserBar.User.get() received response"
           $scope.user = response
-          if $scope.user.id
-            $scope.conversation_wizard_mode = true
       )
       $scope.sign_in = ->
         $scope.dialog?.close()
@@ -29,10 +27,10 @@ ce2_directives.directive('ceUserBar', ->
           templateUrl: '<%= path_to_asset "signin_form.html" %>'
           controller: ->
             # for testing
-            $scope.user = {}
-            #  email: 'alice@civicevolution.org'
-            #  password: 'aaaaaaaa'
-            #  remember_me: 1
+            $scope.user = #{}
+              email: 'brian@civicevolution.org'
+              password: 'evolution'
+              remember_me: 1
             $scope.submit_sign_in = (user) ->
               console.log "Submit by calling User.sign_in with credentials: #{user.email}/#{user.password}"
               $scope.error_message = null
@@ -45,8 +43,11 @@ ce2_directives.directive('ceUserBar', ->
                 (reason) ->
                   #console.log "signin received reason"
                   $scope.error_message = reason.data.error
+                  $scope.show_confirm = true
               )
             $scope.cancel = ->
+              $scope.error_message = null
+              $scope.show_confirm = false
               $scope.dialog.close()
         )
         $scope.dialog.open()
@@ -114,7 +115,7 @@ ce2_directives.directive('ceUserBar', ->
                 (response)->
                   #console.log 'forgot_password received response'
                   $scope.dialog.close()
-                  $scope.acknowledge_dialog("An email has been sent to #{user.email}")
+                  $scope.acknowledge_dialog("Thank you", "An email has been sent to #{user.email}")
                 ,
                 (reason) ->
                   #console.log 'signup received reason'
@@ -137,7 +138,7 @@ ce2_directives.directive('ceUserBar', ->
           backdropClick: true
           templateUrl: '<%= path_to_asset "request_confirmation_form.html" %>'
           controller: ->
-            $scope.user = {}
+            #$scope.user = {email: "charles@civicevolution.org"}
             #  email: 'brian@civicevolution.org'
             $scope.submit_request_confirmation = (user) ->
               #console.log "Submit by calling User.request_confirmation with email: #{user.email}"
@@ -146,7 +147,10 @@ ce2_directives.directive('ceUserBar', ->
                 (response)->
                   #console.log 'request_confirmation received response'
                   $scope.dialog.close()
-                  $scope.acknowledge_dialog("An email has been sent to #{user.email}")
+                  message = "An email has been sent to #{user.email}\n\n" +
+                  "If you do not receive a confirmation email from CivicEvolution, please check your spam folder.\n\n" +
+                  "If you do not find the email or the email address above is incorrect, email us: support@civicevolution.org"
+                  $scope.acknowledge_dialog("Confirmation email sent", message)
                 ,
                 (reason) ->
                   #console.log 'request_confirmation received reason'
@@ -198,13 +202,14 @@ ce2_directives.directive('ceUserBar', ->
         console.log "CeUserBar test"
         User.test()
 
-      $scope.acknowledge_dialog = (message) ->
+      $scope.acknowledge_dialog = (title,message) ->
         $scope.dialog = $dialog.dialog(
           backdrop: true
           keyboard: true
           backdropClick: true
           templateUrl: '<%= path_to_asset "acknowledge-dialog.html" %>'
           controller: ->
+            $scope.title = title
             $scope.message = message
             $scope.cancel = ->
               $scope.dialog.close()
@@ -390,16 +395,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         console.log "Change the guidance!!!"
 
       $scope.addComment = ->
-        # if the user is not signed in, show email/name form
-        if not $scope.user.id
-          if not $scope.newComment.id_form
-            angular.element(document.getElementById('reply-control')).addClass('unknown-user')
-            $scope.newComment.id_form = true
-            $scope.newComment.join = true
-            #$scope.newComment.email = "brian@civicevolution.org"
-            #$scope.newComment.first_name = 'Brian'
-            #$scope.newComment.last_name = "Sullivan"
-            return false
         $scope.newComment.form_errors = null
         action = if $scope.newComment.id then 'update' else 'save'
         CommentData.create_in_ror(action, $scope.newComment).then(
@@ -419,6 +414,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               }
             else
               $timeout ->
+                response.data.user_confirmed = if $scope.user?.confirmed then "true" else "false"
                 $scope.acknowledge_guest_comment(response.data)
         ,
           (reason) ->
@@ -428,7 +424,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             for field of reason.data.errors
               for message in reason.data.errors[field]
                 $scope.newComment.form_errors.push {field: field, message: message}
-
             #for error in $scope.newComment.form_errors
             #  console.log error.message
         )
@@ -544,7 +539,7 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
   replace: true
   scope: false
   templateUrl: "<%= path_to_asset "rating-slider.html" %>"
-  controller: [ "$scope", "CommentData", ($scope, CommentData) ->
+  controller: [ "$scope", "CommentData", "$dialog", ($scope, CommentData, $dialog) ->
     $scope.persist_rating = ->
       #console.log "scope.persist_rating call on CommentData id: #{$scope.comment.id} with rating: #{$scope.rating}"
       CommentData.persist_rating_to_ror($scope.comment.id, $scope.comment.my_rating).then (response) ->
@@ -560,6 +555,13 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
       ctx = canvas.getContext('2d');
       grapher = new window.Graph();
       grapher.draw_rating_results(ctx, $scope.comment.ratings_cache, $scope.comment.my_rating, labels);
+
+    $scope.warn_no_rating = ->
+      title = 'Sorry'
+      msg = "Only invited conversation participants are allowed to rate comments"
+      btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+      $dialog.messageBox(title, msg, btns).open()
+      $scope.$root.$$phase || $scope.$root.$apply()
 
   ]
 
@@ -582,6 +584,10 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
     width = offset = null
 
     mouse_binding_box.bind "mousedown", ($event) ->
+      unless scope.conversation.can('rate_comment')
+        scope.warn_no_rating()
+        return
+
       angular.element(document.body).addClass('drag_in_process')
       if not width
         padding = 20
@@ -934,6 +940,7 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
             dev = true
           else
             dev = false
+          $scope.specific_panel_style = {}
           #console.log "open_panel for #{link}"
           $scope.right_bar_panel_directive = "<div id='right-panel-directive' ce-#{link}-panel dev='#{dev}'>Compile directive ce-#{link}-panel</div>"
           $scope.active_link = link
@@ -1297,9 +1304,30 @@ ce2_directives.directive('ceReviewPanel', ->
     "<%= path_to_asset "panel/review.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope",
-    ($scope) ->
+  controller: [ "$scope", "ConversationData",
+    ($scope, ConversationData) ->
       $scope.name = 'ceReviewPanel'
+      $scope.$parent.specific_panel_style = {'background-color': '#eeeeee'}
+      console.log " get guest_posts on scope #{$scope.$id}"
+
+      ConversationData.guest_posts($scope.conversation.code).then (response) ->
+        $scope.guest_posts = response.data
+
+      ConversationData.pending_comments($scope.conversation.code).then (response) ->
+        $scope.pending_comments = response.data
+
+      $scope.$on 'delete-guest-post', (event, post) ->
+        if post.type
+          console.log "delete pending comment with id: #{post.id}"
+          for comment, index in event.currentScope.pending_comments
+            if comment.id == post.id
+              return event.currentScope.pending_comments.splice(index, 1)
+
+        else
+          console.log "delete guest post with id: #{post.id}"
+          for guest_post, index in event.currentScope.guest_posts
+            if guest_post.id == post.id
+              return event.currentScope.guest_posts.splice(index, 1)
   ]
 )
 
@@ -1490,3 +1518,60 @@ ce2_directives.directive('ceCreateConversationWizard', ->
           #console.log "The current step has NOT been triggered by #{data.action}"
   ]
 )
+
+ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, $timeout) ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "assets/panel/comment-review.html" %>#{prefix}"
+  replace: true
+  scope: true
+  priority: 100
+  #compile: ->
+  #  post: (scope, iElement, iAttrs, controller) ->
+  #    #console.log "ceComment postLink function"
+  #    if scope.comment?.text.match(/\[quote/)
+  #      #console.log "XXX compile this node"
+  #      $timeout ->
+  #        $compile(iElement.find('blockquote'))(scope)
+  #    scope.comment.quote_expanded = false
+  #    if scope.comment.reply_to_targets
+  #      scope.comment.in_reply_tag = reply for reply in scope.comment.reply_to_targets when reply.quote is false
+  #
+  #    scope.$watch 'comment.text', (oldValue, newValue) ->
+  #      if scope.comment.text.match(/\[quote/)
+  #        #console.log "recompile the comment with a quote in it"
+  #        $timeout ->
+  #          $compile(iElement.find('blockquote'))(scope)
+  #
+  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll",
+    ($scope, CommentData, $compile, $location, $anchorScroll) ->
+      $scope.name = 'ceReviewComment'
+
+      $scope.approve_guest_post = ->
+        console.log "approve_guest_post for id: #{$scope.post.id}"
+        if $scope.post.request_to_join
+          console.log "check that accept/reject is selected"
+          if not $scope.post.invite
+            $scope.must_select_join_radio = "You must Accept or Reject the request to join"
+            return
+        console.log "Approve this post"
+        $scope.$emit('delete-guest-post', $scope.post)
+
+
+      $scope.reject_guest_post = ->
+        console.log "reject_guest_post for id: #{$scope.post.id}"
+        if $scope.post.request_to_join
+          console.log "check that accept/reject is selected"
+          if not $scope.post.invite
+            $scope.must_select_join_radio = "You must Accept or Reject the request to join"
+            return
+        console.log "Reject this post"
+
+      $scope.optional_message = ->
+        console.log "optional_message for id: #{$scope.post.id}"
+      $scope.update_privileges = ->
+        console.log "update_privileges for id: #{$scope.post.id}"
+
+  ]
+])

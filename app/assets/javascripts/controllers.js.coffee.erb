@@ -82,8 +82,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               ConversationData.create_new_conversation().then (response) ->
                 #console.log "RoR response to ConversationData.create_new_conversation with code: #{response.data.code}"
                 $state.transitionTo('conversation', {code: response.data.code, munged_title: "new"})
-
-
         ]
       })
 
@@ -398,8 +396,8 @@ initialize_markdown_editor = (editor, editor_id = 'wmd-input', init_ctr = 5) ->
       initialize_markdown_editor(editor, editor_id, init_ctr )
     , 1000
 
-conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", "ConversationData",
-  ($scope, conversation, FirebaseService, $timeout, ConversationData) ->
+conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", "ConversationData", "$dialog",
+  ($scope, conversation, FirebaseService, $timeout, ConversationData, $dialog) ->
     console.log "In conversation state controller at bottom"
     $scope.conversation = conversation
     $scope.$root.timestamp = conversation.current_timestamp
@@ -408,7 +406,20 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     $scope.name = 'ceConversation'
     # the data was resolved and attached to scope in the state definition
 
+    $timeout ->
+      if $scope.conversation.role == 'conversation_admin' && !$scope.conversation.published
+        $scope.conversation_wizard_mode = true
+    , 1000
+
+
     $scope.show_comment_form = (type, in_reply_to_id = null, in_reply_to_version = null) ->
+      if conversation.privacy.unknown_users=='false' && !conversation.can('post_prescreen')
+        title = 'Sorry'
+        msg = "Only invited conversation participants are allowed to post comments"
+        btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+        $dialog.messageBox(title, msg, btns).open()
+        return
+
       console.log "show_comment_form type: #{type}, in_reply_to_id: #{in_reply_to_id}"
       # clear new comment
       $scope.newComment = { conversation_code: $scope.conversation.code }
@@ -440,7 +451,19 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
         $scope.newComment.in_reply_to_version = in_reply_to_version
 
       $timeout -> $scope.$root.editor.refreshPreview()
-      angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+      reply_control = angular.element( document.getElementById('reply-control'))
+      reply_control.addClass('open show-preview')
+      # determine if special class for non-participant, not signed in, not confirmed
+      special_class = switch
+        when $scope.$root.user == "null"
+          $scope.newComment.join = true
+          'unknown-user'
+        when $scope.conversation.role == "none"
+          $scope.newComment.join = true
+          'non-participant-user'
+        when $scope.$root.user.confirmed != true
+          'non-confirmed-user'
+      reply_control.addClass(special_class) if special_class
       $scope.$root.$broadcast "user-event-notification", { action: "open comment-form #{$scope.newComment.type}"}
 
     $scope.$on 'request-edit', (event, comment) ->

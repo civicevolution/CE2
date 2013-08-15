@@ -119,6 +119,10 @@ services.factory "ConversationData", ["$http",
           status: response.data.status
           notification_request  : response.data.notification_request
           participants: authors
+          role: response.data.role.name
+          abilities: response.data.role.abilities
+          can: (action) ->
+            _.indexOf(this.abilities, action ) > -1
 
     persist_summary_comment_order_to_ror: (conversation_code, comments_order) ->
       #console.log "persist_summary_comment_order_to_ror send order to RoR id: #{conversation_code} with order #{comments_order}"
@@ -141,6 +145,12 @@ services.factory "ConversationData", ["$http",
 
     adjust_conversation_bookmark: (action, code, version = 0) ->
       $http[action]("/api/conversations/#{code}/bookmark.json", {version: version})
+
+    guest_posts: (code) ->
+      $http.get("/api/conversations/#{code}/guest_posts.json")
+
+    pending_comments: (code) ->
+      $http.get("/api/conversations/#{code}/pending_comments.json")
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",

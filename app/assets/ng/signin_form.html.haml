@@ -5,14 +5,15 @@
   .modal-body
     %div.alert.alert-error(ng-show="error_message")
       %p.message(ng-bind-html-unsafe="error_message")
+      %p.message(ng-if="show_confirm")
+        %a(ng-click="request_confirmation()")
+          Request confirmation email
+
 
     %form(ng-submit="submit_sign_in(user)"){name: 'signIn'}
       %p
         Email:
         %input(ng-model='user.email' required ce-focus){type: 'text', placeholder: 'Enter email...'}
-        -#ng-pattern='^\S+\@\S+\.\S+$'
-          %span(ng-show="form.email.$error.pattern")
-            Incorrect Format, should be MM/DD/YY!
 
       %p
         Password:
@@ -29,7 +30,7 @@
         %a(ng-click="forgot_password()")
           Forgot password
 
-        %a(ng-click="request_confirmation()")
+        -#%a(ng-click="request_confirmation()")
           Confirm
 
         %a(ng-click="sign_up()")

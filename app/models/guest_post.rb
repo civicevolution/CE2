@@ -1,5 +1,7 @@
 class GuestPost < ActiveRecord::Base
 
+  attr_accessor :member_status, :code
+
   attr_accessible :post_type, :user_id, :first_name, :last_name, :email, :conversation_id, :text,
                   :purpose, :reply_to_id, :reply_to_version, :request_to_join
 
@@ -7,5 +9,8 @@ class GuestPost < ActiveRecord::Base
   validates :email, presence: { message: "Must provide email address"}, unless: Proc.new { |c| c.user_id }
   validates :first_name, presence: { message: "Must provide first name"}, unless: Proc.new { |c| c.user_id }
   validates :last_name, presence: { message: "Must provide last name"}, unless: Proc.new { |c| c.user_id }
+
+  #belongs_to :author, ->{ select :id, :first_name, :last_name, :name}, :class_name => 'User', :foreign_key => 'user_id'
+  belongs_to :author, :class_name => 'User', :foreign_key => 'user_id'
 
 end
