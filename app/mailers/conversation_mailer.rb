@@ -62,7 +62,28 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
+  def guest_post_accepted(recip, conversation, post, mcode ='', host = '' )
+    @recip = recip
+    @conversation = conversation
+    @post = post
+    @mcode = mcode
+    @host = host
 
+    mail(:to => "#{recip.first_name} #{recip.last_name} <#{recip.email}>",
+         :subject => "Your comment has been accepted"
+    )
+  end
 
+  def guest_post_declined(recip, conversation, post, mcode ='', host = '' )
+    @recip = recip
+    @conversation = conversation
+    @post = post
+    @mcode = mcode
+    @host = host
+
+    mail(:to => "#{recip.first_name} #{recip.last_name} <#{recip.email}>",
+         :subject => "Sorry, your comment has been declined"
+    )
+  end
 
 end

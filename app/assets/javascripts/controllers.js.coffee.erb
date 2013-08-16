@@ -47,9 +47,15 @@ ce2_app.factory 'errorHttpInterceptor', ($q, $injector) ->
       #console.log "XXX $httpProvider.responseInterceptors Error\n#{response.data.error}"
       return $q.reject(response)
 canRecover = (response) ->
-  if response.data.class?.match(/CanCan/)
-    return false
-  response.data.errors ? true : false
+  #if response.data.class?.match(/CanCan/)
+  #  return false
+  switch
+    when response.config.url.match(/guest_posts/) && response.data.class is "ActiveRecord::RecordNotFound" then true
+    when response.data.class then false
+    when response.data.errors then true
+    else false
+
+
 
 ce2_app.config ($httpProvider) ->
   $httpProvider.responseInterceptors.push('errorHttpInterceptor')

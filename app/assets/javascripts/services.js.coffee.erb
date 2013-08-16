@@ -151,6 +151,17 @@ services.factory "ConversationData", ["$http",
 
     pending_comments: (code) ->
       $http.get("/api/conversations/#{code}/pending_comments.json")
+
+    publish_conversation: (conversation_code) ->
+      $http.post("/api/conversations/#{conversation_code}/publish.json")
+
+
+    accept_guest_post: (post) ->
+      $http.post("/api/guest_posts/#{post.id}/accept.json", {accept_join: post.accept_join})
+
+    decline_guest_post: (post) ->
+      $http.post("/api/guest_posts/#{post.id}/decline.json", {accept_join: post.accept_join})
+
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",

@@ -15,3 +15,9 @@ ADMIN_LAST_NAME: Sullivan
 ADMIN_EMAIL: brian@civicevolution.org
 ADMIN_PASSWORD: evolution
 ROLES: [admin, probationary_participant, participant, trusted_participant, curator, conversation_admin]
+
+UNCONFIRMED_USER_NAME: Unconfirmed User
+UNCONFIRMED_USER_FIRST_NAME: Unconfirmed
+UNCONFIRMED_USER_LAST_NAME: User
+UNCONFIRMED_USER_EMAIL: unconfirmed-user@civicevolution.org
+UNCONFIRMED_USER_PASSWORD: 6hGR69VTRSKjuB

@@ -1544,29 +1544,62 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
   #        $timeout ->
   #          $compile(iElement.find('blockquote'))(scope)
   #
-  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll",
-    ($scope, CommentData, $compile, $location, $anchorScroll) ->
+  controller: [ "$scope", "ConversationData", "$dialog",
+    ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceReviewComment'
 
       $scope.approve_guest_post = ->
         console.log "approve_guest_post for id: #{$scope.post.id}"
         if $scope.post.request_to_join
-          console.log "check that accept/reject is selected"
-          if not $scope.post.invite
-            $scope.must_select_join_radio = "You must Accept or Reject the request to join"
+          console.log "check that accept/decline is selected"
+          if not $scope.post.accept_join
+            $scope.must_select_join_radio = "You must Accept or Decline the request to join"
             return
         console.log "Approve this post"
-        $scope.$emit('delete-guest-post', $scope.post)
+        ConversationData.accept_guest_post($scope.post).then(
+          (response)->
+            console.log "accept_guest_post successful"
+            $scope.$emit('delete-guest-post', $scope.post)
+        ,
+          (reason) ->
+            console.log "accept_guest_post failed"
+            if reason.status is 404
+              $scope.$emit('delete-guest-post', $scope.post)
+              title = 'No action taken'
+              msg = "This guest post has already been processed"
+              btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+              $dialog.messageBox(title, msg, btns).open()
+              $scope.$emit('delete-guest-post', $scope.post)
+            else
+              $scope.error_message = reason.data.error
+        )
 
-
-      $scope.reject_guest_post = ->
-        console.log "reject_guest_post for id: #{$scope.post.id}"
+      $scope.decline_guest_post = ->
+        console.log "decline_guest_post for id: #{$scope.post.id}"
         if $scope.post.request_to_join
-          console.log "check that accept/reject is selected"
-          if not $scope.post.invite
-            $scope.must_select_join_radio = "You must Accept or Reject the request to join"
+          console.log "check that accept/decline is selected"
+          if not $scope.post.accept_join
+            $scope.must_select_join_radio = "You must Accept or Decline the request to join"
             return
-        console.log "Reject this post"
+        console.log "Decline this post"
+        ConversationData.decline_guest_post($scope.post).then(
+          (response)->
+          console.log "decline_guest_post successful"
+          $scope.$emit('delete-guest-post', $scope.post)
+        ,
+        (reason) ->
+          console.log "decline_guest_post failed"
+          if reason.status is "404"
+            $scope.$emit('delete-guest-post', $scope.post)
+            title = 'No action taken'
+            msg = "This guest post has already been processed"
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
+            $scope.$emit('delete-guest-post', $scope.post)
+          else
+            $scope.error_message = reason.data.error
+        )
+
 
       $scope.optional_message = ->
         console.log "optional_message for id: #{$scope.post.id}"

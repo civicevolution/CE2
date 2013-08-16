@@ -8,6 +8,8 @@ Ce2::Application.routes.draw do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :comments do
         get 'history', :on => :member
+        post 'accept', :on => :member
+        post 'decline', :on => :member
       end
 
     end
@@ -39,6 +41,16 @@ Ce2::Application.routes.draw do
   delete "api/conversations/:id/bookmark" => "api/v1/bookmarks#destroy", format: :json, type: 'Conversation'
   post "api/comments/:id/bookmark" => "api/v1/bookmarks#create", format: :json, type: 'Comment'
   delete "api/comments/:id/bookmark" => "api/v1/bookmarks#destroy", format: :json, type: 'Comment'
+
+
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :guest_posts, only: [ ] do
+        post 'accept', :on => :member
+        post 'decline', :on => :member
+      end
+    end
+  end
 
 
   namespace :api, defaults: {format: 'json'} do

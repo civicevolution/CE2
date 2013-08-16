@@ -25,3 +25,11 @@ end
 puts 'user: ' << user.name
 user.add_role :admin
 
+puts 'UNCONFIRMED USER'
+user = User.where( email: ENV['UNCONFIRMED_USER_EMAIL'].dup ).first_or_create do |user|
+  user.name = ENV['UNCONFIRMED_USER_NAME'].dup
+  user.first_name = ENV['UNCONFIRMED_USER_FIRST_NAME'].dup
+  user.last_name = ENV['UNCONFIRMED_USER_LAST_NAME'].dup
+  user.password = ENV['UNCONFIRMED_USER_PASSWORD'].dup
+  user.password_confirmation = ENV['UNCONFIRMED_USER_PASSWORD'].dup
+end

@@ -9,16 +9,16 @@
 
   .body-with-arrow
     .arrow
-    %div.comment-body(ng-bind-html-unsafe="converter.makeHtml(post.text)")
+    %div.comment-body(ng-bind-html-unsafe="converter.makeHtml('(' + post.id + ') ' + post.text)")
 
   %div.invite(ng-if="post.request_to_join")
     %span.warn {{must_select_join_radio}}
     %label.radio
-      %input(type="radio" name="{{post.id}}_invite" value="true" ng-model="post.invite")
+      %input(type="radio" name="{{post.id}}_accept_join" value="true" ng-model="post.accept_join")
         Accept {{post.first_name}}'s request to join this conversation
     %label.radio
-      %input(type="radio" name="{{post.id}}_invite" value="false" ng-model="post.invite")
-        Reject {{post.first_name}}'s request to join this conversation
+      %input(type="radio" name="{{post.id}}_accept_join" value="false" ng-model="post.accept_join")
+        Decline {{post.first_name}}'s request to join this conversation
 
     %a(ng-click="optional_message()")
       Add optional message for {{post.first_name}}
@@ -26,7 +26,7 @@
   %div(ng-switch="post.type != null")
     %div.buttons(ng-switch-when="true" )
       %button.btn-primary.btn.btn-small(ng-click="approve_guest_post()") Approve comment
-      %button.btn.btn-small(ng-click="reject_guest_post()") Reject comment
+      %button.btn.btn-small(ng-click="decline_guest_post()") Decline comment
       %p
         %a(ng-click="update_privileges()")
           Update {{post.first_name}}'s posting privileges
@@ -36,4 +36,4 @@
 
     %div.buttons(ng-switch-default)
       %button.btn-primary.btn.btn-small(ng-click="approve_guest_post()") Approve comment
-      %button.btn.btn-small(ng-click="reject_guest_post()") Reject comment
+      %button.btn.btn-small(ng-click="decline_guest_post()") Decline comment
