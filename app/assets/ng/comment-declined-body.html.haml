@@ -1,0 +1,19 @@
+%div
+  %div.comment-body
+    %div(ng-switch="show_comment")
+      %div(ng-switch-when="true")
+        %p
+          %a(ng-click="toggle_comment()")
+            Hide
+          this comment
+        %hr
+        %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
+      %p(ng-switch-default)
+        This comment is not displayed because the curator has deemed it inappropriate.
+        %a(ng-click="toggle_comment()")
+          Display comment
+
+
+  %div.history.clear(ng-include src="history_url")
+
+  %div(ng-if="show_comment" ce-rating-slider)

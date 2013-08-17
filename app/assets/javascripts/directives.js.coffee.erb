@@ -258,9 +258,15 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
           $timeout ->
             $compile(iElement.find('blockquote'))(scope)
 
-  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll",
-    ($scope, CommentData, $compile, $location, $anchorScroll) ->
+  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll", "$timeout",
+    ($scope, CommentData, $compile, $location, $anchorScroll, $timeout) ->
       $scope.name = 'ceComment'
+
+      if $scope.comment
+        $scope.comment.body_template_url = CommentData.set_comment_body_template_url($scope.comment.published, $scope.comment.status)
+
+      $scope.toggle_comment = ->
+        $scope.show_comment = !$scope.show_comment
 
       $scope.edit = (comment_type, comment_id) ->
         $scope.$emit('request-edit', $scope.comment)
@@ -1551,18 +1557,18 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
       $scope.approve_guest_post = ->
         console.log "approve_guest_post for id: #{$scope.post.id}"
         if $scope.post.request_to_join
-          console.log "check that accept/decline is selected"
+          #console.log "check that accept/decline is selected"
           if not $scope.post.accept_join
             $scope.must_select_join_radio = "You must Accept or Decline the request to join"
             return
-        console.log "Approve this post"
+        #console.log "Approve this post"
         ConversationData.accept_guest_post($scope.post).then(
           (response)->
-            console.log "accept_guest_post successful"
+            #console.log "accept_guest_post successful"
             $scope.$emit('delete-guest-post', $scope.post)
         ,
           (reason) ->
-            console.log "accept_guest_post failed"
+            #console.log "accept_guest_post failed"
             if reason.status is 404
               $scope.$emit('delete-guest-post', $scope.post)
               title = 'No action taken'
@@ -1577,18 +1583,18 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
       $scope.decline_guest_post = ->
         console.log "decline_guest_post for id: #{$scope.post.id}"
         if $scope.post.request_to_join
-          console.log "check that accept/decline is selected"
+          #console.log "check that accept/decline is selected"
           if not $scope.post.accept_join
             $scope.must_select_join_radio = "You must Accept or Decline the request to join"
             return
-        console.log "Decline this post"
+        #console.log "Decline this post"
         ConversationData.decline_guest_post($scope.post).then(
           (response)->
-          console.log "decline_guest_post successful"
+          #console.log "decline_guest_post successful"
           $scope.$emit('delete-guest-post', $scope.post)
         ,
         (reason) ->
-          console.log "decline_guest_post failed"
+          #console.log "decline_guest_post failed"
           if reason.status is "404"
             $scope.$emit('delete-guest-post', $scope.post)
             title = 'No action taken'
@@ -1601,8 +1607,49 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
         )
 
 
+      $scope.approve_comment = ->
+        console.log "approve_comment for id: #{$scope.post.id}"
+        ConversationData.accept_comment($scope.post).then(
+          (response)->
+            #console.log "accept_comment successful"
+            $scope.$emit('delete-guest-post', $scope.post)
+        ,
+        (reason) ->
+          #console.log "approve_comment failed"
+          if reason.status is 404
+            $scope.$emit('delete-guest-post', $scope.post)
+            title = 'No action taken'
+            msg = "This comment has already been processed"
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
+            $scope.$emit('delete-guest-post', $scope.post)
+          else
+            $scope.error_message = reason.data.error
+        )
+
+      $scope.decline_comment = ->
+        #console.log "decline_comment for id: #{$scope.post.id}"
+        ConversationData.decline_comment($scope.post).then(
+          (response)->
+            #console.log "decline_comment successful"
+            $scope.$emit('delete-guest-post', $scope.post)
+        ,
+        (reason) ->
+          #console.log "decline_comment failed"
+          if reason.status is 404
+            $scope.$emit('delete-guest-post', $scope.post)
+            title = 'No action taken'
+            msg = "This comment has already been processed"
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
+            $scope.$emit('delete-guest-post', $scope.post)
+          else
+            $scope.error_message = reason.data.error
+        )
+
       $scope.optional_message = ->
         console.log "optional_message for id: #{$scope.post.id}"
+
       $scope.update_privileges = ->
         console.log "update_privileges for id: #{$scope.post.id}"
 

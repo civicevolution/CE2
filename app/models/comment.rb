@@ -115,6 +115,58 @@ class Comment < ActiveRecord::Base
     user_id == user.id
   end
 
+  def accept
+    Rails.logger.debug "Accept this comment: #{self.inspect}"
+
+    self.update_attributes( published: true, status: "approved" )
+
+    log = new_log_record
+    log.review_details = { comment_action: 'accepted'}
+    log.save
+
+    # send email notification to the author if they are confirmed
+    author = User.find(self.user_id)
+    if !author.confirmed_at.nil?
+      ConversationMailer.delay.comment_accepted(author, self.conversation, self)
+    end
+  end
+
+
+  def decline
+    Rails.logger.debug "Decline this comment: #{self.inspect}"
+
+    self.update_attributes( published: false, status: "declined" )
+
+    log = new_log_record
+    log.review_details = { comment_action: 'declined'}
+    log.save
+
+    # send email notification to the author if they are confirmed
+    author = User.find(self.user_id)
+    if !author.confirmed_at.nil?
+      ConversationMailer.delay.comment_declined(author, self.conversation, log)
+    end
+  end
+
+  def new_log_record
+    log = LogReviewedComment.new
+    attributes.each_pair do |key,value|
+      case key
+        when "id"
+          log.comment_id = value
+        when "created_at", "ratings_cache"
+        when "updated_at"
+          log.posted_at = value
+        else
+          log[key] = value
+      end
+    end
+    log
+  end
+
+
+
+
   protected
   def as_json_for_firebase( action = "create" )
     #data = as_json root: false, except: [:user_id]

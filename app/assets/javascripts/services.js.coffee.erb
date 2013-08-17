@@ -162,6 +162,12 @@ services.factory "ConversationData", ["$http",
     decline_guest_post: (post) ->
       $http.post("/api/guest_posts/#{post.id}/decline.json", {accept_join: post.accept_join})
 
+    accept_comment: (post) ->
+      $http.post("/api/comments/#{post.id}/accept.json")
+
+    decline_comment: (post) ->
+      $http.post("/api/comments/#{post.id}/decline.json")
+
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
@@ -195,6 +201,16 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
 
     adjust_comment_bookmark: (action, id, version = 0) ->
       $http[action]("/api/comments/#{id}/bookmark.json", {version: version})
+
+    set_comment_body_template_url: (published, status) ->
+      switch
+        when published == true then "default"
+        when status is "pre-review" then "<%= path_to_asset 'comment-pre-review-body.html' %>"
+        when status is "declined" then "<%= path_to_asset 'comment-declined-body.html' %>"
+        when status is "deleted" then "<%= path_to_asset 'comment-deleted-body.html' %>"
+        when status is "redacted" then "<%= path_to_asset 'comment-redacted-body.html' %>"
+        else "default"
+
 ]
 
 # The controllers are responsible for requesting their data and storing it to scope
@@ -215,7 +231,7 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
 # and a second time when RoR sends update to Firebase which sends update to all subscribers
 # The updates are idempotent, so multiple updates don't matter
 
-services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $rootScope ) ->
+services.factory "FirebaseService", [ "$timeout", "$rootScope", "CommentData", ($timeout, $rootScope, CommentData ) ->
   name: "FirebaseService"
   initialize_source: (url, token) ->
     #console.log "Firebase.initialize_source a new Firebase Update Source with"
@@ -251,6 +267,7 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", ($timeout, $root
             updated_rec.reply_to_targets = new_rec.reply_to_targets
             new_rec = null
             update_reply_data(updated_rec,original_rec.reply_to_targets)
+            updated_rec.body_template_url = CommentData.set_comment_body_template_url(updated_rec.published, updated_rec.status)
             break
         if new_rec
           new_obj = {}

@@ -3,7 +3,7 @@ class CommentSerializer < ActiveModel::Serializer
 
   attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :purpose,
              :version, :ratings_cache, :my_rating, :number_of_votes, :sm1, :sm2, :sm3, :sm4, :sm5,
-             :editable_by_user, :name, :code,
+             :editable_by_user, :name, :code, :published, :status,
              :replies, :reply_to_targets, :bookmark
              #:reply_comments, :reply_to_comments
 

@@ -25,8 +25,8 @@
 
   %div(ng-switch="post.type != null")
     %div.buttons(ng-switch-when="true" )
-      %button.btn-primary.btn.btn-small(ng-click="approve_guest_post()") Approve comment
-      %button.btn.btn-small(ng-click="decline_guest_post()") Decline comment
+      %button.btn-primary.btn.btn-small(ng-click="approve_comment()") Approve comment
+      %button.btn.btn-small(ng-click="decline_comment()") Decline comment
       %p
         %a(ng-click="update_privileges()")
           Update {{post.first_name}}'s posting privileges

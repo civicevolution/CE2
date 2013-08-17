@@ -41,11 +41,18 @@
                 %p.time {{comment.updated_at | from_now}}
                 %p {{comment.purpose}}
 
-              %div.comment-body(ng-bind-html-unsafe="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
+              %div(ng-switch="comment.body_template_url")
+                %div.comment-body(ng-switch-when="default")
+                  %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
 
-              %div.history.clear(ng-include src="history_url")
+                  %div.history.clear(ng-include src="history_url")
 
-              %div(ce-rating-slider)
+                  %div(ce-rating-slider)
+
+                %div(ng-switch-default)
+                  -# this comment is not published, use alternate template determined by controller
+                  %div(ng-include="comment.body_template_url")
+
 
               %div.footer
                 %div.replies(ng-if="comment.replies.length>0" ng-click="show_replies()")
