@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130816192157) do
+ActiveRecord::Schema.define(version: 20130819150323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,6 +113,20 @@ ActiveRecord::Schema.define(version: 20130816192157) do
 
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
+  create_table "flagged_items", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "conversation_id"
+    t.integer  "target_id"
+    t.string   "target_type"
+    t.string   "category"
+    t.text     "statement"
+    t.integer  "version"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "flagged_items", ["target_id", "target_type"], name: "index_flagged_items_on_target_id_and_target_type", using: :btree
+
   create_table "follow_ces", force: true do |t|
     t.string   "email",      null: false
     t.datetime "created_at"
@@ -134,6 +148,22 @@ ActiveRecord::Schema.define(version: 20130816192157) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "log_flagged_items", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "conversation_id"
+    t.integer  "target_id"
+    t.string   "target_type"
+    t.string   "category"
+    t.text     "statement"
+    t.integer  "version"
+    t.datetime "posted_at"
+    t.hstore   "review_details"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "log_flagged_items", ["target_id", "target_type"], name: "index_log_flagged_items_on_target_id_and_target_type", using: :btree
 
   create_table "log_guest_posts", force: true do |t|
     t.string   "post_type"

@@ -2,10 +2,14 @@
   %div#review-panel
     %button.close(ng-click="close_panel()") &times;
 
+    %h3 Flagged comments
+    %div(ng-repeat="post in flagged_comments" data-ng-animate="'custom'")
+      %div(ce-review-flagged-comment dev)
+    %p(ng-if="flagged_comments.length == 0") There are no flagged comments posts at this time
+
     %h3 Pending comments
     %div(ng-repeat="post in pending_comments" data-ng-animate="'custom'")
       %div(ce-review-comment dev)
-
     %p(ng-if="pending_comments.length == 0") There are no pending comments at this time
 
     %h3 Guest posts

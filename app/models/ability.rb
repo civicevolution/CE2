@@ -52,6 +52,7 @@ class Ability
     can :upload_photo, Profile
     can :create, Conversation
     can :index, Conversation
+    can :flag, Conversation
   end
 
   def self.abilities(user, type, id)

@@ -5,6 +5,7 @@ module Modules
     included do
       before_create { @_is_new_record = true }
       after_save :post_process
+      after_initialize { |com| @_published_state_at_init = com.published }
     end
 
     def post_process
@@ -190,7 +191,9 @@ module Modules
 
     def check_immediate_notifications
       # no immediate notification on edited conversation comments (what about a new mention?)
-      return if !@_is_new_record && self.type == 'ConversationComment'
+      # unless the comment has just been published
+      return if !@_is_new_record && @_published_state_at_init && self.type == 'ConversationComment'
+      return if self.published == false
 
       #Rails.logger.debug "I need to implement check_immediate_notifications"
       # any requests for this conversation with immediate_all

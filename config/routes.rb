@@ -29,6 +29,7 @@ Ce2::Application.routes.draw do
         post 'publish', on: :member
         get 'guest_posts', on: :member
         get 'pending_comments', on: :member
+        get 'flagged_comments', on: :member
         resources :comments, shallow: true
       end
     end
@@ -42,6 +43,9 @@ Ce2::Application.routes.draw do
   post "api/comments/:id/bookmark" => "api/v1/bookmarks#create", format: :json, type: 'Comment'
   delete "api/comments/:id/bookmark" => "api/v1/bookmarks#destroy", format: :json, type: 'Comment'
 
+  post "api/conversations/:id/flag_item" => "api/v1/flagged_items#create", format: :json, type: 'Conversation'
+  post "api/comments/:id/flag_item" => "api/v1/flagged_items#create", format: :json, type: 'Comment'
+
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
@@ -52,6 +56,13 @@ Ce2::Application.routes.draw do
     end
   end
 
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :flagged_items, only: [ ] do
+        post 'mark_flagged_as', on: :member
+      end
+    end
+  end
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do

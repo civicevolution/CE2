@@ -164,9 +164,6 @@ class Comment < ActiveRecord::Base
     log
   end
 
-
-
-
   protected
   def as_json_for_firebase( action = "create" )
     #data = as_json root: false, except: [:user_id]

@@ -152,6 +152,9 @@ services.factory "ConversationData", ["$http",
     pending_comments: (code) ->
       $http.get("/api/conversations/#{code}/pending_comments.json")
 
+    flagged_comments: (code) ->
+      $http.get("/api/conversations/#{code}/flagged_comments.json")
+
     publish_conversation: (conversation_code) ->
       $http.post("/api/conversations/#{conversation_code}/publish.json")
 
@@ -167,6 +170,13 @@ services.factory "ConversationData", ["$http",
 
     decline_comment: (post) ->
       $http.post("/api/comments/#{post.id}/decline.json")
+
+    flag_conversation: (id, version) ->
+      $http.post("/api/conversation/#{id}/flag_item.json", {version: version})
+
+    mark_flagged_as: (post,action) ->
+      $http.post("/api/flagged_items/#{post.flag_id}/mark_flagged_as.json", {flag_action: action})
+
 
 ]
 
@@ -210,6 +220,9 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
         when status is "deleted" then "<%= path_to_asset 'comment-deleted-body.html' %>"
         when status is "redacted" then "<%= path_to_asset 'comment-redacted-body.html' %>"
         else "default"
+
+    flag_comment: (id, version) ->
+      $http.post("/api/comments/#{id}/flag_item.json", {version: version})
 
 ]
 

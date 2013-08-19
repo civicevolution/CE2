@@ -19,6 +19,8 @@ class Conversation < ActiveRecord::Base
 
   has_many :notification_requests
 
+  has_many :flagged_items, class_name: 'FlaggedItem'
+
   validates :status, presence: true
   validate :conversation_code_is_unique, on: :create
   before_create :initialize_conversation
@@ -225,52 +227,56 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     posts.sort{|a,b| a.id <=> b.id}
   end
 
-  def auth_comment( type, text )
-    case type
-      when "ConversationComment"
-        # should this comment be published automatically, or does it need to be reviewed by curator?
-        case
-          when can?(:post_any, self)
-            auth_type = :post_any
-            published = true
-            status = 'new'
-          when can?(:post_no_attachments, self)
-            auth_type = :post_no_attachments
-            # check content of text for image/link/attachment
-            if text.match(/http/) || text.match(/<img/)
-              published = false
-              status = 'pre-review'
-            else
-              published = true
-              status = 'new'
-            end
-          when can?(:post_prescreen, self)
-            auth_type = :post_prescreen
-            published = false
-            status = 'pre-review'
-          when can?(:post_unknown, self)
-            auth_type = :post_unknown
-            published = false
-            status = 'pre-review'
-        end
-      when "SummaryComment"
-        auth_type = :edit_summary
-        published = true
-        status = 'ok'
-      when "CallToActionComment"
-        auth_type = :edit_cta
-        published = true
-        status = 'ok'
-      when "TitleComment"
-        auth_type = :edit_title
-        published = true
-        status = 'ok'
-    end
-    [auth_type, published, status]
-  end
+  #def auth_comment( type, text )
+  #  case type
+  #    when "ConversationComment"
+  #      # should this comment be published automatically, or does it need to be reviewed by curator?
+  #      case
+  #        when can?(:post_any, self)
+  #          auth_type = :post_any
+  #          published = true
+  #          status = 'new'
+  #        when can?(:post_no_attachments, self)
+  #          auth_type = :post_no_attachments
+  #          # check content of text for image/link/attachment
+  #          if text.match(/http/) || text.match(/<img/)
+  #            published = false
+  #            status = 'pre-review'
+  #          else
+  #            published = true
+  #            status = 'new'
+  #          end
+  #        when can?(:post_prescreen, self)
+  #          auth_type = :post_prescreen
+  #          published = false
+  #          status = 'pre-review'
+  #        when can?(:post_unknown, self)
+  #          auth_type = :post_unknown
+  #          published = false
+  #          status = 'pre-review'
+  #      end
+  #    when "SummaryComment"
+  #      auth_type = :edit_summary
+  #      published = true
+  #      status = 'ok'
+  #    when "CallToActionComment"
+  #      auth_type = :edit_cta
+  #      published = true
+  #      status = 'ok'
+  #    when "TitleComment"
+  #      auth_type = :edit_title
+  #      published = true
+  #      status = 'ok'
+  #  end
+  #  [auth_type, published, status]
+  #end
 
   def pending_comments
     self.comments.where(published: false, status: 'pre-review').order('id ASC').includes(:author)
+  end
+
+  def flagged_comments
+    self.flagged_items.includes(:flagger, comment: :author)
   end
 
 end

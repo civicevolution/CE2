@@ -258,8 +258,8 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
           $timeout ->
             $compile(iElement.find('blockquote'))(scope)
 
-  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll", "$timeout",
-    ($scope, CommentData, $compile, $location, $anchorScroll, $timeout) ->
+  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll", "$timeout", "$dialog",
+    ($scope, CommentData, $compile, $location, $anchorScroll, $timeout, $dialog) ->
       $scope.name = 'ceComment'
 
       if $scope.comment
@@ -290,8 +290,14 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
       $scope.share = (id) ->
         console.log "Clicked Comment share link id: #{id}"
 
-      $scope.flag = (id) ->
-        console.log "Clicked Comment flag link id: #{id}"
+      $scope.flag = ->
+        CommentData.flag_comment($scope.comment.id, $scope.comment.version).then(
+          (response) ->
+            title = 'Thank you'
+            msg = "Thank you for reporting this content to us."
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
+        )
 
       $scope.show_reply_target = (id) ->
         #console.log "show_reply_target for id: #{id}"
@@ -1314,7 +1320,7 @@ ce2_directives.directive('ceReviewPanel', ->
     ($scope, ConversationData) ->
       $scope.name = 'ceReviewPanel'
       $scope.$parent.specific_panel_style = {'background-color': '#eeeeee'}
-      console.log " get guest_posts on scope #{$scope.$id}"
+      #console.log " get guest_posts on scope #{$scope.$id}"
 
       ConversationData.guest_posts($scope.conversation.code).then (response) ->
         $scope.guest_posts = response.data
@@ -1322,18 +1328,27 @@ ce2_directives.directive('ceReviewPanel', ->
       ConversationData.pending_comments($scope.conversation.code).then (response) ->
         $scope.pending_comments = response.data
 
-      $scope.$on 'delete-guest-post', (event, post) ->
-        if post.type
-          console.log "delete pending comment with id: #{post.id}"
-          for comment, index in event.currentScope.pending_comments
-            if comment.id == post.id
-              return event.currentScope.pending_comments.splice(index, 1)
+      ConversationData.flagged_comments($scope.conversation.code).then (response) ->
+        $scope.flagged_comments = response.data
 
-        else
-          console.log "delete guest post with id: #{post.id}"
-          for guest_post, index in event.currentScope.guest_posts
-            if guest_post.id == post.id
-              return event.currentScope.guest_posts.splice(index, 1)
+      $scope.$on 'delete-pending-comment', (event, post) ->
+        console.log "delete pending comment with id: #{post.id}"
+        for comment, index in event.currentScope.pending_comments
+          if comment.id == post.id
+            return event.currentScope.pending_comments.splice(index, 1)
+
+      $scope.$on 'delete-guest-post', (event, post) ->
+        console.log "delete guest post with id: #{post.id}"
+        for guest_post, index in event.currentScope.guest_posts
+          if guest_post.id == post.id
+            return event.currentScope.guest_posts.splice(index, 1)
+
+      $scope.$on 'delete-comment-flag', (event, post) ->
+        console.log "delete comment flag with id: #{post.flag_id}"
+        for flag, index in event.currentScope.flagged_comments
+          if flag.flag_id == post.flag_id
+            return event.currentScope.flagged_comments.splice(index, 1)
+
   ]
 )
 
@@ -1575,7 +1590,6 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
               msg = "This guest post has already been processed"
               btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
               $dialog.messageBox(title, msg, btns).open()
-              $scope.$emit('delete-guest-post', $scope.post)
             else
               $scope.error_message = reason.data.error
         )
@@ -1601,7 +1615,6 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
             msg = "This guest post has already been processed"
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
             $dialog.messageBox(title, msg, btns).open()
-            $scope.$emit('delete-guest-post', $scope.post)
           else
             $scope.error_message = reason.data.error
         )
@@ -1617,12 +1630,11 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
         (reason) ->
           #console.log "approve_comment failed"
           if reason.status is 404
-            $scope.$emit('delete-guest-post', $scope.post)
+            $scope.$emit('delete-pending-comment', $scope.post)
             title = 'No action taken'
             msg = "This comment has already been processed"
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
             $dialog.messageBox(title, msg, btns).open()
-            $scope.$emit('delete-guest-post', $scope.post)
           else
             $scope.error_message = reason.data.error
         )
@@ -1632,7 +1644,7 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
         ConversationData.decline_comment($scope.post).then(
           (response)->
             #console.log "decline_comment successful"
-            $scope.$emit('delete-guest-post', $scope.post)
+            $scope.$emit('delete-pending-comment', $scope.post)
         ,
         (reason) ->
           #console.log "decline_comment failed"
@@ -1642,7 +1654,47 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
             msg = "This comment has already been processed"
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
             $dialog.messageBox(title, msg, btns).open()
-            $scope.$emit('delete-guest-post', $scope.post)
+          else
+            $scope.error_message = reason.data.error
+        )
+
+      $scope.optional_message = ->
+        console.log "optional_message for id: #{$scope.post.id}"
+
+      $scope.update_privileges = ->
+        console.log "update_privileges for id: #{$scope.post.id}"
+
+  ]
+])
+
+
+ce2_directives.directive('ceReviewFlaggedComment',[ "$compile", "$timeout", ($compile, $timeout) ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "assets/panel/flagged-comment-review.html" %>#{prefix}"
+  replace: true
+  scope: true
+  priority: 100
+  controller: [ "$scope", "ConversationData", "$dialog",
+    ($scope, ConversationData, $dialog) ->
+      $scope.name = 'ceReviewFlaggedComment'
+
+      $scope.mark_as = (action) ->
+        console.log "mark_as #{action} for id: #{$scope.post.flag_id}"
+        ConversationData.mark_flagged_as($scope.post, action).then(
+          (response)->
+            console.log "mark_as #{action} was successful"
+            $scope.$emit('delete-comment-flag', $scope.post)
+        ,
+        (reason) ->
+          console.log "mark_as #{action} failed"
+          if reason.status is 404
+            $scope.$emit('delete-comment-flag', $scope.post)
+            title = 'No action taken'
+            msg = "This guest post has already been processed"
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
           else
             $scope.error_message = reason.data.error
         )

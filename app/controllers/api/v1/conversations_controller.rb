@@ -104,6 +104,13 @@ module Api
         respond_with pending_comments
       end
 
+      def flagged_comments
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :approve_posts, conversation
+        flagged_comments = conversation.flagged_comments
+        respond_with flagged_comments, each_serializer: FlaggedCommentSerializer
+      end
+
     end
 
   end

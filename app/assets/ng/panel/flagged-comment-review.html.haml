@@ -1,0 +1,32 @@
+%div.post
+  %h3 Flagged comment
+
+  %div.author
+    %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{post.flagger_photo_code}}/sm2/p.jpg")
+    %p
+      {{post.flagger}}
+      flagged this comment
+      {{post.flagged_at | from_now}}
+      as {{post.flag_category}} and added "{{post.flag_statement}}"
+    %p.clear
+
+
+  %div.author
+    %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{post.author_photo_code}}/sm2/p.jpg")
+    %p
+      {{post.author}}
+      posted this {{post.comment.purpose}} comment
+      {{post.comment_posted_at | from_now}}
+    %p.clear
+
+  .body-with-arrow
+    .arrow
+    %div.comment-body(ng-bind-html-unsafe="converter.makeHtml(post.comment_text)")
+
+  -#%a(ng-click="optional_message()")
+    Add optional message for {{post.first_name}}
+
+  %div.buttons
+    %button.btn-primary.btn-small(ng-click="mark_as('declined')") Decline comment
+    %button.btn-primary.btn-small(ng-click="mark_as('redacted')") Redact comment
+    %button.btn-primary.btn-small(ng-click="mark_as('do_nothing')") Do nothing
