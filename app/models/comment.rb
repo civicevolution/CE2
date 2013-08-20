@@ -12,7 +12,7 @@ class Comment < ActiveRecord::Base
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
 
 
-  belongs_to :author,  -> { select :id, :first_name, :last_name, :code, :name}, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id'  #, photo_file_name'
+  belongs_to :author,  -> { select :id, :first_name, :last_name, :code, :name, :name_count}, :class_name => 'User', :foreign_key => 'user_id',  :primary_key => 'id'  #, photo_file_name'
 
   belongs_to :conversation
 

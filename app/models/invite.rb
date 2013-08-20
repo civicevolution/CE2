@@ -25,4 +25,53 @@ class Invite < ActiveRecord::Base
   def send_invite_email
     ConversationMailer.delay.send_invite(self.sender, self.first_name, self.last_name, self.email, self.text, self.conversation, self.code )
   end
+
+  def confirm_and_create_user params
+    conversation = Conversation.find(self.conversation_id)
+
+    params[:user][:password_confirmation] = params[:user][:password]
+
+    user = User.new params[:user]
+    user.skip_confirmation!
+    user.save
+
+    if user.errors.empty?
+
+      role = assign_role user, conversation
+
+      log_invite user, {assigned_role: role}
+
+      # destroy this invite now that is has been used
+      self.destroy
+    end
+    [user,conversation]
+  end
+
+  def assign_role user, conversation
+    # default role is
+    role = conversation.privacy['screen'] == "true" ? :probationary_participant : :participant
+    # check the options to see if the user has been granted higer privileges
+
+    # add role according to invite/conversation setup
+    user.add_role role, conversation
+    role
+  end
+
+  def log_invite user, details
+    log = LogInvite.new
+    attributes.each_pair do |key,value|
+      case key
+        when "id", "updated_at"
+        when "created_at"
+          log.invited_at = value
+        else
+          log[key] = value
+      end
+    end
+    log.user_id = user.id
+    log.details = details
+    log.save
+
+  end
+
 end

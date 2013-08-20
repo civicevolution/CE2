@@ -123,6 +123,8 @@ Ce2::Application.routes.draw do
 
   match '(errors)/:status', to: 'errors#show', constraints: {status: /\d{3}/}, via: :all
 
+  get 'invites/:invite_code/:munged_title', to: 'invites#lookup'
+  post 'invites/confirmed', to: 'invites#confirmed'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

@@ -244,7 +244,14 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     self.roles.each do |role|
       role.users.each do |user|
         #participants.push user
-        participants_roles.push( {name: user.name, role: role.name} )
+        name =
+          if user.name_count.nil? || user.name_count  == 1
+            "#{user.first_name} #{user.last_name}"
+          else
+            "#{user.first_name} #{user.last_name}[#{user.name_count}]"
+          end
+
+        participants_roles.push( {name: name, role: role.name} )
       end
     end
     participants_roles

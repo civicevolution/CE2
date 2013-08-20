@@ -16,12 +16,21 @@ class CommentSerializer < ActiveModel::Serializer
   end
 
   def last_name
-    object.author.last_name
+    if object.author.name_count.nil? || object.author.name_count  == 1
+      object.author.last_name
+    else
+      "#{object.author.last_name}[#{object.author.name_count}]"
+    end
   end
 
   def name
-    object.author.name
+    if object.author.name_count.nil? || object.author.name_count  == 1
+      "#{object.author.first_name}_#{object.author.last_name}"
+    else
+      "#{object.author.first_name}_#{object.author.last_name}_#{object.author.name_count}"
+    end
   end
+
 
   def code
     object.author.code

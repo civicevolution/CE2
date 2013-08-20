@@ -1,0 +1,38 @@
+%h2
+  Welcome to CivicEvolution
+%h3 Please confirm your email and name, and then select a password
+
+%h4 Email: #{user.email}
+
+=simple_form_for( user, :url => invites_confirmed_path, :html => { :method => :post, :class => 'form-vertical' }) do |f|
+  -#=simple_form_for( user) do |f|
+  = f.error_notification
+  = display_base_errors user
+  = f.input :email, :required => true, as: :hidden
+  = f.input :first_name, :autofocus => true, :required => true, label: 'Confirm your first name'
+  = f.input :last_name, :required => true, label: 'Confirm your last name'
+  = f.input :password, :autocomplete => "off", :required => true, label: 'Select a password (must be at least 8 characters)', input_html: { minlength: 8 }
+  %div.show_password
+    = check_box_tag(:hide_password, 1, checked: 'checked')
+    = label_tag(:hide_password, "Show password characters")
+
+  = hidden_field_tag :invite_code, code
+
+  = f.button :submit, 'Confirm', :class => 'btn-primary'
+
+:javascript
+  //alert("hello");
+  document.getElementById("user_password").type = 'text';
+  document.getElementById("hide_password").onclick = function() {
+    if(this.checked){
+      document.getElementById("user_password").type = 'text';
+    }else{
+      document.getElementById("user_password").type = 'password';
+    }
+  }
+
+:scss
+  .show_password{
+    margin: -20px 0 20px 0;
+    > * { display: inline;}
+  }

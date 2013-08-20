@@ -115,7 +115,7 @@ class ConversationMailer < ActionMailer::Base
     @recip_first = recip_first
     @message = message
     @conversation = conversation
-    @invite_href = "http://app.civicevolution.dev/#/conversation/#{@conversation.code}/#{@conversation.munged_title}?code=#{code}"
+    @invite_href = "http://app.civicevolution.dev/invites/#{code}/#{@conversation.munged_title}"
     @host = host
 
     mail(:to => "#{recip_first} #{recip_last} <#{recip_email}>",
