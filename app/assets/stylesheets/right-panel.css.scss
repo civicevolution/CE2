@@ -63,8 +63,8 @@
       border: 2px solid #ccc;
       background-color: #eeeeee;
       padding: 0px 220px 20px 20px;
+      button.close { margin-right: -16px; }
       .right-panel-inner{
-        //border: 1px solid red;
         height: 100%;
         overflow-y: scroll;
         table.fixed{
