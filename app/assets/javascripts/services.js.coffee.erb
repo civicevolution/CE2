@@ -177,6 +177,14 @@ services.factory "ConversationData", ["$http",
     mark_flagged_as: (post,action) ->
       $http.post("/api/flagged_items/#{post.flag_id}/mark_flagged_as.json", {flag_action: action})
 
+    send_invite: (invite, conversation_code) ->
+      $http.post("/api/conversations/#{conversation_code}/invite.json", invite)
+
+    invited_guests: (code) ->
+      $http.get("/api/conversations/#{code}/invited_guests.json")
+
+    participants_roles: (code) ->
+      $http.get("/api/conversations/#{code}/participants_roles.json")
 
 ]
 

@@ -1,3 +1,95 @@
-%div#invite-panel
+%div.invite-panel
   %button.close(ng-click="close_panel()") &times;
-  %h3 Sorry, Invite is under construction
+  %div
+    .modal-header
+      %h3 Invite your friends to this conversation
+    .modal-body{style: "max-height: 600px"}
+      %div.alert.alert-error(ng-show="error_messages")
+        %p.message Please review the problems below:
+
+      %form(ng-submit="submit_sign_up(user)"){name: 'invite_form'}
+        %div.inputs
+
+          %div.control-group(ng-class='{error: error_messages.first_name}')
+            %input.first(ng-model='invite.first_name' required ce-focus){type: 'text', placeholder: 'First name'}
+            %span.help-inline
+              {{error_messages.first_name.join('\n')}}
+
+          %div.control-group(ng-class='{error: error_messages.last_name}')
+            %input.last(ng-model='invite.last_name' required ){type: 'text', placeholder: 'Last name'}
+            %span.help-inline
+              {{error_messages.last_name.join('\n')}}
+
+          %div.control-group(ng-class='{error: error_messages.email}')
+            %input.email(ng-model='invite.email' required ){type: 'text', placeholder: 'Email'}
+            %span.help-inline
+            {{error_messages.email.join(' and ')}}
+
+        %p.clear(ng-show="!invite_form.$valid" ng-animate="'custom'") You must provide the first name, last name, and email address
+
+        %div.buttons
+          %button.btn-primary.btn(ng-click="send_invite()" ng-disabled='!invite_form.$valid') Send invite
+          %button.btn(ng-click="close_panel()") Cancel
+
+        %div(ng-hide="!invite_form.$valid" ng-animate="'custom'")
+          %p.preview-label Below is a preview of the email we will send on your behalf
+          %div.message.clear
+            %table.email_headers
+              %tr
+                %td From:
+                %td {{invite.my_first_name}} {{invite.my_last_name}} <{{invite.my_email}}>
+              %tr
+                %td To:
+                %td {{invite.first_name}} {{invite.last_name}} <{{invite.email}}>
+              %tr
+                %td Subject:
+                %td Please join our conversation "{{conversation.title}}"
+              %tr
+                %td(colspan="2")
+                  %hr
+
+            %p Hello {{invite.first_name}},
+
+            %p I'm hoping you can join me in a conversation called "{{conversation.title}}"
+
+            %p.textarea-outer
+              %textarea(ng-model="invite.message"){placeholder: "Personalize your message here... (optional)"}
+
+            %p Just click this link and you can get started right away:
+            %p
+              %a {{invite.href}}
+
+            %p If you have any questions about this, you can email me directly at {{invite.my_email}}
+
+            %p I hope you will join us soon,
+            %p {{invite.my_first_name}}
+
+        %table.participants(ng-class="show_new_invites")
+          %tr
+            %td(colspan="3")
+              %h3 Invited to participate
+          %tr
+            %th Invitee
+            %th Invited by
+            %th Invited
+          %tr(ng-repeat="guest in invited_guests" ng-animate="'color'")
+            %td {{guest.invitee}}
+            %td {{guest.inviter}}
+            %td {{guest.invited_at | from_now }}
+          %tr(ng-show="invited_guests.length == 0")
+            %td(colspan="3")
+              No outstanding invitations
+          %tr
+            %td(colspan="3")
+              %h3 Current participants
+          %tr
+            %th Name
+            %th Role
+            -#%th Joined
+          %tr(ng-repeat="participant in participants_roles")
+            %td {{participant.name}}
+            %td {{participant.role}}
+            -#%td {{participant.joined_at | from_now }}
+          %tr(ng-show="participants.length == 0")
+            %td(colspan="3")
+              No current participants

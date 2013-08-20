@@ -39,9 +39,17 @@ class ErrorsController < ApplicationController
     end
 
 
-    if params[:format].try{ |format| format.match(/\.json/)}
-      request.format = "json"
+    begin
+      if params[:format].try{ |format| format.match(/\.json/)}
+        request.format = "json"
+      end
+
+      if self.env['REQUEST_URI'].match(/\.json/)
+        request.format = "json"
+      end
+    rescue
     end
+
     respond_to do |format|
       format.html { render action: request.path[1..-1] }
       format.json { render json: {status: request.path[1..-1], class: @exception.class.to_s, error: @exception.message,

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130819150323) do
+ActiveRecord::Schema.define(version: 20130819163856) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -148,6 +148,21 @@ ActiveRecord::Schema.define(version: 20130819150323) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "invites", force: true do |t|
+    t.integer  "sender_user_id"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.text     "text"
+    t.string   "code"
+    t.integer  "conversation_id"
+    t.hstore   "options"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "invites", ["code"], name: "index_invites_on_code", unique: true, using: :btree
 
   create_table "log_flagged_items", force: true do |t|
     t.integer  "user_id"

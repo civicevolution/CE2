@@ -9,7 +9,7 @@ class Ability
   #  for each role held by this user for this conversation
 
   @@conversation_actions_by_role = {}
-  @@conversation_actions_by_role[:probationary_participant] = %i( show request_notification rate_comment history post_prescreen bookmark attachment )
+  @@conversation_actions_by_role[:probationary_participant] = %i( show show_participants request_notification rate_comment history post_prescreen bookmark attachment )
   @@conversation_actions_by_role[:participant] = %i( post_no_attachments  ).concat @@conversation_actions_by_role[:probationary_participant]
   @@conversation_actions_by_role[:trusted_participant] = %i( post_any invite private_message  ).concat @@conversation_actions_by_role[:participant]
   @@conversation_actions_by_role[:curator] = %i( edit_summary summary_comment_order edit_cta group_message approve_posts approve_participants moderate_posts ).concat @@conversation_actions_by_role[:trusted_participant]

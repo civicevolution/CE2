@@ -4,7 +4,7 @@ class UserSerializer < ActiveModel::Serializer
   attributes :id, :first_name, :last_name, :name, :email, :confirmed, :small_photo_url, :sm1, :sm2, :sm3, :sm4
 
   def last_name
-    if object.name_count == 1
+    if object.name_count.nil? || object.name_count  == 1
       object.last_name
     else
       "#{object.last_name}[#{object.name_count}]"
@@ -12,7 +12,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def name
-    if object.name_count == 1
+    if object.name_count.nil? || object.name_count  == 1
       "#{object.first_name}_#{object.last_name}"
     else
       "#{object.first_name}_#{object.last_name}_#{object.name_count}"

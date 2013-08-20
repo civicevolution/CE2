@@ -30,6 +30,8 @@ Ce2::Application.routes.draw do
         get 'guest_posts', on: :member
         get 'pending_comments', on: :member
         get 'flagged_comments', on: :member
+        get 'participants_roles', on: :member
+        get 'invited_guests', on: :member
         resources :comments, shallow: true
       end
     end
@@ -46,6 +48,7 @@ Ce2::Application.routes.draw do
   post "api/conversations/:id/flag_item" => "api/v1/flagged_items#create", format: :json, type: 'Conversation'
   post "api/comments/:id/flag_item" => "api/v1/flagged_items#create", format: :json, type: 'Comment'
 
+  post "api/conversations/:id/invite" => "api/v1/invites#create", format: :json
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do

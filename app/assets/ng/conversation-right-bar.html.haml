@@ -1,5 +1,6 @@
 %div.right-bar-template
-  %div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}" ng-style="specific_panel_style")
+  -#%div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}" ng-style="specific_panel_style")
+  %div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}")
     %div.right-panel-inner
       %div(ng-bind-html-unsafe="right_bar_panel_directive")
 

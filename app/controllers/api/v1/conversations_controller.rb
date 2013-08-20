@@ -111,6 +111,20 @@ module Api
         respond_with flagged_comments, each_serializer: FlaggedCommentSerializer
       end
 
+      def participants_roles
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :show_participants, conversation
+        participants_roles = conversation.participants_roles
+        respond_with participants_roles #, each_serializer: ParticipantSerializer
+      end
+
+      def invited_guests
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :show_participants, conversation
+        invited_guests = conversation.invites.order('id DESC')
+        respond_with invited_guests, each_serializer: InvitedGuestSerializer
+      end
+
     end
 
   end

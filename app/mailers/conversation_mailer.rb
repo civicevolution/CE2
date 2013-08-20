@@ -110,4 +110,18 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
+  def send_invite(sender, recip_first, recip_last, recip_email, message, conversation, code , host = '' )
+    @sender = sender
+    @recip_first = recip_first
+    @message = message
+    @conversation = conversation
+    @invite_href = "http://app.civicevolution.dev/#/conversation/#{@conversation.code}/#{@conversation.munged_title}?code=#{code}"
+    @host = host
+
+    mail(:to => "#{recip_first} #{recip_last} <#{recip_email}>",
+         :from => "#{sender.first_name} #{sender.last_name} <#{sender.email}>",
+         :subject => "Please join our conversation \"#{conversation.title}"
+    )
+  end
+
 end

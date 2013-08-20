@@ -952,7 +952,6 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
             dev = true
           else
             dev = false
-          $scope.specific_panel_style = {}
           #console.log "open_panel for #{link}"
           $scope.right_bar_panel_directive = "<div id='right-panel-directive' ce-#{link}-panel dev='#{dev}'>Compile directive ce-#{link}-panel</div>"
           $scope.active_link = link
@@ -1040,9 +1039,52 @@ ce2_directives.directive('ceInvitePanel', ->
     "<%= path_to_asset "panel/invite.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope",
-    ($scope) ->
+  controller: [ "$scope", "ConversationData", "$dialog",
+    ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceInvitePanel'
+      $scope.invite =
+        href: "#{location.href}?code=secret"
+        my_email: $scope.$root.user.email
+        my_first_name: $scope.$root.user.first_name
+        my_last_name: $scope.$root.user.last_name
+        first_name: ''
+        last_name: 'Sullivan'
+        email: 'brian@civicevolution.org'
+        message: "My personal message @ #{new Date()}"
+
+      ConversationData.invited_guests($scope.conversation.code).then (response) ->
+        $scope.invited_guests = response.data
+
+      ConversationData.participants_roles($scope.conversation.code).then (response) ->
+        $scope.participants_roles = response.data
+
+      $scope.participants_roles = []
+
+      $scope.send_invite = ->
+        $scope.show_new_invites = 'color-activated'
+        console.log "send this invite to #{$scope.invite.email}"
+        ConversationData.send_invite($scope.invite, $scope.conversation.code).then(
+          (response)->
+            console.log "invite to #{$scope.invite.email} was successful"
+            $scope.invited_guests.unshift(
+              invited_at: response.data.invited_at
+              invitee: response.data.invitee
+              inviter: response.data.inviter
+            )
+            $scope.invite.first_name = ''
+            $scope.invite.last_name = ''
+            $scope.invite.email = ''
+        ,
+        (reason) ->
+          console.log "invite to #{$scope.invite.email} failed"
+          if reason.status is 404
+            title = 'Invite was not sent'
+            msg = reason.data.error
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
+          else
+            $scope.error_message = reason.data.error
+        )
   ]
 )
 
