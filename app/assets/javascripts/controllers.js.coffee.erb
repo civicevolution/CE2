@@ -196,7 +196,7 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
             purpose: comment.purpose
             name: "#{comment.first_name} #{comment.last_name}"
             version: comment.version
-            photo: comment.sm1.match(/\/([^\/]+)\/sm\d\//)[1]
+            photo: comment.photo_code
 
           body = document.documentElement || document.body
           scrollX = window.pageXOffset || body.scrollLeft

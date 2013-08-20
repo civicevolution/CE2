@@ -1,7 +1,7 @@
 class ProfileSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :profile_id, :user_id, :first_name, :last_name, :email, :small_photo_url, :sm1, :sm2, :sm3, :sm4, :med
+  attributes :profile_id, :user_id, :first_name, :last_name, :email, :photo_code
 
   def profile_id
     object.id
@@ -19,28 +19,12 @@ class ProfileSerializer < ActiveModel::Serializer
     object.user.email
   end
 
-  def small_photo_url
-    object.photo.try{|photo| photo.url(:sm1)} || '/assets/default-user-sm1.gif'
-  end
-
-  def sm1
-    object.photo.try{|photo| photo.url(:sm1)} || '/assets/default-user-sm1.gif'
-  end
-
-  def sm2
-    object.photo.try{|photo| photo.url(:sm2)} || '/assets/default-user-sm2.gif'
-  end
-
-  def sm3
-    object.photo.try{|photo| photo.url(:sm3)} || '/assets/default-user-sm3.gif'
-  end
-
-  def sm4
-    object.photo.try{|photo| photo.url(:sm4)} || '/assets/default-user-sm4.gif'
-  end
-
-  def med
-    object.photo.try{|photo| photo.url(:med)} || '/assets/default-user-med.gif'
+  def photo_code
+    if object.photo_file_name
+      object.user.code
+    else
+      'default-user'
+    end
   end
 
 end

@@ -695,7 +695,8 @@ ce2_directives.directive('ceProfilePhotoForm', ->
         content = el.contentDocument.body.innerText
         if content
           console.log "ceProfilePhotoForm: add this data to scope: #{content}" if debug
-          $scope.user.sm1 = angular.fromJson(content).sm1
+          $scope.user.photo_code = $scope.user.code
+          $scope.user.photo_code_updated = Math.random()
           # find and clear the file input
           inputs = angular.element(profile_photo_form).find('input')
           input for input in inputs when input.type == 'file'

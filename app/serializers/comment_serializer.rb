@@ -2,7 +2,7 @@ class CommentSerializer < ActiveModel::Serializer
   self.root = false
 
   attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :purpose,
-             :version, :ratings_cache, :my_rating, :number_of_votes, :sm1, :sm2, :sm3, :sm4, :sm5,
+             :version, :ratings_cache, :my_rating, :number_of_votes, :photo_code,
              :editable_by_user, :name, :code, :published, :status,
              :replies, :reply_to_targets, :bookmark
              #:reply_comments, :reply_to_comments
@@ -56,24 +56,12 @@ class CommentSerializer < ActiveModel::Serializer
     end
   end
 
-  def sm1
-    object.author.profile.try{|profile| profile.photo.url(:sm1)}
-  end
-
-  def sm2
-    object.author.profile.try{|profile| profile.photo.url(:sm2)}
-  end
-
-  def sm3
-    object.author.profile.try{|profile| profile.photo.url(:sm3)}
-  end
-
-  def sm4
-    object.author.profile.try{|profile| profile.photo.url(:sm4)}
-  end
-
-  def sm5
-    object.author.profile.try{|profile| profile.photo.url(:sm5)}
+  def photo_code
+    if object.author.profile && object.author.profile.photo_file_name
+      object.author.code
+    else
+      'default-user'
+    end
   end
 
   def editable_by_user
