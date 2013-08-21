@@ -218,7 +218,7 @@ module Modules
         end
         # either reply or mention match for immediate_me or immediate_all - so send now
         #Rails.logger.debug "Email post to #{request.user.email}"
-        ConversationMailer.delay.immediate_notification(request.user, self, "mcode", "host")
+        ConversationMailer.delay.immediate_notification(request.user, self, "mcode")
       end
     end
 

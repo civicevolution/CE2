@@ -194,7 +194,7 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
         requests.each do |request|
           Rails.logger.debug "Email daily report to #{request.user.email}"
           ConversationMailer.delay.
-              periodic_report(request.user, conversation, summary_comments, conversation_comments, call_to_action_comment, report_time, "mcode", "host")
+              periodic_report(request.user, conversation, summary_comments, conversation_comments, call_to_action_comment, report_time, "mcode")
         end
       end # comments.size > 0
     end # request.size > 0

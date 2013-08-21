@@ -3,8 +3,16 @@ class ConversationMailer < ActionMailer::Base
   self.default :from => "CivicEvolution <support@civicevolution.org>",
                :reply_to => "support@civicevolution.org"
 
+  def host
+    if Rails.env.development?
+      "http://app.civicevolution.dev:8001"
+    else
+      "http://app.civicevolution.org"
+    end
+  end
 
-  def publish_notification_curator( recip, conversation, mcode ='', host = '' )
+
+  def publish_notification_curator( recip, conversation, mcode ='' )
     @recip=recip
     @conversation = conversation
     @mcode=mcode
@@ -15,7 +23,7 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def publish_notification_admin( curator, conversation, mcode ='', host = '' )
+  def publish_notification_admin( curator, conversation, mcode ='' )
     @curator=curator
     @conversation = conversation
     @mcode=mcode
@@ -26,7 +34,7 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def immediate_notification(recip, post, mcode, host)
+  def immediate_notification(recip, post, mcode)
     @recip=recip
     @conversation = post.conversation
     @post = post
@@ -48,7 +56,7 @@ class ConversationMailer < ActionMailer::Base
   end
 
 
-  def periodic_report(recip, conversation, summary_comments, conversation_comments, call_to_action_comment, report_time, mcode, host)
+  def periodic_report(recip, conversation, summary_comments, conversation_comments, call_to_action_comment, report_time, mcode)
     @recip=recip
     @conversation = conversation
     @summary_comments = summary_comments
@@ -62,7 +70,7 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def guest_post_accepted(recip, conversation, post, mcode ='', host = '' )
+  def guest_post_accepted(recip, conversation, post, mcode ='' )
     @recip = recip
     @conversation = conversation
     @post = post
@@ -74,7 +82,7 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def guest_post_declined(recip, conversation, post, mcode ='', host = '' )
+  def guest_post_declined(recip, conversation, post, mcode ='' )
     @recip = recip
     @conversation = conversation
     @post = post
@@ -86,7 +94,7 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def comment_accepted(recip, conversation, post, mcode ='', host = '' )
+  def comment_accepted(recip, conversation, post, mcode ='' )
     @recip = recip
     @conversation = conversation
     @post = post
@@ -98,7 +106,7 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def comment_declined(recip, conversation, post, mcode ='', host = '' )
+  def comment_declined(recip, conversation, post, mcode ='' )
     @recip = recip
     @conversation = conversation
     @post = post
@@ -110,13 +118,13 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def send_invite(sender, recip_first, recip_last, recip_email, message, conversation, code , host = '' )
+  def send_invite(sender, recip_first, recip_last, recip_email, message, conversation, code )
     @sender = sender
     @recip_first = recip_first
     @message = message
     @conversation = conversation
-    @invite_href = "http://app.civicevolution.dev/invites/#{code}/#{@conversation.munged_title}"
     @host = host
+    @invite_href = "#{@host}/invites/#{code}/#{@conversation.munged_title}"
 
     mail(:to => "#{recip_first} #{recip_last} <#{recip_email}>",
          :from => "#{sender.first_name} #{sender.last_name} <#{sender.email}>",

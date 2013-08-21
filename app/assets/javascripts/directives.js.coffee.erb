@@ -1044,7 +1044,7 @@ ce2_directives.directive('ceInvitePanel', ->
     ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceInvitePanel'
       $scope.invite =
-        href: "#{location.href}?code=secret"
+        href: location.href.replace(/#\/conversation\/[^\/]*/, 'invites/secret-code')
         my_email: $scope.$root.user.email
         my_first_name: $scope.$root.user.first_name
         my_last_name: $scope.$root.user.last_name
