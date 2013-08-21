@@ -1,3 +1,3 @@
 class Unsubscribe < ActiveRecord::Base
-  attr_accessible :email
+  attr_accessible :email, :subject
 end

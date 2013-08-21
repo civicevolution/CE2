@@ -57,6 +57,7 @@ Ce2::Application.configure do
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   #config.assets.compile = false
 
+  UNSUBSCRIBE_HOST = "http://app.civicevolution.dev:8001"
 
   RES_BASE='civic_dev'
 end

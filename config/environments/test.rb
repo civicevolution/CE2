@@ -38,6 +38,8 @@ Ce2::Application.configure do
   # ActionMailer Config
   config.action_mailer.default_url_options = { :host => 'civicevolution.org' }
 
+  UNSUBSCRIBE_HOST = "http://app.civicevolution.dev:8001"
+
   RES_BASE='civic_dev'
 
 end
