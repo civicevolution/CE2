@@ -411,10 +411,15 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
 
     $scope.name = 'ceConversation'
     # the data was resolved and attached to scope in the state definition
-
+    
     $timeout ->
       if $scope.conversation.role == 'conversation_admin' && !$scope.conversation.published
         $scope.conversation_wizard_mode = true
+      ConversationData.load_stats($scope.conversation.code).then(
+        (response)->
+          for key of response.data
+            $scope.conversation[key] = response.data[key]
+      )
     , 1000
 
 

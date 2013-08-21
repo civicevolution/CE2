@@ -1397,23 +1397,34 @@ ce2_directives.directive('ceReviewPanel', ->
         $scope.flagged_comments = response.data
 
       $scope.$on 'delete-pending-comment', (event, post) ->
-        console.log "delete pending comment with id: #{post.id}"
-        for comment, index in event.currentScope.pending_comments
+        #console.log "delete pending comment with id: #{post.id}"
+        escope = event.currentScope
+        for comment, index in escope.pending_comments
           if comment.id == post.id
-            return event.currentScope.pending_comments.splice(index, 1)
+            escope.pending_comments.splice(index, 1)
+            return escope.update_review_items_count()
 
       $scope.$on 'delete-guest-post', (event, post) ->
-        console.log "delete guest post with id: #{post.id}"
-        for guest_post, index in event.currentScope.guest_posts
+        #console.log "delete guest post with id: #{post.id}"
+        escope = event.currentScope
+        for guest_post, index in escope.guest_posts
           if guest_post.id == post.id
-            return event.currentScope.guest_posts.splice(index, 1)
+            escope.guest_posts.splice(index, 1)
+            return escope.update_review_items_count()
 
       $scope.$on 'delete-comment-flag', (event, post) ->
-        console.log "delete comment flag with id: #{post.flag_id}"
-        for flag, index in event.currentScope.flagged_comments
+        #console.log "delete comment flag with id: #{post.flag_id}"
+        escope = event.currentScope
+        for flag, index in escope.flagged_comments
           if flag.flag_id == post.flag_id
-            return event.currentScope.flagged_comments.splice(index, 1)
+            escope.flagged_comments.splice(index, 1)
+            return escope.update_review_items_count()
 
+      $scope.update_review_items_count = ->
+        $scope.conversation.review_items_count =
+          $scope.pending_comments.length +
+          $scope.guest_posts.length +
+          $scope.flagged_comments.length
   ]
 )
 

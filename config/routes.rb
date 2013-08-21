@@ -33,6 +33,7 @@ Ce2::Application.routes.draw do
         get 'participants_roles', on: :member
         get 'invited_guests', on: :member
         post 'update_role', on: :member
+        get 'stats', on: :member
         resources :comments, shallow: true
       end
     end

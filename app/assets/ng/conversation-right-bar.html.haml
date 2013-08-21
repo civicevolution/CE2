@@ -39,3 +39,4 @@
         %a(ng-click="open_panel('participants')" ng-class="{selected: active_link == 'participants'}") Participants
       %li#conversation-review-link(ng-if="conversation.can('approve_posts')")
         %a(ng-click="open_panel('review')" ng-class="{selected: active_link == 'review'}") Review comments
+        %span.badge.badge-important {{conversation.review_items_count}}

@@ -21,6 +21,8 @@ class Conversation < ActiveRecord::Base
 
   has_many :flagged_items, class_name: 'FlaggedItem'
 
+  has_many :guest_post_items, class_name: 'GuestPost'
+
   has_many :invites, -> {includes :sender}
 
   has_many :roles, -> {includes :users}, class_name: 'Role', primary_key: :id, foreign_key: :resource_id
@@ -206,7 +208,7 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
 
   def guest_posts
     # get the guest_posts for this conversation
-    posts = GuestPost.where(conversation_id: self.id)
+    posts = self.guest_post_items
     user_ids = posts.map{|p| p.user_id}.compact.uniq
     users = User.where(id: user_ids).select('id, email, first_name, last_name, name, confirmed_at, code')
 
@@ -267,6 +269,13 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
 
     user.add_role new_role, self
 
+  end
+
+  def stats
+    review_items_count = flagged_items.size +
+      pending_comments.size +
+      guest_post_items.size
+    {review_items_count: review_items_count}
   end
 
 

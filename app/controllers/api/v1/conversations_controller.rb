@@ -132,6 +132,13 @@ module Api
         render json: 'ok'
       end
 
+      def stats
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :show_participants, conversation
+        stats = conversation.stats
+        respond_with stats
+      end
+
     end
 
   end

@@ -189,6 +189,8 @@ services.factory "ConversationData", ["$http",
     update_role: (conversation_code, user_code, role) ->
       $http.post("/api/conversations/#{conversation_code}/update_role.json", {user_code: user_code, role: role} )
 
+    load_stats: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/stats.json")
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
