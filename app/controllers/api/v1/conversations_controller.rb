@@ -125,6 +125,13 @@ module Api
         respond_with invited_guests, each_serializer: InvitedGuestSerializer
       end
 
+      def update_role
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :update_role, conversation
+        conversation.update_role( params[:user_code], params[:role] )
+        render json: 'ok'
+      end
+
     end
 
   end

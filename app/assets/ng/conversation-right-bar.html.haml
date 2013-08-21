@@ -26,16 +26,16 @@
         %a(ng-click="open_panel('download')" ng-class="{selected: active_link == 'download'}") Download
 
 
-    %ul(ng-if="conversation.role == 'conversation_admin'")
+    %ul(ng-if="conversation.can('approve_posts')")
       %li.label Curator settings
 
-      %li#conversation-tags-link
+      %li#conversation-tags-link(ng-if="conversation.can('tags')")
         %a(ng-click="open_panel('tags')" ng-class="{selected: active_link == 'tags'}") Tags
-      %li#conversation-privacy-link
+      %li#conversation-privacy-link(ng-if="conversation.can('privacy')")
         %a(ng-click="open_panel('privacy')" ng-class="{selected: active_link == 'privacy'}") Privacy settings
-      %li#conversation-schedule-link
+      %li#conversation-schedule-link(ng-if="conversation.can('schedule')")
         %a(ng-click="open_panel('schedule')" ng-class="{selected: active_link == 'schedule'}") Schedule
-      %li#conversation-participants-link
+      %li#conversation-participants-link(ng-if="conversation.can('update_role')")
         %a(ng-click="open_panel('participants')" ng-class="{selected: active_link == 'participants'}") Participants
-      %li#conversation-review-link
+      %li#conversation-review-link(ng-if="conversation.can('approve_posts')")
         %a(ng-click="open_panel('review')" ng-class="{selected: active_link == 'review'}") Review comments

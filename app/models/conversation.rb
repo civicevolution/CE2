@@ -251,10 +251,23 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
             "#{user.first_name} #{user.last_name}[#{user.name_count}]"
           end
 
-        participants_roles.push( {name: name, role: role.name} )
+        participants_roles.push( {name: name, role: role.name, code: user.code} )
       end
     end
-    participants_roles
+    participants_roles.sort{|a,b| a[:name] <=> b[:name]}
   end
+
+  def update_role( user_code, new_role)
+    user = User.find_by(code: user_code)
+    #Rails.logger.debug "Update #{user.name} to #{new_role}"
+
+    user.roles.where(resource_id: self.id, resource_type: self.class.to_s).each do |role|
+      user.remove_role role.name, self
+    end
+
+    user.add_role new_role, self
+
+  end
+
 
 end

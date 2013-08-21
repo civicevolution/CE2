@@ -1048,10 +1048,6 @@ ce2_directives.directive('ceInvitePanel', ->
         my_email: $scope.$root.user.email
         my_first_name: $scope.$root.user.first_name
         my_last_name: $scope.$root.user.last_name
-        first_name: ''
-        last_name: 'Sullivan'
-        email: 'brian@civicevolution.org'
-        message: "My personal message @ #{new Date()}"
 
       ConversationData.invited_guests($scope.conversation.code).then (response) ->
         $scope.invited_guests = response.data
@@ -1346,9 +1342,35 @@ ce2_directives.directive('ceParticipantsPanel', ->
     "<%= path_to_asset "panel/participants.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope",
-    ($scope) ->
+  controller: [ "$scope", "ConversationData", "$dialog",
+    ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceParticipantsPanel'
+
+      $scope.conversation.roles = [
+        {value: 'conversation_admin', key: 'Conversation admin'},
+        {value: 'curator', key: 'Conversation curator'},
+        {value: 'trusted_participant', key: 'Trusted participant'},
+        {value: 'participant', key: 'Participant'},
+        {value: 'probationary_participant', key: 'Probationary participant'}
+      ]
+
+      ConversationData.participants_roles($scope.conversation.code).then (response) ->
+        $scope.participants_roles = response.data
+
+      $scope.update_role = ->
+        scope = angular.element(event.srcElement).scope()
+        console.log "Update the role for #{scope.participant.name} with code: #{scope.participant.code} to #{scope.participant.role}"
+        ConversationData.update_role(scope.conversation.code, scope.participant.code, scope.participant.role).then(
+          (response)->
+            console.log "update_role to #{scope.participant.role} was successful"
+        ,
+          (reason) ->
+            console.log "update_role to #{scope.participant.role} failed"
+            title = 'Server error'
+            msg = reason.data.error
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
+        )
   ]
 )
 

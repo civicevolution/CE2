@@ -1,3 +1,18 @@
-%div#participants-panel
+%div.participants-panel
 
-  %h3 Sorry, participants is under construction
+  %table.participants(ng-class="show_new_invites")
+    %tr
+      %td(colspan="3")
+        %h3 Current participants
+    %tr
+      %th Name
+      %th Role
+
+    %tr(ng-repeat="participant in participants_roles")
+      %td {{participant.name}}
+      %td(ng-switch="participant.code != user.code" )
+        %select(ng-switch-when="true" ng-model="participant.role" ng-options="o.value as o.key for o in conversation.roles" ng-change="update_role()")
+        %span(ng-switch-default) {{participant.role}}
+    %tr(ng-show="participants.length == 0")
+      %td(colspan="3")
+        No current participants
