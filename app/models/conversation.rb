@@ -212,9 +212,13 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     user_ids = posts.map{|p| p.user_id}.compact.uniq
     users = User.where(id: user_ids).select('id, email, first_name, last_name, name, confirmed_at, code')
 
+    emails = (posts.map{|p| p.email} + users.map{|u| u.email}).compact.uniq
+    invites = Invite.where(email: emails).select('email, sender_user_id, created_at')
+
     posts.each do |post|
       if post.user_id
-        user = users.detect{|u| u.id = post.user_id}
+        #Rails.logger.debug "post.user_id: #{post.user_id}"
+        user = users.detect{|u| u.id == post.user_id}
         post.email = user.email
         post.first_name = user.first_name
         post.last_name = user.last_name
@@ -228,6 +232,11 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
         post.member_status = 'Unknown guest'
         post.code = 'default-user'
       end
+      invite = invites.detect{|i| i.email == post.email}
+      if invite
+        post.invited_at = invite.created_at
+      end
+
     end
 
     posts.sort{|a,b| a.id <=> b.id}

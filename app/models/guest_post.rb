@@ -1,11 +1,13 @@
 class GuestPost < ActiveRecord::Base
 
-  attr_accessor :member_status, :code, :accept_join
+  attr_accessor :member_status, :code, :accept_join, :invited_at
 
   attr_accessible :post_type, :user_id, :first_name, :last_name, :email, :conversation_id, :text,
                   :purpose, :reply_to_id, :reply_to_version, :request_to_join
 
-  #validates :user_id, :presence => true, unless: Proc.new { |c| c.email || c.first_name || c.last_name }
+  before_validation :set_user_info_if_user_id_present
+
+  validate :email_is_not_already_registered, unless: Proc.new { |c| c.user_id }
   validates :email, presence: { message: "Must provide email address"}, unless: Proc.new { |c| c.user_id }
   validates :first_name, presence: { message: "Must provide first name"}, unless: Proc.new { |c| c.user_id }
   validates :last_name, presence: { message: "Must provide last name"}, unless: Proc.new { |c| c.user_id }
@@ -14,7 +16,30 @@ class GuestPost < ActiveRecord::Base
   belongs_to :author, :class_name => 'User', :foreign_key => 'user_id'
   belongs_to :conversation
 
-  def accept
+  after_create :send_guest_confirmation_email
+
+  def send_guest_confirmation_email
+    # creates a record and sends an email with a code to the record
+    GuestConfirmation.create email: self.email, first_name: self.first_name, last_name: self.last_name,
+                             conversation_id: self.conversation_id
+  end
+
+  def set_user_info_if_user_id_present
+    if self.user_id
+      user = User.find(self.user_id)
+      self.email = user.email
+      self.first_name = user.first_name
+      self.last_name = user.last_name
+    end
+  end
+
+  def email_is_not_already_registered
+    if User.exists?(email: self.email.downcase)
+      self.errors[:email] << 'Email is already registered, Please sign in'
+    end
+  end
+
+  def accept(conversation_admin)
     # Create a new guest post log record
     # is user confirmed yet
     # Create a new comment based on the guest post
@@ -39,20 +64,27 @@ class GuestPost < ActiveRecord::Base
     log.comment_id = comment.id
     review_details = { comment_action: 'accepted'}
 
-
+    join_request = ''
     # check/create role if the member requested to join the
     if accept_join == "true"
-      review_details[:join_request] = 'accepted'
+      join_request = review_details[:join_request] = 'accepted'
       # if the user is confirmed make them a conversation participant, otherwise record an invite for the user
       if !author.confirmed_at.nil?
-        role = Role.first_or_create( user_id: author.id, resource_type: 'Conversation', resource_id: self.conversation.id ) do |role|
-          role.name =  if self.conversation.privacy["screen"] == "true" then 'probationary_participant' else 'participant' end
-        end
+        role_name = if self.conversation.privacy["screen"] == "true" then 'probationary_participant' else 'participant' end
+        author.add_role role_name, self.conversation
       else
-        Rails.logger.debug "XXXXXXXXXXX Record an invite for this author"
+        Rails.logger.debug "XXXXXXXXXXX Record an invite for this author, but don't send an email to unconfirmed user"
+
+        invite = Invite.create(sender_user_id: conversation_admin.id,
+                               first_name: self.first_name,
+                               last_name: self.last_name,
+                               email: self.email,
+                               conversation_id: self.conversation.id,
+                               suppress_invite_email: true
+        )
       end
     elsif accept_join == "false"
-      review_details[:join_request] = 'declined'
+      join_request = review_details[:join_request] = 'declined'
     end
 
     log.review_details = review_details
@@ -61,12 +93,12 @@ class GuestPost < ActiveRecord::Base
 
     # send email notification to the author if they are confirmed
     if !author.confirmed_at.nil?
-      ConversationMailer.delay.guest_post_accepted(author, self.conversation, comment)
+      ConversationMailer.delay.guest_post_accepted(author, self.conversation, comment, join_request)
     end
   end
 
 
-  def decline
+  def decline(conversation_admin)
     # Create a new guest post log record
     # is user confirmed yet
     # If user is a confirmed member
@@ -85,20 +117,27 @@ class GuestPost < ActiveRecord::Base
 
     review_details = { comment_action: 'declined'}
 
-
+    join_request = ''
     # check/create role if the member requested to join the
     if accept_join == "true"
-      review_details[:join_request] = 'accepted'
+      join_request = review_details[:join_request] = 'accepted'
       # if the user is confirmed make them a conversation participant, otherwise record an invite for the user
       if !author.confirmed_at.nil?
-        role = Role.first_or_create( user_id: author.id, resource_type: 'Conversation', resource_id: self.conversation.id ) do |role|
-          role.name =  if self.conversation.privacy["screen"] == "true" then 'probationary_participant' else 'participant' end
-        end
+        role_name = if self.conversation.privacy["screen"] == "true" then 'probationary_participant' else 'participant' end
+        author.add_role role_name, self.conversation
       else
-        Rails.logger.debug "XXXXXXXXXXX Record an invite for this author"
+        Rails.logger.debug "XXXXXXXXXXX Record an invite for this author, but don't send an email to unconfirmed user"
+
+        invite = Invite.create(sender_user_id: conversation_admin.id,
+                               first_name: self.first_name,
+                               last_name: self.last_name,
+                               email: self.email,
+                               conversation_id: self.conversation.id,
+                               suppress_invite_email: true
+        )
       end
     elsif accept_join == "false"
-      review_details[:join_request] = 'declined'
+      join_request = review_details[:join_request] = 'declined'
     end
 
     log.review_details = review_details
@@ -107,7 +146,7 @@ class GuestPost < ActiveRecord::Base
 
     # send email notification to the author if they are confirmed
     if !author.confirmed_at.nil?
-      ConversationMailer.delay.guest_post_declined(author, self.conversation, log)
+      ConversationMailer.delay.guest_post_declined(author, self.conversation, log, join_request)
     end
   end
 

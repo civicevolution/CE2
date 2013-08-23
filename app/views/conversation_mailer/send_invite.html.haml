@@ -1,0 +1,16 @@
+%div
+  %p Hello #{@recip_first},
+  %p I'm hoping you can join me in a conversation called "#{@conversation.title}"
+  - if @message
+    = @message
+
+  %p Just click this link and you can get started right away:
+
+  %p= @invite_href
+
+  %p If you have any questions about this, you can email me directly at #{@sender.email}
+
+  %p I hope you will join us soon,
+
+  %p= @sender.first_name
+

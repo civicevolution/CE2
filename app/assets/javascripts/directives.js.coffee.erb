@@ -452,8 +452,9 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         data.dialog.open()
 
       $scope.clear_form = ->
-        console.log "ceCommentForm:clear"
-        $scope.newComment = { }
+        #console.log "ceCommentForm:clear"
+        for key of $scope.newComment
+          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
 
       $scope.cancel_edit = ->
         #console.log "cancel the comment edit"
@@ -1080,6 +1081,13 @@ ce2_directives.directive('ceInvitePanel', ->
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
             $dialog.messageBox(title, msg, btns).open()
           else
+            for key of reason.data.errors
+              errors = (msg for msg in reason.data.errors[key])
+            title = 'Invite was not sent'
+            msg = errors.join(' & ')
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
+
             $scope.error_message = reason.data.error
         )
   ]
@@ -1410,7 +1418,13 @@ ce2_directives.directive('ceReviewPanel', ->
         for guest_post, index in escope.guest_posts
           if guest_post.id == post.id
             escope.guest_posts.splice(index, 1)
-            return escope.update_review_items_count()
+            escope.update_review_items_count()
+            break
+
+        # hide the join accept/decline for this email in any other open guest posts
+        for guest_post in escope.guest_posts
+          if guest_post.email == post.email
+            guest_post.invited_at = true
 
       $scope.$on 'delete-comment-flag', (event, post) ->
         #console.log "delete comment flag with id: #{post.flag_id}"

@@ -90,7 +90,7 @@ services.factory "ConversationData", ["$http",
               when "TitleComment" then title_comment = comment
               when "CallToActionComment" then call_to_action_comment = comment
             authors[comment.name] = comment.code
-          authors = ( {name: name, photo_code: authors[name]} for name of authors)
+          authors = ( {name: name, photo_code: authors[name]} for name of authors when name != 'Unconfirmed_User')
 
           #console.log "conversation_id: #{conversation_id}"
           # extract and setup some data for the directive controller

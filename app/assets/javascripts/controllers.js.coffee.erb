@@ -415,13 +415,14 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     $timeout ->
       if $scope.conversation.role == 'conversation_admin' && !$scope.conversation.published
         $scope.conversation_wizard_mode = true
-      ConversationData.load_stats($scope.conversation.code).then(
-        (response)->
-          for key of response.data
-            $scope.conversation[key] = response.data[key]
-      )
-    , 1000
 
+      if $scope.conversation.can('show_participants')
+        ConversationData.load_stats($scope.conversation.code).then(
+          (response)->
+            for key of response.data
+              $scope.conversation[key] = response.data[key]
+          )
+    , 1000
 
     $scope.show_comment_form = (type, in_reply_to_id = null, in_reply_to_version = null) ->
       if conversation.privacy.unknown_users=='false' && !conversation.can('post_prescreen')
@@ -433,7 +434,9 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
 
       console.log "show_comment_form type: #{type}, in_reply_to_id: #{in_reply_to_id}"
       # clear new comment
-      $scope.newComment = { conversation_code: $scope.conversation.code }
+      for key of $scope.newComment
+        delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
+      $scope.newComment.conversation_code = $scope.conversation.code
       if type == 'summary'
         console.log "#### Set the type for summary"
         $scope.newComment.type = 'SummaryComment'
@@ -495,8 +498,8 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       angular.element( document.getElementById('reply-control')).addClass('open show-preview')
 
     $scope.$on 'clear-edit', (event) ->
-      #console.log "clear-edit"
-      $scope.newComment = { }
+      for key of $scope.newComment
+        delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).removeClass('open')
 
@@ -512,8 +515,8 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
         angular.element( document.getElementById('reply-control')).addClass('open')
 
     $scope.$on 'cancel-edit', (event) ->
-      #console.log "cancel-edit"
-      $scope.newComment = { }
+      for key of $scope.newComment
+        delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
       $timeout -> $scope.$root.editor.refreshPreview()
       angular.element( document.getElementById('reply-control')).removeClass('open')
 

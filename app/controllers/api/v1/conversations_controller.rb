@@ -31,6 +31,7 @@ module Api
         authorize! :create, Conversation
         # create a new conversation with defaults from civicevolution.yml
         conversation = Conversation.create( user_id: current_user.id )
+        current_user.add_role :conversation_admin, conversation
         respond_with conversation
       end
 

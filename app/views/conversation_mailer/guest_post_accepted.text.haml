@@ -1,15 +1,25 @@
-:plain
-  Your comment to "#{@conversation.title}" has just been accepted
+- if @join_request == "accepted"
+  :plain
+    Your comment and request to join "#{@conversation.title}" have just been accepted
 
-  #{@post.text}
+    #{@post.text}
 
-  You can visit the conversation at #{@host}/#/conversation/#{@conversation.code}/#{@conversation.munged_title}
+- elsif @join_request == "declined"
+  :plain
+    Your comment to "#{@conversation.title}" has just been accepted, but your request to join the conversation has been declined
 
-  You can adjust your notification settings for this proposal at ...
-  Or you can completely unsubscribe from CivicEvolution at ...
--# #{unsubscribe_url(:host=>@host, :_mlc => @mcode)}
--# #{notification_settings_form_url(:host=>@host, :team_id => @team.id, :_mlc => @mcode)}
-  ~''
+    #{@post.text}
+
+- else
+  :plain
+    Your comment to "#{@conversation.title}" has just been accepted
+
+    #{@post.text}
+
+~''
+~''
+You can visit the conversation at #{@host}/#/conversation/#{@conversation.code}/#{@conversation.munged_title}
+
 
 
 

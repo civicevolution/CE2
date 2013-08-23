@@ -11,7 +11,7 @@
     .arrow
     %div.comment-body(ng-bind-html-unsafe="converter.makeHtml('(' + post.id + ') ' + post.text)")
 
-  %div.invite(ng-if="post.request_to_join")
+  %div.invite(ng-if="post.request_to_join && !post.invited_at" ng-animate="'custom'")
     %span.warn {{must_select_join_radio}}
     %label.radio
       %input(type="radio" name="{{post.id}}_accept_join" value="true" ng-model="post.accept_join")

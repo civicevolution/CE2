@@ -70,10 +70,11 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def guest_post_accepted(recip, conversation, post, mcode ='' )
+  def guest_post_accepted(recip, conversation, post, join_request=false, mcode ='' )
     @recip = recip
     @conversation = conversation
     @post = post
+    @join_request = join_request
     @mcode = mcode
     @host = host
 
@@ -82,10 +83,11 @@ class ConversationMailer < ActionMailer::Base
     )
   end
 
-  def guest_post_declined(recip, conversation, post, mcode ='' )
+  def guest_post_declined(recip, conversation, post, join_request=false, mcode ='' )
     @recip = recip
     @conversation = conversation
     @post = post
+    @join_request = join_request
     @mcode = mcode
     @host = host
 
@@ -129,6 +131,16 @@ class ConversationMailer < ActionMailer::Base
     mail(:to => "#{recip_first} #{recip_last} <#{recip_email}>",
          :from => "#{sender.first_name} #{sender.last_name} <#{sender.email}>",
          :subject => "Please join our conversation \"#{conversation.title}"
+    )
+  end
+
+  def send_guest_confirmation( recip_first, recip_last, recip_email, code )
+    @recip_first = recip_first
+    @host = host
+    @confirmation_href = "#{@host}/guest_confirmation/#{code}"
+
+    mail(:to => "#{recip_first} #{recip_last} <#{recip_email}>",
+         :subject => "Please confirm your recent guest comment at CivicEvolution"
     )
   end
 

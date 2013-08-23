@@ -5,12 +5,14 @@ module Api
 
       def index
         if params[:ids]
-          respond_with Comment.includes(:author).where(id: params[:ids].scan(/\d+/) )
+          comments = Comment.includes(:author).where(id: params[:ids].scan(/\d+/) )
+          authorize! :show, comments[0].conversation
+          respond_with comments
         else
-          respond_with Comment.includes(:author).all
+          comment = Comment.includes(:author).all
+          authorize! :show, comment.conversation
+          respond_with comment
         end
-
-        #Conversation.first.summary_comments(:includes=> :author)
       end
 
       def show

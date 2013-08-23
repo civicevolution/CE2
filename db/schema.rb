@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130821222940) do
+ActiveRecord::Schema.define(version: 20130823181431) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -133,6 +133,18 @@ ActiveRecord::Schema.define(version: 20130821222940) do
     t.datetime "updated_at"
   end
 
+  create_table "guest_confirmations", force: true do |t|
+    t.string   "email"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "code"
+    t.integer  "conversation_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "guest_confirmations", ["code"], name: "index_guest_confirmations_on_code", unique: true, using: :btree
+
   create_table "guest_posts", force: true do |t|
     t.string   "post_type"
     t.integer  "user_id"
@@ -187,6 +199,15 @@ ActiveRecord::Schema.define(version: 20130821222940) do
   end
 
   add_index "log_flagged_items", ["target_id", "target_type"], name: "index_log_flagged_items_on_target_id_and_target_type", using: :btree
+
+  create_table "log_guest_confirmations", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "conversation_id"
+    t.datetime "posted_at"
+    t.hstore   "details"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "log_guest_posts", force: true do |t|
     t.string   "post_type"

@@ -130,6 +130,9 @@ Ce2::Application.routes.draw do
   get 'invites/:invite_code/:munged_title', to: 'invites#lookup'
   post 'invites/confirmed', to: 'invites#confirmed'
 
+  get 'guest_confirmation/:guest_confirmation_code', to: 'guest_confirmations#lookup'
+  post 'guest_confirmation/confirmed', to: 'guest_confirmations#confirmed'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

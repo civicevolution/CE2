@@ -5,7 +5,7 @@
     %p.tagline Think together to Act together
 
 
-  %div.user(ng-show="user.id>0" )
+  %div.user(ng-if="user.id>0" )
     %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{user.photo_code}}/sm3/p.jpg?id={{user.photo_code_updated}}")
     %span {{user.first_name}} {{user.last_name}}
     %a.dropdown-toggle

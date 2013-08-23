@@ -1,0 +1,139 @@
+%h2
+  Welcome to CivicEvolution
+%h3 Please confirm your email and name, and then select a password
+
+%h4 Email: #{user.email}
+
+=simple_form_for( user, :url => guest_confirmation_confirmed_path, :html => { onsubmit: "return validate_form(this)", :method => :post, :class => 'form-vertical' }) do |f|
+  = f.error_notification
+
+  = f.input :email, :required => true, as: :hidden
+  = f.input :first_name, :autofocus => true, :required => true, label: 'Confirm your first name'
+  = f.input :last_name, :required => true, label: 'Confirm your last name'
+  = f.input :password, :autocomplete => "off", :required => true, label: 'Select a password (must be at least 8 characters)', input_html: { minlength: 8 }
+  %div.show_password
+    = check_box_tag(:hide_password, 1, checked: 'checked')
+    = label_tag(:hide_password, "Show password characters")
+
+  = hidden_field_tag :guest_confirmation_code, code
+
+  = display_base_errors user
+
+  - if guest_confirmation.guest_posts.size > 0
+    %h4 Guest comments
+    %p
+      These guest comments were made with your email address. We want to be sure they are yours.
+      %br
+      Please click Mine or Not mine for each comment.
+    %table
+      - guest_confirmation.guest_posts.each do |post|
+        - prefix = post.class.to_s == 'GuestPost' ? 'guest_post' : 'log_guest_post'
+        %tr
+          %td.choose{rowspan: 2}
+            %label{for: "#{prefix}_#{post.id}_m"}
+              %input{id: "#{prefix}_#{post.id}_m", name: "#{prefix}_own_#{post.id}", type: 'radio', value:"mine"}
+              %span Mine
+            %label{for: "#{prefix}_#{post.id}_n"}
+              %input{id: "#{prefix}_#{post.id}_n", name: "#{prefix}_own_#{post.id}", type: 'radio', value:"not_mine"}
+              %span Not mine
+            %input{type: "hidden", name: "#{prefix}_#{post.id}", value: "#{prefix}_own_#{post.id}"}
+            %p Please select
+          %td.title Conversation: #{post.conversation.title}
+        %tr
+          %td.text "(#{post.id}) #{post.text}"
+
+  - if guest_confirmation.invites.size > 0
+    %h4 Conversation invitations
+    %p
+      Conversation invitations have been granted to your email address.
+      %br
+      Please click Accept or Decline for each conversation
+
+    %table
+      - guest_confirmation.invites.each do |invite|
+        %tr
+          %td.choose
+            %label{for: "invite_#{invite.id}_m"}
+              %input{id: "invite_#{invite.id}_m", name: "invite_accept_#{invite.id}", type: 'radio', value:"accept"}
+              %span Accept
+            %label{for: "invite_#{invite.id}_n"}
+              %input{id: "invite_#{invite.id}_n", name: "invite_accept_#{invite.id}", type: 'radio', value:"decline"}
+              %span Decline
+            %input{type: "hidden", name: "invite_#{invite.id}", value: "invite_accept_#{invite.id}"}
+            %p Please select
+          %td.title Conversation: #{invite.conversation.title}
+
+
+
+  = f.button :submit, 'Confirm', :class => 'btn-primary'
+
+:javascript
+  //alert("hello");
+  document.getElementById("user_password").type = 'text';
+  document.getElementById("hide_password").onclick = function() {
+    if(this.checked){
+      document.getElementById("user_password").type = 'text';
+    }else{
+      document.getElementById("user_password").type = 'password';
+    }
+  }
+  function validate_form(form){
+    var form_ok = true;
+
+    $('input.required').each(
+      function(){
+        //console.log("this.value: " + this.value)
+        var min_length = Number(min_length = $(this).attr('minlength') || 1)
+        if(this.value == '' || this.value.length < min_length){
+          form_ok = false;
+          $(this).closest('div.required').addClass('error');
+        }else{
+          $(this).closest('div.required').removeClass('error');
+        }
+
+      }
+    )
+
+    for(var i=0,el; (el = form.elements[i]);i++){
+      if(el.type == 'hidden'){
+        if(el.name.match(/post_\d+/) || el.name.match(/invite_\d+/)){
+          //console.log('hidden post field with name: ' + el.name + ' and value: ' + el.value)
+          if( !(form[el.value][0].checked || form[el.value][1].checked ) ){
+            form_ok = false;
+            $(el).closest('td').addClass('error');
+          }else{
+            $(el).closest('td').removeClass('error');
+          }
+        }
+      }
+    }
+    return form_ok;
+  }
+
+
+
+:scss
+  .show_password{
+    margin: -20px 0 20px 0;
+    > * { display: inline;}
+  }
+  table{
+    margin-bottom: 24px;
+    td{
+      vertical-align: top;
+      //border: 1px solid black;
+      label{ display: block; clear: both;}
+      input[type="radio"]{float: left; display: block;margin-top:2px;}
+      span{float:left; display:block; margin-left: 6px;}
+      &.choose{
+        width: 100px;
+        p{display:none;}
+        &.error{
+          border: 1px solid #b94a48;
+          p{ display: block; margin:0; color: #b94a48;}
+        }
+      }
+      &.title{font-weight: bold; }
+      &.text{padding-bottom: 24px; max-width: 500px;}
+    }
+  }

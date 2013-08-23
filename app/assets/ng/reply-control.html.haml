@@ -45,10 +45,10 @@
           -#%p
             %i comment form from directive scope id: {{$id}}
           .textarea-wrapper
-            %div#mentions.hide(ng-if="true")
+            %div#mentions.hide
               %ul
                 %li(ng-repeat="participant in conversation.participants" ng-click="select_mention()")
-                  %img(src="http://assets.civicevolution.org/users/civic_dev/{{participant.photo_code}}/sm1/p.jpg")
+                  %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{participant.photo_code}}/sm1/p.jpg")
                   %span.user_name {{participant.name}}
 
             .form
