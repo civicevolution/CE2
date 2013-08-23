@@ -1661,7 +1661,7 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
 
       $scope.approve_guest_post = ->
         console.log "approve_guest_post for id: #{$scope.post.id}"
-        if $scope.post.request_to_join
+        if $scope.post.request_to_join && !$scope.post.invited_at
           #console.log "check that accept/decline is selected"
           if not $scope.post.accept_join
             $scope.must_select_join_radio = "You must Accept or Decline the request to join"

@@ -1,0 +1,7 @@
+%div
+  %h4 Your comment to "#{@conversation.title}" has just been approved
+
+  %blockquote
+    #{@post.text}
+
+  %p You can visit the conversation at #{@host}/#/conversation/#{@conversation.code}/#{@conversation.munged_title}

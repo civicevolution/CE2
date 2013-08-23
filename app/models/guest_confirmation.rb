@@ -42,7 +42,12 @@ class GuestConfirmation < ActiveRecord::Base
       user.save
 
       if user.errors.empty?
-        missing_radio = claim_posts_and_invites user, params
+        begin
+          missing_radio = claim_posts_and_invites user, params
+        rescue ActiveRecord::RecordNotFound
+          user.errors[:base] << "Your guest posts have been updated. Please re-select Mine/Not mine or Accept/Decline for each of the entries below "
+          raise ActiveRecord::Rollback
+        end
         # if any errors, add them to users object and return to the form
         if missing_radio
           Rails.logger.debug "Add missing radio error to user"
