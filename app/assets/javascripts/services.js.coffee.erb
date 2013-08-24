@@ -237,6 +237,14 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
     flag_comment: (id, version) ->
       $http.post("/api/comments/#{id}/flag_item.json", {version: version})
 
+    autosave: (data) ->
+      console.log "autosave the comment data"
+      $http.post("/autosave.json", {data: data})
+
+    load_autosaved: (data) ->
+      console.log "load_autosaved for the comment data"
+      $http.get("/load_autosaved.json", {data: data})
+
 ]
 
 # The controllers are responsible for requesting their data and storing it to scope

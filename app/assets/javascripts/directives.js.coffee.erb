@@ -390,7 +390,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       $scope.name = 'ceCommentForm'
 
       debug = false
-
+      
       $scope.conversation.comment_purposes = [
         {value: 'experience', key: 'My experience', labels: "Unhelpful~Helpful"},
         {value: 'opinion', key: 'My opinion', labels: "Disagree~Agree"},
@@ -399,9 +399,21 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         {value: 'question', key: 'My question', labels: "Unimportant~Important"}
       ]
 
+      console.log "ceCommentForm load autosaved"
+      CommentData.load_autosaved().then(
+        (response)->
+          #console.log "CommentData.load_autosaved success"
+          for key of response.data
+            $scope.newComment[key] = response.data[key]
+          $scope.$root.$$phase || $scope.$root.$apply()
+      ,
+      (reason) ->
+        console.log "ceCommentForm.load autosaved fail"
+      )
+
       $scope.toggle_compose_window = ->
         $scope.$emit('toggle-compose-window')
-        
+
       $scope.select_comment_purpose = ->
         console.log "selected comment purpose: #{$scope.newComment.purpose}"   
         console.log "Change the guidance!!!"
@@ -536,6 +548,19 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         console.log "ceCommentForm select_mention name: #{name}"
         insertTextAtCursor(document.getElementById('reply-control').getElementsByTagName('textarea')[0],name )
         $mentions = angular.element(document.getElementById('mentions')).addClass('hide')
+
+      $scope.autosave = ->
+        console.log "Do autosave"
+        $scope.newComment.form_errors = null
+        CommentData.autosave($scope.newComment).then(
+          (response)->
+            console.log "CommentData.autosave success"
+        ,
+        (reason) ->
+          console.log "CommentData.autosave fail"
+        )
+
+
   ]
 ])
 

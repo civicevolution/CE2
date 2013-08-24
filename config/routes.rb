@@ -133,6 +133,9 @@ Ce2::Application.routes.draw do
   get 'guest_confirmation/:guest_confirmation_code', to: 'guest_confirmations#lookup'
   post 'guest_confirmation/confirmed', to: 'guest_confirmations#confirmed'
 
+  post 'autosave', to: 'api/v1/autosave#save'
+  get 'load_autosaved', to: 'api/v1/autosave#load'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

@@ -132,4 +132,10 @@
               %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Update
               %button.btn(ng-click="cancel_edit()") Cancel
 
+            %a(ng-click="autosave()")
+              Autosave
+
+            %a(ng-click="load_autosaved()")
+              Load autosaved
+
           -#%span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")
