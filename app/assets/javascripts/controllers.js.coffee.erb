@@ -230,6 +230,7 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
       $rootScope.show_add_quote_to_reply_style =
         display: "none"
       $rootScope.$$phase || $rootScope.$apply()
+      # force newComment.text to recognize the change to the textarea after inserting new text
       newComment = angular.element(textarea).scope().newComment
       newComment.text = textarea.value
 
@@ -407,7 +408,6 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     console.log "In conversation state controller at bottom"
     $scope.conversation = conversation
     $scope.$root.timestamp = conversation.current_timestamp
-    $scope.newComment = { }
 
     $scope.name = 'ceConversation'
     # the data was resolved and attached to scope in the state definition
@@ -425,109 +425,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     , 1000
 
     $scope.show_comment_form = (type, in_reply_to_id = null, in_reply_to_version = null) ->
-      if conversation.privacy.unknown_users=='false' && !conversation.can('post_prescreen')
-        title = 'Sorry'
-        msg = "Only invited conversation participants are allowed to post comments"
-        btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-        $dialog.messageBox(title, msg, btns).open()
-        return
-
-      console.log "show_comment_form type: #{type}, in_reply_to_id: #{in_reply_to_id}"
-      # clear new comment
-      for key of $scope.newComment
-        delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
-      $scope.newComment.conversation_code = $scope.conversation.code
-      if type == 'summary'
-        console.log "#### Set the type for summary"
-        $scope.newComment.type = 'SummaryComment'
-        $scope.reply_control_title = "Add summary comment"
-      else if type == 'conversation'
-        #console.log "Set the type for conversation"
-        $scope.newComment.type = 'ConversationComment'
-        $scope.reply_control_title = "Add conversation comment"
-      else if type == 'conversation-reply'
-        console.log "Set the type for converation-reply"
-        $scope.newComment.type = 'ConversationComment'
-        $scope.reply_control_title = "Reply to conversation comment"
-        $scope.newComment.in_reply_to_id = in_reply_to_id
-        $scope.newComment.in_reply_to_version = in_reply_to_version
-      else if type == 'summary-reply'
-        console.log "Set the type for summary-reply"
-        $scope.newComment.type = 'ConversationComment'
-        $scope.reply_control_title = "Reply to summary comment"
-        $scope.newComment.in_reply_to_id = in_reply_to_id
-        $scope.newComment.in_reply_to_version = in_reply_to_version
-      else if type == 'call-to-action-reply'
-        console.log "Set the type for cta-reply"
-        $scope.newComment.type = 'ConversationComment'
-        $scope.reply_control_title = "Reply to call-to-action"
-        $scope.newComment.in_reply_to_id = in_reply_to_id
-        $scope.newComment.in_reply_to_version = in_reply_to_version
-
-      $timeout -> $scope.$root.editor.refreshPreview()
-      reply_control = angular.element( document.getElementById('reply-control'))
-      reply_control.addClass('open show-preview')
-      # determine if special class for non-participant, not signed in, not confirmed
-      special_class = switch
-        when $scope.$root.user == "null"
-          $scope.newComment.join = true
-          'unknown-user'
-        when $scope.conversation.role == "none"
-          $scope.newComment.join = true
-          'non-participant-user'
-        when $scope.$root.user.confirmed != true
-          'non-confirmed-user'
-      reply_control.addClass(special_class) if special_class
-      $scope.$root.$broadcast "user-event-notification", { action: "open comment-form #{$scope.newComment.type}"}
-
-    $scope.$on 'request-edit', (event, comment) ->
-      $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
-      $scope.reply_control_title = switch $scope.newComment.type
-        when 'ConversationComment' then "Edit conversation comment"
-        when 'SummaryComment' then "Edit summary comment"
-        when 'CallToActionComment'
-          if $scope.newComment.id is 0
-            $scope.newComment.id = null
-            $scope.newComment.text = ''
-            $scope.newComment.conversation_code = $scope.conversation.code
-            $scope.$root.$broadcast "user-event-notification", { action: 'open call-to-action edit'}
-            "Add your first call-to-action"
-          else
-            "Edit call-to-action"
-      $timeout -> $scope.$root.editor.refreshPreview()
-      angular.element( document.getElementById('reply-control')).addClass('open show-preview')
-
-    $scope.$on 'clear-edit', (event) ->
-      for key of $scope.newComment
-        delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
-      $timeout -> $scope.$root.editor.refreshPreview()
-      angular.element( document.getElementById('reply-control')).removeClass('open')
-
-    $scope.$on 'conversation-comment-edit', (event) ->
-      if angular.element( document.getElementById('reply-control')).hasClass('open')
-        #console.log "Reply form is already open, don't alter newComment properties"
-        return
-      else  
-        #console.log "Open and set reply form for conversation-comment-edit"
-        $scope.newComment.type = 'ConversationComment'
-        $scope.newComment.conversation_code = $scope.conversation.code
-        $timeout -> $scope.$root.editor.refreshPreview()
-        angular.element( document.getElementById('reply-control')).addClass('open')
-
-    $scope.$on 'cancel-edit', (event) ->
-      for key of $scope.newComment
-        delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
-      $timeout -> $scope.$root.editor.refreshPreview()
-      angular.element( document.getElementById('reply-control')).removeClass('open')
-
-    $scope.$on 'toggle-compose-window', ->
-      #console.log "toggle_compose_window"
-      composer = angular.element( document.getElementById('reply-control') )
-      if composer.hasClass('open')
-        composer.removeClass('open show-preview')
-        $scope.$root.editor.refreshPreview()
-      else
-        composer.addClass('open show-preview')
+      $scope.$root.$broadcast('show-comment-form', { type: type, in_reply_to_id: in_reply_to_id, in_reply_to_version: in_reply_to_version})
 
     # Subscribe to updates for this data
     url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"

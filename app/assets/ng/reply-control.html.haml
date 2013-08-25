@@ -126,11 +126,11 @@
           %div.buttons
             %span(ng-if="newComment.id == null")
               %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Add
-              %button.btn(ng-click="cancel_edit()") Cancel
+              %button.btn(ng-click="clear_edit()") Cancel
 
             %span(ng-if="newComment.id > 0")
               %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Update
-              %button.btn(ng-click="cancel_edit()") Cancel
+              %button.btn(ng-click="clear_edit()") Cancel
 
             %a(ng-click="autosave()")
               Autosave

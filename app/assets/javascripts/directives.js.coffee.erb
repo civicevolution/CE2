@@ -269,7 +269,7 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         $scope.show_comment = !$scope.show_comment
 
       $scope.edit = (comment_type, comment_id) ->
-        $scope.$emit('request-edit', $scope.comment)
+        $scope.$root.$broadcast('request-edit', $scope.comment)
 
       $scope.view_history = (comment_id) ->
         $scope.history = CommentData.history(comment_id)
@@ -389,6 +389,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
     ($scope, CommentData, $dialog) ->
       $scope.name = 'ceCommentForm'
 
+      $scope.newComment = {}
       debug = false
       
       $scope.conversation.comment_purposes = [
@@ -399,20 +400,27 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         {value: 'question', key: 'My question', labels: "Unimportant~Important"}
       ]
 
-      console.log "ceCommentForm load autosaved"
-      CommentData.load_autosaved().then(
-        (response)->
-          #console.log "CommentData.load_autosaved success"
-          for key of response.data
-            $scope.newComment[key] = response.data[key]
-          $scope.$root.$$phase || $scope.$root.$apply()
-      ,
-      (reason) ->
-        console.log "ceCommentForm.load autosaved fail"
-      )
+      console.log "TODO: Fix this... ceCommentForm load autosaved"
+      #CommentData.load_autosaved().then(
+      #  (response)->
+      #    #console.log "CommentData.load_autosaved success"
+      #    for key of response.data
+      #      $scope.newComment[key] = response.data[key]
+      #    $scope.$root.$$phase || $scope.$root.$apply()
+      #,
+      #(reason) ->
+      #  console.log "ceCommentForm.load autosaved fail"
+      #)
 
       $scope.toggle_compose_window = ->
-        $scope.$emit('toggle-compose-window')
+        #console.log "toggle_compose_window"
+        composer = angular.element( document.getElementById('reply-control') )
+        if composer.hasClass('open')
+          composer.removeClass('open show-preview')
+          $scope.$root.editor.refreshPreview()
+        else
+          composer.addClass('open show-preview')
+
 
       $scope.select_comment_purpose = ->
         console.log "selected comment purpose: #{$scope.newComment.purpose}"   
@@ -425,9 +433,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           (response)->
             #console.log "CommentData.create_in_ror success"
             $scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
-            $scope.newComment.id = null
-            $scope.newComment.text = null
-            $scope.$emit('clear-edit')
+            $scope.clear_edit()
             if response.data.type
               $scope.$root.$broadcast "#{response.data.type}_update", {
                 action: action
@@ -468,9 +474,11 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         for key of $scope.newComment
           delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
 
-      $scope.cancel_edit = ->
-        #console.log "cancel the comment edit"
-        $scope.$emit('cancel-edit')
+      $scope.clear_edit = (event) ->
+        for key of $scope.newComment
+          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).removeClass('open')
 
       $scope.$on 'update-new-comment-text', ->
         console.log "do update-new-comment-text"
@@ -560,6 +568,95 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           console.log "CommentData.autosave fail"
         )
 
+      # functions moved here from ceConversation
+
+      $scope.$on 'show-comment-form', (event, data) ->
+        type = data.type
+        in_reply_to_id = data.in_reply_to_id
+        in_reply_to_version = data.in_reply_to_version
+
+        if $scope.conversation.privacy.unknown_users=='false' && !$scope.conversation.can('post_prescreen')
+          title = 'Sorry'
+          msg = "Only invited conversation participants are allowed to post comments"
+          btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+          $dialog.messageBox(title, msg, btns).open()
+          return
+
+        console.log "show_comment_form type: #{type}, in_reply_to_id: #{in_reply_to_id}"
+        # clear new comment
+        for key of $scope.newComment
+          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
+        $scope.newComment.conversation_code = $scope.conversation.code
+        if type == 'summary'
+          console.log "#### Set the type for summary"
+          $scope.newComment.type = 'SummaryComment'
+          $scope.reply_control_title = "Add summary comment"
+        else if type == 'conversation'
+          #console.log "Set the type for conversation"
+          $scope.newComment.type = 'ConversationComment'
+          $scope.reply_control_title = "Add conversation comment"
+        else if type == 'conversation-reply'
+          console.log "Set the type for converation-reply"
+          $scope.newComment.type = 'ConversationComment'
+          $scope.reply_control_title = "Reply to conversation comment"
+          $scope.newComment.in_reply_to_id = in_reply_to_id
+          $scope.newComment.in_reply_to_version = in_reply_to_version
+        else if type == 'summary-reply'
+          console.log "Set the type for summary-reply"
+          $scope.newComment.type = 'ConversationComment'
+          $scope.reply_control_title = "Reply to summary comment"
+          $scope.newComment.in_reply_to_id = in_reply_to_id
+          $scope.newComment.in_reply_to_version = in_reply_to_version
+        else if type == 'call-to-action-reply'
+          console.log "Set the type for cta-reply"
+          $scope.newComment.type = 'ConversationComment'
+          $scope.reply_control_title = "Reply to call-to-action"
+          $scope.newComment.in_reply_to_id = in_reply_to_id
+          $scope.newComment.in_reply_to_version = in_reply_to_version
+
+        $timeout -> $scope.$root.editor.refreshPreview()
+        reply_control = angular.element( document.getElementById('reply-control'))
+        reply_control.addClass('open show-preview')
+        # determine if special class for non-participant, not signed in, not confirmed
+        special_class = switch
+          when $scope.$root.user == "null"
+            $scope.newComment.join = true
+            'unknown-user'
+          when $scope.conversation.role == "none"
+            $scope.newComment.join = true
+            'non-participant-user'
+          when $scope.$root.user.confirmed != true
+            'non-confirmed-user'
+        reply_control.addClass(special_class) if special_class
+        $scope.$root.$broadcast "user-event-notification", { action: "open comment-form #{$scope.newComment.type}"}
+
+      $scope.$on 'request-edit', (event, comment) ->
+        $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
+        $scope.reply_control_title = switch $scope.newComment.type
+          when 'ConversationComment' then "Edit conversation comment"
+          when 'SummaryComment' then "Edit summary comment"
+          when 'CallToActionComment'
+            if $scope.newComment.id is 0
+              $scope.newComment.id = null
+              $scope.newComment.text = ''
+              $scope.newComment.conversation_code = $scope.conversation.code
+              $scope.$root.$broadcast "user-event-notification", { action: 'open call-to-action edit'}
+              "Add your first call-to-action"
+            else
+              "Edit call-to-action"
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).addClass('open show-preview')
+
+      $scope.$on 'conversation-comment-edit', (event) ->
+        if angular.element( document.getElementById('reply-control')).hasClass('open')
+          #console.log "Reply form is already open, don't alter newComment properties"
+          return
+        else
+          #console.log "Open and set reply form for conversation-comment-edit"
+          $scope.newComment.type = 'ConversationComment'
+          $scope.newComment.conversation_code = $scope.conversation.code
+          $timeout -> $scope.$root.editor.refreshPreview()
+          angular.element( document.getElementById('reply-control')).addClass('open')
 
   ]
 ])
