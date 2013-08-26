@@ -395,7 +395,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
       $scope.newComment = {}
       debug = false
-      
       $scope.conversation.comment_purposes = [
         {value: 'experience', key: 'My experience', labels: "Unhelpful~Helpful"},
         {value: 'opinion', key: 'My opinion', labels: "Disagree~Agree"},
@@ -404,89 +403,20 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         {value: 'question', key: 'My question', labels: "Unimportant~Important"}
       ]
 
-      console.log "TODO: Fix this... ceCommentForm load autosaved"
-      #CommentData.load_autosaved().then(
-      #  (response)->
-      #    #console.log "CommentData.load_autosaved success"
-      #    for key of response.data
-      #      $scope.newComment[key] = response.data[key]
-      #    $scope.$root.$$phase || $scope.$root.$apply()
-      #,
-      #(reason) ->
-      #  console.log "ceCommentForm.load autosaved fail"
-      #)
-
-      $scope.toggle_compose_window = ->
-        #console.log "toggle_compose_window"
-        composer = angular.element( document.getElementById('reply-control') )
-        if composer.hasClass('open')
-          composer.removeClass('open show-preview')
-          $scope.$root.editor.refreshPreview()
-        else
-          composer.addClass('open show-preview')
-
-
-      $scope.select_comment_purpose = ->
-        console.log "selected comment purpose: #{$scope.newComment.purpose}"   
-        console.log "Change the guidance!!!"
-
-      $scope.addComment = ->
-        $scope.newComment.form_errors = null
-        action = if $scope.newComment.id then 'update' else 'save'
-        CommentData.create_in_ror(action, $scope.newComment).then(
-          (response)->
-            #console.log "CommentData.create_in_ror success"
-            $scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
-            $scope.clear_edit()
-            if response.data.type
-              $scope.$root.$broadcast "#{response.data.type}_update", {
-                action: action
-                class: response.data.type
-                data: response.data
-                updated_at: response.data.updated_at
-                source: "#{action}Comment"
-              }
-            else
-              $timeout ->
-                response.data.user_confirmed = if $scope.user?.confirmed then "true" else "false"
-                $scope.acknowledge_guest_comment(response.data)
-        ,
-          (reason) ->
-            console.log "CommentData.create_in_ror fail"
-            $scope.newComment.form_errors = []
-
-            for field of reason.data.errors
-              for message in reason.data.errors[field]
-                $scope.newComment.form_errors.push {field: field, message: message}
-            #for error in $scope.newComment.form_errors
-            #  console.log error.message
-        )
-
-      $scope.acknowledge_guest_comment = (data) ->
-        data.dialog = $dialog.dialog(
-          templateUrl: '<%= path_to_asset "guest-post-acknowledge.html" %>'
-          resolve: {guest_post: -> data }
-          controller: ($scope, guest_post) ->
-            $scope.guest_post = guest_post
-            $scope.close = ->
-              $scope.guest_post.dialog.close()
-        )
-        data.dialog.open()
-
-      $scope.clear_form = ->
-        #console.log "ceCommentForm:clear"
-        for key of $scope.newComment
-          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
-
-      $scope.clear_edit = (event) ->
-        for key of $scope.newComment
-          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
-        $timeout -> $scope.$root.editor.refreshPreview()
-        angular.element( document.getElementById('reply-control')).removeClass('open')
-
-      $scope.$on 'update-new-comment-text', ->
-        console.log "do update-new-comment-text"
-        $scope.newComment.text = document.getElementById('wmd-input').value
+      $scope.$on 'initialize-markdown-editor', (event, obj) ->
+        editor = obj.editor
+        editor_id = obj.editor_id || 'wmd-input'
+        init_ctr = obj.init_ctr || 5
+        #console.log "initialize_markdown_editor with editor_id: #{editor_id} and init_ctr: #{init_ctr}"
+        edit_input = document.getElementById(editor_id)
+        if edit_input && editor && editor.run
+          #console.log "init_editor now"
+          editor.run()
+        else if (init_ctr -= 1 ) > 0
+          #console.log "try to init editor in 1 sec"
+          $timeout ->
+            $scope.$root.$broadcast 'initialize-markdown-editor', {editor: editor, editor_id: editor_id, init_ctr: init_ctr }
+          , 1000
 
       last_monitored_key_code_non_printable = true
       $scope.monitor_keydown = ->
@@ -508,7 +438,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           li_elements.removeClass('selected')
           switch event.keyCode
             when 38
-              #console.log "move up"
+            #console.log "move up"
               selected_index = if selected_index > 0 then selected_index -= 1 else selected_index
               li_elements.eq(selected_index).addClass('selected')
             when 39, 13
@@ -521,7 +451,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               event.preventDefault();
 
             when 40
-              #console.log "move down"
+            #console.log "move down"
               selected_index = if selected_index < li_elements.length-1 then selected_index += 1 else selected_index
               li_elements.eq(selected_index).addClass('selected')
 
@@ -561,6 +491,55 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         insertTextAtCursor(document.getElementById('reply-control').getElementsByTagName('textarea')[0],name )
         $mentions = angular.element(document.getElementById('mentions')).addClass('hide')
 
+      $scope.$on 'update-new-comment-text', ->
+        console.log "do update-new-comment-text"
+        $scope.newComment.text = document.getElementById('wmd-input').value
+
+
+
+      $scope.addComment = ->
+        $scope.newComment.form_errors = null
+        action = if $scope.newComment.id then 'update' else 'save'
+        CommentData.create_in_ror(action, $scope.newComment).then(
+          (response)->
+            #console.log "CommentData.create_in_ror success"
+            $scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
+            $scope.clear_edit()
+            if response.data.type
+              $scope.$root.$broadcast "#{response.data.type}_update", {
+                action: action
+                class: response.data.type
+                data: response.data
+                updated_at: response.data.updated_at
+                source: "#{action}Comment"
+              }
+            else
+              $timeout ->
+                response.data.user_confirmed = if $scope.user?.confirmed then "true" else "false"
+                $scope.acknowledge_guest_comment(response.data)
+        ,
+        (reason) ->
+          console.log "CommentData.create_in_ror fail"
+          $scope.newComment.form_errors = []
+
+          for field of reason.data.errors
+            for message in reason.data.errors[field]
+              $scope.newComment.form_errors.push {field: field, message: message}
+          #for error in $scope.newComment.form_errors
+          #  console.log error.message
+        )
+
+      $scope.acknowledge_guest_comment = (data) ->
+        data.dialog = $dialog.dialog(
+          templateUrl: '<%= path_to_asset "guest-post-acknowledge.html" %>'
+          resolve: {guest_post: -> data }
+          controller: ($scope, guest_post) ->
+            $scope.guest_post = guest_post
+            $scope.close = ->
+              $scope.guest_post.dialog.close()
+        )
+        data.dialog.open()
+
       $scope.autosave = ->
         console.log "Do autosave"
         $scope.newComment.form_errors = null
@@ -572,7 +551,26 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           console.log "CommentData.autosave fail"
         )
 
-      # functions moved here from ceConversation
+      console.log "TODO: Fix this... ceCommentForm load autosaved"
+      #CommentData.load_autosaved().then(
+      #  (response)->
+      #    #console.log "CommentData.load_autosaved success"
+      #    for key of response.data
+      #      $scope.newComment[key] = response.data[key]
+      #    $scope.$root.$$phase || $scope.$root.$apply()
+      #,
+      #(reason) ->
+      #  console.log "ceCommentForm.load autosaved fail"
+      #)
+
+      $scope.toggle_compose_window = ->
+        #console.log "toggle_compose_window"
+        composer = angular.element( document.getElementById('reply-control') )
+        if composer.hasClass('open')
+          composer.removeClass('open show-preview')
+          $scope.$root.editor.refreshPreview()
+        else
+          composer.addClass('open show-preview')
 
       $scope.$on 'show-comment-form', (event, data) ->
         type = data.type
@@ -673,20 +671,21 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           $timeout -> $scope.$root.editor.refreshPreview()
           angular.element( document.getElementById('reply-control')).addClass('open')
 
-      $scope.$on 'initialize-markdown-editor', (event, obj) ->
-        editor = obj.editor
-        editor_id = obj.editor_id || 'wmd-input'
-        init_ctr = obj.init_ctr || 5
-        #console.log "initialize_markdown_editor with editor_id: #{editor_id} and init_ctr: #{init_ctr}"
-        edit_input = document.getElementById(editor_id)
-        if edit_input && editor && editor.run
-          #console.log "init_editor now"
-          editor.run()
-        else if (init_ctr -= 1 ) > 0
-          #console.log "try to init editor in 1 sec"
-          $timeout ->
-            $scope.$root.$broadcast 'initialize-markdown-editor', {editor: editor, editor_id: editor_id, init_ctr: init_ctr }
-          , 1000
+      $scope.select_comment_purpose = ->
+        console.log "selected comment purpose: #{$scope.newComment.purpose}"
+        console.log "Change the guidance!!!"
+
+      $scope.clear_form = ->
+        #console.log "ceCommentForm:clear"
+        for key of $scope.newComment
+          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
+
+      $scope.clear_edit = (event) ->
+        for key of $scope.newComment
+          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
+        $timeout -> $scope.$root.editor.refreshPreview()
+        angular.element( document.getElementById('reply-control')).removeClass('open')
+
 
 
   ]
