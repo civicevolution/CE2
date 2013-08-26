@@ -1,5 +1,5 @@
 %div
-  .row-fluid.conversation#conversation
+  .row-fluid.conversation#conversation(ng-style="conversation.style")
     .span9
       %h3#conversation-title.title
         %span.actual-title(ng-click="edit_title()" ng-if="conversation.title && !conversation.edit_title")
@@ -35,7 +35,7 @@
         .row-fluid(ng-switch-default )
           .span8
             %p
-              %input.btn-primary.btn(ng-click="show_comment_form('summary')"){type: 'button', value: 'Add summary comment'}
+              %input.btn-primary.btn(ng-click="show_comment_form('new-summary-comment')"){type: 'button', value: 'Add summary comment'}
 
         .row-fluid(ng-switch-when="true")
           .span8
@@ -54,7 +54,7 @@
       .row-fluid(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
         .span8
           %p#add-conversation-comment
-            %input.btn-primary.btn(ng-click="show_comment_form('conversation')"){type: 'button', value: 'Add conversation comment'}
+            %input.btn-primary.btn(ng-click="show_comment_form('new-conversation-comment')"){type: 'button', value: 'Add conversation comment'}
 
       %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")
 

@@ -2,7 +2,7 @@ module Api
   module V1
 
     class AutosaveController < Api::BaseController
-      skip_authorization_check only: [:save, :load]
+      skip_authorization_check only: [:save, :load, :clear]
 
       def save
         (status, code_action, code) = Autosave.save(current_user.try{|user| user.id}, session[:autosave_code], params[:data])
@@ -22,6 +22,12 @@ module Api
           session.delete :autosave_code
         end
         render json: data
+      end
+
+      def clear
+        Autosave.clear(current_user.try{|user| user.id}, session[:autosave_code])
+        session.delete :autosave_code
+        render json: 'ok'
       end
 
     end

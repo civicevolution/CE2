@@ -16,7 +16,7 @@
             %i.icon-chevron-up
 
 
-        %a(ng-click="show_comment_form('call-to-action-reply', comment.id, comment.version)")
+        %a(ng-click="reply('call-to-action-comment-reply')")
           %i.icon-reply
           %span Reply
         %a(ng-click="share(comment.id)")
@@ -36,7 +36,7 @@
         %a(ng-show="comment.version>1" ng-click="view_history({{comment.id}})")
           History v{{comment.version}}
 
-        %a#edit-cta-link(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
+        %a#edit-cta-link(ng-if="comment.editable_by_user" ng-click="edit('call-to-action-comment-edit')"){title: "Edit this comment"}
           -#%i.icon-pencil
           Edit
 

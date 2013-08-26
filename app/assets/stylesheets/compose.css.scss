@@ -115,6 +115,10 @@ div.attachment_form{
     border-top: 1px solid $gray;
     .draft-text {
       display: block;
+      p{margin: 10px;}
+    }
+    .post_form{
+      display: none;
     }
     .toggler {
       &:before {
@@ -523,6 +527,13 @@ div.ac-wrap {
       margin-bottom: 14px;
       margin-left: 10px;
     }
+  }
+  div.buttons .status{
+    position: absolute;
+    display: block;
+    right: 51%;
+    bottom: 12px;
+    opacity: .6;
   }
 }
 

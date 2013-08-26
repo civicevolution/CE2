@@ -238,12 +238,15 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
       $http.post("/api/comments/#{id}/flag_item.json", {version: version})
 
     autosave: (data) ->
-      console.log "autosave the comment data"
+      #console.log "autosave the comment data"
       $http.post("/autosave.json", {data: data})
 
     load_autosaved: (data) ->
-      console.log "load_autosaved for the comment data"
+      #console.log "load_autosaved for the comment data"
       $http.get("/load_autosaved.json", {data: data})
+
+    clear_autosaved: (data) ->
+      $http.post("/clear_autosaved.json")
 
 ]
 

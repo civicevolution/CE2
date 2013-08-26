@@ -301,8 +301,8 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
           )
     , 1000
 
-    $scope.show_comment_form = (type, in_reply_to_id = null, in_reply_to_version = null) ->
-      $scope.$root.$broadcast('show-comment-form', { type: type, in_reply_to_id: in_reply_to_id, in_reply_to_version: in_reply_to_version})
+    $scope.show_comment_form = (action) ->
+      $scope.$root.$broadcast 'open-comment-form', {action: action}
 
     # Subscribe to updates for this data
     url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"

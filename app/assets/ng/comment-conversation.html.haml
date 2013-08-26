@@ -61,7 +61,7 @@
                     %i.icon-chevron-up
 
 
-                %a(ng-click="show_comment_form('conversation-reply', comment.id, comment.version)")
+                %a(ng-click="reply('conversation-comment-reply')")
                   %i.icon-reply
                   %span Reply
                 %a(ng-click="share(comment.id)")
@@ -80,7 +80,7 @@
                 %a(ng-show="comment.version>1" ng-click="view_history(comment.id)")
                   History v{{comment.version}}
 
-                %a(ng-if="comment.editable_by_user" ng-click="edit('{{comment.type}}',{{comment.id}})"){title: "Edit this comment"}
+                %a(ng-if="comment.editable_by_user" ng-click="edit('conversation-comment-edit')"){title: "Edit this comment"}
                   -#%i.icon-pencil
                   Edit
 

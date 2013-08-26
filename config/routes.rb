@@ -135,6 +135,7 @@ Ce2::Application.routes.draw do
 
   post 'autosave', to: 'api/v1/autosave#save'
   get 'load_autosaved', to: 'api/v1/autosave#load'
+  post 'clear_autosaved', to: 'api/v1/autosave#clear'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

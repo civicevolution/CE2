@@ -1,141 +1,141 @@
 %div#reply-control
-  .grippie
-  .spinner Uploading...
-  .contents
-    -#.composer-popup-container
-      #new-user-education.composer-popup{:style => "display: none; bottom: 288px;"}
-        %a.close{"data-ember-action" => "109", :href => "#"}
-          %i.icon.icon-remove-sign
-      #similar-topics.composer-popup{:style => "display: none; bottom: 288px;"}
-        %a.close{"data-ember-action" => "110", :href => "#"}
-          %i.icon.icon-remove-sign
-        %h3 Your topic is similar to...
-        %h3
-        %ul.topics
-    .control(ng-switch="newComment.type")
-      %div(ng-switch-when="ConversationComment")
-        %h4.form_title
-          I want to share
+  %div.draft-text(ng-click="toggle_compose_window()"){:title => "Show the composer panel"}
+    %a.toggler
+    %p You have a post draft in progress. Click anywhere in this box to resume editing.
+  %div.post_form
+    .grippie
+    .spinner Uploading...
+    .contents
+      -#.composer-popup-container
+        #new-user-education.composer-popup{:style => "display: none; bottom: 288px;"}
+          %a.close{"data-ember-action" => "109", :href => "#"}
+            %i.icon.icon-remove-sign
+        #similar-topics.composer-popup{:style => "display: none; bottom: 288px;"}
+          %a.close{"data-ember-action" => "110", :href => "#"}
+            %i.icon.icon-remove-sign
+          %h3 Your topic is similar to...
+          %h3
+          %ul.topics
+      .control(ng-switch="newComment.type")
+        %div(ng-switch-when="ConversationComment")
+          %h4.form_title
+            {{reply_control_title}}
 
-        %select(ng-model="newComment.purpose" ng-options="o.value as o.key for o in conversation.comment_purposes" ng-change="select_comment_purpose()")
-          %option(value="" disabled selected) Select what you will share
+          %select(ng-model="newComment.purpose" ng-options="o.value as o.key for o in conversation.comment_purposes" ng-change="select_comment_purpose()")
+            %option(value="" disabled selected) Select what you will share
 
-        %div.form_errors
-          %p.warn(ng-repeat="error in newComment.form_errors")
-            {{error.message}}
+          %div.form_errors
+            %p.warn(ng-repeat="error in newComment.form_errors")
+              {{error.message}}
 
-      %div(ng-switch-default)
-        %h4.form_title
-          {{reply_control_title}}
+        %div(ng-switch-default)
+          %h4.form_title
+            {{reply_control_title}}
 
-        %div.form_errors
-          %p.warn(ng-repeat="error in newComment.form_errors")
-            {{error.message}}
-
-
-      %a.toggler(ng-click="toggle_compose_window()"){:title => "hide or show the composer panel"}
-      .control-row.reply-area
-        -#.reply-to
-          %script#metamorph-129-start{:type => "text/x-placeholder"}>
-          Reply to
-          %a{:href => "/t/this-site-is-a-sandbox-it-is-reset-every-day/57"} THIS SITE IS A SANDBOX -- it is reset every day
-          = succeed ":" do
-
-        %div.comment-form.wmd-controls
-          -#%p
-            %i comment form from directive scope id: {{$id}}
-          .textarea-wrapper
-            %div#mentions.hide
-              %ul
-                %li(ng-repeat="participant in conversation.participants" ng-click="select_mention()")
-                  %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{participant.photo_code}}/sm1/p.jpg")
-                  %span.user_name {{participant.name}}
-
-            .form
-              %div.edit-menu
-                %div.attachment_form
-                %div.progress-bar(ng-bind-html-unsafe="progress_bar_message")
-
-              %form.convo.clear(ng-submit="addComment()"){name: 'comment_form'}
-
-                #wmd-button-bar
-                  -#.wmd-button-bar
-                  -##wmd-button-row.wmd-button-row
-                    %button#wmd-quote-post.wmd-button{:title => "Quote whole post"}
-                    %button#wmd-bold-button.wmd-button{:title => "Strong <strong> Ctrl+B"}
-                    %button#wmd-italic-button.wmd-button{:title => "Emphasis <em> Ctrl+I"}
-                    #wmd-spacer1.wmd-spacer
-                    %button#wmd-link-button.wmd-button{:title => "Hyperlink <a> Ctrl+L"}
-                    %button#wmd-quote-button.wmd-button{:title => "Blockquote <blockquote> Ctrl+Q"}
-                    %button#wmd-code-button.wmd-button{:title => "Code Sample <pre><code> Ctrl+K"}
-                    %button#wmd-image-button.wmd-button{:title => "Image <img> Ctrl+G"}
-                    #wmd-spacer2.wmd-spacer
-                    %button#wmd-olist-button.wmd-button{:title => "Numbered List <ol> Ctrl+O"}
-                    %button#wmd-ulist-button.wmd-button{:title => "Bulleted List <ul> Ctrl+U"}
-                    %button#wmd-heading-button.wmd-button{:title => "Heading <h1>/<h2> Ctrl+H"}
-                    %button#wmd-hr-button.wmd-button{:title => "Horizontal Rule <hr> Ctrl+R"}
-                    #wmd-spacer3.wmd-spacer
-                    %button#wmd-undo-button.wmd-button{:disabled => "", :title => "Undo - Ctrl+Z"}
-                    %button#wmd-redo-button.wmd-button{:disabled => "", :title => "Redo - Ctrl+Shift+Z"}
-
-                %textarea#wmd-input.noscrollbars(ng-model="newComment.text" ng-keydown="monitor_keydown()"){placeholder: "Enter your comment..."}
-
-                %input(ng-model="newComment.id"){type: 'hidden' }
-                %input(ng-model="newComment.conversation_code"){type: 'hidden' }
-                %input(ng-model="newComment.type"){type: 'hidden' }
-
-          .preview-wrapper
-            .preview#wmd-preview
+          %div.form_errors
+            %p.warn(ng-repeat="error in newComment.form_errors")
+              {{error.message}}
 
 
+        %a.toggler(ng-click="toggle_compose_window()"){:title => "hide or show the composer panel"}
+        .control-row.reply-area
+          -#.reply-to
+            %script#metamorph-129-start{:type => "text/x-placeholder"}>
+            Reply to
+            %a{:href => "/t/this-site-is-a-sandbox-it-is-reset-every-day/57"} THIS SITE IS A SANDBOX -- it is reset every day
+            = succeed ":" do
 
-        %div.submit-panel
-          %div.not-signed-in
-            %p.instr
-              Please
-              %a(ng-click="sign_in()")
-                sign in
-              or identify yourself below to add your comment
+          %div.comment-form.wmd-controls
+            -#%p
+              %i comment form from directive scope id: {{$id}}
+            .textarea-wrapper
+              %div#mentions.hide
+                %ul
+                  %li(ng-repeat="participant in conversation.participants" ng-click="select_mention()")
+                    %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{participant.photo_code}}/sm1/p.jpg")
+                    %span.user_name {{participant.name}}
 
-            %p
-              %input(ng-model='newComment.email' required ce-focus){type: 'text', placeholder: 'Email address'}
-              %input(ng-model='newComment.first_name' required){type: 'text', placeholder: 'First name'}
-              %input(ng-model='newComment.last_name' required){type: 'text', placeholder: 'Last name'}
-              %input#join(ng-model='newComment.join'){type: 'checkbox', checked: 'checked', value:1}
-              %label{for: "join"}I want to join this conversation
+              .form
+                %div.edit-menu
+                  %div.attachment_form
+                  %div.progress-bar(ng-bind-html-unsafe="progress_bar_message")
 
-          %div.not-a-participant
-            %p
-              %input#join(ng-model='newComment.join'){type: 'checkbox', checked: 'checked', value:1}
-              %label{for: "join"}I want to join this conversation
-              %label.confirm(ng-if="!user.confirmed")
-                You must confirm your email –
-                %a(ng-click="request_confirmation()")
-                  Request
-                a new confirmation email
+                %form.convo.clear(ng-submit="addComment()"){name: 'comment_form'}
 
-          %div.not-confirmed
-            %p
-              %label.confirm(ng-if="!user.confirmed")
-                You must confirm your email –
-                %a(ng-click="request_confirmation()")
-                  Request
-                a new confirmation email
+                  #wmd-button-bar
+                    -#.wmd-button-bar
+                    -##wmd-button-row.wmd-button-row
+                      %button#wmd-quote-post.wmd-button{:title => "Quote whole post"}
+                      %button#wmd-bold-button.wmd-button{:title => "Strong <strong> Ctrl+B"}
+                      %button#wmd-italic-button.wmd-button{:title => "Emphasis <em> Ctrl+I"}
+                      #wmd-spacer1.wmd-spacer
+                      %button#wmd-link-button.wmd-button{:title => "Hyperlink <a> Ctrl+L"}
+                      %button#wmd-quote-button.wmd-button{:title => "Blockquote <blockquote> Ctrl+Q"}
+                      %button#wmd-code-button.wmd-button{:title => "Code Sample <pre><code> Ctrl+K"}
+                      %button#wmd-image-button.wmd-button{:title => "Image <img> Ctrl+G"}
+                      #wmd-spacer2.wmd-spacer
+                      %button#wmd-olist-button.wmd-button{:title => "Numbered List <ol> Ctrl+O"}
+                      %button#wmd-ulist-button.wmd-button{:title => "Bulleted List <ul> Ctrl+U"}
+                      %button#wmd-heading-button.wmd-button{:title => "Heading <h1>/<h2> Ctrl+H"}
+                      %button#wmd-hr-button.wmd-button{:title => "Horizontal Rule <hr> Ctrl+R"}
+                      #wmd-spacer3.wmd-spacer
+                      %button#wmd-undo-button.wmd-button{:disabled => "", :title => "Undo - Ctrl+Z"}
+                      %button#wmd-redo-button.wmd-button{:disabled => "", :title => "Redo - Ctrl+Shift+Z"}
+
+                  %textarea#wmd-input.noscrollbars(ng-model="newComment.text" ng-keydown="monitor_keydown()"){placeholder: "Enter your comment..."}
+
+                  %input(ng-model="newComment.id"){type: 'hidden' }
+                  %input(ng-model="newComment.conversation_code"){type: 'hidden' }
+                  %input(ng-model="newComment.type"){type: 'hidden' }
+
+            .preview-wrapper
+              .preview#wmd-preview
 
 
-          %div.buttons
-            %span(ng-if="newComment.id == null")
-              %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Add
-              %button.btn(ng-click="clear_edit()") Cancel
 
-            %span(ng-if="newComment.id > 0")
-              %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Update
-              %button.btn(ng-click="clear_edit()") Cancel
+          %div.submit-panel
+            %div.not-signed-in
+              %p.instr
+                Please
+                %a(ng-click="sign_in()")
+                  sign in
+                or identify yourself below to add your comment
 
-            %a(ng-click="autosave()")
-              Autosave
+              %p
+                %input(ng-model='newComment.email' required ce-focus){type: 'text', placeholder: 'Email address'}
+                %input(ng-model='newComment.first_name' required){type: 'text', placeholder: 'First name'}
+                %input(ng-model='newComment.last_name' required){type: 'text', placeholder: 'Last name'}
+                %input#join(ng-model='newComment.join'){type: 'checkbox', checked: 'checked', value:1}
+                %label{for: "join"}I want to join this conversation
 
-            %a(ng-click="load_autosaved()")
-              Load autosaved
+            %div.not-a-participant
+              %p
+                %input#join(ng-model='newComment.join'){type: 'checkbox', checked: 'checked', value:1}
+                %label{for: "join"}I want to join this conversation
+                %label.confirm(ng-if="!user.confirmed")
+                  You must confirm your email –
+                  %a(ng-click="request_confirmation()")
+                    Request
+                  a new confirmation email
 
-          -#%span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")
+            %div.not-confirmed
+              %p
+                %label.confirm(ng-if="!user.confirmed")
+                  You must confirm your email –
+                  %a(ng-click="request_confirmation()")
+                    Request
+                  a new confirmation email
+
+
+            %div.buttons
+              %span(ng-if="newComment.id == null")
+                %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Add
+                %button.btn.btn-link(ng-click="clear_edit()") Cancel
+
+              %span(ng-if="newComment.id > 0")
+                %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Update
+                %button.btn.btn-link(ng-click="clear_edit()") Cancel
+
+              %div.status {{newComment.status_message}}
+
+            -#%span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")
