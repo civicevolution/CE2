@@ -3,6 +3,7 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 .conversation{
+  position: relative;
   .placeholder{
     font-style: italic;
   }
@@ -22,6 +23,11 @@
       font-style: italic;
       cursor: pointer;
     }
+  }
+
+  .ce-text-select{
+    position: absolute;
+    display: none;
   }
 
 }

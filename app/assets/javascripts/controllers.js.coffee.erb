@@ -183,57 +183,6 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
       if oField.scrollHeight > oField.clientHeight
         oField.style.height = oField.scrollHeight + "px"
 
-    $rootScope.text_select_by_mouse = ->
-      debug_mode = false
-      console.log "text_select_by_mouse" if debug_mode
-      try
-        [text, comment, coords] = capture_selection()
-        if text
-          #console.log "use this string in form:\n#{text}" if debug_mode
-          $rootScope.selection =
-            text: text
-            id: comment.id
-            purpose: comment.purpose
-            name: "#{comment.first_name} #{comment.last_name}"
-            version: comment.version
-            photo: comment.photo_code
-
-          body = document.documentElement || document.body
-          scrollX = window.pageXOffset || body.scrollLeft
-          scrollY = window.pageYOffset || body.scrollTop
-          $rootScope.show_add_quote_to_reply_style =
-            display: 'block'
-            position: 'absolute'
-            top: "#{coords.top + scrollY}px"
-            left: "#{coords.left + scrollX}px"
-
-          $timeout ->
-            angular.element(document).bind('mouseup', clear_capture_selection_button)
-          ,100
-
-        else
-          $rootScope.show_add_quote_to_reply_style =
-            display: "none"
-
-        $rootScope.$$phase || $rootScope.$apply()
-
-      catch error
-        console.log "$rootScope.text_select_by_mouse had an error: #{error}" if debug_mode
-
-    $rootScope.add_quote_to_reply = ->
-      sel = $rootScope.selection
-      quote_insert = "[quote=#{sel.name}~#{sel.purpose}~#{sel.id}~#{sel.photo}~#{sel.version}]#{sel.text}[/quote]"
-      #console.log "Add this quote to textarea: #{quote_insert}"
-      $rootScope.$broadcast('conversation-comment-edit')
-      textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
-      textarea.value += "\n" + quote_insert
-      $rootScope.show_add_quote_to_reply_style =
-        display: "none"
-      $rootScope.$$phase || $rootScope.$apply()
-      # force newComment.text to recognize the change to the textarea after inserting new text
-      newComment = angular.element(textarea).scope().newComment
-      newComment.text = textarea.value
-
     $rootScope.initialize_markdown_system = ->
       #console.log "initialize_markdown_system"
       # which will call initialize_markdown_editor
@@ -242,66 +191,6 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
     $http.get("<%= path_to_asset "quote.html" %>", {cache:$templateCache};)
 
 ])
-
-capture_selection = ->
-  debug_mode = false
-  console.log "capture_selection" if debug_mode
-  if document.all
-    # get the selection for IE
-    sel = document.selection
-    range = sel.createRange()
-    # IE's selection gives the text with linefeeds automatically
-    str = range.text
-    console.log "use this string in form:\n#{str}"  if debug_mode
-    # get a node in the selection so I can find the parent comment
-    node = range.parentElement()
-
-    range.collapse(true);
-    coords =
-      left: range.boundingLeft
-      top:  range.boundingTop;
-
-  else
-    # get the selection for other browsers
-    sel = document.getSelection()
-    # the text from the selection doesn't respect linefeeds, so I must manually respect linefeeds
-    console.log "conversation_select text: #{sel.toString() }" if debug_mode
-    # turn the selection into a range
-    range = sel.getRangeAt(0)
-    # now get the string while respecting the linefeeds
-    frag = range.cloneContents()
-    child_nodes = frag.childNodes
-    # get the text for each of the nodes, without formatting
-    #strs = ( (if node.innerHTML then node.innerHTML else node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
-    strs = ( (node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
-
-    str = strs.join('\n\n').replace(/<br[^>]*>/ig, '\n')
-
-    # get a node of the range in the selection so I can find the parent comment
-    node = range.startContainer
-
-    # get the selection coordinates
-    range = range.cloneRange()
-    range.collapse(true);
-    coords = range.getClientRects()[0];
-    console.log "coords top: #{coords.top}, left: #{coords.left}" if debug_mode
-
-  if str
-    str = str.replace(/^ */gm, '').replace(/\r\n/g, '\n').replace(/\n{2,}/g,'\n\n')
-    [str, angular.element(node).scope().comment, coords]
-  else
-    [null,null,null]
-
-clear_capture_selection_button = ->
-  #console.log "clear_capture_selection_button mouseup, then clear"
-  doc = angular.element(document)
-
-  rootScope = doc.scope().$root
-  rootScope.show_add_quote_to_reply_style =
-    display: "none"
-  rootScope.$$phase || rootScope.$apply()
-
-  doc.unbind('mouseup', clear_capture_selection_button)
 
 initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) ->
   opts = { TemplateEngine: TemplateEngine } # unless opts
@@ -385,23 +274,11 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
     dialog.open()
     $rootScope.$$phase || $rootScope.$apply()
   $timeout ->
-    initialize_markdown_editor(editor)
+    $rootScope.$broadcast 'initialize-markdown-editor', {editor: editor}
   , 1000
   $rootScope.converter = converter
   $rootScope.editor = editor
 
-
-initialize_markdown_editor = (editor, editor_id = 'wmd-input', init_ctr = 5) ->
-  #console.log "initialize_markdown_editor with editor_id: #{editor_id} and init_ctr: #{init_ctr}"
-  edit_input = document.getElementById(editor_id)
-  if edit_input && editor && editor.run
-    #console.log "init_editor now"
-    editor.run()
-  else if (init_ctr -= 1 ) > 0
-    #console.log "try to init editor in 1 sec"
-    $timeout ->
-      initialize_markdown_editor(editor, editor_id, init_ctr )
-    , 1000
 
 conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", "ConversationData", "$dialog",
   ($scope, conversation, FirebaseService, $timeout, ConversationData, $dialog) ->

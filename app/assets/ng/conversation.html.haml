@@ -1,71 +1,70 @@
-.row-fluid.conversation#conversation
-  .span9
-    %h3#conversation-title.title
-      %span.actual-title(ng-click="edit_title()" ng-if="conversation.title && !conversation.edit_title")
-        {{conversation.title}}
-      %span.placeholder(ng-click="edit_title()" ng-if="!conversation.title && !conversation.edit_title" )
-        Click here to edit this conversation's question
-      %span.edit(ng-if="conversation.edit_title")
-        %h4 Update the question for this conversation:
-        %input(ng-model="conversation.title")
-        %div
-          %button.btn.btn-primary(ng-click="save_title()"){:type => "submit"} Save changes
-          %button.btn(ng-click="cancel_title_edit()") Cancel
+%div
+  .row-fluid.conversation#conversation
+    .span9
+      %h3#conversation-title.title
+        %span.actual-title(ng-click="edit_title()" ng-if="conversation.title && !conversation.edit_title")
+          {{conversation.title}}
+        %span.placeholder(ng-click="edit_title()" ng-if="!conversation.title && !conversation.edit_title" )
+          Click here to edit this conversation's question
+        %span.edit(ng-if="conversation.edit_title")
+          %h4 Update the question for this conversation:
+          %input(ng-model="conversation.title")
+          %div
+            %button.btn.btn-primary(ng-click="save_title()"){:type => "submit"} Save changes
+            %button.btn(ng-click="cancel_title_edit()") Cancel
 
 
 
-    .row-fluid
-      .span12.summary
-        %div#call-to-action.call-to-action
-          %div.comment-outer
-            %div(ce-comment type="call-to-action")
+      .row-fluid
+        .span12.summary
+          %div#call-to-action.call-to-action
+            %div.comment-outer
+              %div(ce-comment type="call-to-action")
 
-    .row-fluid
-      .span12.summary
-        %h4 Conversation Summary
-        %div
-          %div.comment-outer(ng-repeat="comment in conversation.summary_comments" )
-            %div(ce-sortable ce-comment type="summary")
+      .row-fluid
+        .span12.summary
+          %h4 Conversation Summary
+          %div
+            %div.comment-outer(ng-repeat="comment in conversation.summary_comments" )
+              %div(ce-sortable ce-comment type="summary")
 
-          %div.placeholder(ng-if="conversation.summary_comments.length==0")
-            %p Conversation summary placeholder
+            %div.placeholder(ng-if="conversation.summary_comments.length==0")
+              %p Conversation summary placeholder
 
-    %div(ng-switch="add_summary_comment" ng-if="conversation.can('edit_summary')")
-      .row-fluid(ng-switch-default )
+      %div(ng-switch="add_summary_comment" ng-if="conversation.can('edit_summary')")
+        .row-fluid(ng-switch-default )
+          .span8
+            %p
+              %input.btn-primary.btn(ng-click="show_comment_form('summary')"){type: 'button', value: 'Add summary comment'}
+
+        .row-fluid(ng-switch-when="true")
+          .span8
+            %h4 Add a summary comment to help capture this conversation
+            %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
+
+      .row-fluid(ng-if="conversation.privacy.comments=='true' || conversation.can('show')")
+        .span12.conversation
+          %h4 Conversation
+          %div.comment-outer(ng-repeat="comment in conversation.conversation_comments" )
+            %div(ce-comment type="conversation")
+
+          %div.placeholder(ng-if="conversation.conversation_comments.length == 0")
+            %p Conversation placeholder
+
+      .row-fluid(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
         .span8
-          %p
-            %input.btn-primary.btn(ng-click="show_comment_form('summary')"){type: 'button', value: 'Add summary comment'}
+          %p#add-conversation-comment
+            %input.btn-primary.btn(ng-click="show_comment_form('conversation')"){type: 'button', value: 'Add conversation comment'}
 
-      .row-fluid(ng-switch-when="true")
-        .span8
-          %h4 Add a summary comment to help capture this conversation
-          %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
+      %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")
 
-    .row-fluid(ng-if="conversation.privacy.comments=='true' || conversation.can('show')")
-      .span12.conversation
-        %h4 Conversation
-        %div.comment-outer(ng-repeat="comment in conversation.conversation_comments" )
-          %div(ce-comment type="conversation")
-
-        %div.placeholder(ng-if="conversation.conversation_comments.length == 0")
-          %p Conversation placeholder
-
-    .row-fluid(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
-      .span8
-        %p#add-conversation-comment
-          %input.btn-primary.btn(ng-click="show_comment_form('conversation')"){type: 'button', value: 'Add conversation comment'}
-
-    %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")
-
-  .span3.right-bar
-    %div(ce-conversation-right-bar)
-
-  .quote_reply(ng-style="show_add_quote_to_reply_style" )
-    %button(ng-click="add_quote_to_reply()")
-      Reply with quote
+    .span3.right-bar
+      %div(ce-conversation-right-bar)
 
   %div(ng-if="conversation_wizard_mode")
     %div(ce-create-conversation-wizard)
+
+  %div(ce-text-select)
 
 
 

@@ -325,6 +325,10 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         $location.hash("com-#{id}")
         $anchorScroll()
         console.log "goto_comment to ##{id}"
+
+      $scope.text_select_by_mouse = ->
+        $scope.$root.$broadcast('text-select-by-mouse')
+
   ]
 ])
 
@@ -647,19 +651,151 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         $timeout -> $scope.$root.editor.refreshPreview()
         angular.element( document.getElementById('reply-control')).addClass('open show-preview')
 
-      $scope.$on 'conversation-comment-edit', (event) ->
-        if angular.element( document.getElementById('reply-control')).hasClass('open')
-          #console.log "Reply form is already open, don't alter newComment properties"
-          return
-        else
-          #console.log "Open and set reply form for conversation-comment-edit"
+
+      $scope.$on 'text-select-button-clicked', (event, sel) ->
+        quote_insert = "[quote=#{sel.name}~#{sel.purpose}~#{sel.id}~#{sel.photo}~#{sel.version}]#{sel.text}[/quote]"
+        #console.log "Add this quote to textarea: #{quote_insert}"
+        open_editor_for_quote()
+        textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
+        textarea.value += "\n" + quote_insert
+        $scope.ce_text_select_style =
+          display: "none"
+        $scope.$root.$$phase || $scope.$root.$apply()
+        # force newComment.text to recognize the change to the textarea after inserting new text
+        newComment = angular.element(textarea).scope().newComment
+        newComment.text = textarea.value
+
+
+      open_editor_for_quote = ->
+        if !angular.element( document.getElementById('reply-control')).hasClass('open')
           $scope.newComment.type = 'ConversationComment'
           $scope.newComment.conversation_code = $scope.conversation.code
           $timeout -> $scope.$root.editor.refreshPreview()
           angular.element( document.getElementById('reply-control')).addClass('open')
 
+      $scope.$on 'initialize-markdown-editor', (event, obj) ->
+        editor = obj.editor
+        editor_id = obj.editor_id || 'wmd-input'
+        init_ctr = obj.init_ctr || 5
+        #console.log "initialize_markdown_editor with editor_id: #{editor_id} and init_ctr: #{init_ctr}"
+        edit_input = document.getElementById(editor_id)
+        if edit_input && editor && editor.run
+          #console.log "init_editor now"
+          editor.run()
+        else if (init_ctr -= 1 ) > 0
+          #console.log "try to init editor in 1 sec"
+          $timeout ->
+            $scope.$root.$broadcast 'initialize-markdown-editor', {editor: editor, editor_id: editor_id, init_ctr: init_ctr }
+          , 1000
+
+
   ]
 ])
+
+ce2_directives.directive('ceTextSelect', ->
+  restrict: 'A'
+  replace: true
+  template: '<div class="ce-text-select" ng-style="ce_text_select_style"><input class="btn-primary btn btn-mini" ng-click="button_click()" type="button" value="{{ button_text}}"></div>'
+  controller: [ "$scope", "$timeout", ($scope, $timeout) ->
+    selection = {}
+    $scope.button_text = "Reply with quote"
+    $scope.button_click = ->
+      $scope.$root.$broadcast 'text-select-button-clicked', selection
+
+    $scope.$on 'text-select-by-mouse', ->
+      debug_mode = false
+      console.log "text_select_by_mouse" if debug_mode
+      try
+        [text, comment, coords] = capture_selection()
+        if text
+          #console.log "use this string in form:\n#{text}" if debug_mode
+          selection =
+            text: text
+            id: comment.id
+            purpose: comment.purpose
+            name: "#{comment.first_name} #{comment.last_name}"
+            version: comment.version
+            photo: comment.photo_code
+
+          body = document.documentElement || document.body
+          scrollX = window.pageXOffset || body.scrollLeft
+          scrollY = window.pageYOffset || body.scrollTop
+          $scope.ce_text_select_style =
+            display: 'block'
+            position: 'absolute'
+            top: "#{coords.top + scrollY - 20}px"
+            left: "#{coords.left + scrollX}px"
+
+          $timeout ->
+            angular.element(document).bind('mouseup', clear_capture_selection_button)
+          ,100
+
+        else
+          $scope.ce_text_select_style =
+            display: "none"
+
+        $scope.$root.$$phase || $scope.$root.$apply()
+
+      catch error
+        console.log "text_select_by_mouse had an error: #{error}" if debug_mode
+
+    capture_selection = ->
+      debug_mode = false
+      console.log "capture_selection" if debug_mode
+      if document.all
+        # get the selection for IE
+        sel = document.selection
+        range = sel.createRange()
+        # IE's selection gives the text with linefeeds automatically
+        str = range.text
+        console.log "use this string in form:\n#{str}"  if debug_mode
+        # get a node in the selection so I can find the parent comment
+        node = range.parentElement()
+
+        range.collapse(true);
+        coords =
+          left: range.boundingLeft
+          top:  range.boundingTop;
+
+      else
+        # get the selection for other browsers
+        sel = document.getSelection()
+        # the text from the selection doesn't respect linefeeds, so I must manually respect linefeeds
+        console.log "conversation_select text: #{sel.toString() }" if debug_mode
+        # turn the selection into a range
+        range = sel.getRangeAt(0)
+        # now get the string while respecting the linefeeds
+        frag = range.cloneContents()
+        child_nodes = frag.childNodes
+        # get the text for each of the nodes, without formatting
+        #strs = ( (if node.innerHTML then node.innerHTML else node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
+        strs = ( (node.textContent).replace(/^\s*/,'').replace(/\s*$/,'') for node in child_nodes)
+
+        str = strs.join('\n\n').replace(/<br[^>]*>/ig, '\n')
+
+        # get a node of the range in the selection so I can find the parent comment
+        node = range.startContainer
+
+        # get the selection coordinates
+        range = range.cloneRange()
+        range.collapse(true);
+        coords = range.getClientRects()[0];
+        console.log "coords top: #{coords.top}, left: #{coords.left}" if debug_mode
+
+      if str
+        str = str.replace(/^ */gm, '').replace(/\r\n/g, '\n').replace(/\n{2,}/g,'\n\n')
+        [str, angular.element(node).scope().comment, coords]
+      else
+        [null,null,null]
+
+    clear_capture_selection_button = ->
+      #console.log "clear_capture_selection_button mouseup, then clear"
+      $scope.ce_text_select_style =
+        display: "none"
+      $scope.$root.$$phase || $scope.$root.$apply()
+      angular.element(document).unbind('mouseup', clear_capture_selection_button)
+  ]
+)
 
 ce2_directives.directive('ceCsrf', ->
   restrict: 'A'
