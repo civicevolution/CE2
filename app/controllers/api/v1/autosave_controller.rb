@@ -25,9 +25,9 @@ module Api
       end
 
       def clear
-        Autosave.clear(current_user.try{|user| user.id}, session[:autosave_code])
+        data = Autosave.clear(current_user.try{|user| user.id}, session[:autosave_code])
         session.delete :autosave_code
-        render json: 'ok'
+        render json: data
       end
 
     end

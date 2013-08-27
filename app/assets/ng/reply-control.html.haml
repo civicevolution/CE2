@@ -19,7 +19,7 @@
       .control(ng-switch="newComment.type")
         %div(ng-switch-when="ConversationComment")
           %h4.form_title
-            {{reply_control_title}}
+            {{newComment.reply_control_title}}
 
           %select(ng-model="newComment.purpose" ng-options="o.value as o.key for o in conversation.comment_purposes" ng-change="select_comment_purpose()")
             %option(value="" disabled selected) Select what you will share
@@ -30,7 +30,7 @@
 
         %div(ng-switch-default)
           %h4.form_title
-            {{reply_control_title}}
+            {{newComment.reply_control_title}}
 
           %div.form_errors
             %p.warn(ng-repeat="error in newComment.form_errors")

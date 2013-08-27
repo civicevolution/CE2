@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130823221050) do
+ActiveRecord::Schema.define(version: 20130827001944) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 20130823221050) do
     t.json     "data"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "belongs_to_user_id"
   end
 
   add_index "autosaves", ["code"], name: "index_autosaves_on_code", unique: true, using: :btree

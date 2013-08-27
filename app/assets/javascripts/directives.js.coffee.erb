@@ -394,6 +394,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
     scope.$watch 'newComment.text', (oldValue, newValue) ->
       #console.log "#{Math.round(new Date().getTime()/1000)}: [#{scope.newComment.text}] comment form watch comment.text is triggered, scope.do_auto_save: #{scope.do_auto_save}"
+      scope.newComment.status_message = ''
       if scope.do_auto_save && scope.newComment.text?.length > 19
         #console.log "#{Math.round(new Date().getTime()/1000)}: [#{scope.newComment.text}] set timeout for autosave"
         scope.do_auto_save = false
@@ -414,7 +415,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       $scope.call_auto_save = ->
         #console.log "#{Math.round(new Date().getTime()/1000)}: [#{$scope.newComment.text}] Do autosave"
         $scope.do_auto_save = true
-        $scope.status_message = 'Saving...'
+        $scope.newComment.status_message = 'Saving...'
         CommentData.autosave($scope.newComment).then(
           (response)->
             #console.log "#{Math.round(new Date().getTime()/1000)}: [#{$scope.newComment.text}] CommentData.autosave success"
@@ -427,20 +428,41 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       CommentData.load_autosaved().then(
         (response)->
           #console.log "CommentData.load_autosaved success"
-          for key of response.data
-            $scope.newComment[key] = response.data[key]
-          $scope.$root.$$phase || $scope.$root.$apply()
-          # if there is a comment in progress, show draft bar
-          if $scope.newComment.type && $scope.newComment.text?.match(/\w{2,}/)
-            angular.element( document.getElementById('reply-control')).addClass('draft')
-          $timeout ->
-            $scope.do_auto_save = true
-          , 3000
+          $scope.use_autosaved_record(response.data)
       ,
-      (reason) ->
-        console.log "ceCommentForm.load autosaved fail"
-        $scope.do_auto_save = true
-      )
+        (reason) ->
+          console.log "ceCommentForm.load autosaved fail"
+          $scope.do_auto_save = true
+        )
+
+      clear_newComment_fields = ->
+        for key of $scope.newComment
+          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
+
+      clear_auto_saved_draft = ->
+        CommentData.clear_autosaved().then(
+          (response)->
+            # this will return the older autosave record if there were two of them
+            $scope.use_autosaved_record(response.data.data) if response.data
+        ,
+        (reason) ->
+          console.log "ceCommentForm.clear autosaved failed"
+          $scope.do_auto_save = true
+        )
+
+      $scope.use_autosaved_record = (data) ->
+        for key of data
+          if key != 'status_message'
+            $scope.newComment[key] = data[key]
+        set_special_classes()
+        adjust_conversation_to_form()
+        $scope.$root.$$phase || $scope.$root.$apply()
+        # if there is a comment in progress, show draft bar
+        if $scope.newComment.type && $scope.newComment.text?.match(/\w{2,}/)
+          angular.element( document.getElementById('reply-control')).addClass('draft')
+        $timeout ->
+          $scope.do_auto_save = true
+        , 3000
 
       $scope.conversation.comment_purposes = [
         {value: 'experience', key: 'My experience', labels: "Unhelpful~Helpful"},
@@ -632,52 +654,52 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         switch data.action
           when 'new-conversation-comment'
             $scope.newComment.type = 'ConversationComment'
-            $scope.reply_control_title = "Add conversation comment"
+            $scope.newComment.reply_control_title = "Add conversation comment"
 
           when 'new-summary-comment'
             $scope.newComment.type = 'SummaryComment'
-            $scope.reply_control_title = "Add summary comment"
+            $scope.newComment.reply_control_title = "Add summary comment"
 
           when 'call-to-action-comment-edit'
             if data.comment.id is 0
               $scope.newComment.id = null
               $scope.newComment.text = ''
-              $scope.reply_control_title = "Add your first call-to-action"
+              $scope.newComment.reply_control_title = "Add your first call-to-action"
             else
-              $scope.reply_control_title = "Edit call-to-action"
+              $scope.newComment.reply_control_title = "Edit call-to-action"
 
           when 'summary-comment-edit'
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
-            $scope.reply_control_title = "Edit summary comment"
+            $scope.newComment.reply_control_title = "Edit summary comment"
 
           when 'conversation-comment-edit'
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
-            $scope.reply_control_title = "Edit"
+            $scope.newComment.reply_control_title = "Edit"
 
           when 'call-to-action-comment-reply'
             $scope.newComment.type = 'ConversationComment'
-            $scope.reply_control_title = "Reply to call-to-action with"
+            $scope.newComment.reply_control_title = "Reply to call-to-action with"
             $scope.newComment.in_reply_to_id = data.comment.id
             $scope.newComment.in_reply_to_version = data.comment.version
 
           when 'summary-comment-reply'
             $scope.newComment.type = 'ConversationComment'
-            $scope.reply_control_title = "Reply to summary comment with"
+            $scope.newComment.reply_control_title = "Reply to summary comment with"
             $scope.newComment.in_reply_to_id = data.comment.id
             $scope.newComment.in_reply_to_version = data.comment.version
 
           when 'conversation-comment-reply'
             $scope.newComment.type = 'ConversationComment'
-            $scope.reply_control_title = "Reply to comment with"
+            $scope.newComment.reply_control_title = "Reply to comment with"
             $scope.newComment.in_reply_to_id = data.comment.id
             $scope.newComment.in_reply_to_version = data.comment.version
 
           when 'quote-selected-text'
             if !angular.element( document.getElementById('reply-control')).hasClass('open')
               $scope.newComment.type = 'ConversationComment'
-              $scope.reply_control_title = "Reply to comment with"
+              $scope.newComment.reply_control_title = "Reply to comment with"
 
       set_special_classes = ->
         # determine if special class for non-participant, not signed in, not confirmed
@@ -718,14 +740,10 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
       $scope.clear_edit = (event) ->
         clear_newComment_fields()
+        clear_auto_saved_draft()
         $timeout -> $scope.$root.editor.refreshPreview()
         angular.element( document.getElementById('reply-control')).removeClass('open')
         $scope.conversation.style = {'margin-bottom': "0px"}
-
-      clear_newComment_fields = ->
-        for key of $scope.newComment
-          delete $scope.newComment[key] unless key=='email' || key =='first_name' || key =='last_name'
-        CommentData.clear_autosaved()
 
       $scope.toggle_compose_window = ->
         #console.log "toggle_compose_window"
