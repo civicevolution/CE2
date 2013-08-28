@@ -39,34 +39,28 @@
     }
   }
 }
-#right-bar-menu{
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      max-width: 240px;
-      height: 600px;
 
-  border: 1px solid green;
-  background-color: beige;
-  z-index: 20;
-  li{
-    list-style-type: none;
-  }
-}
 #right-bar-panel{
-      position: absolute;
-      top: 0px;
-  height: 600px;
-  width: 500px;
+  position: fixed;
+  top: 60px;
+  //right: 185px;
+  //height: 600px;
+  max-width: 600px;
   z-index: 1;
   border: 2px solid #ccc;
   background-color: #eeeeee;
-  padding: 0px 220px 20px 20px;
+  padding: 0px 20px 20px 20px;
+  display: none;
+  &.active{
+    display: block;
+  }
   button.close { margin-right: -16px; }
   .right-panel-inner{
     height: 100%;
     overflow-y: scroll;
+    .panel{
+      background-color: #eeeeee;
+    }
     table.fixed{
       width: 480px;
       max-width: 480px;
@@ -76,19 +70,21 @@
   h3{font-size: 1.2em;}
   &.active{
     //background-color: #ccc;
-    right: 0;
+    //right: 0;
   }
   &.inactive{
     //background-color: #999;
-    right: 0;
+    //right: 0;
   }
 }
 
 .nav-fixed{
   position: fixed;
 }
-.nav.right-menu{
+.nav#right-menu{
   margin-top: 40px;
+  margin-left: 0;
+  z-index: 20;
   > li > a:hover{
     background-color: #dddddd;
   }
@@ -102,9 +98,6 @@
   //  color: red;
   //}
 }
-
-
-
 
 
 
@@ -369,6 +362,39 @@ div.schedule-panel{
   opacity:1;
 }
 */
+
+
+.slide-to-left-enter, .slide-to-left-leave,
+.slide-to-left-show, .slide-to-left-hide {
+  -webkit-transition: 400ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+  -moz-transition: 400ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+  -ms-transition: 400ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+  -o-transition: 400ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+  transition: 400ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+}
+
+.slide-to-left-leave.slide-to-left-leave-active, .slide-to-left-enter,
+.slide-to-left-hide.slide-to-left-hide-active, .slide-to-left-show {
+  opacity:0;
+  -webkit-transform: scaleX(0);
+  -moz-transform: scaleX(0);
+  -ms-transform: scaleX(0);
+  -o-transform: scaleX(0);
+  transform: scaleX(0);
+}
+
+.slide-to-left-enter.slide-to-left-enter-active, .slide-to-left-leave,
+.slide-to-left-show.slide-to-left-show-active, .slide-to-left-hide
+{
+  opacity:1;
+  -webkit-transform: scaleX(1);
+  -moz-transform: scaleX(1);
+  -ms-transform: scaleX(1);
+  -o-transform: scaleX(1);
+  transform: scaleX(1);
+}
+
+
 
 .color-activated{
   .color-enter, .color-leave,
