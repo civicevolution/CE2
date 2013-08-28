@@ -1,0 +1,23 @@
+Contact Us message received at #{@contact.created_at}
+~''
+~''
+
+- if @sender
+  Sender signed in as
+  #{@sender.first_name} #{@sender.last_name} <#{@sender.email}>
+- else
+  Sender not signed in:
+  #{@contact.first_name} #{@contact.last_name} <#{@contact.email}>
+~''
+- if @reference.class.to_s == 'Conversation'
+  Reference to #{@reference.title}
+  #{@host}/#/conversation/#{@reference.code}/#{@reference.munged_title}
+- else
+  Reference to type: #{@reference[:type]}, id: #{@reference[:id]}
+~''
+Message:
+~''
+= @contact.text
+~''
+~''
+

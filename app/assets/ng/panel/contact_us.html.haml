@@ -1,0 +1,30 @@
+%div.contact-us-panel
+
+  %div
+    .modal-header
+      %h3 Contact us
+    .modal-body{style: "max-height: 600px"}
+      %div.alert.alert-error(ng-show="error_messages")
+        %p.message Please review the problems below:
+
+      %form(ng-submit= "send_message()" name="contact_us_form")
+        %div.inputs(ng-switch="$root.user == 'null'")
+
+          %div(ng-switch-when="true")
+
+            %input.first(ng-model='message.first_name' required ce-focus){type: 'text', placeholder: 'First name'}
+
+            %input.last(ng-model='message.last_name' required ){type: 'text', placeholder: 'Last name'}
+
+            %input.email(ng-model='message.email' required ){type: 'text', placeholder: 'Email'}
+
+          %div(ng-switch-when="false")
+            %p From: {{$root.user.first_name}} {{$root.user.last_name}}
+
+
+        %div.inputs
+          %textarea.text(ng-model="message.text" required){placeholder: "Add your message here..."}
+
+        %div.buttons
+          %button.btn-primary.btn(ng-click="contact_us_form.submit()") Send message
+          %button.btn.btn-link(ng-click="close_panel()") Cancel

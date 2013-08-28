@@ -1,18 +1,6 @@
 class SubscribesController < ApplicationController
   skip_authorization_check :only => [:follow, :unsubscribe]
 
-
-  def follow
-
-    if params[:email].match(/\@.*\./)
-      FollowCe.create email: params[:email]
-      AdminMailer.follow_us(params[:email]).deliver
-      render template: 'subscribes/follow', layout: false
-    else
-      render template: 'subscribes/follow-bad-email', layout: false
-    end
-  end
-
   def unsubscribe
     log = LogEmail.find_by(token: params[:token])
     if log.nil?

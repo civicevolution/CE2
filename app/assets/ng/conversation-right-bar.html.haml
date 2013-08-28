@@ -3,6 +3,8 @@
   %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
     %li.disabled
       %div.schedule(ng-bind-html-unsafe="conversation.schedule_announcement")
+    %li#conversation-stats-link(ng-class="{active: active_link == 'contact'}")
+      %a(ng-click="open_panel('contact')") Contact us
     %li#conversation-stats-link(ng-class="{active: active_link == 'stats'}")
       %a(ng-click="open_panel('stats')") Stats
     %li#conversation-notification-link(ng-class="{active: active_link == 'notification'}")

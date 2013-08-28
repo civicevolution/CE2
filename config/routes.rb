@@ -110,7 +110,9 @@ Ce2::Application.routes.draw do
   get '/home' => 'home#home'
   root :to => "home#app"
 
-  post 'follow' => 'subscribes#follow'
+  post 'follow' => 'contacts#follow'
+
+  post 'contact_us' => 'contacts#send_message'
 
   get 'unsubscribe/:token' => "subscribes#unsubscribe"
 

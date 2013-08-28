@@ -1347,6 +1347,57 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
 
 # Directives for the panels
 
+ce2_directives.directive('ceContactPanel', ->
+  restrict: 'A'
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "panel/contact_us.html" %>#{prefix}"
+  replace: true
+  scope: true
+  controller: [ "$scope", "User", "$dialog",
+    ($scope, User, $dialog) ->
+      $scope.name = 'ceContactPanel'
+      $scope.message =
+        email: $scope.$root.user.email # || 'brian@civicevolution.org'
+        first_name: $scope.$root.user.first_name # || 'Brian'
+        last_name: $scope.$root.user.last_name # || 'Sullivan'
+        #text: new Date()
+
+      $scope.send_message = ->
+        #console.log "send this message to admin"
+        if $scope.conversation.code
+          $scope.message.reference_type = 'Conversation'
+          $scope.message.reference_id = $scope.conversation.code
+        User.send_contact_us_message($scope.message).then(
+          (response)->
+            #console.log "send_contact_us_message was successful"
+            title = 'Thank you for contacting us'
+            msg = "We will review your message to us soon."
+            btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+            $dialog.messageBox(title, msg, btns).open()
+            $scope.close_panel()
+          ,
+          (reason) ->
+            console.log "send_contact_us_message failed"
+            if reason.status is 404
+              title = 'Invite was not sent'
+              msg = reason.data.error
+              btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+              $dialog.messageBox(title, msg, btns).open()
+            else
+              for key of reason.data.errors
+                errors = (msg for msg in reason.data.errors[key])
+              title = 'Invite was not sent'
+              msg = errors.join(' & ')
+              btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+              $dialog.messageBox(title, msg, btns).open()
+
+              $scope.error_message = reason.data.error
+          )
+
+  ]
+)
+
 ce2_directives.directive('ceStatsPanel', ->
   restrict: 'A'
   templateUrl: (tElement, tAttrs) ->

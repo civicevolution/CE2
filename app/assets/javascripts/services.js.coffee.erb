@@ -36,6 +36,10 @@ services.factory 'User', [ "$http", "$window", ($http, $window) ->
   edit_profile: ->
     console.log 'User:edit_profile'
 
+  send_contact_us_message: (message) ->
+    #console.log "User.send_contact_us_message with message: #{message.text}"
+    $http.post('/contact_us.json', {message: message })
+
   test: ->
     $http.get('/api/users/user.json')
 
