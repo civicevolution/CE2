@@ -33,4 +33,17 @@ class AdminMailer < ActionMailer::Base
 
   end
 
+  def activity_report(activity_report)
+    @activity_report = activity_report
+    @user = User.find_by(id: activity_report.user_id)
+    @conversation = if @activity_report.conversation_code
+                   Conversation.find_by(code: @activity_report.conversation_code)
+                 end
+    @host=host
+
+    mail(:to => "Contact Us at CivicEvolution <admin@civicevolution.org>",
+         :subject => 'Activity report')
+
+  end
+
 end

@@ -1,0 +1,22 @@
+Activity report received at #{@activity_report.created_at.strftime('%A %B %d, %Y at %I:%M %p')}
+~''
+~''
+
+- if @sender
+  User signed in as
+  #{@user.first_name} #{@user.last_name} <#{@user.email}>
+- else
+  User not signed in
+  ~''
+- if @conversation
+  Reference to #{@conversation.title}
+  #{@host}/#/conversation/#{@conversation.code}/#{@conversation.munged_title}
+- else
+  Not in a conversation
+~''
+- if @activity_report.details
+  - @activity_report.details.each_pair do |k,v|
+    #{k}: #{v}
+
+~''
+~''

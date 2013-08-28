@@ -11,11 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130828195814) do
+ActiveRecord::Schema.define(version: 20130828224238) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "hstore"
+
+  create_table "activity_reports", force: true do |t|
+    t.string   "action"
+    t.integer  "user_id"
+    t.string   "conversation_code"
+    t.inet     "ip_address"
+    t.hstore   "details"
+    t.datetime "notification_sent_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "attachments", force: true do |t|
     t.integer  "attachable_id",                           null: false

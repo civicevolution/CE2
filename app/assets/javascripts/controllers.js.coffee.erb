@@ -405,3 +405,23 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
 
 
 ]
+
+ce2_app.controller 'ActivityMonitorController', ($scope, User, $dialog) ->
+  $scope.name = 'ActivityMonitor'
+  $scope.$on 'user-clicked-dead-link', (event, data) ->
+    console.log "'user-clicked-dead-link' for action: #{data.action}"
+    #data.conversation_code = $scope.
+    #{ action: 'Share'}
+    title = "Sorry, this feature isn't quite ready yet"
+    msg = "We are working on this feature now. Please click the \"Contact Us\" link on the right side of the page to share your ideas about how to make CivicEvolution better!"
+    btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+    $dialog.messageBox(title, msg, btns).open()
+
+    User.send_activity_report(data).then(
+      (response)->
+        #console.log "send_activity_report was successful"
+      ,
+      (reason) ->
+        console.log "send_activity_report failed: #{reason.data.error}"
+    )
+

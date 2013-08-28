@@ -1,5 +1,5 @@
 class SubscribesController < ApplicationController
-  skip_authorization_check :only => [:follow, :unsubscribe]
+  skip_authorization_check :only => [:unsubscribe]
 
   def unsubscribe
     log = LogEmail.find_by(token: params[:token])
@@ -16,7 +16,6 @@ class SubscribesController < ApplicationController
       render template: 'subscribes/un-subscribed', layout: false
 
     end
-
 
   end
 

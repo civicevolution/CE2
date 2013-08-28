@@ -291,7 +291,7 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         $scope.$root.$broadcast 'open-comment-form', {action: action, comment: $scope.comment}
 
       $scope.share = (id) ->
-        console.log "Clicked Comment share link id: #{id}"
+        $scope.$root.$broadcast 'user-clicked-dead-link', { action: 'Share', conversation_code: $scope.conversation.code, details: {type: $scope.comment.type, id: $scope.comment.id}}
 
       $scope.flag = ->
         CommentData.flag_comment($scope.comment.id, $scope.comment.version).then(
@@ -1283,6 +1283,12 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
         $scope.open_panel = (link) ->
           if $scope.active_link == link
             return $scope.close_panel()
+
+
+          for name in [ 'stats', 'share', 'print' ]
+            if name is link
+              $scope.$root.$broadcast 'user-clicked-dead-link', { action: link, conversation_code: $scope.conversation.code}
+              return
 
           if $scope.$root.dev_mode
             $templateCache.removeAll()

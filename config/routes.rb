@@ -114,6 +114,8 @@ Ce2::Application.routes.draw do
 
   post 'contact_us' => 'contacts#send_message'
 
+  post 'activity_report' => 'api/v1/activity_reports#record'
+
   get 'unsubscribe/:token' => "subscribes#unsubscribe"
 
   #root :to => "home#index"
