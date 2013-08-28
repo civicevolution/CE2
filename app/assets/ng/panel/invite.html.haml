@@ -29,7 +29,7 @@
 
         %div.buttons
           %button.btn-primary.btn(ng-click="send_invite()" ng-disabled='!invite_form.$valid') Send invite
-          %button.btn(ng-click="close_panel()") Cancel
+          %button.btn.btn-link(ng-click="close_panel()") Cancel
 
         %div(ng-hide="!invite_form.$valid" ng-animate="'custom'")
           %p.preview-label Below is a preview of the email we will send on your behalf

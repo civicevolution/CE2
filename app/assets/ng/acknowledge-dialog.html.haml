@@ -1,6 +1,7 @@
 %div
 
   .modal-header
+    %button.close(type="button" aria-hidden="true" ng-click="cancel(result)") &times;
     %h3 {{title}}
   .modal-body
     %div(ng-bind-html-unsafe="converter.makeHtml(message)")

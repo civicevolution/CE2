@@ -1,6 +1,6 @@
 %div
   .modal-header
-    %button.close(type="button" aria-hidden="true" ng-click="cancel(result)") &times;
+    %button.close(type="button" aria-hidden="true" ng-click="cancel()") &times;
     %h3 Sign up with CivicEvolution
   .modal-body{style: "max-height: 600px"}
     %p
@@ -56,6 +56,6 @@
 
   .modal-footer
     %button.btn.btn-primary(ng-disabled='!signIn.$valid' ng-click="submit_sign_in(user)") Sign up
-    %button.btn.btn-primary(ng-click="cancel()") Cancel
+    %button.btn.btn-primary.btn-link(ng-click="cancel()") Cancel
 
   -#= render "devise/shared/links"

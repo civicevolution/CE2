@@ -1,10 +1,8 @@
 %div
 
   .modal-header
-    %a.close(ng-click="cancel()")
-      %i.icon-remove.icon
-    %h3
-      Insert Image
+    %button.close(type="button" aria-hidden="true" ng-click="cancel()") &times;
+    %h3 Insert Image
 
   .modal-body
     %div.alert.alert-error(ng-show="error_message")

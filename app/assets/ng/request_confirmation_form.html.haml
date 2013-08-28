@@ -1,6 +1,7 @@
 %div.modal-form-ce
 
   .modal-header
+    %button.close(type="button" aria-hidden="true" ng-click="cancel(result)") &times;
     %h3 Send me the confirmation email
   %form(ng-submit="submit_request_confirmation(user)"){name: 'requestConfirmation'}
     .modal-body
@@ -12,5 +13,5 @@
 
     .modal-footer
       %button.btn.btn-primary(ng-disabled='!requestConfirmation.$valid') Send
-      %button.btn.btn-primary(ng-click="cancel(result)") Cancel
+      %button.btn.btn-primary.btn-link(ng-click="cancel(result)") Cancel
 
