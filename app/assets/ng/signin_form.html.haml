@@ -1,6 +1,7 @@
 %div
 
   .modal-header
+    %button.close(type="button" aria-hidden="true" ng-click="cancel(result)") &times;
     %h3 Sign in to CivicEvolution
   .modal-body
     %div.alert.alert-error(ng-show="error_message")
@@ -19,16 +20,22 @@
         Password:
         %input(ng-model='user.password' required){type: 'password', placeholder: 'Enter password...'}
 
+        %a(ng-click="forgot_password()")
+          Forgot password
       %p
         Remember me:
         %input(ng-model='user.remember_me'){type: 'checkbox', value:1}
 
-      .modal-footer
-        %button.btn.btn-primary(ng-disabled='!signIn.$valid') Sign in
-        %button.btn.btn-primary(ng-click="cancel(result)") Cancel
-
-        %a(ng-click="forgot_password()")
-          Forgot password
-
+      %p
+        Not a member yet?
         %a(ng-click="sign_up()")
           Sign up
+        for free
+
+  .modal-footer
+    %button.btn.btn-primary(ng-disabled='!signIn.$valid' ng-click="submit_sign_in(user)") Sign in
+    %button.btn.btn-primary(ng-click="cancel(result)") Cancel
+
+
+
+

@@ -21,7 +21,7 @@ ce2_directives.directive('ceUserBar', ->
       $scope.sign_in = ->
         $scope.dialog?.close()
         $scope.dialog = $dialog.dialog(
-          backdrop: false
+          backdrop: true
           keyboard: true
           backdropClick: true
           templateUrl: '<%= path_to_asset "signin_form.html" %>'

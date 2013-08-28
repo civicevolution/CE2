@@ -1,7 +1,15 @@
 %div
   .modal-header
+    %button.close(type="button" aria-hidden="true" ng-click="cancel(result)") &times;
     %h3 Sign up with CivicEvolution
   .modal-body{style: "max-height: 600px"}
+    %p
+      Already a member,
+      %a(ng-click="sign_in()")
+        sign in
+      now
+
+
     %div.alert.alert-error(ng-show="error_messages")
       %p.message Please review the problems below:
 
@@ -46,10 +54,8 @@
 
 
 
-      .modal-footer
-        %button.btn.btn-primary(ng-disabled='!signUp.$valid') Sign up
-        %button.btn.btn-primary(ng-click="cancel()") Cancel
-        %a(ng-click="sign_in()")
-          Sign in
+  .modal-footer
+    %button.btn.btn-primary(ng-disabled='!signIn.$valid' ng-click="submit_sign_in(user)") Sign up
+    %button.btn.btn-primary(ng-click="cancel()") Cancel
 
   -#= render "devise/shared/links"
