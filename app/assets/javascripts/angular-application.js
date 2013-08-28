@@ -20,7 +20,7 @@
 //= require angular-1.1.5/angular
 //= require angular-1.1.5/angular-resource
 //= require angular-ui-router-0.0.1/angular-ui-router.js
-//= require ui-bootstrap-tpls-0.4.0/ui-bootstrap-tpls-0.4.0.js
+//= require ui-bootstrap-tpls-0.5.0/ui-bootstrap-tpls-0.5.0.js
 //= require firebase.js
 
 //= require controllers.js

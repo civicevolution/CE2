@@ -21,7 +21,7 @@ ce2_directives.directive('ceUserBar', ->
       $scope.sign_in = ->
         $scope.dialog?.close()
         $scope.dialog = $dialog.dialog(
-          backdrop: true
+          backdrop: false
           keyboard: true
           backdropClick: true
           templateUrl: '<%= path_to_asset "signin_form.html" %>'
@@ -501,15 +501,15 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           li_elements = $mentions.find('li')
           for li, index in li_elements
             li = angular.element(li)
-            if li.hasClass('selected')
+            if li.hasClass('active')
               selected_index = index
               break;
-          li_elements.removeClass('selected')
+          li_elements.removeClass('active')
           switch event.keyCode
             when 38
             #console.log "move up"
               selected_index = if selected_index > 0 then selected_index -= 1 else selected_index
-              li_elements.eq(selected_index).addClass('selected')
+              li_elements.eq(selected_index).addClass('active')
             when 39, 13
               name = li_elements.eq(selected_index).find('span').text()
               #console.log "selected #{name}"
@@ -522,7 +522,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             when 40
             #console.log "move down"
               selected_index = if selected_index < li_elements.length-1 then selected_index += 1 else selected_index
-              li_elements.eq(selected_index).addClass('selected')
+              li_elements.eq(selected_index).addClass('active')
 
           #console.log "currently selected is #{selected_name.find('span').contents() }"
         else if event.keyCode is 50 && last_monitored_key_code_non_printable
@@ -530,7 +530,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           #console.log "display autocomplete with #{$scope.conversation.participants.length}"
           $scope.mention_mode = true
           $mentions.removeClass('hide')
-          $mentions.find('li').removeClass('selected').eq(0).addClass('selected')
+          $mentions.find('li').removeClass('active').eq(0).addClass('active')
           $textarea_wrapper = $mentions.parent()
           $mentions.css({top: "-#{$mentions.prop('offsetHeight')}px", left: "#{$textarea_wrapper.prop('offsetWidth')/2 - $mentions.prop('offsetWidth')/2}px" })
         else if $scope.mention_mode
@@ -1320,7 +1320,7 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
           else if $scope.conversation.ends_at < now
             # conversation ended already
             time_text = convert_time_difference_to_dhm( $scope.conversation.ends_at, now )
-            "Conversation ended <span>#{time_text}</span>ago"
+            "Conversation ended <span>#{time_text} ago</span>"
           else
             # conversation in progress
             time_text = convert_time_difference_to_dhm( now, $scope.conversation.ends_at )

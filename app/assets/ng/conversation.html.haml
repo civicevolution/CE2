@@ -1,6 +1,6 @@
 %div
-  .row-fluid.conversation#conversation(ng-style="conversation.style")
-    .span9
+  .row.conversation#conversation(ng-style="conversation.style")
+    .col-sm-9
       %h3#conversation-title.title
         %span.actual-title(ng-click="edit_title()" ng-if="conversation.title && !conversation.edit_title")
           {{conversation.title}}
@@ -15,14 +15,14 @@
 
 
 
-      .row-fluid
-        .span12.summary
+      .row
+        .col-sm-12.summary
           %div#call-to-action.call-to-action
             %div.comment-outer
               %div(ce-comment type="call-to-action")
 
-      .row-fluid
-        .span12.summary
+      .row
+        .col-sm-12.summary
           %h4 Conversation Summary
           %div
             %div.comment-outer(ng-repeat="comment in conversation.summary_comments" )
@@ -32,18 +32,18 @@
               %p Conversation summary placeholder
 
       %div(ng-switch="add_summary_comment" ng-if="conversation.can('edit_summary')")
-        .row-fluid(ng-switch-default )
-          .span8
+        .row(ng-switch-default )
+          .col-sm-8
             %p
               %input.btn-primary.btn(ng-click="show_comment_form('new-summary-comment')"){type: 'button', value: 'Add summary comment'}
 
-        .row-fluid(ng-switch-when="true")
-          .span8
+        .row(ng-switch-when="true")
+          .col-sm-8
             %h4 Add a summary comment to help capture this conversation
             %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
 
-      .row-fluid(ng-if="conversation.privacy.comments=='true' || conversation.can('show')")
-        .span12.conversation
+      .row(ng-if="conversation.privacy.comments=='true' || conversation.can('show')")
+        .col-sm-12.conversation
           %h4 Conversation
           %div.comment-outer(ng-repeat="comment in conversation.conversation_comments" )
             %div(ce-comment type="conversation")
@@ -51,14 +51,14 @@
           %div.placeholder(ng-if="conversation.conversation_comments.length == 0")
             %p Conversation placeholder
 
-      .row-fluid(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
-        .span8
+      .row(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
+        .col-sm-8
           %p#add-conversation-comment
             %input.btn-primary.btn(ng-click="show_comment_form('new-conversation-comment')"){type: 'button', value: 'Add conversation comment'}
 
       %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")
 
-    .span3.right-bar
+    .col-sm-3.right-bar
       %div(ce-conversation-right-bar)
 
   %div(ng-if="conversation_wizard_mode")

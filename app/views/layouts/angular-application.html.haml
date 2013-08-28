@@ -4,7 +4,8 @@
     %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
     %title= @issue.try{|issue| issue.title} || ( content_for?(:title) ? yield(:title) : 'CivicEvolution')
     %meta{:content => content_for?(:description) ? yield(:description) : "Ce2", :name => "description"}
-    = stylesheet_link_tag "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css", :media => "all"
+    -#= stylesheet_link_tag "//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css", :media => "all"
+    = stylesheet_link_tag "//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.css", :media => "all"
     = stylesheet_link_tag "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css", :media => "all"
     = stylesheet_link_tag "application", :media => "all"
     = csrf_meta_tags
@@ -19,10 +20,10 @@
         .container.user-bar
           %div(ce-user-bar)
     #main{:role => "main"}
-      .container-fluid
+      .container
         .content
-          .row-fluid
-            .span12
+          .row
+            .col-md-12
               %div(ui-view)
           %footer
       / ! end of .container

@@ -1,42 +1,36 @@
 %div.right-bar-template
+
+  %ul.nav.nav-pills.nav-stacked.nav-fixed.right-menu
+    %li.disabled
+      %div.schedule(ng-bind-html-unsafe="conversation.schedule_announcement")
+    %li#conversation-stats-link(ng-class="{active: active_link == 'stats'}")
+      %a(ng-click="open_panel('stats')") Stats
+    %li#conversation-notification-link(ng-class="{active: active_link == 'notification'}")
+      %a(ng-click="open_panel('notification')") Notification options
+    %li#conversation-invite-link(ng-class="{active: active_link == 'invite'}")
+      %a(ng-click="open_panel('invite')") Invite friends
+    %li#conversation-share-link(ng-class="{active: active_link == 'share'}")
+      %a(ng-click="open_panel('share')") Share/Embed
+    %li#conversation-print-link(ng-class="{active: active_link == 'print'}")
+      %a(ng-click="open_panel('print')")
+        Print/PDF/Download
+
+    %li#conversation-tags-link(ng-if="conversation.can('tags')" ng-class="{active: active_link == 'tags'}")
+      %a(ng-click="open_panel('tags')" ) Tags
+    %li#conversation-privacy-link(ng-if="conversation.can('privacy')" ng-class="{active: active_link == 'privacy'}")
+      %a(ng-click="open_panel('privacy')") Privacy settings
+    %li#conversation-schedule-link(ng-if="conversation.can('schedule')" ng-class="{active: active_link == 'schedule'}")
+      %a(ng-click="open_panel('schedule')") Schedule
+    %li#conversation-participants-link(ng-if="conversation.can('update_role')" ng-class="{active: active_link == 'participants'}")
+      %a(ng-click="open_panel('participants')") Participants
+    %li#conversation-review-link(ng-if="conversation.can('approve_posts')" ng-class="{active: active_link == 'review'}")
+      %a(ng-click="open_panel('review')")
+        Review comments
+        %span.badge.badge-important {{conversation.review_items_count}}
+
+
   -#%div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}" ng-style="specific_panel_style")
-  %div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}")
+  -#%div#right-bar-panel(ng-show="active_link" ng-animate="'fade'" ng-class="{active: active_link, inactive: !active_link}")
     %button.close(ng-click="close_panel()") &times;
     %div.right-panel-inner
       %div(ng-bind-html-unsafe="right_bar_panel_directive")
-
-  #right-bar-menu
-    .schedule
-      %div(ng-bind-html-unsafe="conversation.schedule_announcement")
-
-    %ul
-      %li#conversation-stats-link
-        %a(ng-click="open_panel('stats')" ng-class="{selected: active_link == 'stats'}") Stats
-      %li#conversation-notification-link
-        %a(ng-click="open_panel('notification')" ng-class="{selected: active_link == 'notification'}") Notification options
-      %li#conversation-invite-link
-        %a(ng-click="open_panel('invite')" ng-class="{selected: active_link == 'invite'}") Invite friends
-      %li#conversation-share-link
-        %a(ng-click="open_panel('share')" ng-class="{selected: active_link == 'share'}") Share/Embed
-      %li#conversation-print-link
-        %a(ng-click="open_panel('print')" ng-class="{selected: active_link == 'print'}") Print
-        •
-        %a(ng-click="open_panel('pdf')" ng-class="{selected: active_link == 'pdf'}") PDF
-        •
-        %a(ng-click="open_panel('download')" ng-class="{selected: active_link == 'download'}") Download
-
-
-    %ul(ng-if="conversation.can('approve_posts')")
-      %li.label Curator settings
-
-      %li#conversation-tags-link(ng-if="conversation.can('tags')")
-        %a(ng-click="open_panel('tags')" ng-class="{selected: active_link == 'tags'}") Tags
-      %li#conversation-privacy-link(ng-if="conversation.can('privacy')")
-        %a(ng-click="open_panel('privacy')" ng-class="{selected: active_link == 'privacy'}") Privacy settings
-      %li#conversation-schedule-link(ng-if="conversation.can('schedule')")
-        %a(ng-click="open_panel('schedule')" ng-class="{selected: active_link == 'schedule'}") Schedule
-      %li#conversation-participants-link(ng-if="conversation.can('update_role')")
-        %a(ng-click="open_panel('participants')" ng-class="{selected: active_link == 'participants'}") Participants
-      %li#conversation-review-link(ng-if="conversation.can('approve_posts')")
-        %a(ng-click="open_panel('review')" ng-class="{selected: active_link == 'review'}") Review comments
-        %span.badge.badge-important {{conversation.review_items_count}}
