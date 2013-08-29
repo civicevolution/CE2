@@ -665,6 +665,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               $scope.newComment.id = null
               $scope.newComment.text = ''
               $scope.newComment.reply_control_title = "Add your first call-to-action"
+              $scope.newComment.type = "CallToActionComment"
             else
               $scope.newComment.reply_control_title = "Edit call-to-action"
 
@@ -1301,12 +1302,12 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
           left = menu.prop('offsetLeft')
           top = menu.prop('offsetTop')
           width =  menu.prop('offsetWidth')
-          console.log "top: #{top}, left: #{left}, width: #{width}"
+          #console.log "top: #{top}, left: #{left}, width: #{width}"
 
           width = angular.element(document.getElementById('conversation')).prop('offsetWidth') - width - 10
           right = window.innerWidth - left + 4
           max_height = window.innerHeight - top - 40
-          console.log "window.innerHeight: #{window.innerHeight}, top: #{top}, max-height: #{max_height}"
+          #console.log "window.innerHeight: #{window.innerHeight}, top: #{top}, max-height: #{max_height}"
 
           panel = angular.element(document.getElementById('right-bar-panel'))
           panel.css( {top: "#{top}px", right: "#{right}px", width: "#{width}px", 'max-height': "#{max_height}px" })
@@ -1918,7 +1919,7 @@ ce2_directives.directive('ceCreateConversationWizard', ->
         if not current_step
           console.log "No more wizard pages to display, clear/remove wizard" if debug_wizard
           $timeout ->
-            $scope.$root.conversation_wizard_mode = false
+            $scope.conversation.wizard_mode = false
           return
 
         $scope.wizard_step = current_step['code']
@@ -2023,7 +2024,12 @@ ce2_directives.directive('ceCreateConversationWizard', ->
             position: 'absolute'
             top:  "#{top}px"
             left: "#{left}px"
-
+          $timeout ->
+            console.log "starting wizard_width: #{wizard_width}, ending wizard.prop('offsetWidth'): #{wizard.prop('offsetWidth')}" if debug_position
+            if wizard_width != wizard.prop('offsetWidth')
+              $timeout ->
+                adjust_popup()
+          ,100
 
       $scope.$on "user-event-notification", (event, data) ->
         #console.log "user-event-notification for data.action: #{data.action}"
@@ -2046,23 +2052,6 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
   replace: true
   scope: true
   priority: 100
-  #compile: ->
-  #  post: (scope, iElement, iAttrs, controller) ->
-  #    #console.log "ceComment postLink function"
-  #    if scope.comment?.text.match(/\[quote/)
-  #      #console.log "XXX compile this node"
-  #      $timeout ->
-  #        $compile(iElement.find('blockquote'))(scope)
-  #    scope.comment.quote_expanded = false
-  #    if scope.comment.reply_to_targets
-  #      scope.comment.in_reply_tag = reply for reply in scope.comment.reply_to_targets when reply.quote is false
-  #
-  #    scope.$watch 'comment.text', (oldValue, newValue) ->
-  #      if scope.comment.text.match(/\[quote/)
-  #        #console.log "recompile the comment with a quote in it"
-  #        $timeout ->
-  #          $compile(iElement.find('blockquote'))(scope)
-  #
   controller: [ "$scope", "ConversationData", "$dialog",
     ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceReviewComment'

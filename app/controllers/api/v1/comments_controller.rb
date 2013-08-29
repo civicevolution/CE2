@@ -16,8 +16,9 @@ module Api
       end
 
       def show
-        respond_with Comment.find(params[:id])
-        #render :json => Comment.find(params[:id]), :serializer => CommentSerializer
+        comment = Comment.includes(:author).find(params[:id])
+        authorize! :show, comment.conversation
+        respond_with comment
       end
 
       def create

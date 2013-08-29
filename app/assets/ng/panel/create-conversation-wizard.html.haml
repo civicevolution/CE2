@@ -28,14 +28,14 @@
           link to add a clear call-to-action that focuses and motivates people.
 
       %div.page(ng-switch-when="TBD" wiz-pos="el:reply-control:above"
-        trigger="save comment CallToActionComment" action="next" test="conversation.call_to_action_comment == null")
+        trigger="save comment CallToActionComment" action="next" test="conversation.call_to_action_comment.id == 0")
         %h4 Enter your call to action here
         %p Enter a brief description of your conversation and what you hope to accomplish.
 
 
 
       %div.page(ng-switch-when="TBD" wiz-pos="el:add-conversation-comment:above"
-        trigger="open comment-form ConversationComment" action="next" test="conversation.conversation_comments.length == 0")
+        trigger="open comment-form new-conversation-comment" action="next" test="conversation.conversation_comments.length == 0")
         %h4 Start the conversation
         %p
           No one likes to be the first person to speak up.
@@ -69,7 +69,7 @@
         %h4 Set your privacy
         %p Is this public or private and who can join?
 
-      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top"
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-menu:right:top"
         trigger="update panel privacy" action="next" test="conversation.privacy.confirmed_privacy == null")
         %h4 Check these privacy settings
         %p These are the recommended settings.
@@ -81,7 +81,7 @@
         %h4 Schedule this conversation
         %p When does this conversation start and end?
 
-      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top"
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-menu:right:top"
         trigger="update panel schedule" action="next" test="conversation.privacy.confirmed_schedule == null")
         %h4 Set the start and end date
         %p We recommend 14 days to keep the conversation focused and moving.
@@ -102,32 +102,26 @@
         %h4 Keep up-to-date with this conversation
         %p Select how you want to be informed about this conversation
 
-      %div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top"
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-menu:right:top"
         trigger="update panel notification" action="next" test="conversation.notification_request.default")
         %h4 Check these settings
         %p We recommend notifications.
 
 
 
-      -#%div.page(ng-switch-when="TBD" wiz-pos="el:conversation-invite-link:left" trigger="open panel invite" action="next")
+      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-invite-link:left" trigger="open panel invite" action="next")
         %h4 Invite your friends to this conversation
         %p The more the merrier
 
-      -#%div.page(ng-switch-when="TBD" wiz-pos="box:right-bar-panel:right:top" trigger="update panel invite" action="next")
-        %h4 Send invites to your friends
-        %p We need names and email addresses
 
 
-      %div.page(ng-switch-when="TBD" wiz-pos="el:conversation-invite-link:left"
-        trigger="update panel notification" action="next" test="conversation.notification_request.default")
+      %div.page(ng-switch-when="TBD" wiz-pos="box:right-menu:right:top" action="next")
         %h4 Thanks for setting up your conversation.
         %p
           You're all set to invite your friends and start
           %i Thinking together to act together.
 
         %button.btn-primary.btn(ng-click="wizard_navigation('next')") Ok
-
-
 
 
 
