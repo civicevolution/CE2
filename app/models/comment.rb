@@ -8,6 +8,9 @@ class Comment < ActiveRecord::Base
 
   attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark, :auth_type
 
+  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
+                  :conversation_code, :in_reply_to_id, :in_reply_to_version, :published, :auth_type, :tag_name
+
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
 
@@ -26,9 +29,6 @@ class Comment < ActiveRecord::Base
   has_many :reply_comments, through: :replies, source: :reply_comments
 
   has_many :mentions, dependent: :delete_all
-
-  attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
-                  :references, :conversation_code, :in_reply_to_id, :in_reply_to_version, :published, :auth_type
 
   after_initialize :read_previous_text_on_init
   before_update :increment_comment_version

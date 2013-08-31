@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130828224238) do
+ActiveRecord::Schema.define(version: 20130830192101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -87,11 +87,12 @@ ActiveRecord::Schema.define(version: 20130828224238) do
     t.string   "status",          default: "new"
     t.integer  "order_id"
     t.string   "purpose"
-    t.string   "references"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "ratings_cache",                                array: true
     t.boolean  "published",       default: false
+    t.string   "tag_name"
+    t.string   "tags",                                         array: true
   end
 
   add_index "comments", ["conversation_id"], name: "index_comments_on_conversation_id", using: :btree

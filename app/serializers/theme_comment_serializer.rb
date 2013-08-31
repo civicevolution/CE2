@@ -1,26 +1,14 @@
-class CommentSerializer < ActiveModel::Serializer
+class ThemeCommentSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :type, :id, :order_id, :text, :url, :first_name, :last_name, :updated_at, :purpose,
-             :version, :ratings_cache, :my_rating, :number_of_votes, :photo_code,
+  attributes :type, :id, :order_id, :text, :updated_at, :purpose,
+             :version, :number_of_votes, :tag_name,
              :editable_by_user, :name, :code, :published, :status,
              :replies, :reply_to_targets, :bookmark
-             #:reply_comments, :reply_to_comments
+  #:reply_comments, :reply_to_comments
 
-   def url
+  def url
     api_comment_url(object)
-  end
-
-  def first_name
-    object.author.first_name
-  end
-
-  def last_name
-    if object.author.name_count.nil? || object.author.name_count  == 1
-      object.author.last_name
-    else
-      "#{object.author.last_name}[#{object.author.name_count}]"
-    end
   end
 
   def name
@@ -65,7 +53,7 @@ class CommentSerializer < ActiveModel::Serializer
   end
 
   def editable_by_user
-    (defined?(current_user).nil? || current_user.nil?) ? false : object.editable_by_user?(current_user)
+    ((defined? current_user).nil? || current_user.nil?) ? false : object.editable_by_user?(current_user)
   end
 
 end

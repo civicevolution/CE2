@@ -140,6 +140,12 @@ module Api
         respond_with stats
       end
 
+      def theme_data
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :edit_theme_comment, conversation
+        presenter = ConversationPresenter.new( conversation, current_user, :show_all )
+        respond_with presenter.conversation, serializer: ConversationThemeDataSerializer
+      end
     end
 
   end

@@ -13,6 +13,9 @@ class Conversation < ActiveRecord::Base
   has_many  :conversation_comments, -> { includes author: :profile }
   has_many :summary_comments, -> { includes author: :profile }
 
+  has_many :table_comments
+  has_many :theme_comments
+
   has_many :attachments, :as => :attachable
 
   has_and_belongs_to_many :tags

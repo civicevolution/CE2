@@ -65,6 +65,17 @@ module Api
             comment = conversation.create_call_to_action_comment params[:comment]
           when "TitleComment"
             comment = conversation.create_title_comment params[:comment]
+          when "ThemeComment"
+            params[:comment][:purpose] ||= 'theme'
+            params[:comment][:tag_name] = params[:tag_name]
+            params[:comment][:text] ||= "Please write a description for tag: #{params[:comment][:tag_name]}"
+            comment = conversation.theme_comments.create params[:comment]
+
+            #comment = conversation.theme_comments.first
+            #comment.tag_name = 'Fake T5'
+            Rails.logger.debug "theme comment #{comment.inspect}"
+          when "TableComment"
+            comment = conversation.table_comment.create params[:comment]
         end
 
         respond_with comment
@@ -162,6 +173,14 @@ module Api
             status = 'ok'
           when "TitleComment"
             auth_type = :edit_title
+            published = true
+            status = 'ok'
+          when "TableComment"
+            auth_type = :edit_table_comment
+            published = true
+            status = 'ok'
+          when "ThemeComment"
+            auth_type = :edit_theme_comment
             published = true
             status = 'ok'
         end

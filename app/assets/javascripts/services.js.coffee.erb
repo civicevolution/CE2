@@ -404,3 +404,67 @@ services.factory "TemplateEngine",
           ##$http.get("/assets/angular-views/#{templateName}.html")
           return "Initializing TemplateEngine for #{templateName}"
 
+
+services.factory "ThemeData", ["$http",
+  ($http) ->
+    name: "ThemeData"
+
+    conversation_theme_data: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/theme_data.json").then (response) ->
+        if response.status is 200
+          #data: response.data
+          theme_comments = []
+          table_comments = []
+          #authors = {}
+          for comment in response.data.displayed_comments
+            switch comment.type
+              when "ThemeComment" then theme_comments.push comment
+              when "TableComment" then table_comments.push comment
+          #when "TitleComment" then title_comment = comment
+          #when "CallToActionComment" then call_to_action_comment = comment
+          #  authors[comment.name] = comment.code
+          #authors = ( {name: name, photo_code: authors[name]} for name of authors when name != 'Unconfirmed_User')
+          #
+          ##console.log "conversation_id: #{conversation_id}"
+          ## extract and setup some data for the directive controller
+
+          table_comments: table_comments.sort((a,b)-> a.id - b.id)
+          theme_comments: theme_comments.sort((a,b)-> a.id - b.id)
+          title: response.data.title
+          code: response.data.code
+
+    #firebase_token: response.data.firebase_token
+    #summary_comments: summary_comments.sort((a,b)-> a.order_id - b.order_id)
+    #conversation_comments: conversation_comments.sort((a,b)-> a.order_id - b.order_id)
+    #title_comment: title_comment
+    #call_to_action_comment: call_to_action_comment || {
+    #editable_by_user: true
+    #id: 0
+    #purpose: "Call to action"
+    #text: "This area is for your call-to-action. Here you describe this conversation and suggest ways for people to contribute."
+    #type: "CallToActionComment"
+    #updated_at: new Date()
+    #version: 0
+    #}
+
+    #current_timestamp: response.data.current_timestamp
+    #privacy: response.data.privacy
+    #tags: response.data.tags.sort()
+    #starts_at: new Date(response.data.starts_at)
+    #ends_at: new Date(response.data.ends_at)
+    #published: response.data.published
+    #list: response.data.list
+    #status: response.data.status
+    #notification_request  : response.data.notification_request
+    #participants: authors
+    #role: response.data.role.name
+    #abilities: response.data.role.abilities
+    #can: (action) ->
+    #  _.indexOf(this.abilities, action ) > -1
+
+
+    create_new_theme: (data) ->
+      $http.post("/api/conversations/#{data.conversation_code}/comments.json", data)
+
+
+]

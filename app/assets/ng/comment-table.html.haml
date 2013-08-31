@@ -1,0 +1,76 @@
+%div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}"){id: "com-{{comment.id}}"}
+  %div
+    %div(ng-switch="comment.text.length")
+      %div.row-fluid(ng-switch-when="0")
+        Comment deleted
+        -#.span2.author.deleted-comment-author
+          %div.com-num
+            {{comment.order_id}}
+
+        -#.span8.deleted-comment-body
+          %p
+            This comment has been deleted
+            %a(ng-click="view_history({{comment.id}})")
+              View history
+          %div.history.clear(ng-include src="history_url")
+
+      %div(ng-switch-default)
+
+        %div.full-comment.row-fluid(ng-if="comment.reply_target_expanded")
+          .span10.offset2.comment-target{'ng-include' => "'#{ path_to_asset("reply-to-target.html") }'"}
+
+        %div.full-comment.row-fluid
+          -#.span2.author
+            %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{comment.photo_code}}/sm5/p.jpg")
+            %p.name {{comment.first_name}} {{comment.last_name}}
+            %div.com-num
+              {{comment.order_id}}
+
+          .span10.body-with-arrow
+            -#.arrow
+            .comment-body-container
+
+              %div.header
+                %div.in-reply(ng-if="comment.in_reply_tag" ng-click="show_reply_target({{comment.in_reply_tag.id}})")
+                  In reply to
+                  %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{comment.in_reply_tag.code}}/sm1/p.jpg")
+                  {{comment.in_reply_tag.author}}
+                  %span(ng-if="comment.reply_target_expanded")
+                    %i.icon-chevron-down
+
+
+                %p.time {{comment.updated_at | from_now}}
+                %p {{comment.purpose}}
+
+              %div(ng-switch="comment.body_template_url")
+                %div.comment-body(ng-switch-when="default")
+                  %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
+
+                  %div.history.clear(ng-include src="history_url")
+
+                  -#%div(ce-rating-slider)
+
+                %div(ng-switch-default)
+                  -# this comment is not published, use alternate template determined by controller
+                  %div(ng-include="comment.body_template_url")
+
+
+              %div.footer
+                %div.replies(ng-if="comment.replies.length>0" ng-click="show_replies()")
+                  {{comment.replies.length}} replies
+                  %span(ng-if="comment.replies_expanded")
+                    %i.icon-chevron-up
+
+                %div(ce-tag-comment)
+
+                %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
+                  History v{{comment.version}}
+
+                %a.edit(ng-if="comment.editable_by_user" ng-click="edit('conversation-comment-edit')"){title: "Edit this comment"}
+                  -#%i.icon-pencil
+                  Edit
+
+              %div.comment-replies(ng-if="comment.replies_expanded")
+                %div(ng-repeat="reply in comment.reply_comments")
+                  %div{'ng-include' => "'#{ path_to_asset("comment-reply.html") }'"}
+                %p.clear

@@ -1,0 +1,13 @@
+%div.tags
+  %button.btn.btn-primary.btn-small.dropdown-toggle
+    {{comment.tags.join(', ') || 'Tag this comment'}}
+    %b.caret
+  %ul.dropdown-menu
+    %li(ng-repeat="theme in conversation.theme_comments" ng-class="{active: tags_contains(theme) }" ng-click="tag_click()")
+      %a
+        %label.checkbox
+          %input(type='checkbox' value="{{theme.tag_name}}" ng-checked="tags_contains(theme)")
+            {{theme.tag_name}}
+    %li.no-wrap
+      %input(ng-click="text_click()" ng-keydown="check_for_enter()"){type: 'text', placeholder: 'Add new tag...'}
+      %button.btn.btn-primary.btn-small(ng-click="input_submitted()") Ok

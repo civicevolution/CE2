@@ -234,6 +234,7 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
       when "conversation" then "<%= path_to_asset "comment-conversation.html" %>"
       when "summary" then "<%= path_to_asset "comment-summary.html" %>"
       when "call-to-action" then "<%= path_to_asset "comment-call-to-action.html" %>"
+      when "table" then "<%= path_to_asset "comment-table.html" %>"
   replace: true
   scope: true
   priority: 100
@@ -2193,4 +2194,88 @@ ce2_directives.directive('ceReviewFlaggedComment',[ "$compile", "$timeout", ($co
         console.log "update_privileges for id: #{$scope.post.id}"
 
   ]
+])
+
+
+ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
+  ($compile, $timeout, ThemeData) ->
+    restrict: 'A'
+    templateUrl: (tElement, tAttrs) ->
+      prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+      "<%= path_to_asset "assets/tag-comment.html" %>#{prefix}"
+    replace: true
+    scope: true
+    controller: [ "$scope",
+      ($scope) ->
+        $scope.name = 'ceTagComment'
+
+        $scope.tag_click = ->
+          console.log "tag_click"
+          event.stopPropagation()
+          el = angular.element(event.currentTarget)
+          theme = el.find('input').val()
+          if _.include($scope.comment.tags, theme)
+            el.removeClass('active')
+            $scope.comment.tags = _.without($scope.comment.tags, theme)
+          else
+            el.addClass('active')
+            $scope.comment.tags.push theme
+
+        $scope.tags_contains = (theme) ->
+          _.include($scope.comment.tags, theme.tag_name)
+
+        $scope.text_click = ->
+          #console.log "text_click"
+          event.stopPropagation()
+
+        $scope.check_for_enter = ->
+          if event.keyCode == 13
+            console.log "detected Enter, submit tag"
+            $scope.input_submitted()
+
+        $scope.input_submitted = ->
+          el = angular.element(event.currentTarget).parent().find('input')
+          new_tag = el.val()
+          if new_tag
+            console.log "input_submitted: #{new_tag}"
+            # is new tag a unique new tag?
+            for theme in $scope.conversation.theme_comments
+              if theme.tag_name is new_tag
+                console.log "the new tag must be unique"
+                return
+            console.log "Create a new tag and add it to this comment"
+            # send this to the server and add the returning value to the conversation.theme_comments
+            new_theme =
+              type: "ThemeComment"
+              conversation_code: $scope.conversation.code
+              tag_name: new_tag
+            ThemeData.create_new_theme(new_theme).then(
+              (response)->
+                console.log "create_new_theme was #{new_tag} successful"
+                $scope.comment.tags.push new_tag
+                el.val('')
+                #$scope.$emit('delete-comment-flag', $scope.post)
+                #$scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
+                el.val('')
+                if response.data.type
+                  $scope.$root.$broadcast "#{response.data.type}_update", {
+                    action: 'create'
+                    class: response.data.type
+                    data: response.data
+                    updated_at: response.data.updated_at
+                    source: "#create_theme_comment"
+                  }
+              ,
+              (reason) ->
+                console.log "create_new_theme #{new_tag} failed"
+                $scope.error_message = reason.data.error
+            )
+
+          # close the popup (remove .open from div.tags)
+          while(el && el.prop('nodeName')!= 'DIV')
+            el = el.parent()
+          el?.removeClass('open')
+
+
+    ]
 ])

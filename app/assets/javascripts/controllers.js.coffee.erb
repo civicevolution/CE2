@@ -91,6 +91,20 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       })
 
+      .state( 'conversation_theme',
+        url: "/conversation/{code}/theme/{munged_title}"
+        templateUrl: '<%= path_to_asset "theme.html" %>'
+        resolve:
+          conversation_theme_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
+            console.log "resolve get ConversationData.theme"
+            ThemeData.conversation_theme_data($stateParams.code)
+            #console.log "conversation state with path: #{$stateParams.path}"
+          ]
+        onEnter: ($rootScope) ->
+          $rootScope.initialize_markdown_system()
+        controller: conversation_theme_controller
+      )
+
       .state( 'conversation',
         url: "/conversation/{code}/{munged_title}"
         #url: "/conversation/{code}/{munged_title:[^/]*}{path:.*}"
@@ -424,4 +438,23 @@ ce2_app.controller 'ActivityMonitorController', ($scope, User, $dialog) ->
       (reason) ->
         console.log "send_activity_report failed: #{reason.data.error}"
     )
+
+
+conversation_theme_controller = [ "$scope", "conversation_theme_data", "FirebaseService", "$timeout", "ConversationData", "$dialog",
+  ($scope, conversation_theme_data, FirebaseService, $timeout, ConversationData, $dialog) ->
+    console.log "In conversation state controller at bottom"
+    $scope.conversation = conversation_theme_data
+    $scope.$root.timestamp = conversation_theme_data.current_timestamp
+
+    $scope.name = 'ceConversationTheme'
+
+    $scope.$on 'ThemeComment_update', (event, data) ->
+      #console.log "received broadcast SummaryComment_update"
+      [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.theme_comments, data)
+      if updated_rec && original_rec
+        updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+
+
+
+]
 
