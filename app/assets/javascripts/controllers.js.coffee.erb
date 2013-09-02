@@ -440,8 +440,8 @@ ce2_app.controller 'ActivityMonitorController', ($scope, User, $dialog) ->
     )
 
 
-conversation_theme_controller = [ "$scope", "conversation_theme_data", "FirebaseService", "$timeout", "ConversationData", "$dialog",
-  ($scope, conversation_theme_data, FirebaseService, $timeout, ConversationData, $dialog) ->
+conversation_theme_controller = [ "$scope", "conversation_theme_data", "FirebaseService",
+  ($scope, conversation_theme_data, FirebaseService) ->
     console.log "In conversation state controller at bottom"
     $scope.conversation = conversation_theme_data
     $scope.$root.timestamp = conversation_theme_data.current_timestamp
@@ -453,6 +453,11 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.theme_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+      tag_hash = {}
+      for comment in $scope.conversation.theme_comments
+        tag_hash[comment.id] = comment.tag_name
+      $scope.conversation.theme_tag_hash = tag_hash
+
 
 
 

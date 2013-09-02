@@ -2,7 +2,7 @@ class TableCommentSerializer < ActiveModel::Serializer
   self.root = false
 
   attributes :type, :id, :order_id, :text, :updated_at, :purpose,
-             :version, :number_of_votes, :tag_name, :tags,
+             :version, :number_of_votes, :tag_name, :reference_ids,
              :editable_by_user, :name, :code, :published, :status
 
   def name
@@ -13,8 +13,8 @@ class TableCommentSerializer < ActiveModel::Serializer
     end
   end
 
-  def tags
-    object.tags || []
+  def reference_ids
+    object.reference_ids || []
   end
 
   def code

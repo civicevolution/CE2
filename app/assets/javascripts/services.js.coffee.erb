@@ -427,9 +427,13 @@ services.factory "ThemeData", ["$http",
           #
           ##console.log "conversation_id: #{conversation_id}"
           ## extract and setup some data for the directive controller
+          tag_hash = {}
+          for comment in theme_comments
+            tag_hash[comment.id] = comment.tag_name
 
           table_comments: table_comments.sort((a,b)-> a.id - b.id)
           theme_comments: theme_comments.sort((a,b)-> a.id - b.id)
+          theme_tag_hash: tag_hash
           title: response.data.title
           code: response.data.code
 
@@ -465,6 +469,5 @@ services.factory "ThemeData", ["$http",
 
     create_new_theme: (data) ->
       $http.post("/api/conversations/#{data.conversation_code}/comments.json", data)
-
 
 ]

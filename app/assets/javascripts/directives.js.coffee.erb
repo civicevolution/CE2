@@ -2213,16 +2213,27 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
           console.log "tag_click"
           event.stopPropagation()
           el = angular.element(event.currentTarget)
-          theme = el.find('input').val()
-          if _.include($scope.comment.tags, theme)
+          theme_id = Number(el.find('input').val())
+          if _.include($scope.comment.reference_ids, theme_id)
             el.removeClass('active')
-            $scope.comment.tags = _.without($scope.comment.tags, theme)
+            $scope.comment.reference_ids = _.without($scope.comment.reference_ids, theme_id)
           else
             el.addClass('active')
-            $scope.comment.tags.push theme
+            $scope.comment.reference_ids.push theme_id
 
-        $scope.tags_contains = (theme) ->
-          _.include($scope.comment.tags, theme.tag_name)
+        $scope.references = (theme) ->
+          console.log "references #{theme.id}"
+          _.include($scope.comment.reference_ids, theme.id)
+
+        $scope.comment_tags = ->
+          if $scope.comment.reference_ids.length == 0
+            'Tag this comment'
+          else
+            tags = []
+            for id in $scope.comment.reference_ids
+              #tags.push "Theme id: #{id}"
+              tags.push $scope.conversation.theme_tag_hash[id]
+            tags.join(', ')
 
         $scope.text_click = ->
           #console.log "text_click"
