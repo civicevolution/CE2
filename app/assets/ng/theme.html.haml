@@ -26,7 +26,7 @@
 
 
     .span9
-      %h3#conversation-title.title {{conversation.title}} ({{$id}})
+      %h3#conversation-title.title {{conversation.title}}
 
       %div.comment-outer(ng-repeat="comment in conversation.table_comments" )
         %div(ce-comment type="table")

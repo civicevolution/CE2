@@ -1,13 +1,14 @@
 %div.tags
   %button.btn.btn-primary.btn-small.dropdown-toggle
-    {{comment_tags()}}
+    {{comment.tags}}
     %b.caret
-  %ul.dropdown-menu
-    %li(ng-repeat="theme in conversation.theme_comments" ng-class="{active: references(theme) }" ng-click="tag_click()")
+  %ul.dropdown-menu(ng-click="menu_click()")
+    %li(ng-repeat="theme in conversation.theme_comments" ng-class="{active: comment.tag_bools[theme.id] }")
       %a
         %label.checkbox
-          %input(type='checkbox' value="{{theme.id}}" ng-checked="references(theme)")
+          %input(type='checkbox' value="{{theme.id}}" ng-checked="comment.tag_bools[theme.id]")
             {{theme.tag_name}}
     %li.no-wrap
-      %input(ng-click="text_click()" ng-keydown="check_for_enter()"){type: 'text', placeholder: 'Add new tag...'}
-      %button.btn.btn-primary.btn-small(ng-click="input_submitted()") Ok
+      %form(ng-submit="input_submitted()")
+        %input{type: 'text', placeholder: 'Add new tag...'}
+        %button.btn.btn-primary.btn-small{type: 'submit'} Ok

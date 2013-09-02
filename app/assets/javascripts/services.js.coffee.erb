@@ -436,6 +436,11 @@ services.factory "ThemeData", ["$http",
           theme_tag_hash: tag_hash
           title: response.data.title
           code: response.data.code
+          current_timestamp: response.data.current_timestamp
+          abilities: response.data.role.abilities
+          can: (action) ->
+            _.indexOf(this.abilities, action ) > -1
+
 
     #firebase_token: response.data.firebase_token
     #summary_comments: summary_comments.sort((a,b)-> a.order_id - b.order_id)
@@ -451,7 +456,6 @@ services.factory "ThemeData", ["$http",
     #version: 0
     #}
 
-    #current_timestamp: response.data.current_timestamp
     #privacy: response.data.privacy
     #tags: response.data.tags.sort()
     #starts_at: new Date(response.data.starts_at)
