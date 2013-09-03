@@ -328,7 +328,7 @@ update_reply_data = (new_rec, old_reply_to_targets = null) ->
     for target in new_rec.reply_to_targets
       #console.log "add reply to replies for id: #{target.id}"
       target_rec = find_comment_in_conversation(target.id)
-      if target_rec
+      if target_rec && target_rec.replies
         #console.log "found target_rec with id: #{target_rec.id} and replies: #{target_rec.replies}"
         # add this reply to target_rec, if it isn't already there
         cur_reply = reply for reply in target_rec.replies when reply.id is new_rec.id
@@ -354,15 +354,16 @@ find_comment_in_conversation = (id) ->
   # find the comment in any of the arrays I use
   #console.log "find_comment_in_conversation with id: #{id}"
   conversation = angular.element(document.getElementById('conversation')).scope().conversation
-  for source in ['conversation_comments','summary_comments','call_to_action_comment']
+  for source in ['conversation_comments','summary_comments','call_to_action_comment', 'table_comments', 'theme_comments']
     item_array = conversation[source]
-    if !angular.isArray(item_array)
-      item_array = [item_array]
-    #console.log "Check in #{source} with length: #{item_array.length}"
-    for item in item_array
-      #console.log "Checking item with id: #{item.id}"
-      if item.id is id
-        return item
+    if item_array
+      if !angular.isArray(item_array)
+        item_array = [item_array]
+      #console.log "Check in #{source} with length: #{item_array.length}"
+      for item in item_array
+        #console.log "Checking item with id: #{item.id}"
+        if item.id is id
+          return item
 
 
 

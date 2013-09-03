@@ -713,19 +713,22 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               $scope.newComment.reply_control_title = "Reply to comment with"
 
           when 'add-example-from-selected-text'   
-            console.log "add-example-from-selected-text"
+            #console.log "add-example-from-selected-text"
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name}
+            #console.log "$scope.newComment.text: #{$scope.newComment.text}"
             $scope.newComment.reply_control_title = "Edit theme"
-
-            textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
-            textarea.value += "\n" + data.quote_insert
             $scope.ce_text_select_style =
               display: "none"
-            $scope.$root.$$phase || $scope.$root.$apply()
-            # force newComment.text to recognize the change to the textarea after inserting new text
-            newComment = angular.element(textarea).scope().newComment
-            newComment.text = textarea.value
+            $timeout ->
+              textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
+              #console.log "textarea.value: #{textarea.value}"
+              #console.log "data.quote_insert: #{data.quote_insert}"
+              textarea.value += "\n" + data.quote_insert
+              $scope.$root.$$phase || $scope.$root.$apply()
+              # force newComment.text to recognize the change to the textarea after inserting new text
+              newComment = angular.element(textarea).scope().newComment
+              newComment.text = textarea.value
 
 
       set_special_classes = ->
