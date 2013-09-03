@@ -15,7 +15,7 @@ class Ability
   @@conversation_actions_by_role[:curator] = %i( edit_summary summary_comment_order edit_cta group_message approve_posts approve_participants moderate_posts ).concat @@conversation_actions_by_role[:trusted_participant]
   @@conversation_actions_by_role[:conversation_admin] = %i( edit_title privacy tags schedule publish update_role ).concat @@conversation_actions_by_role[:curator]
 
-  @@conversation_actions_by_role[:themer] = %i( edit_table_comment edit_theme_comment assign_comment_theme)
+  @@conversation_actions_by_role[:themer] = %i( edit_table_comment edit_theme_comment assign_comment_theme post_prescreen)
 
   def initialize(user)
     user ||= User.new # guest user (not logged in)

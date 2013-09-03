@@ -440,6 +440,7 @@ services.factory "ThemeData", ["$http",
           title: response.data.title
           code: response.data.code
           current_timestamp: response.data.current_timestamp
+          privacy: response.data.privacy
           abilities: response.data.role.abilities
           can: (action) ->
             _.indexOf(this.abilities, action ) > -1
@@ -459,7 +460,6 @@ services.factory "ThemeData", ["$http",
     #version: 0
     #}
 
-    #privacy: response.data.privacy
     #tags: response.data.tags.sort()
     #starts_at: new Date(response.data.starts_at)
     #ends_at: new Date(response.data.ends_at)

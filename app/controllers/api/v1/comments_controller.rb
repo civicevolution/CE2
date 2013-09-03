@@ -147,7 +147,8 @@ module Api
       def assign_themes
         comment = Comment.find(params[:id])
         authorize! :assign_comment_theme, comment.conversation
-        comment.update_column(:reference_ids, "{#{params[:theme_ids].join(',')}}")
+        val = if params[:theme_ids] && params[:theme_ids].length > 0 then "{#{params[:theme_ids].join(',')}}" else nil end
+        comment.update_column(:reference_ids, val)
         respond_with comment
       end
 

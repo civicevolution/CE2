@@ -609,9 +609,11 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         data.dialog.open()
 
       $scope.$on 'open-comment-form', (event, data) ->
+        #console.log "$scope.$on 'open-comment-form' event: #{event}, action: #{data.action}"
         open_comment_form(data)
 
       open_comment_form = (data) ->
+        #console.log "open_comment_form for action #{data.action}"
         return if not can_user_post()
         return if not ok_to_modify_editor_content(data)
         set_form_properties(data)
@@ -679,6 +681,11 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
             $scope.newComment.reply_control_title = "Edit"
+
+          when 'theme-comment-edit'
+            comment = data.comment
+            $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
+            $scope.newComment.reply_control_title = "Edit theme"
 
           when 'call-to-action-comment-reply'
             $scope.newComment.type = 'ConversationComment'
@@ -2237,8 +2244,8 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
             else
               el.addClass('active')
               $scope.comment.reference_ids.push theme_id
-              $timeout ->
-                $scope.update_comment_tags()
+            $timeout ->
+              $scope.update_comment_tags()
             $scope.save_theme_assignment()
 
         $scope.save_theme_assignment = ->

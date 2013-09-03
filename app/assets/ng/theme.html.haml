@@ -27,7 +27,23 @@
 
 
     .span9
-      %h3#conversation-title.title {{conversation.title}}
+      %h4#conversation-title.title {{conversation.title}}
+
+      %div(ng-switch="conversation.filter_by_id")
+        %div(ng-switch-when="null")
+          %h4 All table comments
+        %div(ng-switch-when="0")
+          %h4 All untagged table comments
+        %div(ng-switch-default)
+          %h4 Comments for theme {{conversation.current_theme.tag_name}}
+          %p {{conversation.current_theme.text}}
+          %p
+            %a(ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
+              Edit theme
 
       %div.comment-outer(ng-repeat="comment in conversation.filtered_table_comments")
         %div(ce-comment type="table")
+      %div(ng-if="conversation.filtered_table_comments.length == 0")
+        %p There are no comments in this category
+
+    %div(ce-comment-form)

@@ -440,8 +440,8 @@ ce2_app.controller 'ActivityMonitorController', ($scope, User, $dialog) ->
     )
 
 
-conversation_theme_controller = [ "$scope", "conversation_theme_data", "FirebaseService",
-  ($scope, conversation_theme_data, FirebaseService) ->
+conversation_theme_controller = [ "$scope", "conversation_theme_data", "FirebaseService", "$timeout",
+  ($scope, conversation_theme_data, FirebaseService, $timeout) ->
     console.log "In conversation state controller at bottom"
     $scope.conversation = conversation_theme_data
     $scope.$root.timestamp = conversation_theme_data.current_timestamp
@@ -449,9 +449,14 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
     $scope.name = 'ceConversationTheme'
 
     $scope.conversation.filter_by_id = 0
+    $timeout ->
+      $scope.refilter_table_comments()
+    , 500
+
     $scope.filter_table_comments = (id) ->
       console.log "filter_table_comments id: #{id}"
       $scope.conversation.filter_by_id = id
+      $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
       $scope.refilter_table_comments()
 
     $scope.refilter_table_comments = () ->
@@ -474,6 +479,10 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       for comment in $scope.conversation.theme_comments
         tag_hash[comment.id] = comment.tag_name
       $scope.conversation.theme_tag_hash = tag_hash
+      
+    $scope.edit = (action) ->
+      #console.log "Edit with action: #{action} for  #{$scope.conversation.current_theme.tag_name}"
+      $scope.$root.$broadcast 'open-comment-form', {action: action, comment: $scope.conversation.current_theme}
 
 
 
