@@ -10,6 +10,7 @@ Ce2::Application.routes.draw do
         get 'history', :on => :member
         post 'accept', :on => :member
         post 'decline', :on => :member
+        post 'assign_themes', on: :member
       end
 
     end

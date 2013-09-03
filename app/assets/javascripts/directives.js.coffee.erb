@@ -2237,8 +2237,23 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
             else
               el.addClass('active')
               $scope.comment.reference_ids.push theme_id
-            $scope.update_comment_tags()
+              $timeout ->
+                $scope.update_comment_tags()
+            $scope.save_theme_assignment()
 
+        $scope.save_theme_assignment = ->
+          data =
+            comment_id: $scope.comment.id
+            theme_ids: $scope.comment.reference_ids
+          ThemeData.save_theme_assignment(data).then(
+            (response)->
+              console.log "save_theme_assignment was #{data.theme_ids} successful"
+              #$scope.comment.reference_ids.push response.data.id
+            ,
+            (reason) ->
+              console.log "save_theme_assignment #{data.theme_ids} failed"
+              #$scope.error_message = reason.data.error
+            )
 
         $scope.input_submitted = ->
           el = tag_input = angular.element(event.currentTarget).parent().find('input')
@@ -2260,11 +2275,10 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
               (response)->
                 console.log "create_new_theme was #{new_tag} successful"
                 $scope.comment.reference_ids.push response.data.id
-                #$scope.$emit('delete-comment-flag', $scope.post)
-                #$scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
                 tag_input.val('')
                 $timeout ->
                   $scope.update_comment_tags()
+                  $scope.save_theme_assignment()
                 if response.data.type
                   $scope.$root.$broadcast "#{response.data.type}_update", {
                     action: 'create'

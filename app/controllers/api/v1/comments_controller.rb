@@ -69,10 +69,19 @@ module Api
             params[:comment][:purpose] ||= 'theme'
             params[:comment][:tag_name] = params[:tag_name]
             params[:comment][:text] ||= "Please write a description for tag: #{params[:comment][:tag_name]}"
-            comment = conversation.theme_comments.create params[:comment]
 
-            #comment = conversation.theme_comments.first
-            #comment.tag_name = 'Fake T5'
+            debug_theme = false
+            if !debug_theme
+              comment = conversation.theme_comments.create params[:comment]
+            else
+              comment = conversation.theme_comments.last
+              comment.tag_name = params[:tag_name] + ' (F)'
+              comment.text = "Please write a description for tag: #{params[:tag_name]}"
+              comment.id = 1000 + rand(100000)
+              comment.created_at = Time.now
+              comment.updated_at = Time.now
+            end
+
             Rails.logger.debug "theme comment #{comment.inspect}"
           when "TableComment"
             comment = conversation.table_comment.create params[:comment]
@@ -133,6 +142,13 @@ module Api
         comment.decline
 
         render json: 'ok'
+      end
+
+      def assign_themes
+        comment = Comment.find(params[:id])
+        authorize! :assign_comment_theme, comment.conversation
+        comment.update_column(:reference_ids, "{#{params[:theme_ids].join(',')}}")
+        respond_with comment
       end
 
       def auth_comment( conversation, type, text )

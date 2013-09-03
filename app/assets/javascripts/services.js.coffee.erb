@@ -477,4 +477,7 @@ services.factory "ThemeData", ["$http",
     create_new_theme: (data) ->
       $http.post("/api/conversations/#{data.conversation_code}/comments.json", data)
 
+    save_theme_assignment: (data) ->
+      $http.post("/api/comments/#{data.comment_id}/assign_themes.json", { theme_ids: data.theme_ids})
+
 ]
