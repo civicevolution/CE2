@@ -35,11 +35,17 @@
         %div(ng-switch-when="0")
           %h4 All untagged table comments
         %div(ng-switch-default)
-          %h4 Comments for theme {{conversation.current_theme.tag_name}}
-          %p {{conversation.current_theme.text}}
-          %p
-            %a(ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
-              Edit theme
+          %h4
+            Theme:
+            %i
+              "{{conversation.current_theme.tag_name}}"
+          .comment-body-container
+            %div(ng-bind-html-unsafe="converter.makeHtml(conversation.current_theme.text)")
+            %p
+              %a(ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
+                Edit theme
+
+      %h4 Comments for this theme
 
       %div.comment-outer(ng-repeat="comment in conversation.filtered_table_comments")
         %div(ce-comment type="table")
@@ -47,3 +53,5 @@
         %p There are no comments in this category
 
     %div(ce-comment-form)
+
+  %div(ce-text-select label="Add as example" event_name_str="text-select-add-example")

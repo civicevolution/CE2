@@ -635,7 +635,9 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       ok_to_modify_editor_content = (data) ->
         # check if the editor is already in use and new open would lose data
         # confirm if data at risk and return true to continue or false to abort
-        if !data.ok_to_modify
+        if data.append_to_existing
+          return true
+        else if !data.ok_to_modify
           if $scope.newComment.type && $scope.newComment.text?.match(/\w{2,}/)
             show_form(data)
             title = 'Warning'
@@ -710,6 +712,22 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               $scope.newComment.type = 'ConversationComment'
               $scope.newComment.reply_control_title = "Reply to comment with"
 
+          when 'add-example-from-selected-text'   
+            console.log "add-example-from-selected-text"
+            comment = data.comment
+            $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name}
+            $scope.newComment.reply_control_title = "Edit theme"
+
+            textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
+            textarea.value += "\n" + data.quote_insert
+            $scope.ce_text_select_style =
+              display: "none"
+            $scope.$root.$$phase || $scope.$root.$apply()
+            # force newComment.text to recognize the change to the textarea after inserting new text
+            newComment = angular.element(textarea).scope().newComment
+            newComment.text = textarea.value
+
+
       set_special_classes = ->
         # determine if special class for non-participant, not signed in, not confirmed
         special_class = switch
@@ -737,7 +755,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       $scope.$on 'text-select-button-clicked', (event, sel) ->
         quote_insert = "[quote=#{sel.name}~#{sel.purpose}~#{sel.id}~#{sel.photo}~#{sel.version}]#{sel.text}[/quote]"
         #console.log "Add this quote to textarea: #{quote_insert}"
-        open_comment_form({action: 'quote-selected-text'})
+        open_comment_form({action: 'quote-selected-text', append_to_existing: true})
         textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
         textarea.value += "\n" + quote_insert
         $scope.ce_text_select_style =
@@ -782,11 +800,14 @@ ce2_directives.directive('ceTextSelect', ->
   restrict: 'A'
   replace: true
   template: '<div class="ce-text-select" ng-style="ce_text_select_style"><input class="btn-primary btn btn-mini" ng-click="button_click()" type="button" value="{{ button_text}}"></div>'
+  link: (scope, element, attrs) ->
+    scope.button_text = attrs.label
+    scope.event_name_str = attrs.eventNameStr
   controller: [ "$scope", "$timeout", ($scope, $timeout) ->
     selection = {}
-    $scope.button_text = "Reply with quote"
+
     $scope.button_click = ->
-      $scope.$root.$broadcast 'text-select-button-clicked', selection
+      $scope.$root.$broadcast $scope.event_name_str, selection
 
     $scope.$on 'text-select-by-mouse', ->
       debug_mode = false
