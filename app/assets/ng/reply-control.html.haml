@@ -28,6 +28,16 @@
             %p.warn(ng-repeat="error in newComment.form_errors")
               {{error.message}}
 
+        %div(ng-switch-when="ThemeComment")
+          %h4.form_title
+            {{newComment.reply_control_title}}
+
+          %input.tag_name(type="text" ng-model="newComment.tag_name" )
+
+          %div.form_errors
+            %p.warn(ng-repeat="error in newComment.form_errors")
+              {{error.message}}
+
         %div(ng-switch-default)
           %h4.form_title
             {{newComment.reply_control_title}}
