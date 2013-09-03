@@ -2205,14 +2205,17 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
       "<%= path_to_asset "assets/tag-comment.html" %>#{prefix}"
     replace: true
     scope: true
-    controller: [ "$scope",
-      ($scope) ->
+    controller: [ "$scope", "$timeout",
+      ($scope, $timeout) ->
         $scope.name = 'ceTagComment'
 
         $scope.update_comment_tags = ->
           #console.log "update_comment_tags"
           $scope.comment.tag_bools = new class then constructor: ->
-            @[id] = true for id in $scope.comment.reference_ids
+            if $scope.comment.reference_ids.length is 0
+              @[0] = true
+            else
+              @[id] = true for id in $scope.comment.reference_ids
           $scope.comment.tags = ($scope.conversation.theme_tag_hash[id] for id in $scope.comment.reference_ids).join(', ') || 'Tag this comment'
 
         $scope.update_comment_tags()
@@ -2260,6 +2263,8 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
                 #$scope.$emit('delete-comment-flag', $scope.post)
                 #$scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
                 tag_input.val('')
+                $timeout ->
+                  $scope.update_comment_tags()
                 if response.data.type
                   $scope.$root.$broadcast "#{response.data.type}_update", {
                     action: 'create'

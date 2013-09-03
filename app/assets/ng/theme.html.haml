@@ -9,24 +9,25 @@
             %span.badge.badge-important 4
 
         %li#conversation-review-link(ng-class="{active: active_link == 'review'}")
-          %a(ng-click="open_panel('review')")
+          %a(ng-click="filter_table_comments(null)")
+            All comments
+            %span.badge.badge-important 12
+
+
+        %li#conversation-review-link(ng-class="{active: active_link == 'review'}")
+          %a(ng-click="filter_table_comments(0)")
             Untagged
             %span.badge.badge-important 12
 
 
         %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: active_link == 'review'}")
-          %a(ng-click="open_panel('review')")
+          %a(ng-click="filter_table_comments(theme.id)")
             {{theme.tag_name}}
             -#%span.badge.badge-important {{conversation.review_items_count}}
-
-        -#%li#conversation-review-link(ng-if="conversation.can('approve_posts')" ng-class="{active: active_link == 'review'}")
-          %a(ng-click="open_panel('review')")
-            Review comments
-            %span.badge.badge-important {{conversation.review_items_count}}
 
 
     .span9
       %h3#conversation-title.title {{conversation.title}}
 
-      %div.comment-outer(ng-repeat="comment in conversation.table_comments" )
+      %div.comment-outer(ng-repeat="comment in conversation.filtered_table_comments")
         %div(ce-comment type="table")

@@ -448,6 +448,23 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
     $scope.name = 'ceConversationTheme'
 
+    $scope.conversation.filter_by_id = 0
+    $scope.filter_table_comments = (id) ->
+      console.log "filter_table_comments id: #{id}"
+      $scope.conversation.filter_by_id = id
+      $scope.refilter_table_comments()
+
+    $scope.refilter_table_comments = () ->
+      id = $scope.conversation.filter_by_id
+      if id isnt null
+        filtered_comments = []
+        for comment in $scope.conversation.table_comments
+          if not comment.tag_bools || comment.tag_bools[id]
+            filtered_comments.push comment
+        $scope.conversation.filtered_table_comments = filtered_comments
+      else
+        $scope.conversation.filtered_table_comments = $scope.conversation.table_comments
+
     $scope.$on 'ThemeComment_update', (event, data) ->
       #console.log "received broadcast SummaryComment_update"
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.theme_comments, data)
