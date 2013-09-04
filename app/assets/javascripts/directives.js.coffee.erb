@@ -2282,6 +2282,7 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
           ThemeData.save_theme_assignment(data).then(
             (response)->
               console.log "save_theme_assignment was #{data.theme_ids} successful"
+              $scope.$root.$broadcast 'calculate-tag-counts'
               #$scope.comment.reference_ids.push response.data.id
             ,
             (reason) ->

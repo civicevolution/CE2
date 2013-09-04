@@ -1,9 +1,13 @@
 class TableCommentSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :type, :id, :order_id, :text, :updated_at, :purpose,
+  attributes :type, :id, :order_id, :text, :updated_at, :purpose, :table_number,
              :version, :number_of_votes, :tag_name, :reference_ids,
              :editable_by_user, :name, :code, :published, :status
+
+  def table_number
+    object.author.last_name
+  end
 
   def name
     "Table #{object.author.last_name}"
