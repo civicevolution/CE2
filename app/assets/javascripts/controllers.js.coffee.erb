@@ -489,9 +489,14 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
     $scope.$on 'text-select-add-example', (event, sel) ->
       #console.log "received broadcast message text-select-add-example"
-      quote_insert = "[quote=#{sel.name}~#{sel.purpose}~#{sel.id}~#{sel.photo}~#{sel.version}]#{sel.text}[/quote]"
-      #console.log "Add this example to textarea: #{quote_insert}"
-      $scope.$root.$broadcast 'open-comment-form', {action: 'add-example-from-selected-text', quote_insert: quote_insert, comment: $scope.conversation.current_theme, append_to_existing: true}
+      example_data =
+        quote_type: "example"
+        id: sel.comment.id
+        name: sel.comment.name
+        purpose: sel.comment.purpose
+      example_insert = "[quote=#{ angular.toJson(example_data)}]#{sel.text}[/quote]"
+      #console.log "Add this example to textarea: #{example_insert}"
+      $scope.$root.$broadcast 'open-comment-form', {action: 'add-example-from-selected-text', quote_insert: example_insert, comment: $scope.conversation.current_theme, append_to_existing: true}
 
 
 ]

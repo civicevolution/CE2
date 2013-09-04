@@ -3,19 +3,17 @@
     %div(ng-switch-when="true" )
       %div{ id: "{{quote.data.id}}", type: "{{quote.data.type}}", }
         %p.title(ng-click="toggle_in_comment_quote(quote.data.id)")
-          %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{quote.data.photo}}/sm1/p.jpg")
-          {{quote.data.name}} said:
+          {{quote.data.name}}:
           %i.icon-chevron-up
-          %i.icon-arrow-up(ng-click="goto_comment(quote.data.id)")
+          -#%i.icon-arrow-up(ng-click="goto_comment(quote.data.id)")
       %div.comment-body(ng-bind-html-unsafe="quote.full_text")
 
     %div(ng-switch-when="false" )
       %div{ id: "{{quote.data.id}}", type: "{{quote.data.type}}", }
         %p.title(ng-click="toggle_in_comment_quote(quote.data.id)")
-          %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{quote.data.photo}}/sm1/p.jpg")
-          {{quote.data.name}} said:
+          {{quote.data.name}}:
           %i.icon-chevron-down
-          %i.icon-arrow-up(ng-click="goto_comment(quote.data.id)")
+          -#%i.icon-arrow-up(ng-click="goto_comment(quote.data.id)")
       %div {{quote.text}}
 
 

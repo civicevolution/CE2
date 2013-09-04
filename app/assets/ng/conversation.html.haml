@@ -18,7 +18,7 @@
       .row-fluid
         .span12.summary
           %div#call-to-action.call-to-action
-            %div.comment-outer
+            %div.comment-outer(ng-repeat="comment in [conversation.call_to_action_comment]")
               %div(ce-comment type="call-to-action")
 
       .row-fluid

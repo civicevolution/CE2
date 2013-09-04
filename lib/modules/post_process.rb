@@ -74,9 +74,8 @@ module Modules
 
       self.text.scan(quote_regex).each do |match|
         #puts match[0]
-        params = match[0].split(/~/)
-        reply_to_records.push Reply.new comment_id: self.id, reply_to_id: params[2], version: params[4], quote: true
-        #puts "com_id #{params[2]}"
+        data = JSON.parse( match[0] )
+        reply_to_records.push Reply.new comment_id: self.id, reply_to_id: data['id'], version: data['version'], quote: true
       end
 
       # now remove duplicate records, but retain any record with quote = false

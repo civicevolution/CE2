@@ -6,11 +6,7 @@ class TableCommentSerializer < ActiveModel::Serializer
              :editable_by_user, :name, :code, :published, :status
 
   def name
-    if object.author.name_count.nil? || object.author.name_count  == 1
-      "#{object.author.first_name}_#{object.author.last_name}"
-    else
-      "#{object.author.first_name}_#{object.author.last_name}_#{object.author.name_count}"
-    end
+    "Table #{object.author.last_name}"
   end
 
   def reference_ids

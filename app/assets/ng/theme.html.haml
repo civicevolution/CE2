@@ -1,4 +1,4 @@
-%div#conversation
+%div#conversation.conversation-theming
   .row-fluid.conversation#conversation(ng-style="conversation.style")
     .span3
       %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
@@ -39,11 +39,9 @@
             Theme:
             %i
               "{{conversation.current_theme.tag_name}}"
-          .comment-body-container
-            %div(ng-bind-html-unsafe="converter.makeHtml(conversation.current_theme.text)")
-            %p
-              %a(ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
-                Edit theme
+
+          %div.comment-outer(ng-repeat="comment in [conversation.current_theme]")
+            %div(ce-comment type="theme")
 
       %h4 Comments for this theme
 

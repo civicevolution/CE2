@@ -235,16 +235,13 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
       when "summary" then "<%= path_to_asset "comment-summary.html" %>"
       when "call-to-action" then "<%= path_to_asset "comment-call-to-action.html" %>"
       when "table" then "<%= path_to_asset "comment-table.html" %>"
+      when "theme" then "<%= path_to_asset "comment-theme.html" %>"
   replace: true
   scope: true
   priority: 100
   compile: ->
     post: (scope, iElement, iAttrs, controller) ->
       #console.log "ceComment postLink function"
-      switch iAttrs.type
-        when "call-to-action" then scope.comment =
-          scope.conversation.call_to_action_comment
-
       if scope.comment?.text.match(/\[quote/)
         #console.log "XXX compile this node"
         $timeout ->
@@ -338,16 +335,16 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
 
 ce2_directives.directive('ceQuotedComment', ->
   restrict: 'A'
-  templateUrl: "<%= path_to_asset "quote-in-comment.html" %>"
+  templateUrl: (tElement, tAttrs) ->
+    switch angular.fromJson(tAttrs.ceQuote).quote_type
+      when "example" then "<%= path_to_asset "example-in-comment.html" %>"
+      when "reply" then "<%= path_to_asset "quote-in-comment.html" %>"
+      else "<%= path_to_asset "quote-in-comment.html" %>"
   replace: true
   scope: true
   transclude: true
   link: (scope, element, attrs) ->
-    #console.log "assign quote attributes to the scope"
-    scope.quote.id = attrs.id
-    scope.quote.photoCode = attrs.photoCode
-    scope.quote.type = attrs.type
-    scope.quote.userName = attrs.userName
+    scope.quote.data = angular.fromJson(attrs.ceQuote)
 
   controller: [ "$scope", "$compile", "$timeout", "$element", "$transclude", "CommentData", "$location", "$anchorScroll",
     ($scope, $compile, $timeout, $element, $transclude, CommentData, $location, $anchorScroll) ->
@@ -724,7 +721,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
               #console.log "textarea.value: #{textarea.value}"
               #console.log "data.quote_insert: #{data.quote_insert}"
-              textarea.value += "\n" + data.quote_insert
+              textarea.value += "\n\n" + data.quote_insert
               $scope.$root.$$phase || $scope.$root.$apply()
               # force newComment.text to recognize the change to the textarea after inserting new text
               newComment = angular.element(textarea).scope().newComment
@@ -756,7 +753,15 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         $scope.conversation.style = {'margin-bottom': "#{reply_height}px"}
 
       $scope.$on 'text-select-button-clicked', (event, sel) ->
-        quote_insert = "[quote=#{sel.name}~#{sel.purpose}~#{sel.id}~#{sel.photo}~#{sel.version}]#{sel.text}[/quote]"
+        #quote_insert = "[quote=#{sel.name}~#{sel.purpose}~#{sel.id}~#{sel.photo}~#{sel.version}]#{sel.text}[/quote]"
+        quote_data =
+          quote_type: "reply"
+          id: sel.comment.id
+          name: "#{sel.comment.first_name} #{sel.comment.last_name}"
+          purpose: sel.comment.purpose
+          photo: sel.comment.photo_code
+          version: sel.comment.version
+        quote_insert = "[quote=#{ angular.toJson(quote_data)}]#{sel.text}[/quote]"
         #console.log "Add this quote to textarea: #{quote_insert}"
         open_comment_form({action: 'quote-selected-text', append_to_existing: true})
         textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
@@ -821,11 +826,7 @@ ce2_directives.directive('ceTextSelect', ->
           #console.log "use this string in form:\n#{text}" if debug_mode
           selection =
             text: text
-            id: comment.id
-            purpose: comment.purpose
-            name: "#{comment.first_name} #{comment.last_name}"
-            version: comment.version
-            photo: comment.photo_code
+            comment: comment
 
           body = document.documentElement || document.body
           scrollX = window.pageXOffset || body.scrollLeft

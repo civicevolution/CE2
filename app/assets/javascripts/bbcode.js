@@ -191,62 +191,14 @@ Markdown.BBCode = {
     @param {Object} opts Rendering options
   **/
   formatQuote: function(text, opts) {
-    var args, matches, params, paramsSplit, paramsString, templateName, username;
+    var args, matches, params, paramsSplit, paramsString, username;
     while (matches = this.QUOTE_REGEXP.exec(text)) {
-      //paramsString = matches[1].replace(/\"/g, '');
-      //paramsSplit = paramsString.split(/\, */);
-      //params = [];
-      //_.each(paramsSplit,function(p,i) {
-      //  if (i > 0) {
-      //    var assignment = p.split(':');
-      //    if (assignment[0] && assignment[1]) {
-      //      return params.push({
-      //        key: assignment[0],
-      //        value: assignment[1].trim()
-      //      });
-      //    }
-      //  }
-      //});
-      //username = paramsSplit[0];
-      //var _i, _len, _results, param;
-      //_results = [];
-      //for (_i = 0, _len = params.length; _i < _len; _i++) {
-      //    var param = params[_i];
-      //    _results.push("" + param.key + ": " + param.value);
-      //}
-      //params = _results.join('; ')
 
-      // typical paramsString
-      // "Alice Walton~ConversationComment~161~6e729a6b8841631a16d8a2656bcad029d77bd125~1"
+      // The quote meta-data is contained in a json and included as a single attribute that is decoded by the quote directive
+      // The quote content is included in the quoteblock body
 
-      var params = matches[1].split(/~/)
-      // remove leading <br>s
-      var content = matches[2].trim();
-
-      //// Arguments for formatting
-      //args = {
-      //  username: params[0],
-      //  purpose: params[1],
-      //  id: params[2],
-      //  photo_code: params[3],
-      //  version: params[4],
-      //  quote: content
-      //};
-
-      // Name of the template
-      templateName = 'quote';
-      if (opts && opts.environment) templateName = "quote_" + opts.environment;
-      //debugger;
-      // Apply the template
-      //text = text.replace(matches[0], "</p>" + opts.TemplateEngine.interpolate(templateName,args) + "<p>");
       text = text.replace(matches[0],
-        '</p><blockquote ce-quoted-comment class="quote" ' +
-        'user-name="' + params[0] + '" ' +
-        'purpose="' + params[1] + '" ' +
-        'id="' + params[2] + '" ' +
-        'photo_code="' + params[3] + '" ' +
-        'version="' + params[4] + '" ' +
-        '>' + content + '</blockquote><p>'
+        "</p><blockquote ce-quoted-comment class='quote' data-ce-quote='" + matches[1] + "'>" + matches[2].trim() + "</blockquote><p>"
       );
 
     }
