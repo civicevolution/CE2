@@ -712,7 +712,9 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           when 'add-example-from-selected-text'   
             #console.log "add-example-from-selected-text"
             comment = data.comment
-            $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name}
+            # check if newComment is already the currentTheme and if so, do not reset the text field
+            if $scope.newComment.id isnt comment.id
+              $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name}
             #console.log "$scope.newComment.text: #{$scope.newComment.text}"
             $scope.newComment.reply_control_title = "Edit theme"
             $scope.ce_text_select_style =

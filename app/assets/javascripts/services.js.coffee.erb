@@ -433,6 +433,10 @@ services.factory "ThemeData", ["$http",
           tag_hash = {}
           for comment in theme_comments
             tag_hash[comment.id] = comment.tag_name
+            if comment.text.match(/\[quote/)
+              comment.popover = comment.text.split('[quot')[0]
+            else
+              comment.popover = comment.text
 
           table_comments: sorted_table_comments
           theme_comments: theme_comments.sort((a,b)-> a.id - b.id)

@@ -20,7 +20,7 @@
             %span.badge.badge-important 12
 
 
-        %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: active_link == 'review'}")
+        %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: active_link == 'review'}" popover="{{theme.popover}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
           %a(ng-click="filter_table_comments(theme.id)")
             {{theme.tag_name}}
             -#%span.badge.badge-important {{conversation.review_items_count}}
