@@ -7,18 +7,18 @@
           %span.label.label-info Table comments
 
         %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'all'}" popover="Click here to view all of the comments" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-          %a(ng-click="filter_table_comments(null)")
+          %a(ng-click="filter_table_comments('all')")
             All comments
             %span.badge.badge-info {{conversation.comment_counts['all']}}
 
 
         %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'untagged'}" popover="Click here to view all of the comments that need to be tagged to a theme" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-          %a(ng-click="filter_table_comments(0)")
+          %a(ng-click="filter_table_comments('untagged')")
             Untagged
             %span.badge.badge-important {{conversation.comment_counts['untagged']}}
 
-        %li#conversation-review-link(ng-repeat="id in [1,2,3,4]" ng-class="{active: conversation.filter_mode == 'table'+id}" popover="Click to view comments from table {{id}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-          %a(ng-click="filter_table_comments('table' + id)")
+        %li#conversation-review-link(ng-repeat="id in [1,2,3,4]" ng-class="{active: (conversation.filter_mode == 'table' && conversation.filter_id == id)}" popover="Click to view comments from table {{id}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+          %a(ng-click="filter_table_comments('table', id)")
             Table {{id}}
             %span.badge.badge-info {{conversation.comment_counts['table' + id]}}
 
@@ -26,14 +26,14 @@
           %span.label.label-info Your themes
 
         %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'themes'}")
-          %a(ng-click="open_panel('review')")
+          %a(ng-click="filter_table_comments('themes')")
             All themes
             %span.badge.badge-info {{conversation.comment_counts['themes']}}
 
 
 
-        %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: conversation.filter_mode == 'theme'+theme.id}" popover="{{theme.popover}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-          %a(ng-click="filter_table_comments(theme.id)")
+        %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: conversation.filter_mode == 'theme' && conversation.filter_id == theme.id}" popover="{{theme.popover}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+          %a(ng-click="filter_table_comments('theme', theme.id)")
             {{theme.tag_name}}
             %span.badge.badge-info {{conversation.comment_counts[theme.id]}}
 
@@ -41,30 +41,53 @@
     .span9
       %h4#conversation-title.title {{conversation.title}}
 
-      %div(ng-switch="conversation.filter_by_id")
-        %div(ng-switch-when="null")
-          %h4(ng-hide="conversation.filter_table_id") All table comments
-          %h4(ng-show="conversation.filter_table_id") Comments from Table {{conversation.filter_table_id}}
+      %div(ng-switch="conversation.filter_mode")
 
-        %div(ng-switch-when="0")
+        %div(ng-switch-when="all")
+          %h4 All table comments
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no table comments
+
+        %div(ng-switch-when="untagged")
           %h4 All untagged table comments
 
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no untagged table comments
 
-        %div(ng-switch-default)
-          %h4
-            Theme:
-            %i
-              "{{conversation.current_theme.tag_name}}"
 
+        %div(ng-switch-when="themes")
+          %h4 All themes
+
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="theme")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no themes
+
+
+        %div(ng-switch-when="theme")
           %div.comment-outer(ng-repeat="comment in [conversation.current_theme]")
             %div(ce-comment type="theme")
 
           %h4 Comments for this theme
 
-      %div.comment-outer(ng-repeat="comment in conversation.filtered_table_comments")
-        %div(ce-comment type="table")
-      %div(ng-if="conversation.filtered_table_comments.length == 0")
-        %p There are no comments in this category
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no table comments in this theme
+
+
+        %div(ng-switch-when="table")
+          %h4 Comments from Table {{conversation.filter_id}}
+
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no comments from this table
+
 
     %div(ce-comment-form)
 

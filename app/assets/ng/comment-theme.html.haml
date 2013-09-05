@@ -9,8 +9,8 @@
             %p.time {{comment.updated_at | from_now}}
             %p {{comment.purpose}}
 
-
-          %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+          %p Tag name: {{comment.tag_name}}
+          %div.theme_text(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
 
           %div.history.clear(ng-include src="history_url")
 

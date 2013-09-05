@@ -448,40 +448,41 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
     $scope.name = 'ceConversationTheme'
 
-    $scope.conversation.filter_by_id = 0
     $timeout ->
+      $scope.conversation.filter_mode = 'themes'
       $scope.refilter_table_comments()
       $scope.$root.$broadcast 'calculate-tag-counts'
+      $scope.$root.$broadcast 'update-comment-tags'
     , 500
 
-    $scope.filter_table_comments = (id) ->
-      #console.log "filter_table_comments id: #{id}"
-      $scope.conversation.filter_by_id = id
-      $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
+    $scope.filter_table_comments = (mode, id=null) ->
+      console.log "filter_table_comments mode: #{mode}, id: #{id}"
+      $scope.conversation.filter_mode = mode
+      $scope.conversation.filter_id = id
       $scope.refilter_table_comments()
 
     $scope.refilter_table_comments = () ->
-      id = $scope.conversation.filter_by_id
+      mode = $scope.conversation.filter_mode
+      id = $scope.conversation.filter_id
       switch
-        when id is null
-          $scope.conversation.filter_table_id = null
-          $scope.conversation.filter_mode = 'all'
-          $scope.conversation.filtered_table_comments = $scope.conversation.table_comments
-        when isNaN(id) && id.match(/table/i)
-          #console.log "show the table comments"
-          table_number = Number(id.match(/\d+/))
-          $scope.conversation.filter_table_id = table_number
-          $scope.conversation.filter_mode = "table#{table_number}"
-          $scope.conversation.filter_by_id = null
-          $scope.conversation.filtered_table_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is table_number)
-        else
-          filtered_comments = []
-          $scope.conversation.filter_mode = if id is 0 then "untagged" else "theme#{id}"
+        when mode is 'all'
+          $scope.conversation.filtered_comments = $scope.conversation.table_comments
 
+        when mode is 'untagged'
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0])
+
+        when mode is 'themes'
+          $scope.conversation.filtered_comments = $scope.conversation.theme_comments
+
+        when mode is 'theme'
+          $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
+          $scope.conversation.filtered_comments = []
           for comment in $scope.conversation.table_comments
-            if not comment.tag_bools || comment.tag_bools[id]
-              filtered_comments.push comment
-          $scope.conversation.filtered_table_comments = filtered_comments
+            if comment.tag_bools[id]
+              $scope.conversation.filtered_comments.push comment
+
+        when mode is 'table'
+          $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is id)
 
     $scope.$on 'ThemeComment_update', (event, data) ->
       #console.log "received broadcast SummaryComment_update"
@@ -516,6 +517,16 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       example_insert = "[quote=#{ angular.toJson(example_data)}]#{sel.text}[/quote]"
       #console.log "Add this example to textarea: #{example_insert}"
       $scope.$root.$broadcast 'open-comment-form', {action: 'add-example-from-selected-text', quote_insert: example_insert, comment: $scope.conversation.current_theme, append_to_existing: true}
+
+    $scope.$on 'update-comment-tags', (event,comment) ->
+      comments = if comment then [comment] else $scope.conversation.table_comments
+      for comment in comments
+        comment.tag_bools = new class then constructor: ->
+          if comment.reference_ids.length is 0
+            @[0] = true
+          else
+            @[id] = true for id in comment.reference_ids
+        comment.tags = ($scope.conversation.theme_tag_hash[id] for id in comment.reference_ids).join(', ') || 'Tag this comment'
 
     $scope.$on 'calculate-tag-counts', ->
       #console.log "calculate-tag-counts"
