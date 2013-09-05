@@ -12,10 +12,10 @@ class Ability
   @@conversation_actions_by_role[:probationary_participant] = %i( show show_participants request_notification rate_comment history post_prescreen bookmark attachment )
   @@conversation_actions_by_role[:participant] = %i( post_no_attachments  ).concat @@conversation_actions_by_role[:probationary_participant]
   @@conversation_actions_by_role[:trusted_participant] = %i( post_any invite private_message  ).concat @@conversation_actions_by_role[:participant]
-  @@conversation_actions_by_role[:curator] = %i( edit_summary summary_comment_order edit_cta group_message approve_posts approve_participants moderate_posts ).concat @@conversation_actions_by_role[:trusted_participant]
+  @@conversation_actions_by_role[:curator] = %i( edit_summary update_comment_order edit_cta group_message approve_posts approve_participants moderate_posts ).concat @@conversation_actions_by_role[:trusted_participant]
   @@conversation_actions_by_role[:conversation_admin] = %i( edit_title privacy tags schedule publish update_role ).concat @@conversation_actions_by_role[:curator]
 
-  @@conversation_actions_by_role[:themer] = %i( edit_table_comment edit_theme_comment assign_comment_theme post_prescreen history)
+  @@conversation_actions_by_role[:themer] = %i( edit_table_comment edit_theme_comment assign_comment_theme post_prescreen history update_comment_order)
 
   def initialize(user)
     user ||= User.new # guest user (not logged in)

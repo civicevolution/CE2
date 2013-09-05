@@ -1080,7 +1080,9 @@ ce2_directives.directive('ceProfilePhotoForm', ->
   ]
 )
 
-
+#
+# The sortable elements must share a parent div that only contains the sortable elements
+#
 ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationData",
   ($document, $timeout, ConversationData) ->
     restrict: 'A'
@@ -1176,7 +1178,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
           #console.log "persist the new collection order"
           conversation_code = elm.scope().$parent.conversation?.code
           comments_order = (item.id for item in dom_scope_collection )
-          ConversationData.persist_summary_comment_order_to_ror(conversation_code, comments_order)
+          ConversationData.update_comment_order(conversation_code, comments_order)
           $timeout ->
             angular.element(document.body).removeClass('drag_in_process')
           , 1000

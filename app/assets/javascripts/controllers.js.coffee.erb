@@ -472,7 +472,7 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
           $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0])
 
         when mode is 'themes'
-          $scope.conversation.filtered_comments = $scope.conversation.theme_comments
+          $scope.conversation.filtered_comments = $scope.conversation.theme_comments.sort((a,b)-> a.order_id - b.order_id)
 
         when mode is 'theme'
           $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
