@@ -269,6 +269,9 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
       $scope.edit = (action) ->
         $scope.$root.$broadcast 'open-comment-form', {action: action, comment: $scope.comment}
 
+      $scope.broadcast_action = (cmd) ->
+        $scope.$root.$broadcast cmd, {comment: $scope.comment}
+
       $scope.view_history = (comment_id) ->
         $scope.history = CommentData.history(comment_id)
         $scope.history_url = "<%= path_to_asset "comment-history.html" %>"

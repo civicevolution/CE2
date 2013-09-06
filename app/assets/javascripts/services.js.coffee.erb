@@ -485,4 +485,7 @@ services.factory "ThemeData", ["$http",
     save_theme_assignment: (data) ->
       $http.post("/api/comments/#{data.comment_id}/assign_themes.json", { theme_ids: data.theme_ids})
 
+    delete: (data) ->
+      $http.delete("/api/comments/#{data.id}.json")
+
 ]

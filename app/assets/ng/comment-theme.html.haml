@@ -29,6 +29,12 @@
               -#%i.icon-pencil
               Edit
 
+            %a.edit(ng-if="comment.comments == 0" ng-click="broadcast_action('theme-comment-delete')"){title: "Delete this theme"}
+              Delete
+
+            %div.count
+              %a.edit(ng-click="broadcast_action('show-theme-page')" ng-pluralize count="comment.comments" when="{'0': 'No table comments.', 'one': 'View 1 table comment', 'other': 'View {} table comments'}")
+
           %div.comment-replies(ng-if="comment.replies_expanded")
             %div(ng-repeat="reply in comment.reply_comments")
               %div{'ng-include' => "'#{ path_to_asset("comment-reply.html") }'"}
