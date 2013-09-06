@@ -100,8 +100,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             ThemeData.conversation_theme_data($stateParams.code)
             #console.log "conversation state with path: #{$stateParams.path}"
           ]
-        onEnter: ($rootScope) ->
-          $rootScope.initialize_markdown_system()
         controller: conversation_theme_controller
       )
 
@@ -113,8 +111,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             console.log "resolve get LiveGroupData.conversation_group_data"
             LiveGroupData.conversation_group_data($stateParams.code)
           ]
-        onEnter: ($rootScope) ->
-          $rootScope.initialize_markdown_system()
         controller: conversation_group_controller
       )
 
@@ -128,8 +124,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             ConversationData.conversation($stateParams.code)
             #console.log "conversation state with path: #{$stateParams.path}"
           ]
-        onEnter: ($rootScope) ->
-          $rootScope.initialize_markdown_system()
         controller: conversation_controller
       )
 
@@ -146,17 +140,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('edit-profile', {
         url: '/edit-profile'
         templateUrl: '<%= path_to_asset "edit-profile.html" %>'
-      })
-
-      .state('test-autogrow', {
-        url: '/test-autogrow'
-        templateUrl: '<%= path_to_asset "test/autogrow.html" %>'
-        controller: [ "$scope", ($scope) ->
-          console.log "controller for test-autogrow"
-          $scope.autoGrow = (oField) ->
-            if oField.scrollHeight > oField.clientHeight
-              oField.style.height = oField.scrollHeight + "px"
-        ]
       })
 
       .state('test-animation', {
@@ -206,32 +189,30 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
     $rootScope.$on '$viewContentLoaded', (obj) ->
       console.log "$viewContentLoaded"
 
-    $rootScope.autoGrow = (oField) ->
-      if oField.scrollHeight > oField.clientHeight
-        oField.style.height = oField.scrollHeight + "px"
-
-    $rootScope.initialize_markdown_system = ->
+    $rootScope.initialize_markdown_system = (options) ->
       #console.log "initialize_markdown_system"
       # which will call initialize_markdown_editor
       if Markdown
-        initialize_markdown_converter( TemplateEngine, $timeout, $dialog, $rootScope )
+        initialize_markdown_converter( TemplateEngine, $timeout, $dialog, $rootScope, options )
       else
         $timeout ->
-          $rootScope.initialize_markdown_system
+          $rootScope.initialize_markdown_system(options)
         ,300
 
     $http.get("<%= path_to_asset "quote.html" %>", {cache:$templateCache};)
 
 ])
 
-initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) ->
+initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope, options) ->
   opts = { TemplateEngine: TemplateEngine } # unless opts
   quoteTemplate = null
+
+  disable_editor = if options && options.disable_editor then true else false
 
   #converter = new Markdown.getSanitizingConverter()
   # Since I am using hooks, I will manually hook in sanitize at the end
   converter = new Markdown.Converter();
-  editor = new Markdown.Editor converter
+  editor = new Markdown.Editor(converter) unless disable_editor
 
   # Before cooking callbacks
   converter.hooks.chain "preConversion", (text) ->
@@ -305,11 +286,12 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope) 
     )
     dialog.open()
     $rootScope.$$phase || $rootScope.$apply()
-  $timeout ->
-    $rootScope.$broadcast 'initialize-markdown-editor', {editor: editor}
-  , 1000
+  unless disable_editor
+    $timeout ->
+      $rootScope.$broadcast 'initialize-markdown-editor', {editor: editor}
+    , 1000
   $rootScope.converter = converter
-  $rootScope.editor = editor
+  $rootScope.editor = editor unless disable_editor
 
 
 conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", "ConversationData", "$dialog",
@@ -637,6 +619,8 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
 
     $scope.name = 'ceConversationGroup'
 
+    $scope.preview_template = "<%= path_to_asset "live-group-vote-insert.html" %>"
+
     $scope.test = ->
       console.log "table test"
       $scope.refilter_table_comments()
@@ -678,6 +662,12 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
         when mode is 'table'
           $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is id)
 
+    $scope.$on 'TableComment_update', (event, data) ->
+      [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.table_comments, data)
+      if updated_rec && original_rec
+        updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+      if data.action is 'save'
+        $scope.refilter_table_comments()
 
 
 ]

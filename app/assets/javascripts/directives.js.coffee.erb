@@ -387,11 +387,13 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
     #console.log "link function for ceCommentForm with scope: #{scope.$id}"
     #scope.newComment.conversation_id = scope.conversation.id
     #scope.newComment.type = attrs.type
-    $timeout ->
-      #scope.autoGrow(element.find('textarea')[0])
-      scope.comment_length = scope[attrs.max]
-      #angular.element( document.getElementById('reply-control')).addClass('open show-preview')
-    , 100
+    scope.disable_monitor = true if typeof attrs.noMonitor isnt 'undefined'
+
+    if typeof attrs.noFormat isnt 'undefined'
+      scope.disable_formatting = true
+      scope.$root.initialize_markdown_system( {disable_editor: true} )
+    else
+      scope.$root.initialize_markdown_system()
 
     scope.$watch 'newComment.text', (oldValue, newValue) ->
       #console.log "#{Math.round(new Date().getTime()/1000)}: [#{scope.newComment.text}] comment form watch comment.text is triggered, scope.do_auto_save: #{scope.do_auto_save}"
@@ -752,7 +754,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         angular.element( document.getElementById('reply-control')).addClass(special_class) if special_class
 
       show_form = (data) ->
-        $timeout -> $scope.$root.editor.refreshPreview()
+        if not $scope.disable_formatting
+          $timeout -> $scope.$root.editor.refreshPreview()
         angular.element( document.getElementById('reply-control')).addClass('open show-preview').removeClass('draft')
 
       adjust_conversation_to_form = ->
@@ -786,7 +789,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       $scope.clear_edit = (event) ->
         clear_newComment_fields()
         clear_auto_saved_draft()
-        $timeout -> $scope.$root.editor.refreshPreview()
+        if not $scope.disable_formatting
+          $timeout -> $scope.$root.editor.refreshPreview()
         angular.element( document.getElementById('reply-control')).removeClass('open')
         $scope.conversation.style = {'margin-bottom': "0px"}
 
@@ -800,7 +804,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             $scope.conversation.style = {'margin-bottom': "40px"}
           else
             $scope.conversation.style = {'margin-bottom': "0px"}
-          $scope.$root.editor.refreshPreview()
+          if not $scope.disable_formatting
+            $scope.$root.editor.refreshPreview()
 
         else
           composer.addClass('open show-preview')
