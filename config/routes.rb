@@ -37,6 +37,7 @@ Ce2::Application.routes.draw do
         post 'update_role', on: :member
         get 'stats', on: :member
         get 'theme_data', on: :member
+        get 'group_data', on: :member
         resources :comments, shallow: true
       end
     end

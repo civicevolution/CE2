@@ -91,9 +91,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       })
 
-      .state( 'conversation_theme',
+    .state( 'live-conversation-theme',
         url: "/conversation/{code}/theme/{munged_title}"
-        templateUrl: '<%= path_to_asset "theme.html" %>'
+        templateUrl: '<%= path_to_asset "live-theme.html" %>'
         resolve:
           conversation_theme_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
             console.log "resolve get ConversationData.theme"
@@ -105,7 +105,20 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_theme_controller
       )
 
-      .state( 'conversation',
+    .state( 'live-conversation-group',
+        url: "/conversation/{code}/group/{munged_title}"
+        templateUrl: '<%= path_to_asset "live-group.html" %>'
+        resolve:
+          conversation_group_data: ["LiveGroupData", "$stateParams", (LiveGroupData, $stateParams) ->
+            console.log "resolve get LiveGroupData.conversation_group_data"
+            LiveGroupData.conversation_group_data($stateParams.code)
+          ]
+        onEnter: ($rootScope) ->
+          $rootScope.initialize_markdown_system()
+        controller: conversation_group_controller
+      )
+
+    .state( 'conversation',
         url: "/conversation/{code}/{munged_title}"
         #url: "/conversation/{code}/{munged_title:[^/]*}{path:.*}"
         templateUrl: '<%= path_to_asset "conversation.html" %>'
@@ -200,7 +213,12 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
     $rootScope.initialize_markdown_system = ->
       #console.log "initialize_markdown_system"
       # which will call initialize_markdown_editor
-      initialize_markdown_converter( TemplateEngine, $timeout, $dialog, $rootScope )
+      if Markdown
+        initialize_markdown_converter( TemplateEngine, $timeout, $dialog, $rootScope )
+      else
+        $timeout ->
+          $rootScope.initialize_markdown_system
+        ,300
 
     $http.get("<%= path_to_asset "quote.html" %>", {cache:$templateCache};)
 
@@ -611,3 +629,55 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
 ]
 
+conversation_group_controller = [ "$scope", "conversation_group_data", "FirebaseService", "$timeout", "$dialog", "LiveGroupData",
+  ($scope, conversation_group_data, FirebaseService, $timeout, $dialog, LiveGroupData) ->
+    console.log "In conversation state controller at bottom"
+    $scope.conversation = conversation_group_data
+    $scope.$root.timestamp = conversation_group_data.current_timestamp
+
+    $scope.name = 'ceConversationGroup'
+
+    $scope.test = ->
+      console.log "table test"
+      $scope.refilter_table_comments()
+
+    $timeout ->
+      $scope.conversation.filter_mode = 'table'
+      $scope.conversation.filter_id = Number($scope.$root.user.last_name)
+      $scope.refilter_table_comments()
+      #$scope.$root.$broadcast 'calculate-tag-counts'
+      #$scope.$root.$broadcast 'update-comment-tags'
+    , 500
+
+    $scope.refilter_table_comments = () ->
+      mode = $scope.conversation.filter_mode
+      id = $scope.conversation.filter_id
+      console.log "refilter_table_comments mode: #{mode}, id: #{id}"
+      switch
+        when mode is 'all'
+          $scope.conversation.filtered_comments = $scope.conversation.table_comments
+
+        when mode is 'untagged'
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0] && comment.status != 'parked' )
+
+        when mode is 'parked'
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.status == 'parked')
+
+        when mode is 'themes'
+          $scope.conversation.filtered_comments = $scope.conversation.theme_comments.sort((a,b)-> a.order_id - b.order_id)
+
+        when mode is 'theme'
+          $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
+          $scope.conversation.filtered_comments = []
+          for id in $scope.conversation.current_theme.ordered_child_ids
+            for comment in $scope.conversation.table_comments
+              if comment.id is id
+                $scope.conversation.filtered_comments.push comment
+                break;
+
+        when mode is 'table'
+          $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is id)
+
+
+
+]

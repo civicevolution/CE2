@@ -665,6 +665,11 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             $scope.newComment.type = 'SummaryComment'
             $scope.newComment.reply_control_title = "Add summary comment"
 
+          when 'new-table-comment'
+            $scope.newComment.type = 'TableComment'
+            $scope.newComment.purpose = 'table'
+            $scope.newComment.reply_control_title = "Enter a new comment"
+
           when 'call-to-action-comment-edit'
             if data.comment.id is 0
               $scope.newComment.id = null

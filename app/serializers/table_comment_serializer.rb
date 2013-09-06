@@ -1,9 +1,10 @@
 class TableCommentSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :type, :id, :order_id, :text, :updated_at, :purpose, :table_number,
-             :version, :number_of_votes, :tag_name, :reference_ids,
-             :editable_by_user, :name, :code, :published, :status
+  attributes :type, :id, :order_id, :text, :updated_at, :purpose, :version, :published, :status,
+             :table_number, :reference_ids, :editable_by_user, :editable_by_user, :name
+
+             #:number_of_votes, :tag_name,
 
   def table_number
     object.author.last_name
@@ -18,13 +19,13 @@ class TableCommentSerializer < ActiveModel::Serializer
     object.parent_targets.map(&:parent_id)
   end
 
-  def code
-    object.author.code
-  end
-
-  def number_of_votes
-    object.ratings_cache.inject{|sum,x| sum + x }
-  end
+  #def code
+  #  object.author.code
+  #end
+  #
+  #def number_of_votes
+  #  object.ratings_cache.inject{|sum,x| sum + x }
+  #end
 
   def purpose
     object.purpose || 'Comment'

@@ -426,13 +426,6 @@ services.factory "ThemeData", ["$http",
               when "TableComment" then table_comments.push comment
           sorted_table_comments = table_comments.sort((a,b)-> a.id - b.id)
 
-          #when "TitleComment" then title_comment = comment
-          #when "CallToActionComment" then call_to_action_comment = comment
-          #  authors[comment.name] = comment.code
-          #authors = ( {name: name, photo_code: authors[name]} for name of authors when name != 'Unconfirmed_User')
-          #
-          ##console.log "conversation_id: #{conversation_id}"
-          ## extract and setup some data for the directive controller
           tag_hash = {}
           for comment in theme_comments
             tag_hash[comment.id] = comment.tag_name
@@ -490,5 +483,50 @@ services.factory "ThemeData", ["$http",
 
     delete: (data) ->
       $http.delete("/api/comments/#{data.id}.json")
+
+]
+
+
+services.factory "LiveGroupData", ["$http",
+  ($http) ->
+    name: "LiveGroupData"
+
+    conversation_group_data: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
+        if response.status is 200
+          #data: response.data
+          table_comments = []
+          for comment in response.data.displayed_comments
+            switch comment.type
+              when "TableComment" then table_comments.push comment
+          sorted_table_comments = table_comments.sort((a,b)-> a.id - b.id)
+
+          #tag_hash = {}
+          #for comment in theme_comments
+          #  tag_hash[comment.id] = comment.tag_name
+          #  if comment.text.match(/\[quote/)
+          #    comment.popover = comment.text.split('[quot')[0]
+          #  else
+          #    comment.popover = comment.text
+
+          table_comments: sorted_table_comments
+          filtered_table_comments: sorted_table_comments
+          #theme_tag_hash: tag_hash
+          title: response.data.title
+          code: response.data.code
+          current_timestamp: response.data.current_timestamp
+          privacy: response.data.privacy
+          abilities: response.data.role.abilities
+          can: (action) ->
+            _.indexOf(this.abilities, action ) > -1
+
+    #create_new_theme: (data) ->
+    #  $http.post("/api/conversations/#{data.conversation_code}/comments.json", data)
+    #
+    #save_theme_assignment: (data) ->
+    #  $http.post("/api/comments/#{data.comment_id}/assign_themes.json", data)
+    #
+    #delete: (data) ->
+    #  $http.delete("/api/comments/#{data.id}.json")
 
 ]

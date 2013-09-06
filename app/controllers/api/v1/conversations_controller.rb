@@ -145,6 +145,14 @@ module Api
         presenter = ConversationPresenter.new( conversation, current_user, :show_all )
         respond_with presenter.conversation, serializer: ConversationThemeDataSerializer
       end
+
+      def group_data
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :view_table_comments, conversation
+        presenter = ConversationGroupPresenter.new( conversation, current_user, params[:table_id] )
+        respond_with presenter.conversation, serializer: ConversationThemeDataSerializer
+      end
+
     end
 
   end
