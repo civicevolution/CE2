@@ -154,10 +154,20 @@ module Api
       def assign_themes
         comment = Comment.find(params[:id])
         authorize! :assign_comment_theme, comment.conversation
-        if params[:act] == 'add'
-          Comment.find(params[:theme_id]).child_comments << comment
+        parent = Comment.find_by(id: params[:theme_id])
+        if parent
+          if params[:act] == 'add'
+            parent.child_comments << comment
+          else
+            parent.child_comments.delete(comment)
+          end
         else
-          Comment.find(params[:theme_id]).child_comments.delete(comment)
+          # this comment is being parked or unparked
+          if params[:act] == 'add'
+            comment.update_column( :status, 'parked')
+          else
+            comment.update_column( :status, 'unparked')
+          end
         end
         respond_with comment
       end

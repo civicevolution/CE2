@@ -30,13 +30,15 @@
             All themes
             %span.badge.badge-info {{conversation.comment_counts['themes']}}
 
-
-
         %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: conversation.filter_mode == 'theme' && conversation.filter_id == theme.id}" popover="{{theme.popover}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
           %a(ng-click="filter_table_comments('theme', theme.id)")
             {{theme.tag_name}}
             %span.badge.badge-info {{conversation.comment_counts[theme.id]}}
 
+        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked'}")
+          %a(ng-click="filter_table_comments('parked')")
+            Parked
+            %span.badge.badge-info {{conversation.comment_counts['parked']}}
 
     .span9
       %h4#conversation-title.title {{conversation.title}}
@@ -57,6 +59,15 @@
             %div(ce-comment type="table")
           %div(ng-if="conversation.filtered_comments.length == 0")
             %p There are no untagged table comments
+
+
+        %div(ng-switch-when="parked")
+          %h4 All parked table comments
+
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no parked table comments
 
 
         %div(ng-switch-when="themes")

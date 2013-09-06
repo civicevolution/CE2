@@ -470,7 +470,10 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
           $scope.conversation.filtered_comments = $scope.conversation.table_comments
 
         when mode is 'untagged'
-          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0])
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0] && comment.status != 'parked' )
+
+        when mode is 'parked'
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.status == 'parked')
 
         when mode is 'themes'
           $scope.conversation.filtered_comments = $scope.conversation.theme_comments.sort((a,b)-> a.order_id - b.order_id)
@@ -529,7 +532,9 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
             @[0] = true
           else
             @[id] = true for id in comment.reference_ids
-        comment.tags = ($scope.conversation.theme_tag_hash[id] for id in comment.reference_ids).join(', ') || 'Tag this comment'
+        tags = ($scope.conversation.theme_tag_hash[id] for id in comment.reference_ids)
+        tags.push 'Parked' if comment.status == 'parked'
+        comment.tags = tags.join(', ') || 'Tag this comment'
 
     $scope.$on 'calculate-tag-counts', ->
       #console.log "calculate-tag-counts"
@@ -541,6 +546,8 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
         table2: 0
         table3: 0
         table4: 0
+        parked: 0
+
       for theme in $scope.conversation.theme_comments
         counts['themes'] += 1
         counts[theme.id] = 0
@@ -548,7 +555,9 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       for comment in $scope.conversation.table_comments
         counts['all'] += 1
         counts["table#{comment.table_number}"] += 1
-        if comment.reference_ids && comment.reference_ids.length == 0
+        if comment.status == 'parked'
+          counts['parked'] += 1
+        if comment.reference_ids && comment.reference_ids.length == 0 && comment.status != 'parked'
           counts['untagged'] += 1
         else
           for id in comment.reference_ids

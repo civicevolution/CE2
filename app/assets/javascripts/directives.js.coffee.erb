@@ -2261,13 +2261,18 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
             el = event.toElement
             el = angular.element( if el.nodeName == 'INPUT' then el.parentNode else el )
             theme_id = Number(el.find('input').val())
-            if _.include($scope.comment.reference_ids, theme_id)
-              el.removeClass('active')
-              $scope.comment.reference_ids = _.without($scope.comment.reference_ids, theme_id)
+
+            if _.include($scope.comment.reference_ids, theme_id) || (theme_id == -1 && $scope.comment.status == 'parked')
+              if theme_id == -1
+                $scope.comment.status = 'unparked'
+              else
+                $scope.comment.reference_ids = _.without($scope.comment.reference_ids, theme_id)
               $scope.save_theme_assignment(theme_id, 'remove', $scope.comment.id )
             else
-              el.addClass('active')
-              $scope.comment.reference_ids.push theme_id
+              if theme_id == -1
+                $scope.comment.status = 'parked'
+              else
+                $scope.comment.reference_ids.push theme_id
               $scope.save_theme_assignment(theme_id, 'add', $scope.comment.id )
             $timeout ->
               $scope.$root.$broadcast 'update-comment-tags', $scope.comment
