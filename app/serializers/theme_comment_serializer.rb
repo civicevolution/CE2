@@ -45,7 +45,7 @@ class ThemeCommentSerializer < ActiveModel::Serializer
 
   def ordered_child_ids
     # get the ordered_child_ids from the HABTM association
-    object.child_targets.pluck(:child_id)
+    object.child_targets.map(&:child_id)
   end
 
   def photo_code

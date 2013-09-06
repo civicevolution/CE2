@@ -478,9 +478,11 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
         when mode is 'theme'
           $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
           $scope.conversation.filtered_comments = []
-          for comment in $scope.conversation.table_comments
-            if comment.tag_bools[id]
-              $scope.conversation.filtered_comments.push comment
+          for id in $scope.conversation.current_theme.ordered_child_ids
+            for comment in $scope.conversation.table_comments
+              if comment.id is id
+                $scope.conversation.filtered_comments.push comment
+                break;
 
         when mode is 'table'
           $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is id)

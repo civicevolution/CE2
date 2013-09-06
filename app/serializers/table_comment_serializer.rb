@@ -15,7 +15,7 @@ class TableCommentSerializer < ActiveModel::Serializer
 
   def reference_ids
     # get the reference_ids from the HABTM association
-    object.parent_targets.pluck(:parent_id)
+    object.parent_targets.map(&:parent_id)
   end
 
   def code
