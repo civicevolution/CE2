@@ -28,6 +28,12 @@ class Comment < ActiveRecord::Base
   has_many :replies, class_name: 'Reply', foreign_key: :reply_to_id
   has_many :reply_comments, through: :replies, source: :reply_comments
 
+  has_many :parent_targets, class_name: 'CommentThread', foreign_key: :child_id
+  has_many :parent_comments, through: :parent_targets, source: :parent_comments
+
+  has_many :child_targets, class_name: 'CommentThread', foreign_key: :parent_id
+  has_many :child_comments, through: :child_targets, source: :child_comments
+
   has_many :mentions, dependent: :delete_all
 
   after_initialize :read_previous_text_on_init

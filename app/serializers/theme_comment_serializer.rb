@@ -4,7 +4,7 @@ class ThemeCommentSerializer < ActiveModel::Serializer
   attributes :type, :id, :order_id, :text, :updated_at, :purpose,
              :version, :number_of_votes, :tag_name,
              :editable_by_user, :name, :code, :published, :status,
-             :replies, :reply_to_targets, :bookmark
+             :replies, :reply_to_targets, :bookmark, :ordered_child_ids
   #:reply_comments, :reply_to_comments
 
   def url
@@ -18,7 +18,6 @@ class ThemeCommentSerializer < ActiveModel::Serializer
       "#{object.author.first_name}_#{object.author.last_name}_#{object.author.name_count}"
     end
   end
-
 
   def code
     object.author.code
@@ -42,6 +41,11 @@ class ThemeCommentSerializer < ActiveModel::Serializer
     object.reply_to_targets.map do |reply|
       {id: reply.reply_to_id, version: reply.version, author: reply.author, code: reply.code, quote: reply.quote}
     end
+  end
+
+  def ordered_child_ids
+    # get the ordered_child_ids from the HABTM association
+    object.child_targets.pluck(:child_id)
   end
 
   def photo_code

@@ -107,13 +107,10 @@ module Api
       end
 
       def destroy
-
-        # right now you can only destroy a theme if you are a themer/coordinator and
-        # theme has no comments
-
         comment = Comment.find(params[:id])
         raise "CivicEvolution::CommentDestroyNotAllowed for type:#{comment.type}" unless comment.type == 'ThemeComment'
-        #raise "CivicEvolution::CommentDestroyNotAllowed if child comments" unless comment.type == 'ThemeCommentdd'
+        # make sure the comment doesn't have any children
+        raise "CivicEvolution::CommentDestroyNotAllowed if child comments" if comment.child_targets.size > 0
         authorize! :destroy_theme_comment, comment.conversation
         comment.destroy
         respond_with comment
@@ -157,8 +154,11 @@ module Api
       def assign_themes
         comment = Comment.find(params[:id])
         authorize! :assign_comment_theme, comment.conversation
-        val = if params[:theme_ids] && params[:theme_ids].length > 0 then "{#{params[:theme_ids].join(',')}}" else nil end
-        comment.update_column(:reference_ids, val)
+        if params[:act] == 'add'
+          Comment.find(params[:theme_id]).child_comments << comment
+        else
+          Comment.find(params[:theme_id]).child_comments.delete(comment)
+        end
         respond_with comment
       end
 

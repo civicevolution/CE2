@@ -2262,25 +2262,27 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
             if _.include($scope.comment.reference_ids, theme_id)
               el.removeClass('active')
               $scope.comment.reference_ids = _.without($scope.comment.reference_ids, theme_id)
+              $scope.save_theme_assignment(theme_id, 'remove', $scope.comment.id )
             else
               el.addClass('active')
               $scope.comment.reference_ids.push theme_id
+              $scope.save_theme_assignment(theme_id, 'add', $scope.comment.id )
             $timeout ->
               $scope.$root.$broadcast 'update-comment-tags', $scope.comment
-            $scope.save_theme_assignment()
 
-        $scope.save_theme_assignment = ->
+        $scope.save_theme_assignment = (theme_id, act, comment_id) ->
           data =
-            comment_id: $scope.comment.id
-            theme_ids: $scope.comment.reference_ids
+            comment_id: comment_id
+            theme_id: theme_id
+            act: act
           ThemeData.save_theme_assignment(data).then(
             (response)->
-              console.log "save_theme_assignment was #{data.theme_ids} successful"
+              #console.log "save_theme_assignment was #{data.theme_id} successful"
               $scope.$root.$broadcast 'calculate-tag-counts'
               #$scope.comment.reference_ids.push response.data.id
             ,
             (reason) ->
-              console.log "save_theme_assignment #{data.theme_ids} failed"
+              console.log "save_theme_assignment #{data.theme_id} failed"
               #$scope.error_message = reason.data.error
             )
 
@@ -2307,7 +2309,7 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
                 tag_input.val('')
                 $timeout ->
                   $scope.$root.$broadcast 'update-comment-tags', $scope.comment
-                  $scope.save_theme_assignment()
+                  $scope.save_theme_assignment(response.data.id, 'add', $scope.comment.id )
                 if response.data.type
                   $scope.$root.$broadcast "#{response.data.type}_update", {
                     action: 'create'

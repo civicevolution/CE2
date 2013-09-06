@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130831144611) do
+ActiveRecord::Schema.define(version: 20130906040717) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -67,6 +67,14 @@ ActiveRecord::Schema.define(version: 20130831144611) do
 
   add_index "bookmarks", ["user_id"], name: "index_bookmarks_on_user_id", using: :btree
 
+  create_table "comment_threads", force: true do |t|
+    t.integer  "child_id",   null: false
+    t.integer  "parent_id",  null: false
+    t.integer  "order_id",   null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "comment_versions", force: true do |t|
     t.string   "item_type",  null: false
     t.integer  "item_id",    null: false
@@ -92,7 +100,6 @@ ActiveRecord::Schema.define(version: 20130831144611) do
     t.integer  "ratings_cache",                                array: true
     t.boolean  "published",       default: false
     t.string   "tag_name"
-    t.integer  "reference_ids",                                array: true
   end
 
   add_index "comments", ["conversation_id"], name: "index_comments_on_conversation_id", using: :btree
