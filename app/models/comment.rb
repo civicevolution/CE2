@@ -31,7 +31,7 @@ class Comment < ActiveRecord::Base
   has_many :parent_targets, class_name: 'CommentThread', foreign_key: :child_id
   has_many :parent_comments, through: :parent_targets, source: :parent_comments
 
-  has_many :child_targets, -> { order 'id ASC' }, class_name: 'CommentThread', foreign_key: :parent_id
+  has_many :child_targets, -> { order 'order_id ASC' }, class_name: 'CommentThread', foreign_key: :parent_id
   has_many :child_comments, through: :child_targets, source: :child_comments
 
   has_many :mentions, dependent: :delete_all
@@ -169,6 +169,32 @@ class Comment < ActiveRecord::Base
     end
     log
   end
+
+  def self.update_comment_order( id, ordered_ids )
+    ordered_ids.reject!{|id| id.to_i == 0}
+
+    if !( ordered_ids.nil? || ordered_ids.empty?)
+      ctr = 0
+      order_string = ordered_ids.map{|o| "(#{ctr+=1},#{o})" }.join(',')
+
+      #Rails.logger.debug "update_comment_order ordered_ids: #{ordered_ids}, order_string: #{order_string} "
+
+      sql =
+          %Q|UPDATE comment_threads SET order_id = new_order_id
+      FROM ( SELECT * FROM (VALUES #{order_string}) vals (new_order_id,comment_id)	) t
+      WHERE child_id = t.comment_id AND parent_id = #{id}|
+
+
+      #Rails.logger.debug "update_comment_order with sql: #{sql}"
+      ActiveRecord::Base.connection.update_sql(sql)
+
+      # return the ordered ids as a hash that allows me to look up the order_id by comment_id to resort on browser
+      ids_order_id = {}
+      ordered_ids.each_index{ |i| ids_order_id[ordered_ids[i]] = i }
+      ids_order_id
+    end
+  end
+
 
   protected
   def as_json_for_firebase( action = "create" )

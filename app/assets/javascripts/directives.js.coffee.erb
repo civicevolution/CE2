@@ -1086,13 +1086,13 @@ ce2_directives.directive('ceProfilePhotoForm', ->
 #
 # The sortable elements must share a parent div that only contains the sortable elements
 #
-ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationData",
-  ($document, $timeout, ConversationData) ->
+ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationData", "CommentData",
+  ($document, $timeout, ConversationData, CommentData) ->
     restrict: 'A'
     priority: 500
     scope: true
     link: (scope, elm, attrs) ->
-      return unless scope.comment.editable_by_user
+      return unless scope.conversation.can('update_comment_order')
       startX = startY = initialMouseX = initialMouseY = mouseY = 0
       placeholder = dragged = placeholder_upper = placeholder_lower = {}
       item_name = collection_name = collection_subname = ''
@@ -1177,11 +1177,13 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
           $rootScope = elm.scope().$root
           $rootScope.$$phase || $rootScope.$apply()
 
-          # persist the new collection ordered ids
-          #console.log "persist the new collection order"
-          conversation_code = elm.scope().$parent.conversation?.code
           comments_order = (item.id for item in dom_scope_collection )
-          ConversationData.update_comment_order(conversation_code, comments_order)
+          comment_id = elm.parent().parent().attr('comment_id')
+          if comment_id
+            CommentData.update_comment_order(comment_id, comments_order)
+          else
+            conversation_code = elm.scope().$parent.conversation?.code
+            ConversationData.update_comment_order(conversation_code, comments_order)
           $timeout ->
             angular.element(document.body).removeClass('drag_in_process')
           , 1000

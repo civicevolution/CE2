@@ -11,6 +11,7 @@ Ce2::Application.routes.draw do
         post 'accept', :on => :member
         post 'decline', :on => :member
         post 'assign_themes', on: :member
+        post 'update_comment_order', on: :member
       end
 
     end
