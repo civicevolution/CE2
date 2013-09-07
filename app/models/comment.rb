@@ -6,10 +6,12 @@ class Comment < ActiveRecord::Base
     CommentSerializer
   end
 
-  attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark, :auth_type
+  attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark, :auth_type,
+                :pro_votes, :con_votes
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
-                  :conversation_code, :in_reply_to_id, :in_reply_to_version, :published, :auth_type, :tag_name
+                  :conversation_code, :in_reply_to_id, :in_reply_to_version, :published, :auth_type, :tag_name,
+                  :pro_votes, :con_votes
 
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
@@ -21,6 +23,7 @@ class Comment < ActiveRecord::Base
 
   has_many :ratings, :as => :ratable
 
+  has_one :pro_con_vote
 
   has_many :reply_to_targets, class_name: 'Reply', foreign_key: :comment_id
   has_many :reply_to_comments, through: :reply_to_targets, source: :reply_to_comments

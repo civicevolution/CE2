@@ -41,7 +41,8 @@
 
                 %p.table_name {{comment.name}}
                 %p.time {{comment.updated_at | from_now}}
-                %p {{comment.purpose}}
+                -#%p {{comment.purpose}}
+                %p In favor: {{comment.pro_votes}}, Opposed: {{comment.con_votes}}
 
               %div(ng-switch="comment.body_template_url")
                 %div.comment-body(ng-switch-when="default")
@@ -67,7 +68,7 @@
                 %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
                   History v{{comment.version}}
 
-                %a.edit(ng-if="comment.editable_by_user" ng-click="edit('conversation-comment-edit')"){title: "Edit this comment"}
+                %a.edit(ng-if="comment.editable_by_user" ng-click="edit('table-comment-edit')"){title: "Edit this comment"}
                   -#%i.icon-pencil
                   Edit
 

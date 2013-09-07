@@ -84,6 +84,8 @@ module Api
 
             Rails.logger.debug "theme comment #{comment.inspect}"
           when "TableComment"
+            params[:comment][:pro_votes] = params[:pro_votes]
+            params[:comment][:con_votes] = params[:con_votes]
             comment = conversation.table_comments.create params[:comment]
         end
 
