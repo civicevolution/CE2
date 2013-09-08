@@ -396,7 +396,6 @@ services.factory "ThemeData", ["$http",
 
           table_comments: sorted_table_comments
           theme_comments: theme_comments.sort((a,b)-> a.id - b.id)
-          filtered_table_comments: sorted_table_comments
           theme_tag_hash: tag_hash
           title: response.data.title
           code: response.data.code
@@ -470,8 +469,6 @@ services.factory "LiveGroupData", ["$http",
           #    comment.popover = comment.text
 
           table_comments: sorted_table_comments
-          filtered_table_comments: sorted_table_comments
-          #theme_tag_hash: tag_hash
           title: response.data.title
           code: response.data.code
           current_timestamp: response.data.current_timestamp

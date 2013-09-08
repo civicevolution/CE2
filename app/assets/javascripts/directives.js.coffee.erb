@@ -2276,18 +2276,20 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
             el = event.toElement
             el = angular.element( if el.nodeName == 'INPUT' then el.parentNode else el )
             theme_id = Number(el.find('input').val())
-
+            theme = _.findWhere($scope.conversation.theme_comments, {id: theme_id})
             if _.include($scope.comment.reference_ids, theme_id) || (theme_id == -1 && $scope.comment.status == 'parked')
               if theme_id == -1
                 $scope.comment.status = 'unparked'
               else
                 $scope.comment.reference_ids = _.without($scope.comment.reference_ids, theme_id)
+                theme.ordered_child_ids = _.without(theme.ordered_child_ids, $scope.comment.id)
               $scope.save_theme_assignment(theme_id, 'remove', $scope.comment.id )
             else
               if theme_id == -1
                 $scope.comment.status = 'parked'
               else
                 $scope.comment.reference_ids.push theme_id
+                theme.ordered_child_ids.push $scope.comment.id
               $scope.save_theme_assignment(theme_id, 'add', $scope.comment.id )
             $timeout ->
               $scope.$root.$broadcast 'update-comment-tags', $scope.comment
@@ -2327,7 +2329,9 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
             ThemeData.create_new_theme(new_theme).then(
               (response)->
                 console.log "create_new_theme was #{new_tag} successful"
-                $scope.comment.reference_ids.push response.data.id
+                theme_id = response.data.id
+                response.data.ordered_child_ids = [$scope.comment.id]
+                $scope.comment.reference_ids.push theme_id
                 tag_input.val('')
                 $timeout ->
                   $scope.$root.$broadcast 'update-comment-tags', $scope.comment

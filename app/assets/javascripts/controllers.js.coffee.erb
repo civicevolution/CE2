@@ -523,8 +523,7 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
       $scope.conversation.theme_tag_hash = tag_hash
       # Update the visible tag widgets
-      for comment in $scope.conversation.filtered_table_comments
-        comment.tags = ($scope.conversation.theme_tag_hash[id] for id in comment.reference_ids).join(', ') || 'Tag this comment'
+      $scope.$root.$broadcast 'update-comment-tags'
       $scope.$root.$broadcast 'calculate-tag-counts'
       
     $scope.edit = (action) ->
@@ -603,7 +602,7 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
                 action: 'delete'
                 class: response.data.type
                 data: response.data
-                updated_at: response.data.updated_at
+                updated_at: new Date().getTime()
                 source: "theme-comment-delete"
               }
             $timeout ->
@@ -648,7 +647,6 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
       $scope.conversation.filter_id = Number($scope.$root.user.last_name)
       $scope.refilter_table_comments()
       #$scope.$root.$broadcast 'calculate-tag-counts'
-      #$scope.$root.$broadcast 'update-comment-tags'
     , 500
 
     $scope.refilter_table_comments = () ->
