@@ -17,6 +17,7 @@ class Ability
 
   @@conversation_actions_by_role[:scribe] = %i( view_table_comments edit_table_comment post_prescreen history )
   @@conversation_actions_by_role[:themer] = %i( edit_table_comment edit_theme_comment assign_comment_theme post_prescreen history update_comment_order destroy_theme_comment)
+  @@conversation_actions_by_role[:coordinator] = %i( publish_themes).concat @@conversation_actions_by_role[:themer]
 
 
   def initialize(user)
@@ -58,6 +59,7 @@ class Ability
     can :flag, Conversation
 
     can :view_themes, Conversation
+    can :list_iap2_conversations, Conversation
 
     if !user.id.nil?
       can :create, Conversation

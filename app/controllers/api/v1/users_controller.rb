@@ -8,6 +8,11 @@ module Api
         respond_with current_user
       end
 
+      def conversations
+        authorize! :list_iap2_conversations, Conversation
+        conversations = Conversation.where(id: 13)
+        respond_with conversations, each_serializer: ConversationSerializer
+      end
     end
   end
 end

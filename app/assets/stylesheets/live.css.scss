@@ -81,7 +81,41 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
   &.label{
     margin-bottom: 10px;
   }
+}
 
+.live-themes{
+  td{
+    vertical-align: top;
+    padding-bottom: 12px;
+  }
+  td.letter{
+    font-weight: bold;
+    font-size: 4em;
+    line-height: 1em;
+    padding-right: 16px;
+  }
+  td.live-theme{
+    font-weight: bold;
+    font-size: 2em;
+    line-height: 1.4em;
+    max-width: 700px;
+  }
+  blockquote{ display:none;}
+}
 
+.live-choice{
+  ul.dropdown-menu{
+    width: 40px;
+    max-width: 40px;
+    li{
+      width: 40px;
+    }
+  }
+}
 
+.iap2{
+  max-width: 650px;
+  h3{line-height: 1.2em;}
+  .links{margin-top:20px; }
+  .public-links{margin-top: 30px;}
 }

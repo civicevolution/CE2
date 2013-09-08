@@ -512,3 +512,13 @@ services.factory "LiveAllocateData", ["$http",
         if response.status is 200
           title: response.data.title
 ]
+
+services.factory "LiveData", ["$http",
+  ($http) ->
+    name: "LiveData"
+    conversations: ->
+      console.log "LiveData.conversations"
+      $http.get("/api/users/conversations.json").then (response) ->
+        if response.status is 200
+          response.data
+]

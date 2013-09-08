@@ -9,8 +9,8 @@ ce2_directives.directive('ceUserBar', ->
   templateUrl: '<%= path_to_asset "user-bar.html" %>'
   replace: true
   scope: false
-  controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state", "$window",
-    ($scope, User, $dialog, $http, $timeout, $state, $window) ->
+  controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state", "$window", "$location",
+    ($scope, User, $dialog, $http, $timeout, $state, $window, $location) ->
       #$scope.user = User.get()
       $scope.user = {}
       User.get().then(
@@ -53,7 +53,11 @@ ce2_directives.directive('ceUserBar', ->
         User.sign_out().then(
           (response)->
             #console.log "signout received response"
-            $window.location.reload()
+            #$window.location.reload()
+            $location.path('/')
+            $timeout ->
+              $window.location.reload()
+            , 200
           ,
           (reason) ->
             console.log "signout received reason"

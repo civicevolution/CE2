@@ -1,0 +1,92 @@
+.iap2
+
+  %h2 The proposition for deliberation
+
+  %h3 "Meaningful" participation requires the satisfaction of (at least) the following criteria
+
+  %ul
+    %li Universal access
+    %li Dialogue and deliberation
+    %li Influence
+    %li Acceptable Consensus
+
+  %p Considering this:
+
+  %h4 What could we do differently to institutionalise the above criteria?
+
+  %h4 What could we do differently to scale up to address complexity?
+
+  %h4 What could we do differently to scale out to involve many people?
+
+  %hr
+
+  %div.links(ng-switch="user.id>0")
+
+    %h3(ng-switch-when="false")
+      Please
+      %a(ng-click="sign_in()")
+        %b Sign in
+
+
+    %h4.public-links Public links
+
+    %div(ng-repeat="conversation in conversations")
+      %h4 {{conversation.title}}
+
+      %p
+        %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+          The final themes
+
+
+
+
+    %div(ng-switch-default)
+      %h3 Your links for this session
+
+      %div(ng-if="user.first_name=='Coordinator'")
+
+        %div(ng-repeat="conversation in conversations")
+          %h4 {{conversation.title}}
+
+          %p
+            %a{href: "/#/conversation/{{conversation.code}}/theme/{{conversation.munged-title}}"}
+              The theming page
+          %p
+            %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+              The final themes
+
+
+
+
+
+      %div(ng-if="user.first_name=='Themer'")
+        %div(ng-repeat="conversation in conversations")
+          %h4 {{conversation.title}}
+
+          %p
+            %a{href: "/#/conversation/{{conversation.code}}/theme/{{conversation.munged-title}}"}
+              Theming page
+
+
+
+      %div(ng-if="user.first_name=='Group'")
+        %div(ng-repeat="conversation in conversations")
+          %h4 {{conversation.title}}
+
+          %p
+            %a{href: "/#/conversation/{{conversation.code}}/group/{{conversation.munged-title}}"}
+              The page for your ideas
+          %p
+            %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+              The ideas from the room
+
+          %p
+            -#%a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+            Enter the theme selections for your table
+
+          %p
+            -#%a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+            Enter your groups allocation for the most important ideas
+
+
+

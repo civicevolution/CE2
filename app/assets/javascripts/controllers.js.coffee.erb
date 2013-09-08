@@ -68,7 +68,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
     $urlRouterProvider
       # provides redirects
       .when('/c?id', '/contacts/:id')
-      .otherwise('/home');
+      #.otherwise('/home');
+      #.otherwise('/live-links');
+      .otherwise('/iap2');
 
     $stateProvider
       # registers the urls with $urlRouterProvider
@@ -137,6 +139,10 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           conversation_themes: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
             ThemeData.conversation_themes($stateParams.code).then(
               (response)->
+                letter_ctr = 0;
+                for comment in response.data
+                  comment.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
+                  letter_ctr += 1
                 response.data
             )
           ]
@@ -153,8 +159,18 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         url: "/conversation/{code}/choose/{munged_title}"
         templateUrl: '<%= path_to_asset "live-choose.html" %>'
         resolve:
-          choice_data: ["LiveChooseData", "$stateParams", (LiveChooseData, $stateParams) ->
-            LiveChooseData.choices($stateParams.code)
+          #choice_data: ["LiveChooseData", "$stateParams", (LiveChooseData, $stateParams) ->
+          #  LiveChooseData.choices($stateParams.code)
+          #]
+          choice_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
+            ThemeData.conversation_themes($stateParams.code).then(
+              (response)->
+                letter_ctr = 0;
+                for comment in response.data
+                  comment.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
+                  letter_ctr += 1
+                response.data
+            )
           ]
         controller: live_choice_controller
       )
@@ -193,6 +209,20 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           url: '/live-links'
           templateUrl: '<%= path_to_asset "live-links.html" %>'
         )
+
+      .state('iap2',
+        url: '/iap2'
+        templateUrl: '<%= path_to_asset "iap2.html" %>'
+        resolve:
+          conversations: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
+            LiveData.conversations()
+          ]
+        controller: [ "$scope", "conversations",
+          ($scope, conversations) ->
+            $scope.conversations = conversations
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
+      )
 
 
       .state('about', {

@@ -1,6 +1,7 @@
 %div.ce-user-bar
   .logo
-    %a(ng-click="$state.transitionTo('home')")
+    -#%a(ng-click="$state.transitionTo('home')")
+    %a(ng-click="$state.transitionTo('iap2')")
       %img{src: path_to_asset("ce-white-blue-20.gif") }
     %p.tagline Think together to Act together
 
@@ -11,14 +12,14 @@
     %a.dropdown-toggle
       %i.icon-cog
     %ul.dropdown-menu
-      %li
+      -#%li
         %a(ng-click="edit_profile()") Edit profile
       %li
         %a(ng-click="sign_out()") Sign out
-      %li
+      -#%li
         %a(ng-click="change_password()")
           Change password
-      %li
+      -#%li
         %a(ng-click="request_confirmation()")
           Confirm email
 
@@ -27,13 +28,13 @@
   %p.user-bar-links(ng-hide="user.id>0" )
     Please
     %a(ng-click="sign_in()")
-      Sign in
+      %b Sign in
     or
     %a(ng-click="sign_up()")
-      Sign up
+      %b Sign up
 
-    %a(ng-click="forgot_password()")
+    -#%a(ng-click="forgot_password()")
       Forgot password
 
-    %a(ng-click="test()")
+    -#%a(ng-click="test()")
       Test
