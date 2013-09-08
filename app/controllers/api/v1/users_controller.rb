@@ -10,7 +10,8 @@ module Api
 
       def conversations
         authorize! :list_iap2_conversations, Conversation
-        conversations = Conversation.where(id: 13)
+        test_id = Rails.env == "development" ? 13 : 7
+        conversations = Conversation.where(id: test_id)
         respond_with conversations, each_serializer: ConversationSerializer
       end
     end
