@@ -487,3 +487,24 @@ services.factory "LiveGroupData", ["$http",
     #  $http.delete("/api/comments/#{data.id}.json")
 
 ]
+
+services.factory "LiveChooseData", ["$http",
+  ($http) ->
+    name: "LiveChooseData"
+
+    choices: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
+        if response.status is 200
+          title: response.data.title
+
+]
+
+services.factory "LiveAllocateData", ["$http",
+  ($http) ->
+    name: "LiveAllocateData"
+
+    options: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
+        if response.status is 200
+          title: response.data.title
+]

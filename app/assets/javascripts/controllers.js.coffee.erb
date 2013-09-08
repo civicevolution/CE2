@@ -91,7 +91,33 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       })
 
-    .state( 'live-conversation-theme',
+      .state( 'conversation',
+        url: "/conversation/{code}/{munged_title}"
+        #url: "/conversation/{code}/{munged_title:[^/]*}{path:.*}"
+        templateUrl: '<%= path_to_asset "conversation.html" %>'
+        resolve:
+          conversation: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
+                         console.log "resolve get ConversationData.conversation"
+                         ConversationData.conversation($stateParams.code)
+            #console.log "conversation state with path: #{$stateParams.path}"
+          ]
+        controller: conversation_controller
+      )
+
+
+      .state( 'live-conversation-group',
+          url: "/conversation/{code}/group/{munged_title}"
+          templateUrl: '<%= path_to_asset "live-group.html" %>'
+          resolve:
+            conversation_group_data: ["LiveGroupData", "$stateParams", (LiveGroupData, $stateParams) ->
+              console.log "resolve get LiveGroupData.conversation_group_data"
+              LiveGroupData.conversation_group_data($stateParams.code)
+            ]
+          controller: conversation_group_controller
+        )
+
+
+      .state( 'live-conversation-theme',
         url: "/conversation/{code}/theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live-theme.html" %>'
         resolve:
@@ -103,29 +129,59 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_theme_controller
       )
 
-    .state( 'live-conversation-group',
-        url: "/conversation/{code}/group/{munged_title}"
-        templateUrl: '<%= path_to_asset "live-group.html" %>'
-        resolve:
-          conversation_group_data: ["LiveGroupData", "$stateParams", (LiveGroupData, $stateParams) ->
-            console.log "resolve get LiveGroupData.conversation_group_data"
-            LiveGroupData.conversation_group_data($stateParams.code)
-          ]
-        controller: conversation_group_controller
+      # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/themes/xyz
+      .state('live-themes',
+        url: "/conversation/{code}/themes/{munged_title}"
+        templateUrl: '<%= path_to_asset "live-themes.html" %>'
       )
 
-    .state( 'conversation',
-        url: "/conversation/{code}/{munged_title}"
-        #url: "/conversation/{code}/{munged_title:[^/]*}{path:.*}"
-        templateUrl: '<%= path_to_asset "conversation.html" %>'
+
+      # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/choose/xyz
+      .state( 'live-theme-choose',
+        url: "/conversation/{code}/choose/{munged_title}"
+        templateUrl: '<%= path_to_asset "live-choose.html" %>'
         resolve:
-          conversation: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
-            console.log "resolve get ConversationData.conversation"
-            ConversationData.conversation($stateParams.code)
-            #console.log "conversation state with path: #{$stateParams.path}"
+          choice_data: ["LiveChooseData", "$stateParams", (LiveChooseData, $stateParams) ->
+            LiveChooseData.choices($stateParams.code)
           ]
-        controller: conversation_controller
+        controller: live_choice_controller
       )
+
+      # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/choose-results/xyz
+      .state('live-choose-results',
+        url: "/conversation/{code}/choose-results/{munged_title}"
+        templateUrl: '<%= path_to_asset "live-choose-results.html" %>'
+      )
+
+      # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/options
+      .state('live-options',
+        url: "/live/{code}/options"
+        templateUrl: '<%= path_to_asset "live-options.html" %>'
+      )
+
+      # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate
+      .state( 'live-theme-allocate',
+        url: "/live/{code}/allocate"
+        templateUrl: '<%= path_to_asset "live-allocate.html" %>'
+        resolve:
+          options_data: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
+            LiveAllocateData.options($stateParams.code)
+          ]
+        controller: live_allocate_controller
+      )
+
+
+      # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate-results
+      .state('live-allocate-results',
+        url: "/live/{code}/allocate-results"
+        templateUrl: '<%= path_to_asset "live-allocate-results.html" %>'
+      )
+
+      .state('live-links',
+          url: '/live-links'
+          templateUrl: '<%= path_to_asset "live-links.html" %>'
+        )
+
 
       .state('about', {
         url: '/about',
@@ -684,6 +740,17 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
       if data.action is 'save'
         $scope.refilter_table_comments()
+]
+live_choice_controller = [ "$scope", "choice_data", "FirebaseService", "$timeout", "$dialog",
+  ($scope, choice_data, FirebaseService, $timeout, $dialog) ->
+    $scope.choice_data = choice_data
 
+    $scope.name = 'live_choice_controller'
+]
 
+live_allocate_controller = [ "$scope", "options_data", "FirebaseService", "$timeout", "$dialog",
+  ($scope, options_data, FirebaseService, $timeout, $dialog) ->
+    $scope.options_data = options_data
+
+    $scope.name = 'live_allocate_controller'
 ]
