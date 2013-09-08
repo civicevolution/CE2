@@ -57,6 +57,8 @@ class Ability
     can :index, Conversation
     can :flag, Conversation
 
+    can :view_themes, Conversation
+
     if !user.id.nil?
       can :create, Conversation
     end

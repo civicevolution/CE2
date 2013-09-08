@@ -69,3 +69,19 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
 
   }
 }
+
+.live-group .nav#right-menu li{
+  a{
+    max-width: 150px;
+    padding: 10px;
+  }
+  &.add_comment{
+    margin-top: 50px;
+  }
+  &.label{
+    margin-bottom: 10px;
+  }
+
+
+
+}

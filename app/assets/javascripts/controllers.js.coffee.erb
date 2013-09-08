@@ -133,6 +133,18 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('live-themes',
         url: "/conversation/{code}/themes/{munged_title}"
         templateUrl: '<%= path_to_asset "live-themes.html" %>'
+        resolve:
+          conversation_themes: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
+            ThemeData.conversation_themes($stateParams.code).then(
+              (response)->
+                response.data
+            )
+          ]
+        controller: [ "$scope", "conversation_themes",
+          ($scope, conversation_themes) ->
+            $scope.conversation_themes = conversation_themes
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
       )
 
 

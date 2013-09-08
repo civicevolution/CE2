@@ -153,6 +153,13 @@ module Api
         respond_with presenter.conversation, serializer: ConversationThemeDataSerializer
       end
 
+      def themes
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :view_themes, conversation
+        themes = conversation.themes
+        respond_with themes
+      end
+
     end
 
   end

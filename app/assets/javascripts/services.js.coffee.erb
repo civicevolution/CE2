@@ -443,6 +443,10 @@ services.factory "ThemeData", ["$http",
     delete: (data) ->
       $http.delete("/api/comments/#{data.id}.json")
 
+    conversation_themes: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/themes.json")
+
+
 ]
 
 

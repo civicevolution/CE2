@@ -1,2 +1,5 @@
 .live-themes
-  %p live-themes.html
+  %p live-themes.html v2
+  %div(ng-repeat="theme in conversation_themes")
+    -#%p theme text: {{theme.text}}
+    %div.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")

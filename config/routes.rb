@@ -38,6 +38,7 @@ Ce2::Application.routes.draw do
         get 'stats', on: :member
         get 'theme_data', on: :member
         get 'group_data', on: :member
+        get 'themes', on: :member
         resources :comments, shallow: true
       end
     end

@@ -290,5 +290,8 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     {review_items_count: review_items_count}
   end
 
+  def themes
+    self.theme_comments
+  end
 
 end
