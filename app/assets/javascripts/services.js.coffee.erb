@@ -369,46 +369,6 @@ find_comment_in_conversation = (id) ->
           return item
 
 
-
-services.factory "TemplateEngine",
-  ($rootScope, $templateCache, $http, $interpolate) ->
-    name: "TemplateEngine"
-    interpolation_fns: {}
-
-    interpolate: (templateName, args) ->
-      #console.log "TemplateEngine.compile with templateName: #{templateName}"
-
-      # get the interplotion function from a cache
-      interpolate_fn = this.interpolation_fns[templateName]
-
-      if interpolate_fn
-        # use the cached interpolation function to convert the quote data into html
-        return interpolate_fn(args)
-
-      else
-        # if not existing, get the template and create the function and store in cache
-        #template = $templateCache.get("/assets/angular-views/#{templateName}.html")
-        template = $templateCache.get("<%= path_to_asset "quote.html" %>")
-
-        if template
-          interpolate_fn = $interpolate(template[1])
-          this.interpolation_fns[templateName] = interpolate_fn
-          return interpolate_fn(args)
-
-        else
-          # I have to intentionally load the template in app.run() with
-          # $http.get("/assets/angular-views/quote.html", {cache:$templateCache};)
-          # my attempts to load the template when I realize I need cause problems
-          # of deep iteration.
-          # $broadcast/$on is tightly coupled leading to the same deep iteration
-          #$rootScope.$broadcast('load_template',templateName)
-          ## load the required template to cache and it will be used next time
-          #console.log "load the template for #{templateName}"
-          ##$http.get("/assets/angular-views/#{templateName}.html", {cache:$templateCache};)
-          ##$http.get("/assets/angular-views/#{templateName}.html")
-          return "Initializing TemplateEngine for #{templateName}"
-
-
 services.factory "ThemeData", ["$http",
   ($http) ->
     name: "ThemeData"
@@ -445,9 +405,9 @@ services.factory "ThemeData", ["$http",
           abilities: response.data.role.abilities
           can: (action) ->
             _.indexOf(this.abilities, action ) > -1
+          firebase_token: response.data.firebase_token
 
 
-    #firebase_token: response.data.firebase_token
     #summary_comments: summary_comments.sort((a,b)-> a.order_id - b.order_id)
     #conversation_comments: conversation_comments.sort((a,b)-> a.order_id - b.order_id)
     #title_comment: title_comment

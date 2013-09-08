@@ -17,7 +17,7 @@ class ConversationThemePresenter
       com.my_rating = my_ratings[com.id]
       com.bookmark = my_bookmarks[com.id]
     end
-
+=end
     # everyone who can access this conversation can read the updates from Firebase
     firebase_auth_data = { conversations_read: { "#{@conversation.code}" => true } }
 
@@ -29,7 +29,7 @@ class ConversationThemePresenter
 
     @conversation.firebase_token = Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data)
     #Rails.logger.debug "ConversationPresenter is initialized"
-=end
+
 
   end
 

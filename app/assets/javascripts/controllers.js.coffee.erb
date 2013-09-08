@@ -172,8 +172,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
 ])
 
-ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngine", "$http", "$templateCache", "$dialog", "$location",
-  ($rootScope,   $state,   $stateParams, $timeout, TemplateEngine, $http, $templateCache, $dialog, $location) ->
+ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "$http", "$templateCache", "$dialog", "$location",
+  ($rootScope,   $state,   $stateParams, $timeout, $http, $templateCache, $dialog, $location) ->
     $rootScope.dev_mode = if $location.host().match(/dev$/) then true else false
     $rootScope.$state = $state
     $rootScope.$stateParams = $stateParams
@@ -193,7 +193,7 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
       #console.log "initialize_markdown_system"
       # which will call initialize_markdown_editor
       if Markdown
-        initialize_markdown_converter( TemplateEngine, $timeout, $dialog, $rootScope, options )
+        initialize_markdown_converter( $timeout, $dialog, $rootScope, options )
       else
         $timeout ->
           $rootScope.initialize_markdown_system(options)
@@ -203,8 +203,7 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "TemplateEngin
 
 ])
 
-initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope, options) ->
-  opts = { TemplateEngine: TemplateEngine } # unless opts
+initialize_markdown_converter = ($timeout, $dialog, $rootScope, options) ->
   quoteTemplate = null
 
   disable_editor = if options && options.disable_editor then true else false
@@ -229,7 +228,7 @@ initialize_markdown_converter = (TemplateEngine, $timeout, $dialog, $rootScope, 
   converter.hooks.chain "postConversion", (text) ->
     # reapply quotes
     text = quoteTemplate(text) if quoteTemplate
-    return Markdown.BBCode.format(text, opts);
+    return Markdown.BBCode.format(text);
 
   Markdown.upload_dialog = (linkEnteredCallback) ->
     console.log "call the upload dialog"
@@ -454,6 +453,25 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       $scope.$root.$broadcast 'calculate-tag-counts'
       $scope.$root.$broadcast 'update-comment-tags'
     , 500
+
+    # Subscribe to updates for this data
+    url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"
+    #console.log "firebase url: #{url}"
+    FirebaseService.initialize_source(url, $scope.conversation.firebase_token)
+
+    $scope.$on 'TableComment_update', (event, data) ->
+      data.data.reference_ids = [] unless data.data.reference_ids
+      [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.table_comments, data)
+      if updated_rec && original_rec
+        updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+      if data.action == 'create'
+        $timeout ->
+          $scope.$root.$broadcast 'calculate-tag-counts'
+          $scope.refilter_table_comments()
+          $scope.$root.$broadcast 'update-comment-tags', updated_rec
+    , 500
+
+
 
     $scope.filter_table_comments = (mode, id=null) ->
       #console.log "filter_table_comments mode: #{mode}, id: #{id}"

@@ -63,7 +63,7 @@
                   %span(ng-if="comment.replies_expanded")
                     %i.icon-chevron-up
 
-                %div(ce-tag-comment)
+                %div(ng-if="!comment.editable_by_user" ce-tag-comment)
 
                 %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
                   History v{{comment.version}}

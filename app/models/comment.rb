@@ -201,8 +201,7 @@ class Comment < ActiveRecord::Base
 
   protected
   def as_json_for_firebase( action = "create" )
-    #data = as_json root: false, except: [:user_id]
-    data = CommentSerializer.new( self ).as_json
+    data = self.active_model_serializer.new( self ).as_json
     { class: self.class.to_s, action: action, data: data, updated_at: Time.now.getutc, source: "RoR-Firebase" }
   end
 
