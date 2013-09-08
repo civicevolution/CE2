@@ -2,7 +2,7 @@
 # set migration command, but only run them when –migrate is specified
 
 environments:
-  ce2_beta:
+  ce2_solo:
     branch: ce-live
     migrate: false
     migration_command: bundle exec rake db:migrate
