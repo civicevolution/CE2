@@ -371,8 +371,8 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     # the data was resolved and attached to scope in the state definition
     
     $timeout ->
-      #if $scope.conversation.role == 'conversation_admin' && !$scope.conversation.published
-      $scope.conversation.wizard_mode = true
+      if $scope.conversation.role == 'conversation_admin' && !$scope.conversation.published
+        $scope.conversation.wizard_mode = true
 
       if $scope.conversation.can('show_participants')
         ConversationData.load_stats($scope.conversation.code).then(
