@@ -9,7 +9,7 @@ class Conversation < ActiveRecord::Base
 
   has_one :title_comment, -> { includes author: :profile   }
   has_one :call_to_action_comment, -> { includes author: :profile   }
-  has_many  :comments, -> { includes [{author: :profile}, :replies, :reply_to_targets, :child_targets, :parent_targets ] }
+  has_many  :comments, -> { includes [{author: :profile}, :replies, :reply_to_targets, :child_targets, :parent_targets, :pro_con_vote] }
   has_many  :conversation_comments, -> { includes author: :profile }
   has_many :summary_comments, -> { includes author: :profile }
 
