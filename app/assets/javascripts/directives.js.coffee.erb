@@ -2105,7 +2105,7 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
   restrict: 'A'
   templateUrl: (tElement, tAttrs) ->
     prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
-    "<%= path_to_asset "assets/panel/comment-review.html" %>#{prefix}"
+    "<%= path_to_asset "panel/comment-review.html" %>#{prefix}"
   replace: true
   scope: true
   priority: 100
@@ -2216,7 +2216,7 @@ ce2_directives.directive('ceReviewFlaggedComment',[ "$compile", "$timeout", ($co
   restrict: 'A'
   templateUrl: (tElement, tAttrs) ->
     prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
-    "<%= path_to_asset "assets/panel/flagged-comment-review.html" %>#{prefix}"
+    "<%= path_to_asset "panel/flagged-comment-review.html" %>#{prefix}"
   replace: true
   scope: true
   priority: 100
@@ -2258,7 +2258,7 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
     restrict: 'A'
     templateUrl: (tElement, tAttrs) ->
       prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
-      "<%= path_to_asset "assets/tag-comment.html" %>#{prefix}"
+      "<%= path_to_asset "tag-comment.html" %>#{prefix}"
     replace: true
     scope: true
     controller: [ "$scope", "$timeout",
