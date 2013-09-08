@@ -27,10 +27,7 @@ ce2_directives.directive('ceUserBar', ->
           templateUrl: '<%= path_to_asset "signin_form.html" %>'
           controller: ->
             # for testing
-            $scope.user = #{}
-              email: 'brian@civicevolution.org'
-              password: 'evolution'
-              remember_me: 1
+            $scope.user = {}
             $scope.submit_sign_in = (user) ->
               console.log "Submit by calling User.sign_in with credentials: #{user.email}/#{user.password}"
               $scope.error_message = null
@@ -138,8 +135,6 @@ ce2_directives.directive('ceUserBar', ->
           backdropClick: true
           templateUrl: '<%= path_to_asset "request_confirmation_form.html" %>'
           controller: ->
-            #$scope.user = {email: "charles@civicevolution.org"}
-            #  email: 'brian@civicevolution.org'
             $scope.submit_request_confirmation = (user) ->
               #console.log "Submit by calling User.request_confirmation with email: #{user.email}"
               $scope.conf_error_message = null
@@ -1422,9 +1417,9 @@ ce2_directives.directive('ceContactPanel', ->
     ($scope, User, $dialog) ->
       $scope.name = 'ceContactPanel'
       $scope.message =
-        email: $scope.$root.user.email # || 'brian@civicevolution.org'
-        first_name: $scope.$root.user.first_name # || 'Brian'
-        last_name: $scope.$root.user.last_name # || 'Sullivan'
+        email: $scope.$root.user.email
+        first_name: $scope.$root.user.first_name
+        last_name: $scope.$root.user.last_name
         #text: new Date()
 
       $scope.send_message = ->
