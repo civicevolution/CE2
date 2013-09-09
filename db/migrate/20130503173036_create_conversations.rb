@@ -1,6 +1,7 @@
 class CreateConversations < ActiveRecord::Migration
   def change
     #execute "create extension hstore"
+    execute "CREATE EXTENSION IF NOT EXISTS hstore"
     create_table :conversations do |t|
       t.string :code, null: false
       t.integer :user_id, null: false

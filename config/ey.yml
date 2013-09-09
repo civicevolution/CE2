@@ -10,3 +10,12 @@ environments:
     precompile_assets: true
     precomplie_assets_task: assets:precompile
     asset_roles: :all
+
+  aus:
+    branch: ce-live
+    migrate: false
+    migration_command: bundle exec rake db:migrate
+    maintenance_on_migrate: true
+    precompile_assets: true
+    precomplie_assets_task: assets:precompile
+    asset_roles: :all
