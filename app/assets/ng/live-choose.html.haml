@@ -12,7 +12,7 @@
       %td.lbl 1st choice
       %td.box
         %div.dropdown
-          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '1A' }
+          %button.btn.btn-primary.btn-large.dropdown-toggle{box: '1A' }
             %span Select choice
             %b.caret
           %ul.dropdown-menu(ng-click="note_choice()")
@@ -21,7 +21,7 @@
 
       %td.box
         %div.dropdown
-          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '2A' }
+          %button.btn.btn-primary.btn-large.dropdown-toggle{box: '2A' }
             %span Select choice
             %b.caret
           %ul.dropdown-menu(ng-click="note_choice()")
@@ -29,7 +29,7 @@
               %a{id: "{{choice.id}}"} {{choice.letter}}
       %td.box
         %div.dropdown
-          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '3A' }
+          %button.btn.btn-primary.btn-large.dropdown-toggle{box: '3A' }
             %span Select choice
             %b.caret
           %ul.dropdown-menu(ng-click="note_choice()")
@@ -40,7 +40,7 @@
       %td.lbl 2nd choice
       %td.box
         %div.dropdown
-          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '1B' }
+          %button.btn.btn-primary.btn-large.dropdown-toggle{box: '1B' }
             %span Select choice
             %b.caret
           %ul.dropdown-menu(ng-click="note_choice()")
@@ -49,7 +49,7 @@
 
       %td.box
         %div.dropdown
-          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '2B' }
+          %button.btn.btn-primary.btn-large.dropdown-toggle{box: '2B' }
             %span Select choice
             %b.caret
           %ul.dropdown-menu(ng-click="note_choice()")
@@ -57,7 +57,7 @@
               %a{id: "{{choice.id}}"} {{choice.letter}}
       %td.box
         %div.dropdown
-          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '3B' }
+          %button.btn.btn-primary.btn-large.dropdown-toggle{box: '3B' }
             %span Select choice
             %b.caret
           %ul.dropdown-menu(ng-click="note_choice()")
@@ -67,11 +67,11 @@
     %tr
       %td
       %td
-        -#%button.btn.btn-small.left(ng-click="save()") < Previous
+        -#%button.btn.btn-large.left(ng-click="save()") < Previous
       %td
       %td
-        %button.btn.btn-success.btn-small.right(ng-click="save()" ng-disabled="!completed") Next >
-        -#%button.btn.btn-success.btn-small.right(ng-click="save()" ) Next >
+        %button.btn.btn-success.btn-large.right(ng-click="save()" ng-disabled="!completed") Next >
+        -#%button.btn.btn-success.btn-large.right(ng-click="save()" ) Next >
 
 
 
