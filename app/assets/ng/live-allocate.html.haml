@@ -8,42 +8,12 @@
         %h3 Our priority Ideas
       %th
         %h3 $ Spent
-    %tr
+    %tr(ng-repeat="allocation in allocations" )
       %td.option
-        %h3 A
+        %h3 {{allocation.ltr}}
       %td.alloc
         %h3 $
-        %input.allocation(ng-model="alloc.alloc_1" type="number")
-    %tr
-      %td.option
-        %h3 B
-      %td.alloc
-        %h3 $
-        %input.allocation(ng-model="alloc.alloc_2" type="number")
-    %tr
-      %td.option
-        %h3 C
-      %td.alloc
-        %h3 $
-        %input.allocation(ng-model="alloc.alloc_3" type="number")
-    %tr
-      %td.option
-        %h3 D
-      %td.alloc
-        %h3 $
-        %input.allocation(ng-model="alloc.alloc_4" type="number")
-    %tr
-      %td.option
-        %h3 E
-      %td.alloc
-        %h3 $
-        %input.allocation(ng-model="alloc.alloc_5" type="number")
-    %tr
-      %td.option
-        %h3 F
-      %td.alloc
-        %h3 $
-        %input.allocation(ng-model="alloc.alloc_6" type="number")
+        %input.allocation(type="number" ng-model="allocation.value" ng-change="total()")
 
 
 
@@ -51,9 +21,9 @@
       %th
         %h3 TOTAL
       %th
-        %h3
-          ${{Number(alloc.alloc_1)+Number(alloc.alloc_2)+Number(alloc.alloc_3)+Number(alloc.alloc_4)+Number(alloc.alloc_5)+Number(alloc.alloc_6)}}
+        %h3(ng-class="{warn: over100}")
+          ${{ total() }}
 
     %tr
       %td(colspan="2")
-        %button.btn.btn-success.btn-large.right(ng-click="save()") Submit
+        %button.btn.btn-success.btn-large.right(ng-click="save()" ng-disabled="over100") Submit

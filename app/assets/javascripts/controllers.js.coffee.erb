@@ -881,6 +881,33 @@ live_allocate_controller = [ "$scope", "FirebaseService", "$timeout", "$dialog",
     #$scope.options_data = options_data
 
     $scope.name = 'live_allocate_controller'
+    $scope.allocations = [
+      {ltr: 'A', value:""}
+      {ltr: 'B', value:""}
+      {ltr: 'C', value:""}
+      {ltr: 'D', value:""}
+      {ltr: 'E', value:""}
+      {ltr: 'F', value:""}
+      ]
+    $scope.over100 = false
+
+    $scope.total = ->
+      tot = 0
+      for a in $scope.allocations
+        num = a.value
+        if !isNaN(num)
+          num = Number(a.value)
+          if num > 50
+            num = 50
+            a.value = 50
+          tot += num
+      if tot > 100
+        $scope.over100 = true
+      else
+        $scope.over100 = false
+
+      tot
+
     $scope.save = ->
       console.log "Save the allocation"
 ]
