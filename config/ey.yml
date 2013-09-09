@@ -11,7 +11,7 @@ environments:
     precomplie_assets_task: assets:precompile
     asset_roles: :all
 
-  aus:
+  AUS:
     branch: ce-live
     migrate: false
     migration_command: bundle exec rake db:migrate
