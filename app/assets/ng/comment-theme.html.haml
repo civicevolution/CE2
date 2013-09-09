@@ -5,9 +5,9 @@
         .comment-body-container
 
           %div.header
-            %p.table_name {{comment.name}}
+            -#%p.table_name {{comment.name}}
             %p.time {{comment.updated_at | from_now}}
-            %p {{comment.purpose}}
+            %p {{comment.name}}
 
           %p Tag name: {{comment.tag_name}}
           %div.theme_text(ng-bind-html-unsafe="converter.makeHtml(comment.text)")

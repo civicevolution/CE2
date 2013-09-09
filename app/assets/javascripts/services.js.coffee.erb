@@ -521,8 +521,15 @@ services.factory "LiveData", ["$http",
   ($http) ->
     name: "LiveData"
     conversations: ->
-      console.log "LiveData.conversations"
+      #console.log "LiveData.conversations"
       $http.get("/api/users/conversations.json").then (response) ->
         if response.status is 200
           response.data
+    conversations_and_themes: ->
+      #console.log "LiveData.conversations_and_themes"
+      $http.get("/api/users/conversations_and_themes.json")
+
+    theme_votes: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/theme_votes.json")
+
 ]

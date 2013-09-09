@@ -15,6 +15,15 @@ module Api
         conversations = Conversation.where(id: test_ids)
         respond_with conversations, each_serializer: ConversationListSerializer
       end
+
+      def conversations_and_themes
+        authorize! :list_iap2_conversations, Conversation
+        test_ids = Rails.env == "development" ? [16,15,17] : [7]
+        test_ids = request.subdomain == 'aus' ? [1,2,3] : test_ids
+        conversations = Conversation.where(id: test_ids)
+        respond_with conversations, each_serializer: ConversationAndThemesSerializer
+      end
+
     end
   end
 end

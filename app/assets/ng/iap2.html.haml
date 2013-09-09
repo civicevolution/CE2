@@ -74,17 +74,35 @@
         %p
           %a{href: "/#/conversation/{{conversation.code}}/group/{{conversation.munged_title}}"}
             Click here to enter your group's ideas
-        -#%p
+
+      %h4 Record your group's selections
+      %p
+        %a{href: "/#/conversation/{{conversation.code}}/choose/{{conversation.munged_title}}"}
+          Click here to record your group's selections
+
+
+
+    %div(ng-if="user.first_name=='Reports'")
+      %h4 Links for the reporter
+
+      %div(ng-repeat="conversation in conversations")
+        %h4 {{conversation.title}}
+
+        %p
           %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
-            The ideas from the room
+            The final themes with examples
+
+        %p
+          %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}?ex=0"}
+            The final themes without examples
+
+        %p
+          %a{href: "/#/conversation/{{conversation.code}}/choose-results/{{conversation.munged_title}}"}
+            The prioritized themes
 
       %p
         -#%a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
-        Enter the theme selections for your table
-
-      %p
-        -#%a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
-        Enter your group's allocation for the most important ideas
+        The final 6 prioritized themes
 
 
 

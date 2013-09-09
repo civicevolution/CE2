@@ -149,10 +149,11 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 response.data
             )
           ]
-        controller: [ "$scope", "conversation_themes",
-          ($scope, conversation_themes) ->
+        controller: [ "$scope", "conversation_themes", "$location",
+          ($scope, conversation_themes, $location) ->
             $scope.conversation_themes = conversation_themes
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
+            $scope.no_examples = $location.search()['ex'] == '0'
         ]
       )
 
@@ -162,16 +163,14 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         url: "/conversation/{code}/choose/{munged_title}"
         templateUrl: '<%= path_to_asset "live-choose.html" %>'
         resolve:
-          #choice_data: ["LiveChooseData", "$stateParams", (LiveChooseData, $stateParams) ->
-          #  LiveChooseData.choices($stateParams.code)
-          #]
-          choice_data: ["LiveChooseData", "$stateParams", (LiveChooseData, $stateParams) ->
-            LiveChooseData.choice_data($stateParams.code).then(
+          conversations_and_themes: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
+            LiveData.conversations_and_themes($stateParams.code).then(
               (response)->
-                letter_ctr = 0;
-                for comment in response.data
-                  comment.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
-                  letter_ctr += 1
+                for question in response.data
+                  letter_ctr = 0;
+                  for theme in question.theme_comments
+                    theme.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
+                    letter_ctr += 1
                 response.data
             )
           ]
@@ -182,6 +181,18 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('live-choose-results',
         url: "/conversation/{code}/choose-results/{munged_title}"
         templateUrl: '<%= path_to_asset "live-choose-results.html" %>'
+        resolve:
+          theme_votes: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
+            LiveData.theme_votes($stateParams.code).then(
+              (response)->
+                response.data
+            )
+          ]
+        controller: [ "$scope", "theme_votes",
+          ($scope, theme_votes) ->
+            $scope.theme_votes = theme_votes
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
       )
 
       # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/options
@@ -787,11 +798,11 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
       if data.action is 'save'
         $scope.refilter_table_comments()
 ]
-live_choice_controller = [ "$scope", "choice_data", "LiveChooseData", "$timeout", "$dialog",
-  ($scope, choice_data, LiveChooseData, $timeout, $dialog) ->
-    $scope.question_1_themes = choice_data
-    $scope.question_2_themes = choice_data
-    $scope.question_3_themes = choice_data
+live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData", "$timeout", "$dialog",
+  ($scope, conversations_and_themes, LiveChooseData, $timeout, $dialog) ->
+    $scope.question_1_themes = conversations_and_themes[0].theme_comments
+    $scope.question_2_themes = conversations_and_themes[1].theme_comments
+    $scope.question_3_themes = conversations_and_themes[2].theme_comments
 
     $scope.name = 'live_choice_controller'
     $scope.completed = false
@@ -847,15 +858,6 @@ live_choice_controller = [ "$scope", "choice_data", "LiveChooseData", "$timeout"
       #console.log "$scope.completed: #{$scope.completed}"
 
     $scope.save = ->
-      $scope.completed = true
-      $scope.data =
-        '1A': 149
-        '2A': 149
-        '3A': 148
-        '1B': 148
-        '2B': 148
-        '3B': 148
-
       if $scope.completed
         console.log "save now"
         #for key of $scope.data

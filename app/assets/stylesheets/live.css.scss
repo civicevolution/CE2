@@ -100,9 +100,20 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
     line-height: 1.4em;
     max-width: 700px;
   }
-  blockquote{ display:none;}
+  blockquote{
+    font-size: .7em;
+  }
+  &.no-ex{
+    blockquote{
+      display:none;
+    }
+  }
 }
-
+.live-choose-results{
+  blockquote{
+    display: none;
+  }
+}
 .live-choice{
   td{
     min-width:  130px;
@@ -133,4 +144,37 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
 
 .content{
   box-shadow: none;
+}
+
+.theme-view{
+  div.count{
+    display: none;
+  }
+}
+
+.live-choose-results{
+  td{
+    vertical-align: top;
+    padding-bottom: 12px;
+  }
+  td.votes{
+    font-weight: bold;
+    font-size: 3em;
+    line-height: 1em;
+    padding-right: 16px;
+  }
+  td.percent{
+    font-weight: bold;
+    font-size: 2em;
+    line-height: 1em;
+    padding-top: 6px;
+    padding-right: 16px;
+  }
+  td.live-theme{
+    font-weight: bold;
+    font-size: 2em;
+    line-height: 1.4em;
+    max-width: 700px;
+  }
+  blockquote{ display:none;}
 }

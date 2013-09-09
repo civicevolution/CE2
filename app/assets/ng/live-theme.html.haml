@@ -3,9 +3,6 @@
     .span3
       %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
 
-        %li#conversation-review-link
-          %span.label.label-info Table comments
-
         %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'all'}" popover="Click here to view all of the comments" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
           %a(ng-click="filter_table_comments('all')")
             All comments
@@ -34,6 +31,9 @@
           %a(ng-click="filter_table_comments('parked')")
             Parked
             %span.badge.badge-info {{conversation.comment_counts['parked']}}
+
+        %li#conversation-review-link
+          %span.label.label-info Table comments
 
         %li#conversation-review-link(ng-repeat="id in [1,2,3,4]" ng-class="{active: (conversation.filter_mode == 'table' && conversation.filter_id == id)}" popover="Click to view comments from table {{id}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
           %a(ng-click="filter_table_comments('table', id)")
@@ -81,7 +81,7 @@
               %p There are no themes
 
 
-        %div(ng-switch-when="theme")
+        %div.theme-view(ng-switch-when="theme")
           %div.comment-outer(ng-repeat="comment in [conversation.current_theme]")
             %div(ce-comment type="theme")
 

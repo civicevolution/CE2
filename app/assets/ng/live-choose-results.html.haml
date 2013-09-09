@@ -1,2 +1,11 @@
 .live-choose-results
-  %p live-choose-results.html
+  %h3  The theme votes
+
+  %table
+    %tr(ng-repeat="theme in theme_votes")
+      %td.votes {{theme.votes}}
+      %td.percent {{theme.percent}}%
+      -#%td.live-theme {{theme.text}}
+      %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+
+

@@ -39,6 +39,7 @@ Ce2::Application.routes.draw do
         get 'theme_data', on: :member
         get 'group_data', on: :member
         get 'themes', on: :member
+        get 'theme_votes', on: :member
         resources :comments, shallow: true
       end
     end
@@ -101,6 +102,7 @@ Ce2::Application.routes.draw do
       #resources :users
       get 'users/user'
       get 'users/conversations'
+      get 'users/conversations_and_themes'
     end
   end
   #get '/api/users(.:format)',            api/v1/comments#index {:format=>"json"}

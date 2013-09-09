@@ -2,6 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
+      skip_authorization_check only: [:theme_votes]
       #def default_serializer_options
       #  {
       #      root: false
@@ -159,6 +160,11 @@ module Api
         themes = conversation.themes
         respond_with themes
       end
+
+      def theme_votes
+        render json: ThemeVote.theme_votes(params[:id])
+      end
+
 
     end
 
