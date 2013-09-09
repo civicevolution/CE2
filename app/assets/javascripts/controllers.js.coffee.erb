@@ -876,18 +876,18 @@ live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData
       else
         console.log "complete the form first"
 ]
-live_allocate_controller = [ "$scope", "FirebaseService", "$timeout", "$dialog",
-  ($scope, FirebaseService, $timeout, $dialog) ->
+live_allocate_controller = [ "$scope", "FirebaseService", "$timeout", "$dialog", "LiveAllocateData",
+  ($scope, FirebaseService, $timeout, $dialog, LiveAllocateData) ->
     #$scope.options_data = options_data
 
     $scope.name = 'live_allocate_controller'
     $scope.allocations = [
-      {ltr: 'A', value:""}
-      {ltr: 'B', value:""}
-      {ltr: 'C', value:""}
-      {ltr: 'D', value:""}
-      {ltr: 'E', value:""}
-      {ltr: 'F', value:""}
+      {ltr: 'A', value:"", theme_id: 1}
+      {ltr: 'B', value:"", theme_id: 2}
+      {ltr: 'C', value:"", theme_id: 3}
+      {ltr: 'D', value:"", theme_id: 4}
+      {ltr: 'E', value:"", theme_id: 5}
+      {ltr: 'F', value:"", theme_id: 6}
       ]
     $scope.over100 = false
 
@@ -910,4 +910,10 @@ live_allocate_controller = [ "$scope", "FirebaseService", "$timeout", "$dialog",
 
     $scope.save = ->
       console.log "Save the allocation"
+      LiveAllocateData.record_allocation($scope.allocations).then(
+        (response)->
+          btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+          $dialog.messageBox('Thanks', "Your group's allocation has been recorded", btns).open()
+      )
+
 ]

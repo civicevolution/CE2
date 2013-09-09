@@ -515,6 +515,10 @@ services.factory "LiveAllocateData", ["$http",
       $http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
         if response.status is 200
           title: response.data.title
+
+    record_allocation: (data) ->
+      $http.post("/api/allocate.json", {data: data} )
+
 ]
 
 services.factory "LiveData", ["$http",

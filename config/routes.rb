@@ -150,6 +150,7 @@ Ce2::Application.routes.draw do
   post 'clear_autosaved', to: 'api/v1/autosave#clear'
 
   post 'api/vote', to: 'api/v1/theme_votes#save'
+  post 'api/allocate', to: 'api/v1/allocation_items#save'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
