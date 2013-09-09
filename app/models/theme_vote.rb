@@ -24,6 +24,9 @@ class ThemeVote < ActiveRecord::Base
       #end
     end
     results.sort{|b,a| a[:votes] <=> b[:votes]}
+    results[0][:highlight] = true
+    results[1][:highlight] = true
+    results
   end
 
 end

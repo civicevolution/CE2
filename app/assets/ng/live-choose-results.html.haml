@@ -2,7 +2,7 @@
   %h3  The theme votes
 
   %table
-    %tr(ng-repeat="theme in theme_votes")
+    %tr(ng-repeat="theme in theme_votes" ng-class="{lighten: theme.highlight != true}")
       %td.votes {{theme.votes}}
       %td.percent {{theme.percent}}%
       -#%td.live-theme {{theme.text}}
