@@ -104,11 +104,22 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
 }
 
 .live-choice{
+  td{
+    min-width:  130px;
+    padding: 20px 0;
+  }
+  td.box{
+    border: 1px solid #aaaaaa;
+    padding-left: 10px;
+  }
+  td.lbl {font-weight: bold; text-align: right; padding-right: 16px;}
+  .btn.left{float:left;}
+  .btn.right{float:right;}
   ul.dropdown-menu{
-    width: 40px;
-    max-width: 40px;
+    //width: 40px !important;
+    //max-width: 40px;
     li{
-      width: 40px;
+      //width: 40px;
     }
   }
 }
@@ -118,4 +129,8 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
   h3{line-height: 1.2em;}
   .links{margin-top:20px; }
   .public-links{margin-top: 30px;}
+}
+
+.content{
+  box-shadow: none;
 }

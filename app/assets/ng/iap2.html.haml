@@ -20,9 +20,8 @@
 
   %hr
 
-  %div.links(ng-switch="user.id>0")
-
-    %h3(ng-switch-when="false")
+  %div(ng-if="user=='null'")
+    %h3
       Please
       %a(ng-click="sign_in()")
         %b Sign in
@@ -39,54 +38,53 @@
 
 
 
+  %div(ng-if="user.id>0")
+    %h3 Your links for this session
 
-    %div(ng-switch-default)
-      %h3 Your links for this session
+    %div(ng-if="user.first_name=='Coordinator'")
 
-      %div(ng-if="user.first_name=='Coordinator'")
+      %div(ng-repeat="conversation in conversations")
+        %h4 {{conversation.title}}
 
-        %div(ng-repeat="conversation in conversations")
-          %h4 {{conversation.title}}
-
-          %p
-            %a{href: "/#/conversation/{{conversation.code}}/theme/{{conversation.munged-title}}"}
-              The theming page
-          %p
-            %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
-              The final themes
-
+        %p
+          %a{href: "/#/conversation/{{conversation.code}}/theme/{{conversation.munged-title}}"}
+            The theming page
+        %p
+          %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+            The final themes
 
 
 
 
-      %div(ng-if="user.first_name=='Themer'")
-        %div(ng-repeat="conversation in conversations")
-          %h4 {{conversation.title}}
 
-          %p
-            %a{href: "/#/conversation/{{conversation.code}}/theme/{{conversation.munged-title}}"}
-              Theming page
+    %div(ng-if="user.first_name=='Themer'")
+      %div(ng-repeat="conversation in conversations")
+        %h4 {{conversation.title}}
+
+        %p
+          %a{href: "/#/conversation/{{conversation.code}}/theme/{{conversation.munged-title}}"}
+            Theming page
 
 
 
-      %div(ng-if="user.first_name=='Group'")
-        %div(ng-repeat="conversation in conversations")
-          %h4 {{conversation.title}}
+    %div(ng-if="user.first_name=='Group'")
+      %div(ng-repeat="conversation in conversations")
+        %h4 {{conversation.title}}
 
-          %p
-            %a{href: "/#/conversation/{{conversation.code}}/group/{{conversation.munged-title}}"}
-              The page for your ideas
-          %p
-            %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
-              The ideas from the room
+        %p
+          %a{href: "/#/conversation/{{conversation.code}}/group/{{conversation.munged-title}}"}
+            Click here to enter your group's ideas
+        -#%p
+          %a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+            The ideas from the room
 
-          %p
-            -#%a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
-            Enter the theme selections for your table
+      %p
+        -#%a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+        Enter the theme selections for your table
 
-          %p
-            -#%a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
-            Enter your groups allocation for the most important ideas
+      %p
+        -#%a{href: "/#/conversation/{{conversation.code}}/themes/{{conversation.munged_title}}"}
+        Enter your group's allocation for the most important ideas
 
 
 

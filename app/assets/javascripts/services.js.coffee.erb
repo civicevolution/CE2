@@ -496,10 +496,14 @@ services.factory "LiveChooseData", ["$http",
   ($http) ->
     name: "LiveChooseData"
 
-    choices: (conversation_code) ->
-      $http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
-        if response.status is 200
-          title: response.data.title
+    choice_data: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/themes.json")
+
+      #$http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
+      #  if response.status is 200
+      #    title: response.data.title
+    record_choices: (data, voter_id) ->
+      $http.post("/api/vote.json", {voter_id: voter_id, data: data} )
 
 ]
 

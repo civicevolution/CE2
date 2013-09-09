@@ -115,6 +115,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               console.log "resolve get LiveGroupData.conversation_group_data"
               LiveGroupData.conversation_group_data($stateParams.code)
             ]
+            conversations: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
+              LiveData.conversations()
+            ]
           controller: conversation_group_controller
         )
 
@@ -162,8 +165,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           #choice_data: ["LiveChooseData", "$stateParams", (LiveChooseData, $stateParams) ->
           #  LiveChooseData.choices($stateParams.code)
           #]
-          choice_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
-            ThemeData.conversation_themes($stateParams.code).then(
+          choice_data: ["LiveChooseData", "$stateParams", (LiveChooseData, $stateParams) ->
+            LiveChooseData.choice_data($stateParams.code).then(
               (response)->
                 letter_ctr = 0;
                 for comment in response.data
@@ -726,10 +729,11 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
 ]
 
-conversation_group_controller = [ "$scope", "conversation_group_data", "FirebaseService", "$timeout", "$dialog", "LiveGroupData",
-  ($scope, conversation_group_data, FirebaseService, $timeout, $dialog, LiveGroupData) ->
+conversation_group_controller = [ "$scope", "conversation_group_data", "FirebaseService", "$timeout", "$dialog", "LiveGroupData", "conversations",
+  ($scope, conversation_group_data, FirebaseService, $timeout, $dialog, LiveGroupData, conversations) ->
     console.log "In conversation state controller at bottom"
     $scope.conversation = conversation_group_data
+    $scope.conversations = conversations
     $scope.$root.timestamp = conversation_group_data.current_timestamp
 
     $scope.name = 'ceConversationGroup'
@@ -783,13 +787,88 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
       if data.action is 'save'
         $scope.refilter_table_comments()
 ]
-live_choice_controller = [ "$scope", "choice_data", "FirebaseService", "$timeout", "$dialog",
-  ($scope, choice_data, FirebaseService, $timeout, $dialog) ->
-    $scope.choice_data = choice_data
+live_choice_controller = [ "$scope", "choice_data", "LiveChooseData", "$timeout", "$dialog",
+  ($scope, choice_data, LiveChooseData, $timeout, $dialog) ->
+    $scope.question_1_themes = choice_data
+    $scope.question_2_themes = choice_data
+    $scope.question_3_themes = choice_data
 
     $scope.name = 'live_choice_controller'
-]
+    $scope.completed = false
+    $scope.data = {}
+    $scope.voter_id = 1
+    $scope.member_votes = {}
 
+    $scope.note_choice = ->
+      choice = event.toElement.text
+      id = event.toElement.id
+      #console.log "note_choice: #{choice}, event.toElement: #{event.toElement.nodeName} with id: #{id}"
+      li = angular.element(event.toElement).parent()
+      if li.hasClass('disabled')
+        event.stopPropagation()
+        return
+      li.parent().children().removeClass('active')
+      li.addClass('active')
+      par_button = li.parent().parent().find('button')
+      #console.log "par_button.box: #{par_button.attr('box')}"
+      par_button.attr('id', id )
+      par_button.find('span').html(choice)
+      # find the other A with the same id and set its LI to disabled
+      a_links = angular.element( document.getElementById('live-choose')).find('a')
+      for x, index in a_links
+        a = a_links.eq(index)
+        if a.attr('id') == id
+          li = a.parent()
+          if !li.hasClass('active')
+            li.parent().find('li').removeClass('disabled')
+            li.addClass('disabled')
+
+
+      check_completed()
+
+    check_completed = ->
+      data = {}
+      completed = true
+      btns = angular.element( document.getElementById('live-choose')).find('button')
+      for b, index in btns
+        #buttom = angular.element(btn)
+        button = btns.eq(index)
+        box = button.attr('box')
+        if box
+          id = button.attr('id')
+          data[box] = id
+          #console.log "box: #{box} has id: #{id}"
+      for key of data
+        if typeof data[key] == 'undefined'
+          completed = false
+        #console.log "key: #{key}: #{data[key]}"
+      $scope.completed = completed
+      $scope.data = data
+      #console.log "$scope.completed: #{$scope.completed}"
+
+    $scope.save = ->
+      $scope.completed = true
+      $scope.data =
+        '1A': 149
+        '2A': 149
+        '3A': 148
+        '1B': 148
+        '2B': 148
+        '3B': 148
+
+      if $scope.completed
+        console.log "save now"
+        #for key of $scope.data
+        #  console.log "'#{key}': #{$scope.data[key]}"
+        LiveChooseData.record_choices($scope.data, $scope.voter_id).then(
+          (response)->
+            $scope.member_votes[$scope.voter_id] = response.data
+            $scope.voter_id += 1
+        )
+
+      else
+        console.log "complete the form first"
+]
 live_allocate_controller = [ "$scope", "options_data", "FirebaseService", "$timeout", "$dialog",
   ($scope, options_data, FirebaseService, $timeout, $dialog) ->
     $scope.options_data = options_data

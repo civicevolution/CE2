@@ -59,7 +59,8 @@ class Comment < ActiveRecord::Base
 
   validates :type, :conversation_id, :version, :status, :order_id, :presence => true
   validates :purpose, presence: { message: 'Must select what you will share' }
-  validates :text, length: { minimum: 20, too_short: "Comment must be at least %{count} characters"}
+  validates :text, length: { minimum: 2, too_short: "Comment must be at least %{count} characters"}
+  validates :tag_name, length: { maximum: 20, too_long: "Must be less than %{count} characters" }
   #validates :text, length: { maximum: 1500, too_long: "Must be less than %{count} characters" }
   validates :user_id, :presence => true, unless: Proc.new { |c| c.auth_type == :post_unknown }
   validate :do_not_save_comment_for_post_unknown, on: :create

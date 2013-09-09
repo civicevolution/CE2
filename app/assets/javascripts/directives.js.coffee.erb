@@ -2260,8 +2260,8 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
       "<%= path_to_asset "tag-comment.html" %>#{prefix}"
     replace: true
     scope: true
-    controller: [ "$scope", "$timeout",
-      ($scope, $timeout) ->
+    controller: [ "$scope", "$timeout", "$dialog",
+      ($scope, $timeout, $dialog) ->
         $scope.name = 'ceTagComment'
 
         $scope.menu_click = ->
@@ -2347,6 +2347,12 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
               (reason) ->
                 console.log "create_new_theme #{new_tag} failed"
                 $scope.error_message = reason.data.error
+                if reason.data.errors['tag_name']
+                  title = "Sorry, your tag was too long"
+                  msg = "#{reason.data.errors['tag_name']} - The tag is just shorthand to help you track your themes. Click the theme tags on the left to view and edit the themes."
+                  btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+                  $dialog.messageBox(title, msg, btns).open()
+
             )
 
           # close the popup (remove .open from div.tags)

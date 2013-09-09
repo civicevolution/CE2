@@ -1,53 +1,77 @@
-.live-choice
+.live-choice#live-choose
 
-  %h3  Enter choices for member #1
+  %h3  Enter choices for Group {{user.last_name}}, member \#{{voter_id}}
 
-  -#%li.dropdown.ng-scope
-    %a.dropdown-toggle
-      Click me for a dropdown, yo!
-    %ul.dropdown-menu
-      %li.ng-scope{"ng-repeat" => "choice in choice_data"}
-        %a {{choice.letter}}
+  %table
+    %tr
+      %td
+      %th Question 1
+      %th Question 2
+      %th Question 3
+    %tr
+      %td.lbl 1st choice
+      %td.box
+        %div.dropdown
+          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '1A' }
+            %span Select choice
+            %b.caret
+          %ul.dropdown-menu(ng-click="note_choice()")
+            %li.ng-scope(ng-repeat="choice in question_1_themes")
+              %a{id: "{{choice.id}}"} {{choice.letter}}
+
+      %td.box
+        %div.dropdown
+          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '2A' }
+            %span Select choice
+            %b.caret
+          %ul.dropdown-menu(ng-click="note_choice()")
+            %li.ng-scope(ng-repeat="choice in question_2_themes")
+              %a{id: "{{choice.id}}"} {{choice.letter}}
+      %td.box
+        %div.dropdown
+          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '3A' }
+            %span Select choice
+            %b.caret
+          %ul.dropdown-menu(ng-click="note_choice()")
+            %li.ng-scope(ng-repeat="choice in question_3_themes")
+              %a{id: "{{choice.id}}"} {{choice.letter}}
+
+    %tr
+      %td.lbl 2nd choice
+      %td.box
+        %div.dropdown
+          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '1B' }
+            %span Select choice
+            %b.caret
+          %ul.dropdown-menu(ng-click="note_choice()")
+            %li.ng-scope(ng-repeat="choice in question_1_themes")
+              %a{id: "{{choice.id}}"} {{choice.letter}}
+
+      %td.box
+        %div.dropdown
+          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '2B' }
+            %span Select choice
+            %b.caret
+          %ul.dropdown-menu(ng-click="note_choice()")
+            %li.ng-scope(ng-repeat="choice in question_2_themes")
+              %a{id: "{{choice.id}}"} {{choice.letter}}
+      %td.box
+        %div.dropdown
+          %button.btn.btn-primary.btn-small.dropdown-toggle{box: '3B' }
+            %span Select choice
+            %b.caret
+          %ul.dropdown-menu(ng-click="note_choice()")
+            %li.ng-scope(ng-repeat="choice in question_3_themes")
+              %a{id: "{{choice.id}}"} {{choice.letter}}
+
+    %tr
+      %td
+      %td
+        %button.btn.btn-small.left(ng-click="save()") < Previous
+      %td
+      %td
+        -#%button.btn.btn-success.btn-small.right(ng-click="save()" ng-disabled="!completed") Next >
+        %button.btn.btn-success.btn-small.right(ng-click="save()" ) Next >
 
 
-  -#%div.dropdown
-    %a.dropdown-toggle
-      %button.btn.btn-primary.btn-small
-        Select choice
-        %b.caret
-    %ul.dropdown-menu
-      %li.ng-scope{"ng-repeat" => "choice in choice_data"}
-        %a {{choice.letter}}
 
-  %div.dropdown
-    %button.btn.btn-primary.btn-small.dropdown-toggle
-      Select choice
-      %b.caret
-    %ul.dropdown-menu
-      %li.ng-scope{"ng-repeat" => "choice in choice_data"}
-        %a {{choice.letter}}
-
-
-
-  -#%table
-    %tr(ng-repeat="theme in choice_data | limitTo:10")
-      %td.letter {{theme.letter}}
-      %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
-
-
-  -#%div
-    %a.dropdown-toggle
-      %button.btn.btn-primary.btn-small.dropdown-toggle
-        Select choice
-        %b.caret
-    %ul.dropdown-menu
-      %li(ng-repeat="theme in choice_data | limitTo:10" ng-class="{active: comment.tag_bools[theme.id] }" )
-        %a {{theme.letter}}
-
-
-
-
-  -#%table
-
-    %tr(ng-repeat="theme in conversation_themes | limitTo:10")
-      %td.letter {{theme.letter}}
