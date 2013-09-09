@@ -1,2 +1,59 @@
 .live-allocate
-  %h4 live-allocate.html
+  %h4 Divide $100 between all the ideas with no more than $50 for your most important idea(s)
+
+
+  %table(border="1")
+    %tr
+      %th
+        %h3 Our priority Ideas
+      %th
+        %h3 $ Spent
+    %tr
+      %td.option
+        %h3 A
+      %td.alloc
+        %h3 $
+        %input.allocation(ng-model="alloc.alloc_1")
+    %tr
+      %td.option
+        %h3 B
+      %td.alloc
+        %h3 $
+        %input.allocation(ng-model="alloc.alloc_2")
+    %tr
+      %td.option
+        %h3 C
+      %td.alloc
+        %h3 $
+        %input.allocation(ng-model="alloc.alloc_3")
+    %tr
+      %td.option
+        %h3 D
+      %td.alloc
+        %h3 $
+        %input.allocation(ng-model="alloc.alloc_4")
+    %tr
+      %td.option
+        %h3 E
+      %td.alloc
+        %h3 $
+        %input.allocation(ng-model="alloc.alloc_5")
+    %tr
+      %td.option
+        %h3 F
+      %td.alloc
+        %h3 $
+        %input.allocation(ng-model="alloc.alloc_6")
+
+
+
+    %tr
+      %th
+        %h3 TOTAL
+      %th
+        %h3
+          ${{Number(alloc.alloc_1)+Number(alloc.alloc_2)+Number(alloc.alloc_3)+Number(alloc.alloc_4)+Number(alloc.alloc_5)+Number(alloc.alloc_6)}}
+
+    %tr
+      %td(colspan="2")
+        %button.btn.btn-success.btn-large.right(ng-click="save()") Submit

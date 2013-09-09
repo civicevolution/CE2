@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      skip_authorization_check only: [:theme_votes]
+      skip_authorization_check only: [:theme_votes, :group_data]
       #def default_serializer_options
       #  {
       #      root: false
@@ -149,7 +149,7 @@ module Api
 
       def group_data
         conversation = Conversation.find_by(code: params[:id])
-        authorize! :view_table_comments, conversation
+        #authorize! :view_table_comments, conversation
         presenter = ConversationGroupPresenter.new( conversation, current_user, params[:table_id] )
         respond_with presenter.conversation, serializer: ConversationThemeDataSerializer
       end

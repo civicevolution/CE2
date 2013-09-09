@@ -205,10 +205,10 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state( 'live-theme-allocate',
         url: "/live/{code}/allocate"
         templateUrl: '<%= path_to_asset "live-allocate.html" %>'
-        resolve:
-          options_data: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
-            LiveAllocateData.options($stateParams.code)
-          ]
+        #resolve:
+        #  options_data: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
+        #    LiveAllocateData.options($stateParams.code)
+        #  ]
         controller: live_allocate_controller
       )
 
@@ -850,7 +850,7 @@ live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData
           data[box] = id
           #console.log "box: #{box} has id: #{id}"
       for key of data
-        if typeof data[key] == 'undefined'
+        if typeof data[key] == 'undefined' || data[key] == null
           completed = false
         #console.log "key: #{key}: #{data[key]}"
       $scope.completed = completed
@@ -866,14 +866,21 @@ live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData
           (response)->
             $scope.member_votes[$scope.voter_id] = response.data
             $scope.voter_id += 1
+            page_top = angular.element( document.getElementById('live-choose'))
+            page_top.find('button').find('span').removeAttr('id').html('Select choice')
+            page_top.find('li').removeClass('active').removeClass('disabled')
+            data = {}
+            $scope.completed = false
         )
 
       else
         console.log "complete the form first"
 ]
-live_allocate_controller = [ "$scope", "options_data", "FirebaseService", "$timeout", "$dialog",
-  ($scope, options_data, FirebaseService, $timeout, $dialog) ->
-    $scope.options_data = options_data
+live_allocate_controller = [ "$scope", "FirebaseService", "$timeout", "$dialog",
+  ($scope, FirebaseService, $timeout, $dialog) ->
+    #$scope.options_data = options_data
 
     $scope.name = 'live_allocate_controller'
+    $scope.save = ->
+      console.log "Save the allocation"
 ]
