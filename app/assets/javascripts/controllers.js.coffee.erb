@@ -124,7 +124,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state( 'live-conversation-theme',
         url: "/conversation/{code}/theme/{munged_title}"
-        templateUrl: '<%= path_to_asset "live-theme-bare.html" %>'
+        templateUrl: '<%= path_to_asset "live-theme.html" %>'
         resolve:
           conversation_theme_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
             console.log "resolve get ConversationData.theme"
