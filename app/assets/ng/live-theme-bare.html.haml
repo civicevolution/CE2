@@ -1,0 +1,112 @@
+%div#conversation.conversation-theming
+  .row-fluid.conversation#conversation(ng-style="conversation.style")
+    .span3
+      %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
+
+        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'all'}" popover="Click here to view all of the comments" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+          %a(ng-click="filter_table_comments('all')")
+            All comments
+            %span.badge.badge-info {{conversation.comment_counts['all']}}
+
+
+        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'untagged'}" popover="Click here to view all of the comments that need to be tagged to a theme" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+          %a(ng-click="filter_table_comments('untagged')")
+            Untagged
+            %span.badge.badge-important {{conversation.comment_counts['untagged']}}
+
+        %li#conversation-review-link
+          %span.label.label-info Your themes
+
+        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'themes'}")
+          %a(ng-click="filter_table_comments('themes')")
+            All themes
+            %span.badge.badge-info {{conversation.comment_counts['themes']}}
+
+        %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: conversation.filter_mode == 'theme' && conversation.filter_id == theme.id}" popover="{{theme.popover}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+          %a(ng-click="filter_table_comments('theme', theme.id)")
+            {{theme.tag_name}}
+            %span.badge.badge-info {{conversation.comment_counts[theme.id]}}
+
+        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked'}")
+          %a(ng-click="filter_table_comments('parked')")
+            Parked
+            %span.badge.badge-info {{conversation.comment_counts['parked']}}
+
+        -#%li#conversation-review-link
+          %span.label.label-info Table comments
+
+        -#%li#conversation-review-link(ng-repeat="id in [1,2,3,4]" ng-class="{active: (conversation.filter_mode == 'table' && conversation.filter_id == id)}" popover="Click to view comments from table {{id}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+          %a(ng-click="filter_table_comments('table', id)")
+            Table {{id}}
+            %span.badge.badge-info {{conversation.comment_counts['table' + id]}}
+
+
+    .span9
+      %h4#conversation-title.title {{conversation.title}}
+
+      %div(ng-switch="conversation.filter_mode")
+
+        %div(ng-switch-when="all")
+          %h4 All table comments
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no table comments
+
+        %div(ng-switch-when="untagged")
+          %h4 All untagged table comments
+
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no untagged table comments
+
+
+        %div(ng-switch-when="parked")
+          %h4 All parked table comments
+
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no parked table comments
+
+
+        %div(ng-switch-when="themes")
+          %h4 All themes
+
+          %div.all-themes
+            %div.comment-outer(ng-repeat="comment in conversation.theme_comments")
+              %div(ce-sortable ce-comment type="theme")
+            %div(ng-if="conversation.theme_comments.length == 0")
+              %p There are no themes
+
+
+        %div.theme-view(ng-switch-when="theme")
+          %div.comment-outer(ng-repeat="comment in [conversation.current_theme]")
+            -#%div(ce-comment type="theme")
+            %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+
+          %h4 Comments for this theme
+
+          %div(comment_id="{{conversation.current_theme.id}}")
+            %div.comment-outer(ng-repeat="comment in conversation.filtered_comments" )
+
+              %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+
+              -#%div(ce-sortable ce-comment type="table")
+          -#%div(ng-if="conversation.filtered_comments.length == 0")
+            -#%p There are no table comments in this theme
+
+
+        %div(ng-switch-when="table")
+          %h4 Comments from Table {{conversation.filter_id}}
+
+          %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+            %div(ce-comment type="table")
+          %div(ng-if="conversation.filtered_comments.length == 0")
+            %p There are no comments from this table
+
+
+    %div(ce-comment-form)
+
+  %div(ce-text-select label="Add as example" event_name_str="text-select-add-example")
