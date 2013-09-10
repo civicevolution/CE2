@@ -49,8 +49,11 @@
         %div(ng-switch-when="all")
           %h4 All table comments
           %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
-            %div(ce-comment type="table")
-          %div(ng-if="conversation.filtered_comments.length == 0")
+
+            %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+
+            -#%div(ce-comment type="table")
+          -#%div(ng-if="conversation.filtered_comments.length == 0")
             %p There are no table comments
 
         %div(ng-switch-when="untagged")
