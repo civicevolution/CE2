@@ -536,4 +536,11 @@ services.factory "LiveData", ["$http",
     theme_votes: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/theme_votes.json")
 
+    six_options: ->
+      $http.get("/api/six_options.json")
+
+    allocation_votes: ->
+      $http.get("/api/allocation_votes.json")
+
+
 ]

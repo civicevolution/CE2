@@ -199,7 +199,23 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('live-options',
         url: "/live/{code}/options"
         templateUrl: '<%= path_to_asset "live-options.html" %>'
+        resolve:
+          six_options: ["LiveData", (LiveData) ->
+            LiveData.six_options().then(
+              (response)->
+                response.data
+            )
+          ]
+        controller: [ "$scope", "six_options",
+          ($scope, six_options) ->
+            $scope.six_options = six_options
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
+
       )
+
+
+
 
       # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate
       .state( 'live-theme-allocate',
@@ -212,12 +228,25 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: live_allocate_controller
       )
 
-
       # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate-results
       .state('live-allocate-results',
         url: "/live/{code}/allocate-results"
         templateUrl: '<%= path_to_asset "live-allocate-results.html" %>'
+        resolve:
+          allocation_votes: ["LiveData", (LiveData) ->
+            LiveData.allocation_votes().then(
+              (response)->
+                response.data
+            )
+          ]
+        controller: [ "$scope", "allocation_votes",
+          ($scope, allocation_votes) ->
+            $scope.allocation_votes = theme_votes
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
       )
+
+
 
       .state('live-links',
           url: '/live-links'

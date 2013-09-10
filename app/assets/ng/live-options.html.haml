@@ -1,2 +1,7 @@
-.live-options
-  %p live-options.html
+.live-options.live-themes(ng-class="{'no-ex': no_examples}")
+  %h3  The top six options
+
+  %table
+    %tr(ng-repeat="theme in six_options")
+      %td.letter {{theme.letter}}
+      %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
