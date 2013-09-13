@@ -40,6 +40,7 @@ Ce2::Application.routes.draw do
         get 'group_data', on: :member
         get 'themes', on: :member
         get 'theme_votes', on: :member
+        get 'live_event_data', on: :member
         resources :comments, shallow: true
       end
     end

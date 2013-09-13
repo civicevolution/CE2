@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      skip_authorization_check only: [:theme_votes, :group_data]
+      skip_authorization_check only: [:theme_votes, :group_data, :live_event_data]
       #def default_serializer_options
       #  {
       #      root: false
@@ -165,8 +165,50 @@ module Api
         render json: ThemeVote.theme_votes(params[:id])
       end
 
+      def live_event_data
+        data_set = StringIO.new
+        # This writes all of the data to one file
 
+        conversations = Conversation.where(id: params[:ids].scan(/\d+/).map(&:to_i))
+
+        data_set.write( {"Conversations" => conversations.map{|c| c.attributes}}.to_yaml )
+
+        user_ids = conversations.map(&:user_id).uniq
+
+        comments = []
+        conversations.each do |c|
+          comments.concat c.comments
+        end
+
+        data_set.write( {"Comments" => comments.map{|c| c.attributes}}.to_yaml )
+
+        comment_ids = comments.map(&:id)
+        user_ids.concat comments.map(&:user_id).uniq
+
+        comment_versions = CommentVersion.where(item_type: 'Comment', item_id: comment_ids)
+        data_set.write( {"CommentVersions" => comment_versions.map{|c| c.attributes}}.to_yaml )
+
+
+        comment_threads = CommentThread.where(parent_id: comment_ids)
+        data_set.write( {"CommentThreads" => comment_threads.map{|c| c.attributes}}.to_yaml )
+
+        pro_con_vote = ProConVote.where(comment_id: comment_ids)
+        data_set.write( {"ProConVotes" => pro_con_vote.map{|c| c.attributes}}.to_yaml )
+
+
+        theme_votes = ThemeVote.where(theme_id: comment_ids)
+        data_set.write( {"ThemeVotes" => theme_votes.map{|c| c.attributes}}.to_yaml )
+
+        user_ids.concat theme_votes.map(&:group_id).uniq
+        user_ids.uniq!
+        users = User.where(id: user_ids)
+        user_recs = {}
+        users.each{|u| user_recs[u.id] = {email: u.email, first_name: u.first_name, last_name: u.last_name}}
+        data_set.write( {"Users" => user_recs}.to_yaml )
+
+        send_data data_set.string, :filename => "live_event_data.yaml", :type =>  "x-yaml"
+
+      end
     end
-
   end
 end
