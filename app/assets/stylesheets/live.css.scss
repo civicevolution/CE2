@@ -61,8 +61,9 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
         margin-left: 8px;
         margin-bottom: 8px;
         text-align: center;
-        width: 40px;
+        width: 50px;
         font-size: 1.4em;
+        height: 1.4em;
       }
     }
 
@@ -84,6 +85,10 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
 }
 
 .live-themes{
+  .title{
+    font-size: .8em;
+    font-style: italic;
+  }
   td{
     vertical-align: top;
     padding-bottom: 12px;
@@ -106,6 +111,15 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
   &.no-ex{
     blockquote{
       display:none;
+    }
+  }
+  div.quote{
+    font-size: .7em;
+    line-height: 1.2em;
+    p.title{
+      margin: 0 0 8px 0;
+      padding: 0;
+      line-height: 1em;
     }
   }
 }
@@ -156,10 +170,16 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
   }
 }
 
-.live-choose-results{
+.live-choose-results, .live-allocate-results{
   td{
     vertical-align: top;
     padding-bottom: 12px;
+  }
+  td.letter{
+    font-weight: bold;
+    font-size: 3em;
+    line-height: 1em;
+    padding-right: 16px;
   }
   td.votes{
     font-weight: bold;
@@ -190,19 +210,107 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
 }
 
 .live-allocate{
-  max-width: 450px;
+  max-width: 750px;
   td,th {padding: 8px;}
   td.option{
   }
   .warn{ color:red;}
   td.alloc{
     h3{display: inline;}
+    white-space: nowrap;
+  }
+  td.letter{
+    font-size: 2em;
+    font-weight: bold;
+  }
+  td.text{
+    font-size: 1.2em;
   }
   .right{float: right;}
   input.allocation{
     font-size: 1.4em;
     margin-bottom: 10px;
-    width: 80px;
+    width: 60px;
   }
 
+}
+.ce-size-adjust{
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  //border: 3px solid red;
+  background-color: #ccc;
+  z-index: 2000;
+  font-weight: bold;
+  .inc{
+    font-size: 1.2em;
+    padding: 8px;
+    cursor: pointer;
+  }
+  .dec{
+    font-size: 1em;
+    padding: 8px;
+    cursor: pointer;
+  }
+}
+
+.size-inc-1{
+  color: blue;
+}
+.size-dec-1{
+  color: red;
+}
+
+body{
+  &.size-p5{
+    font-size: 1.47em;
+  }
+  &.size-p4{
+    font-size: 1.36em;
+  }
+  &.size-p3{
+    font-size: 1.24em;
+  }
+  &.size-p2{
+    font-size: 1.16em;
+  }
+  &.size-p1{
+    font-size: 1.08em;
+  }
+  &.size-p0{
+    font-size: 1em;
+  }
+  &.size-m1{
+    font-size: 0.92em;
+  }
+  &.size-m2{
+    font-size: 0.85em;
+  }
+  &.size-m3{
+    font-size: 0.78em;
+  }
+  &.size-m4{
+    font-size: 0.72em;
+  }
+  &.size-m5{
+    font-size: 0.66em;
+  }
+  &.size-m6{
+    font-size: 0.61em;
+  }
+  &.size-m7{
+    font-size: 0.56em;
+  }
+  &.size-m8{
+    font-size: 0.42em;
+  }
+  &.size-m9{
+    font-size: 0.3em;
+  }
+
+}
+
+body.display-page{
+  .container-fluid .content{ margin-top: 0;}
+  #top-navbar{ position: static;}
 }

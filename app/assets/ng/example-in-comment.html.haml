@@ -1,19 +1,27 @@
 %div.quote
-  %div(ng-switch="quote.expanded")
+  %div(ng-switch="theme_display_only")
     %div(ng-switch-when="true" )
-      %div{ id: "{{quote.data.id}}", type: "{{quote.data.type}}", }
-        %p.title(ng-click="toggle_in_comment_quote(quote.data.id)")
+      %div
+        %p.title
           {{quote.data.name}}:
-          %i.icon-chevron-up
-          -#%i.icon-arrow-up(ng-click="goto_comment(quote.data.id)")
-      %div.comment-body(ng-bind-html-unsafe="quote.full_text")
+        %div.comment-body(ng-bind-html-unsafe="quote.text")
 
-    %div(ng-switch-when="false" )
-      %div{ id: "{{quote.data.id}}", type: "{{quote.data.type}}", }
-        %p.title(ng-click="toggle_in_comment_quote(quote.data.id)")
-          {{quote.data.name}}:
-          %i.icon-chevron-down
-          -#%i.icon-arrow-up(ng-click="goto_comment(quote.data.id)")
-      %div {{quote.text}}
+    %div(ng-switch-default)
+      %div(ng-switch="quote.expanded")
+        %div(ng-switch-when="true" )
+          %div{ id: "{{quote.data.id}}", type: "{{quote.data.type}}", }
+            %p.title(ng-click="toggle_in_comment_quote(quote.data.id)")
+              {{quote.data.name}}:
+              %i.icon-chevron-up
+              -#%i.icon-arrow-up(ng-click="goto_comment(quote.data.id)")
+          %div.comment-body(ng-bind-html-unsafe="quote.full_text")
+
+        %div(ng-switch-when="false" )
+          %div{ id: "{{quote.data.id}}", type: "{{quote.data.type}}", }
+            %p.title(ng-click="toggle_in_comment_quote(quote.data.id)")
+              {{quote.data.name}}:
+              %i.icon-chevron-down
+              -#%i.icon-arrow-up(ng-click="goto_comment(quote.data.id)")
+          %div {{quote.text}}
 
 

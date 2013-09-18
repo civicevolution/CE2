@@ -4,26 +4,29 @@
 
   %table(border="1")
     %tr
-      %th
-        %h3 Our priority Ideas
+      %th(colspan="2")
+        %h3 Our prioritised Ideas
       %th
         %h3 $ Spent
-    %tr(ng-repeat="allocation in allocations" )
-      %td.option
-        %h3 {{allocation.ltr}}
+    %tr(ng-repeat="theme in allocation_themes" )
+      %td.letter
+        {{theme.letter}}
+      %td.text
+        {{theme.text}}
+
       %td.alloc
         %h3 $
-        %input.allocation(type="number" ng-model="allocation.value" ng-change="total()")
+        %input.allocation(type="number" ng-model="theme.value" ng-change="total()")
 
 
 
     %tr
-      %th
+      %th(colspan="2")
         %h3 TOTAL
       %th
         %h3(ng-class="{warn: over100}")
           ${{ total() }}
 
     %tr
-      %td(colspan="2")
+      %td(colspan="3")
         %button.btn.btn-success.btn-large.right(ng-click="save()" ng-disabled="over100") Submit

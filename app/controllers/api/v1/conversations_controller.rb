@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      skip_authorization_check only: [:theme_votes, :group_data, :live_event_data]
+      skip_authorization_check only: [:theme_votes, :group_data, :live_event_data, :import_live_event_data]
       #def default_serializer_options
       #  {
       #      root: false
@@ -38,12 +38,19 @@ module Api
 
       def title
         conversation = Conversation.find_by(code: params[:id])
-        authorize! :edit_title, conversation
-        title_comment = TitleComment.where(conversation_id: conversation.id).first_or_create do |tc|
-          tc.user_id = current_user.id
+        if request.method == 'GET'
+          authorize! :view_themes, conversation
+          title = conversation.title_comment.try{ |title_comment| title_comment.text}
+          render json: title
+          return
+        else
+          authorize! :edit_title, conversation
+          title_comment = TitleComment.where(conversation_id: conversation.id).first_or_create do |tc|
+            tc.user_id = current_user.id
+          end
+          title_comment.text = params[:title]
+          title_comment.save
         end
-        title_comment.text = params[:title]
-        title_comment.save
         respond_with title_comment
       end
 
@@ -149,9 +156,8 @@ module Api
 
       def group_data
         conversation = Conversation.find_by(code: params[:id])
-        #authorize! :view_table_comments, conversation
-        presenter = ConversationGroupPresenter.new( conversation, current_user, params[:table_id] )
-        respond_with presenter.conversation, serializer: ConversationThemeDataSerializer
+        authorize! :view_table_comments, conversation
+        respond_with conversation, serializer: ConversationGroupDataSerializer
       end
 
       def themes
@@ -208,6 +214,117 @@ module Api
 
         send_data data_set.string, :filename => "live_event_data.yaml", :type =>  "x-yaml"
 
+      end
+
+      def import_live_event_data
+
+        event_doc = YAML::load_stream( File.open( "#{Rails.root}/live_event_data.yaml" ) )
+
+        users = event_doc[6]["Users"]
+        users.each_pair do |id,details|
+          user = User.find_by(email: details[:email])
+          if user
+            #puts "old user_id: #{id}, new user_id: #{user.id} for details: #{details}"
+            details[:new_user_id] = user.id
+          else
+            #puts "Didn't find matching user for old user_id: #{id} for details: #{details}"
+          end
+        end
+
+        conversations_details = {}
+        event_doc[0]["Conversations"].each do |details|
+          conversations_details[details['id']] = details
+          conversation = Conversation.new
+          details.each_pair do |key,value|
+            #puts "#{key}: #{value}"
+            conversation[key] = value unless ['id','code'].include?(key)
+          end
+          conversation.user_id = users[details["user_id"] ][:new_user_id]
+          #puts conversation.inspect
+          conversation.save
+          details[:new_id] = conversation.id
+          details[:new_code] = conversation.code
+        end
+
+
+        votes = {}
+        event_doc[4]["ProConVotes"].each do |v|
+          votes[v['comment_id']] = {pro: v["pro_votes"], con: v["con_votes"]}
+        end
+
+        votes.each{|k,v| puts "#{k}: #{v.inspect}"}
+
+        comment_details = {}
+        event_doc[1]["Comments"].each do |details|
+          comment_details[details['id']] = details
+          # details = comment_details[0]
+          #puts details.inspect
+          comment = if details['type'] == 'TableComment'
+                      TableComment.new
+                    elsif details['type'] == 'ThemeComment'
+                      ThemeComment.new
+                    else
+                      Comment.new
+                    end
+          details.each_pair do |key,value|
+            #puts "#{key}: #{value}"
+            comment[key] = value unless ['id','conversation_id', 'new_id'].include?(key)
+          end
+          comment.user_id = users[details["user_id"] ][:new_user_id]
+          comment.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
+          #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+          vote = votes[ details['id']]
+          if vote
+            comment.pro_votes = vote[:pro] || 0
+            #Rails.logger.debug "vote[:pro]: #{vote[:pro]}"
+            comment.con_votes = vote[:con] || 0
+          end
+          #puts comment.inspect
+          comment.post_process_disabled = true
+          comment.save
+          details[:new_id] = comment.id
+        end
+
+
+        event_doc[2]["CommentVersions"].each do |details|
+          #puts details.inspect
+          comment_version = CommentVersion.new
+          details.each_pair do |key,value|
+            comment_version[key] = value unless ['id'].include?(key)
+          end
+          comment_version.item_id = comment_details[details["item_id"] ][:new_id]
+          #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+          #puts comment_version.inspect
+          comment_version.save
+        end
+
+        event_doc[5]["ThemeVotes"].each do |details|
+          puts details.inspect
+          theme_vote = ThemeVote.new
+          details.each_pair do |key,value|
+            theme_vote[key] = value unless ['id'].include?(key)
+          end
+          theme_vote.group_id = users[details["group_id"] ][:new_user_id]
+          theme_vote.theme_id = comment_details[details["theme_id"] ][:new_id]
+          #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+          puts theme_vote.inspect
+          theme_vote.save
+        end
+
+        event_doc[3]["CommentThreads"].each do |details|
+          puts details.inspect
+          comment_thread = CommentThread.new
+          details.each_pair do |key,value|
+            comment_thread[key] = value unless ['id'].include?(key)
+          end
+          comment_thread.child_id = comment_details[details["child_id"] ][:new_id]
+          comment_thread.parent_id = comment_details[details["parent_id"] ][:new_id]
+          #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+          puts comment_thread.inspect
+          comment_thread.save
+        end
+
+        render json: 'ok'
       end
     end
   end

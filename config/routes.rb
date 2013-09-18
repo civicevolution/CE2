@@ -24,6 +24,7 @@ Ce2::Application.routes.draw do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :conversations do
         post 'update_comment_order', on: :member
+        get 'title', on: :member
         post 'title', on: :member
         post 'privacy', on: :member
         post 'tags', on: :member
@@ -41,6 +42,7 @@ Ce2::Application.routes.draw do
         get 'themes', on: :member
         get 'theme_votes', on: :member
         get 'live_event_data', on: :member
+        get 'import_live_event_data', on: :member
         resources :comments, shallow: true
       end
     end
@@ -151,9 +153,18 @@ Ce2::Application.routes.draw do
   post 'clear_autosaved', to: 'api/v1/autosave#clear'
 
   post 'api/vote', to: 'api/v1/theme_votes#save'
-  post 'api/allocate', to: 'api/v1/allocation_items#save'
-  get 'api/six_options', to: 'api/v1/allocation_items#six_options'
-  get 'api/allocation_votes', to: 'api/v1/allocation_items#allocation_votes'
+  #post 'api/allocate', to: 'api/v1/allocation_items#save'
+  #get 'api/allocation_votes', to: 'api/v1/allocation_items#allocation_votes'
+
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :allocation_themes, only: [ ] do
+        get 'list', on: :member
+        post 'save', on: :member
+        get 'allocated_points', on: :member
+      end
+    end
+  end
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

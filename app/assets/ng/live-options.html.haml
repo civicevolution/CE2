@@ -2,6 +2,8 @@
   %h3  The top six options
 
   %table
-    %tr(ng-repeat="theme in six_options")
+    %tr(ng-repeat="theme in allocation_themes")
       %td.letter {{theme.letter}}
       %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+
+  %div(ce-size-adjuster)

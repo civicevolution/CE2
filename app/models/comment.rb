@@ -7,7 +7,7 @@ class Comment < ActiveRecord::Base
   end
 
   attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark, :auth_type,
-                :pro_votes, :con_votes
+                :pro_votes, :con_votes, :post_process_disabled
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
                   :conversation_code, :in_reply_to_id, :in_reply_to_version, :published, :auth_type, :tag_name,

@@ -70,6 +70,9 @@ services.factory "ConversationData", ["$http",
         #if response.status is 200
         response.data
 
+    title: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/title.json")
+
     save_title: (conversation_code, title) ->
       console.log "save_title to RoR code: #{conversation_code} with title #{title}"
       $http.post("/api/conversations/#{conversation_code}/title.json", {title: title})
@@ -457,20 +460,7 @@ services.factory "LiveGroupData", ["$http",
     conversation_group_data: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
         if response.status is 200
-          #data: response.data
-          table_comments = []
-          for comment in response.data.displayed_comments
-            switch comment.type
-              when "TableComment" then table_comments.push comment
-          sorted_table_comments = table_comments.sort((a,b)-> a.id - b.id)
-
-          #tag_hash = {}
-          #for comment in theme_comments
-          #  tag_hash[comment.id] = comment.tag_name
-          #  if comment.text.match(/\[quote/)
-          #    comment.popover = comment.text.split('[quot')[0]
-          #  else
-          #    comment.popover = comment.text
+          sorted_table_comments = response.data.table_comments.sort((a,b)-> a.id - b.id)
 
           table_comments: sorted_table_comments
           title: response.data.title
@@ -480,15 +470,6 @@ services.factory "LiveGroupData", ["$http",
           abilities: response.data.role.abilities
           can: (action) ->
             _.indexOf(this.abilities, action ) > -1
-
-    #create_new_theme: (data) ->
-    #  $http.post("/api/conversations/#{data.conversation_code}/comments.json", data)
-    #
-    #save_theme_assignment: (data) ->
-    #  $http.post("/api/comments/#{data.comment_id}/assign_themes.json", data)
-    #
-    #delete: (data) ->
-    #  $http.delete("/api/comments/#{data.id}.json")
 
 ]
 
@@ -511,14 +492,18 @@ services.factory "LiveAllocateData", ["$http",
   ($http) ->
     name: "LiveAllocateData"
 
-    options: (conversation_code) ->
-      $http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
+    allocation_themes: (code) ->
+      $http.get("/api/allocation_themes/#{code}/list.json").then (response) ->
         if response.status is 200
-          title: response.data.title
+          response.data
 
-    record_allocation: (data) ->
-      $http.post("/api/allocate.json", {data: data} )
+    record_allocation: (code, data) ->
+      $http.post("/api/allocation_themes/#{code}/save.json", {data: data})
 
+    allocated_points: (code) ->
+      $http.get("/api/allocation_themes/#{code}/allocated_points.json").then (response) ->
+        if response.status is 200
+          response.data
 ]
 
 services.factory "LiveData", ["$http",
@@ -535,12 +520,5 @@ services.factory "LiveData", ["$http",
 
     theme_votes: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/theme_votes.json")
-
-    six_options: ->
-      $http.get("/api/six_options.json")
-
-    allocation_votes: ->
-      $http.get("/api/allocation_votes.json")
-
 
 ]

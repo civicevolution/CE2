@@ -4,7 +4,7 @@ module Modules
 
     included do
       before_create { @_is_new_record = true }
-      after_save :post_process
+      after_save :post_process, unless: :post_process_disabled
       after_initialize { |com| @_published_state_at_init = com.published }
     end
 

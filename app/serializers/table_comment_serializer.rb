@@ -3,9 +3,7 @@ class TableCommentSerializer < ActiveModel::Serializer
 
   attributes :type, :id, :order_id, :text, :updated_at, :purpose, :version, :published, :status,
              :pro_votes, :con_votes,
-             :table_number, :reference_ids, :editable_by_user, :editable_by_user, :name
-
-             #:number_of_votes, :tag_name,
+             :table_number, :reference_ids, :editable_by_user, :name
 
   def table_number
     object.author.last_name
@@ -27,14 +25,6 @@ class TableCommentSerializer < ActiveModel::Serializer
   def con_votes
     object.pro_con_vote.try{|v| v.con_votes} || 0
   end
-
-  #def code
-  #  object.author.code
-  #end
-  #
-  #def number_of_votes
-  #  object.ratings_cache.inject{|sum,x| sum + x }
-  #end
 
   def purpose
     object.purpose || 'Comment'

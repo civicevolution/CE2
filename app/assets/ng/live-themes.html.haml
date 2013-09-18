@@ -1,7 +1,11 @@
 .live-themes(ng-class="{'no-ex': no_examples}")
-  %h3  The final themes for question
+  %h3
+    %div.title {{conversation_title}}
+    %div Final themes
 
   %table
     %tr(ng-repeat="theme in conversation_themes | limitTo:10")
       %td.letter {{theme.letter}}
       %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+
+  %div(ce-size-adjuster)

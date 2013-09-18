@@ -139,21 +139,42 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         url: "/conversation/{code}/themes/{munged_title}"
         templateUrl: '<%= path_to_asset "live-themes.html" %>'
         resolve:
+          conversation_title: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
+            ConversationData.title($stateParams.code).then(
+              (response)->
+                response.data
+            )
+          ]
           conversation_themes: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
             ThemeData.conversation_themes($stateParams.code).then(
               (response)->
                 letter_ctr = 0;
-                for comment in response.data
+                themes = response.data.sort((a,b)-> a.order_id - b.order_id)
+                for comment in themes
                   comment.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
                   letter_ctr += 1
-                response.data
+                themes
             )
           ]
-        controller: [ "$scope", "conversation_themes", "$location",
-          ($scope, conversation_themes, $location) ->
+
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+
+        controller: [ "$scope", "conversation_themes", "$location", "conversation_title", "$compile", "$timeout",
+          ($scope, conversation_themes, $location, conversation_title, $compile, $timeout) ->
+            $scope.conversation_title = conversation_title
             $scope.conversation_themes = conversation_themes
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
             $scope.no_examples = $location.search()['ex'] == '0'
+            if not $scope.no_examples
+              #console.log "compile the blockquotes"
+              $timeout ->
+                $scope.theme_display_only = true
+                $compile(angular.element(document.body).find('blockquote'))($scope)
+              ,1000
+
         ]
       )
 
@@ -182,15 +203,27 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         url: "/conversation/{code}/choose-results/{munged_title}"
         templateUrl: '<%= path_to_asset "live-choose-results.html" %>'
         resolve:
+          conversation_title: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
+            ConversationData.title($stateParams.code).then(
+              (response)->
+                response.data
+            )
+          ]
           theme_votes: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
             LiveData.theme_votes($stateParams.code).then(
               (response)->
                 response.data
             )
           ]
-        controller: [ "$scope", "theme_votes",
-          ($scope, theme_votes) ->
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+
+        controller: [ "$scope", "theme_votes", "conversation_title",
+          ($scope, theme_votes, conversation_title) ->
             $scope.theme_votes = theme_votes
+            $scope.conversation_title = conversation_title
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
         ]
       )
@@ -200,31 +233,32 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         url: "/live/{code}/options"
         templateUrl: '<%= path_to_asset "live-options.html" %>'
         resolve:
-          six_options: ["LiveData", (LiveData) ->
-            LiveData.six_options().then(
-              (response)->
-                response.data
-            )
+          allocation_themes: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
+            LiveAllocateData.allocation_themes($stateParams.code)
           ]
-        controller: [ "$scope", "six_options",
-          ($scope, six_options) ->
-            $scope.six_options = six_options
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+        controller: [ "$scope", "allocation_themes",
+          ($scope, allocation_themes) ->
+            $scope.allocation_themes = allocation_themes
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
         ]
 
       )
 
-
-
-
       # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate
       .state( 'live-theme-allocate',
         url: "/live/{code}/allocate"
         templateUrl: '<%= path_to_asset "live-allocate.html" %>'
-        #resolve:
-        #  options_data: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
-        #    LiveAllocateData.options($stateParams.code)
-        #  ]
+        resolve:
+          allocation_themes: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
+            LiveAllocateData.allocation_themes($stateParams.code)
+          ]
+          code: ["$stateParams", ($stateParams) ->
+            $stateParams.code
+          ]
         controller: live_allocate_controller
       )
 
@@ -233,25 +267,19 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         url: "/live/{code}/allocate-results"
         templateUrl: '<%= path_to_asset "live-allocate-results.html" %>'
         resolve:
-          allocation_votes: ["LiveData", (LiveData) ->
-            LiveData.allocation_votes().then(
-              (response)->
-                response.data
-            )
+          allocated_points: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
+            LiveAllocateData.allocated_points($stateParams.code)
           ]
-        controller: [ "$scope", "allocation_votes",
-          ($scope, allocation_votes) ->
-            $scope.allocation_votes = theme_votes
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+        controller: [ "$scope", "allocated_points",
+          ($scope, allocated_points) ->
+            $scope.allocated_points = allocated_points
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
         ]
       )
-
-
-
-      .state('live-links',
-          url: '/live-links'
-          templateUrl: '<%= path_to_asset "live-links.html" %>'
-        )
 
       .state('iap2',
         url: '/iap2'
@@ -267,7 +295,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
-
       .state('about', {
         url: '/about',
         templateProvider:
@@ -281,34 +308,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('edit-profile', {
         url: '/edit-profile'
         templateUrl: '<%= path_to_asset "edit-profile.html" %>'
-      })
-
-      .state('test-animation', {
-        url: '/test-animation'
-        templateUrl: '<%= path_to_asset "test/animation.html" %>'
-        controller: [ "$scope", ($scope) ->
-          console.log "controller for test-animation"
-          $scope.adjust = ->
-            console.log "test-animation:adjust"
-            $scope.step = not $scope.step
-        ]
-      })
-
-      .state('test-sortable', {
-        url: '/test-sortable'
-        templateUrl: "<%= path_to_asset "test/sortable.html" %>"
-        controller: [ "$scope", ($scope) ->
-          #console.log "controller for test-sortable"
-          $scope.items = [
-            {id: 1, order_id: 1, text: 'item 1'},
-            {id: 2, order_id: 2, text: 'item 2'},
-            {id: 3, order_id: 3, text: 'item 3'},
-            {id: 4, order_id: 4, text: 'item 4'},
-            {id: 5, order_id: 5, text: 'item 5'}
-          ]
-          $scope.test = ->
-            console.log "test in sortable"
-        ]
       })
 
 ])
@@ -905,24 +904,18 @@ live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData
       else
         console.log "complete the form first"
 ]
-live_allocate_controller = [ "$scope", "FirebaseService", "$timeout", "$dialog", "LiveAllocateData",
-  ($scope, FirebaseService, $timeout, $dialog, LiveAllocateData) ->
-    #$scope.options_data = options_data
+live_allocate_controller = [ "$scope", "allocation_themes", "LiveAllocateData", "code", "$dialog",
+  ($scope, allocation_themes, LiveAllocateData, code, $dialog) ->
+    $scope.allocation_themes = allocation_themes
 
     $scope.name = 'live_allocate_controller'
-    $scope.allocations = [
-      {ltr: 'A', value:"", theme_id: 1}
-      {ltr: 'B', value:"", theme_id: 2}
-      {ltr: 'C', value:"", theme_id: 3}
-      {ltr: 'D', value:"", theme_id: 4}
-      {ltr: 'E', value:"", theme_id: 5}
-      {ltr: 'F', value:"", theme_id: 6}
-      ]
+    $scope.code = code
+
     $scope.over100 = false
 
     $scope.total = ->
       tot = 0
-      for a in $scope.allocations
+      for a in $scope.allocation_themes
         num = a.value
         if !isNaN(num)
           num = Number(a.value)
@@ -939,7 +932,9 @@ live_allocate_controller = [ "$scope", "FirebaseService", "$timeout", "$dialog",
 
     $scope.save = ->
       console.log "Save the allocation"
-      LiveAllocateData.record_allocation($scope.allocations).then(
+      data = ( {id: at.id, points: at.value} for at in $scope.allocation_themes)
+
+      LiveAllocateData.record_allocation($scope.code, data).then(
         (response)->
           btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
           $dialog.messageBox('Thanks', "Your group's allocation has been recorded", btns).open()

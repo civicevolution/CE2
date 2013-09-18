@@ -2363,3 +2363,38 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
 
     ]
 ])
+
+ce2_directives.directive('ceSizeAdjuster', ->
+  restrict: 'A'
+  replace: true
+  template: '<div class="ce-size-adjust" ng-click="font_adjust()"><span class="dec">A-</span><span class="inc">A+</span></div>'
+  controller: [ "$scope", "$timeout", ($scope, $timeout) ->
+
+    $scope.font_adjust = ->
+      target = angular.element(event.target)
+      body = angular.element(document.body)
+      body_class = body.attr('class')
+      #console.log "body_class: #{body_class}"
+      size = body_class.match(/size-\w\d/)
+      #console.log "size: #{size}"
+      if size
+        size = size[0]
+        body.removeClass(size)
+        size = size.match(/(\w)(\d)/)
+        size = if size[1] == 'p' then Number(size[2]) else -1 * Number(size[2])
+      else
+        size = 0
+
+      if target.hasClass('inc')
+        #console.log "increase font from #{size}"
+        if size < 5 then size += 1
+        #console.log "to size: #{size}"
+      else
+        #console.log "decrease font from #{size}"
+        if size > -9   then size -= 1
+        #console.log "to size: #{size}"
+      size = if size >= 0 then "size-p#{size}" else size = "size-m#{ -1 * size}"
+      #console.log "new size class: #{size}"
+      body.addClass(size)
+  ]
+)

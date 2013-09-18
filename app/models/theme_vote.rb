@@ -23,7 +23,7 @@ class ThemeVote < ActiveRecord::Base
         result[:percent] = (result[:votes]/total_votes*100).round
       #end
     end
-    results.sort{|b,a| a[:votes] <=> b[:votes]}
+    results = results.sort{|b,a| a[:votes] <=> b[:votes]}
     results[0][:highlight] = true
     results[1][:highlight] = true
     results

@@ -3,7 +3,7 @@ class CommentThread < ActiveRecord::Base
   belongs_to :child_comments, class_name: "Comment", foreign_key: :child_id
   belongs_to :parent_comments, class_name: "Comment", foreign_key: :parent_id
 
-  before_create :set_order_id_for_child_comment
+  before_create :set_order_id_for_child_comment, unless: Proc.new{|ct| ct.order_id}
 
   def set_order_id_for_child_comment
     # set order_id to the max order_id +1 for this conversation, starting at 1

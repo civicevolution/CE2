@@ -1,5 +1,7 @@
 .live-choose-results
-  %h3  The theme votes
+  %h3
+    %div.title {{conversation_title}}
+    %div Theme votes
 
   %table
     %tr(ng-repeat="theme in theme_votes" ng-class="{lighten: theme.highlight != true}")
@@ -9,3 +11,4 @@
       %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
 
 
+  %div(ce-size-adjuster)
