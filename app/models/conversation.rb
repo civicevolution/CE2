@@ -45,6 +45,11 @@ class Conversation < ActiveRecord::Base
     end
   end
 
+  def theme_page_comments
+    comments.includes( :author).where("type in ('TitleComment','ThemeComment','TableComment')")
+  end
+
+
   def initialize_display_mode_to_show_all
     self.display_mode = :show_all
   end

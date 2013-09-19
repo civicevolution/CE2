@@ -2,11 +2,7 @@ class ConversationThemeDataSerializer < ActiveModel::Serializer
   #embed :ids, :include => true
   attributes :url, :updated_at, :firebase_token, :code, :title, :munged_title,
              :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags, :notification_request, :display_mode, :role
-  has_many :displayed_comments
-
-  def include_displayed_comments?
-    !( scope && scope[:shallow_serialization_mode] )
-  end
+  has_many :theme_page_comments
 
   def include_role?
     !( scope && scope[:shallow_serialization_mode] )

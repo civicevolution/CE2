@@ -314,3 +314,35 @@ body.display-page{
   .container-fluid .content{ margin-top: 0;}
   #top-navbar{ position: static;}
 }
+
+.busy-msg { display:none;}
+.busy{
+  .busy-msg { display: inline;}
+  .def-msg {display: none;}
+}
+
+body{
+  .ce-loading{
+    display: none;
+    .backdrop{
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      opacity: .3;
+      background-color: black;
+      z-index: 10000;
+    }
+    .message{
+      font-size: 2.4em;
+      font-weight: bold;
+      position: absolute;
+      top: 200px;
+      left: 200px;
+      z-index: 10001;
+      color: white;
+    }
+  }
+  &.loading .ce-loading{ display: block; }
+}

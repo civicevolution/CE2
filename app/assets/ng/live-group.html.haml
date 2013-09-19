@@ -15,7 +15,10 @@
           %p#add-conversation-comment
             %input.btn-primary.btn-large.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: 'Add a new comment'}
 
-
+        -#%li
+          %a(ng-click="test()")
+            %span.def-msg Test
+            %span.busy-msg Loading...
       -#
         %li#conversation-review-link(ng-class="{active: true}" popover="Click here to enter answers to this question" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
           %a(ng-click="filter_table_comments('all')")

@@ -383,7 +383,7 @@ services.factory "ThemeData", ["$http",
           theme_comments = []
           table_comments = []
           #authors = {}
-          for comment in response.data.displayed_comments
+          for comment in response.data.theme_page_comments
             switch comment.type
               when "ThemeComment" then theme_comments.push comment
               when "TableComment" then table_comments.push comment

@@ -68,9 +68,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
     $urlRouterProvider
       # provides redirects
       .when('/c?id', '/contacts/:id')
-      #.otherwise('/home');
-      #.otherwise('/live-links');
-      .otherwise('/iap2');
+      .otherwise('/home');
+      #.otherwise('/iap2');
 
     $stateProvider
       # registers the urls with $urlRouterProvider
@@ -607,8 +606,8 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       if data.action == 'create'
         $timeout ->
           $scope.$root.$broadcast 'calculate-tag-counts'
-          $scope.refilter_table_comments()
           $scope.$root.$broadcast 'update-comment-tags', updated_rec
+          $scope.refilter_table_comments()
     , 500
 
 
@@ -778,10 +777,6 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
     $scope.name = 'ceConversationGroup'
 
     $scope.preview_template = "<%= path_to_asset "live-group-vote-insert.html" %>"
-
-    $scope.test = ->
-      console.log "table test"
-      $scope.refilter_table_comments()
 
     $timeout ->
       $scope.conversation.filter_mode = 'table'

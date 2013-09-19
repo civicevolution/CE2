@@ -141,11 +141,20 @@
 
             %div.buttons
               %span(ng-if="newComment.id == null")
-                %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Add
+                %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment($event)"){type: 'submit'}
+                  %span.def-msg Add
+                  %span.busy-msg
+                    Adding
+                    %i.icon-spinner.icon-spin
+
                 %button.btn.btn-link(ng-click="clear_edit()") Cancel
 
               %span(ng-if="newComment.id > 0")
-                %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment()"){type: 'submit'} Update
+                %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="addComment($event)"){type: 'submit'}
+                  %span.def-msg Update
+                  %span.busy-msg
+                    Updating
+                    %i.icon-spinner.icon-spin
                 %button.btn.btn-link(ng-click="clear_edit()") Cancel
 
               %div.status {{newComment.status_message}}

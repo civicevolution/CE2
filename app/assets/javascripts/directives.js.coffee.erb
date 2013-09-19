@@ -566,14 +566,20 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         console.log "do update-new-comment-text"
         $scope.newComment.text = document.getElementById('wmd-input').value
 
-      $scope.addComment = ->
+      $scope.addComment = (event) ->
+        event = event || window.event;
+        btn = angular.element(event.currentTarget)
+        return if btn.hasClass('busy')
+        btn.addClass('busy')
+
         $scope.newComment.form_errors = null
         action = if $scope.newComment.id then 'update' else 'save'
         CommentData.create_in_ror(action, $scope.newComment).then(
           (response)->
+            btn.removeClass('busy')
             #console.log "CommentData.create_in_ror success"
             $scope.$root.$broadcast "user-event-notification", { action: "save comment #{$scope.newComment.type}"}
-            $scope.clear_edit()
+            clear_edit_now()
             if response.data.type
               $scope.$root.$broadcast "#{response.data.type}_update", {
                 action: action
@@ -589,6 +595,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         ,
         (reason) ->
           console.log "CommentData.create_in_ror fail"
+          btn.removeClass('busy')
           $scope.newComment.form_errors = []
 
           for field of reason.data.errors
@@ -791,6 +798,18 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         newComment.text = textarea.value
 
       $scope.clear_edit = (event) ->
+        if not $scope.newComment.text || $scope.newComment.text.length < 6
+          clear_edit_now()
+        else
+          title = 'Warning'
+          msg = "Are you sure you want to discard your current post?"
+          btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
+          $dialog.messageBox(title, msg, btns).open().then (result) ->
+            if result is "yes"
+              clear_edit_now()
+        return false
+
+      clear_edit_now = ->
         clear_newComment_fields()
         clear_auto_saved_draft()
         if not $scope.disable_formatting
@@ -2396,5 +2415,23 @@ ce2_directives.directive('ceSizeAdjuster', ->
       size = if size >= 0 then "size-p#{size}" else size = "size-m#{ -1 * size}"
       #console.log "new size class: #{size}"
       body.addClass(size)
+  ]
+)
+
+ce2_directives.directive('ceLoading', ->
+  restrict: 'A'
+  replace: true
+  template: '<div class="ce-loading"><div class="backdrop"></div><div class="message">Please wait a moment...</div></div>'
+  controller: [ "$rootScope", ($rootScope) ->
+
+    $rootScope.$on '$stateChangeStart', (event, toState, toParams, fromState, fromParams) ->
+      body = angular.element(document.body)
+      body.addClass('loading')
+      #console.log "ceLoading $stateChangeStart"
+
+    $rootScope.$on '$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) ->
+      body = angular.element(document.body)
+      body.removeClass('loading')
+      #console.log "ceLoading $stateChangeSuccess"
   ]
 )
