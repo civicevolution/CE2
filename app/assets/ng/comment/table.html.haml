@@ -2,11 +2,12 @@
   %div
     %div(ng-switch="comment.text.length")
       %div.row-fluid(ng-switch-when="0")
-        .span2.author.deleted-comment-author
+        Comment deleted
+        -#.span2.author.deleted-comment-author
           %div.com-num
             {{comment.order_id}}
 
-        .span8.deleted-comment-body
+        -#.span8.deleted-comment-body
           %p
             This comment has been deleted
             %a(ng-click="view_history({{comment.id}})")
@@ -19,14 +20,14 @@
           .span10.offset2.comment-target{'ng-include' => "'#{ path_to_asset("reply-to-target.html") }'"}
 
         %div.full-comment.row-fluid
-          .span2.author
+          -#.span2.author
             %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{comment.photo_code}}/sm5/p.jpg")
             %p.name {{comment.first_name}} {{comment.last_name}}
             %div.com-num
               {{comment.order_id}}
 
           .span10.body-with-arrow
-            .arrow
+            -#.arrow
             .comment-body-container
 
               %div.header
@@ -38,8 +39,10 @@
                     %i.icon-chevron-down
 
 
+                %p.table_name {{comment.name}}
                 %p.time {{comment.updated_at | from_now}}
-                %p {{comment.purpose}}
+                -#%p {{comment.purpose}}
+                %p In favor: {{comment.pro_votes}}, Opposed: {{comment.con_votes}}
 
               %div(ng-switch="comment.body_template_url")
                 %div.comment-body(ng-switch-when="default")
@@ -47,7 +50,7 @@
 
                   %div.history.clear(ng-include src="history_url")
 
-                  %div(ce-rating-slider)
+                  -#%div(ce-rating-slider)
 
                 %div(ng-switch-default)
                   -# this comment is not published, use alternate template determined by controller
@@ -60,31 +63,16 @@
                   %span(ng-if="comment.replies_expanded")
                     %i.icon-chevron-up
 
+                %div(ng-if="!comment.editable_by_user" ce-tag-comment)
 
-                %a(ng-click="reply('conversation-comment-reply')")
-                  %i.icon-reply
-                  %span Reply
-                %a(ng-click="share(comment.id)")
-                  %i.icon-share-alt
-                  %span Share
-                %a(ng-click="bookmark()" ng-switch="comment.bookmark")
-                  %span(ng-switch-when="true")
-                    %i.icon-bookmark
-                  %span(ng-switch-default)
-                    %i.icon-bookmark-empty
-                  %span Bookmark
-
-                %a(ng-click="flag()")
-                  %i.icon-flag
-                  %span Flag
-                %a(ng-show="comment.version>1" ng-click="view_history(comment.id)")
+                %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
                   History v{{comment.version}}
 
-                %a(ng-if="comment.editable_by_user" ng-click="edit('conversation-comment-edit')"){title: "Edit this comment"}
+                %a.edit(ng-if="comment.editable_by_user" ng-click="edit('table-comment-edit')"){title: "Edit this comment"}
                   -#%i.icon-pencil
                   Edit
 
               %div.comment-replies(ng-if="comment.replies_expanded")
                 %div(ng-repeat="reply in comment.reply_comments")
-                  %div{'ng-include' => "'#{ path_to_asset("comment-reply.html") }'"}
+                  %div{'ng-include' => "'#{ path_to_asset("comment/reply.html") }'"}
                 %p.clear

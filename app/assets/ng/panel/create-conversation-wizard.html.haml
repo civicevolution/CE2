@@ -93,7 +93,7 @@
         trigger="conversation published" action="next" test="conversation.published == false")
         %h4 Now publish your conversation
         -#%button.btn-primary.btn(ng-click="publishConversation()" ng-bind-html-unsafe="form_submit_status" ng-disabled="!conversation_wizard_complete"){type: 'submit'}
-        %button.btn-primary.btn(ng-click="$root.$broadcast('Publish conversation', { conversation_code: conversation.code})" ng-bind-html-unsafe="form_submit_status" ){type: 'submit'}
+        %button.btn-primary.btn(ng-click="$root.$broadcast('Publish conversation', { conversation_code: conversation.code, button_scope: this})" ng-bind-html-unsafe="form_submit_status" ){type: 'submit'}
 
 
 

@@ -238,10 +238,10 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
     set_comment_body_template_url: (published, status) ->
       switch
         when published == true then "default"
-        when status is "pre-review" then "<%= path_to_asset 'comment-pre-review-body.html' %>"
-        when status is "declined" then "<%= path_to_asset 'comment-declined-body.html' %>"
-        when status is "deleted" then "<%= path_to_asset 'comment-deleted-body.html' %>"
-        when status is "redacted" then "<%= path_to_asset 'comment-redacted-body.html' %>"
+        when status is "pre-review" then "<%= path_to_asset 'comment/pre-review-body.html' %>"
+        when status is "declined" then "<%= path_to_asset 'comment/declined-body.html' %>"
+        when status is "deleted" then "<%= path_to_asset 'comment/deleted-body.html' %>"
+        when status is "redacted" then "<%= path_to_asset 'comment/redacted-body.html' %>"
         else "default"
 
     flag_comment: (id, version) ->

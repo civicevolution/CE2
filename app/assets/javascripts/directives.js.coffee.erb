@@ -230,11 +230,11 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
   templateUrl: (tElement, tAttrs) ->
     #console.log "function to select correct comment template"
     switch tAttrs.type
-      when "conversation" then "<%= path_to_asset "comment-conversation.html" %>"
-      when "summary" then "<%= path_to_asset "comment-summary.html" %>"
-      when "call-to-action" then "<%= path_to_asset "comment-call-to-action.html" %>"
-      when "table" then "<%= path_to_asset "comment-table.html" %>"
-      when "theme" then "<%= path_to_asset "comment-theme.html" %>"
+      when "conversation" then "<%= path_to_asset "comment/conversation.html" %>"
+      when "summary" then "<%= path_to_asset "comment/summary.html" %>"
+      when "call-to-action" then "<%= path_to_asset "comment/call-to-action.html" %>"
+      when "table" then "<%= path_to_asset "comment/table.html" %>"
+      when "theme" then "<%= path_to_asset "comment/theme.html" %>"
   replace: true
   scope: true
   priority: 100
@@ -273,7 +273,7 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
 
       $scope.view_history = (comment_id) ->
         $scope.history = CommentData.history(comment_id)
-        $scope.history_url = "<%= path_to_asset "comment-history.html" %>"
+        $scope.history_url = "<%= path_to_asset "comment/history.html" %>"
 
       $scope.hide_history = ->
         $scope.history_url = null

@@ -108,7 +108,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state( 'live-conversation-group',
           url: "/conversation/{code}/group/{munged_title}"
-          templateUrl: '<%= path_to_asset "live-group.html" %>'
+          templateUrl: '<%= path_to_asset "live/group.html" %>'
           resolve:
             conversation_group_data: ["LiveGroupData", "$stateParams", (LiveGroupData, $stateParams) ->
               console.log "resolve get LiveGroupData.conversation_group_data"
@@ -123,7 +123,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state( 'live-conversation-theme',
         url: "/conversation/{code}/theme/{munged_title}"
-        templateUrl: '<%= path_to_asset "live-theme.html" %>'
+        templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
           conversation_theme_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
             console.log "resolve get ConversationData.theme"
@@ -136,7 +136,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/themes/xyz
       .state('live-themes',
         url: "/conversation/{code}/themes/{munged_title}"
-        templateUrl: '<%= path_to_asset "live-themes.html" %>'
+        templateUrl: '<%= path_to_asset "live/themes.html" %>'
         resolve:
           conversation_title: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
             ConversationData.title($stateParams.code).then(
@@ -181,7 +181,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/choose/xyz
       .state( 'live-theme-choose',
         url: "/conversation/{code}/choose/{munged_title}"
-        templateUrl: '<%= path_to_asset "live-choose.html" %>'
+        templateUrl: '<%= path_to_asset "live/choose.html" %>'
         resolve:
           conversations_and_themes: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
             LiveData.conversations_and_themes($stateParams.code).then(
@@ -200,7 +200,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/choose-results/xyz
       .state('live-choose-results',
         url: "/conversation/{code}/choose-results/{munged_title}"
-        templateUrl: '<%= path_to_asset "live-choose-results.html" %>'
+        templateUrl: '<%= path_to_asset "live/choose-results.html" %>'
         resolve:
           conversation_title: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
             ConversationData.title($stateParams.code).then(
@@ -230,7 +230,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/options
       .state('live-options',
         url: "/live/{code}/options"
-        templateUrl: '<%= path_to_asset "live-options.html" %>'
+        templateUrl: '<%= path_to_asset "live/options.html" %>'
         resolve:
           allocation_themes: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
             LiveAllocateData.allocation_themes($stateParams.code)
@@ -250,7 +250,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate
       .state( 'live-theme-allocate',
         url: "/live/{code}/allocate"
-        templateUrl: '<%= path_to_asset "live-allocate.html" %>'
+        templateUrl: '<%= path_to_asset "live/allocate.html" %>'
         resolve:
           allocation_themes: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
             LiveAllocateData.allocation_themes($stateParams.code)
@@ -264,7 +264,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate-results
       .state('live-allocate-results',
         url: "/live/{code}/allocate-results"
-        templateUrl: '<%= path_to_asset "live-allocate-results.html" %>'
+        templateUrl: '<%= path_to_asset "live/allocate-results.html" %>'
         resolve:
           allocated_points: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
             LiveAllocateData.allocated_points($stateParams.code)
@@ -545,13 +545,14 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
       $scope.conversation.edit_title = false
 
     $scope.$on 'Publish conversation', (event, data) ->
-      console.log "publishConversation with code: #{data.conversation_code}"
-      $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Publishing</i>'
+      #console.log "publishConversation with code: #{data.conversation_code}"
+      button_scope = data.button_scope
+      button_scope.form_submit_status = 'Publishing <i class="icon-spinner icon-spin"></i>'
       ConversationData.publish_conversation(data.conversation_code).then (response)->
         #console.log "ConversationData.publish_conversation received response"
-        $scope.form_submit_status = 'Published'
+        button_scope.form_submit_status = 'Published'
         $timeout ->
-          $scope.form_submit_status = 'Publish'
+          #button_scope.form_submit_status = 'Publish'
           $scope.$root.$broadcast "user-event-notification", { action: 'conversation published'}
         ,800
 
@@ -776,7 +777,7 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
 
     $scope.name = 'ceConversationGroup'
 
-    $scope.preview_template = "<%= path_to_asset "live-group-vote-insert.html" %>"
+    $scope.preview_template = "<%= path_to_asset "live/group-vote-insert.html" %>"
 
     $timeout ->
       $scope.conversation.filter_mode = 'table'

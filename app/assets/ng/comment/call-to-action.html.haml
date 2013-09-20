@@ -42,5 +42,5 @@
 
       %div.comment-replies(ng-if="comment.replies_expanded")
         %div(ng-repeat="reply in comment.reply_comments")
-          %div{'ng-include' => "'#{ path_to_asset("comment-reply.html") }'"}
+          %div{'ng-include' => "'#{ path_to_asset("comment/reply.html") }'"}
         %p.clear
