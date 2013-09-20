@@ -3,7 +3,7 @@
 
 environments:
   ce2_solo:
-    branch: ce-live
+    branch: master
     migrate: false
     migration_command: bundle exec rake db:migrate
     maintenance_on_migrate: true
@@ -12,7 +12,7 @@ environments:
     asset_roles: :all
 
   AUS:
-    branch: ce-live
+    branch: master
     migrate: false
     migration_command: bundle exec rake db:migrate
     maintenance_on_migrate: true
