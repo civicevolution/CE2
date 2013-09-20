@@ -10,16 +10,16 @@ module Api
 
       def conversations
         authorize! :list_iap2_conversations, Conversation
-        test_ids = Rails.env == "development" ? [18,19,20] : [7]
-        test_ids = request.subdomain == 'aus' ? [1,2,3] : test_ids
+        test_ids = Rails.env == "development" ? [18,19,20] : [8,9,10]
+        #test_ids = request.subdomain == 'aus' ? [1,2,3] : test_ids
         conversations = Conversation.where(id: test_ids)
         respond_with conversations, each_serializer: ConversationListSerializer
       end
 
       def conversations_and_themes
         authorize! :list_iap2_conversations, Conversation
-        test_ids = Rails.env == "development" ? [18,19,20] : [7]
-        test_ids = request.subdomain == 'aus' ? [1,2,3] : test_ids
+        test_ids = Rails.env == "development" ? [18,19,20] : [8,9,10]
+        #test_ids = request.subdomain == 'aus' ? [1,2,3] : test_ids
         conversations = Conversation.where(id: test_ids)
         respond_with conversations, each_serializer: ConversationAndThemesSerializer
       end
