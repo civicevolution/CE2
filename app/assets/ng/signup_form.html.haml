@@ -32,7 +32,7 @@
       %div.control-group(ng-class='{error: error_messages.email}')
         %label.email.required.control-label{for: "user_email"}
           Email:
-        %input(ng-model='user.email' required ){type: 'text', placeholder: 'Enter email...'}
+        %input(ng-model='user.email' required ){type: 'email', placeholder: 'Enter email...'}
         %span.help-inline
           {{error_messages.email.join(' and ')}}
 

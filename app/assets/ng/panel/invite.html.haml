@@ -21,7 +21,7 @@
               {{error_messages.last_name.join('\n')}}
 
           %div.control-group(ng-class='{error: error_messages.email}')
-            %input.email(ng-model='invite.email' required ){type: 'text', placeholder: 'Email'}
+            %input.email(ng-model='invite.email' required ){type: 'email', placeholder: 'Email'}
             %span.help-inline
             {{error_messages.email.join(' and ')}}
 

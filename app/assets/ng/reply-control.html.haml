@@ -114,7 +114,7 @@
                 or identify yourself below to add your comment
 
               %p
-                %input(ng-model='newComment.email' required ce-focus){type: 'text', placeholder: 'Email address'}
+                %input(ng-model='newComment.email' required ce-focus){type: 'email', placeholder: 'Email address'}
                 %input(ng-model='newComment.first_name' required){type: 'text', placeholder: 'First name'}
                 %input(ng-model='newComment.last_name' required){type: 'text', placeholder: 'Last name'}
                 %input#join(ng-model='newComment.join'){type: 'checkbox', checked: 'checked', value:1}

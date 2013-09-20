@@ -2433,5 +2433,10 @@ ce2_directives.directive('ceLoading', ->
       body = angular.element(document.body)
       body.removeClass('loading')
       #console.log "ceLoading $stateChangeSuccess"
+
+    $rootScope.$on '$stateChangeError', (event, toState, toParams, fromState, fromParams) ->
+      body = angular.element(document.body)
+      body.removeClass('loading')
+
   ]
 )
