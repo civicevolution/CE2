@@ -16,7 +16,7 @@
       %div(ng-switch-default)
 
         %div.full-comment.row-fluid(ng-if="comment.reply_target_expanded")
-          .span10.offset2.comment-target{'ng-include' => "'#{ path_to_asset("reply-to-target.html") }'"}
+          .span10.offset2.comment-target{'ng-include' => "'#{ path_to_asset("comment/reply-to-target.html") }'"}
 
         %div.full-comment.row-fluid
           .span2.author

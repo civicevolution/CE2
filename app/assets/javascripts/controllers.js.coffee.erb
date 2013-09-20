@@ -306,7 +306,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state('edit-profile', {
         url: '/edit-profile'
-        templateUrl: '<%= path_to_asset "edit-profile.html" %>'
+        templateUrl: '<%= path_to_asset "user/edit-profile.html" %>'
       })
 
 ])
@@ -337,9 +337,6 @@ ce2_app.run( ['$rootScope', '$state', '$stateParams', "$timeout", "$http", "$tem
         $timeout ->
           $rootScope.initialize_markdown_system(options)
         ,300
-
-    $http.get("<%= path_to_asset "quote.html" %>", {cache:$templateCache};)
-
 ])
 
 initialize_markdown_converter = ($timeout, $dialog, $rootScope, options) ->
@@ -376,7 +373,7 @@ initialize_markdown_converter = ($timeout, $dialog, $rootScope, options) ->
       backdrop: true
       keyboard: true
       backdropClick: true
-      templateUrl: '<%= path_to_asset "insert-image-form.html" %>'
+      templateUrl: '<%= path_to_asset "comment/insert-image-form.html" %>'
       controller: ["$scope", "$timeout", ($scope, $timeout) ->
         debug = false
         $scope.type = 'local'

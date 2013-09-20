@@ -6,7 +6,7 @@ ce2_directives = angular.module('CE2.directives', ['ui.bootstrap'])
 
 ce2_directives.directive('ceUserBar', ->
   restrict: 'A'
-  templateUrl: '<%= path_to_asset "user-bar.html" %>'
+  templateUrl: '<%= path_to_asset "user/user-bar.html" %>'
   replace: true
   scope: false
   controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state", "$window", "$location",
@@ -24,7 +24,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '<%= path_to_asset "signin_form.html" %>'
+          templateUrl: '<%= path_to_asset "user/signin_form.html" %>'
           controller: ->
             # for testing
             $scope.user = {}
@@ -69,7 +69,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: false
           backdropClick: false
-          templateUrl: '<%= path_to_asset "signup_form.html" %>'
+          templateUrl: '<%= path_to_asset "user/signup_form.html" %>'
           controller: ->
             # for testing
             $scope.user = {}
@@ -105,7 +105,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '<%= path_to_asset "forgot_password_form.html" %>'
+          templateUrl: '<%= path_to_asset "user/forgot_password_form.html" %>'
           controller: ->
             $scope.user = {}
             #  email: 'alice@civicevolution.org'
@@ -137,7 +137,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '<%= path_to_asset "request_confirmation_form.html" %>'
+          templateUrl: '<%= path_to_asset "user/request_confirmation_form.html" %>'
           controller: ->
             $scope.submit_request_confirmation = (user) ->
               #console.log "Submit by calling User.request_confirmation with email: #{user.email}"
@@ -170,7 +170,7 @@ ce2_directives.directive('ceUserBar', ->
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '<%= path_to_asset "change-password-form.html" %>'
+          templateUrl: '<%= path_to_asset "user/change-password-form.html" %>'
           controller: ->
             $scope.update_pw = {}
             $scope.submit_change_password = (update_pw) ->
@@ -339,9 +339,9 @@ ce2_directives.directive('ceQuotedComment', ->
   restrict: 'A'
   templateUrl: (tElement, tAttrs) ->
     switch angular.fromJson(tAttrs.ceQuote).quote_type
-      when "example" then "<%= path_to_asset "example-in-comment.html" %>"
-      when "reply" then "<%= path_to_asset "quote-in-comment.html" %>"
-      else "<%= path_to_asset "quote-in-comment.html" %>"
+      when "example" then "<%= path_to_asset "comment/example-in-comment.html" %>"
+      when "reply" then "<%= path_to_asset "comment/quote-in-comment.html" %>"
+      else "<%= path_to_asset "comment/quote-in-comment.html" %>"
   replace: true
   scope: true
   transclude: true
@@ -379,7 +379,7 @@ ce2_directives.directive('ceQuotedComment', ->
 
 ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
   restrict: 'A'
-  templateUrl: "<%= path_to_asset "reply-control.html" %>"
+  templateUrl: "<%= path_to_asset "comment/reply-control.html" %>"
   replace: true
   scope: true
   link: (scope, element, attrs) ->
@@ -607,7 +607,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
       $scope.acknowledge_guest_comment = (data) ->
         data.dialog = $dialog.dialog(
-          templateUrl: '<%= path_to_asset "guest-post-acknowledge.html" %>'
+          templateUrl: '<%= path_to_asset "comment/guest-post-acknowledge.html" %>'
           resolve: {guest_post: -> data }
           controller: ($scope, guest_post) ->
             $scope.guest_post = guest_post
@@ -958,7 +958,7 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
   restrict: 'A'
   replace: true
   scope: false
-  templateUrl: "<%= path_to_asset "rating-slider.html" %>"
+  templateUrl: "<%= path_to_asset "comment/rating-slider.html" %>"
   controller: [ "$scope", "CommentData", "$dialog", ($scope, CommentData, $dialog) ->
     $scope.persist_rating = ->
       #console.log "scope.persist_rating call on CommentData id: #{$scope.comment.id} with rating: #{$scope.rating}"
@@ -1066,7 +1066,7 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
 
 ce2_directives.directive('ceProfilePhotoForm', ->
   restrict: 'A'
-  templateUrl: "<%= path_to_asset "profile-photo-form.html" %>"
+  templateUrl: "<%= path_to_asset "user/profile-photo-form.html" %>"
   replace: true
   scope: true
   controller: [ "$scope",
