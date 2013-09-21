@@ -28,9 +28,10 @@ class AllocationTheme < ActiveRecord::Base
     allocated_points = []
     self.theme_ids.each do |id|
       theme = themes.detect{|t| t.id == id}
+      points = theme_points[id] || 0
       allocated_points.push( {id: id, letter: ltr, text: theme.text.gsub(/\[quote.*\/quote\]/,''),
-                              points: theme_points[id],
-                              percentage: (theme_points[id]/total_points*100).round })
+                              points: points,
+                              percentage: (points/total_points*100).round })
       ltr = ltr.succ
     end
     allocated_points.sort{|b,a| a[:points] <=> b[:points]}
