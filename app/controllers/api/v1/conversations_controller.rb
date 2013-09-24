@@ -11,7 +11,8 @@ module Api
 
       def index
         authorize! :index, Conversation
-        respond_with Conversation.all, scope: { shallow_serialization_mode: true}
+        conversations = Conversation.all.includes(:title_comment)
+        respond_with conversations, each_serializer: ConversationListAllSerializer
       end
 
       def show
