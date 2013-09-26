@@ -155,6 +155,14 @@ module Api
         respond_with presenter.conversation, serializer: ConversationThemeDataSerializer
       end
 
+      def parked_comments
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :edit_theme_comment, conversation
+        themer = User.find_by(name: params[:name])
+        parked_comment_ids = ParkedComment.select(:parked_ids).find_by(conversation_id: conversation.id, user_id: themer.id).try{|rec| rec.parked_ids} ||[]
+        render json: parked_comment_ids
+      end
+
       def group_data
         conversation = Conversation.find_by(code: params[:id])
         authorize! :view_table_comments, conversation

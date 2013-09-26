@@ -3,6 +3,17 @@
     .span3
       %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
 
+        %li#conversation-review-link
+          %span.label.label-info Themers
+
+        %li#conversation-review-link(ng-repeat="(name, theme_cnt) in conversation.themers" ng-class="{active: (conversation.active_themer_name == name)}" popover="Click to view Theming by {{name}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+          %a(ng-click="change_themer(name)")
+            {{name}}
+            %span.badge.badge-info {{theme_cnt}}
+
+        %li#conversation-review-link
+          %span.label.label-info Comments
+
         %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'all'}" popover="Click here to view all of the comments" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
           %a(ng-click="filter_table_comments('all')")
             All comments
@@ -13,6 +24,11 @@
           %a(ng-click="filter_table_comments('untagged')")
             Untagged
             %span.badge.badge-important {{conversation.comment_counts['untagged']}}
+
+        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked'}")
+          %a(ng-click="filter_table_comments('parked')")
+            Parked
+            %span.badge.badge-info {{conversation.comment_counts['parked']}}
 
         %li#conversation-review-link
           %span.label.label-info Your themes
@@ -26,11 +42,6 @@
           %a(ng-click="filter_table_comments('theme', theme.id)")
             {{theme.tag_name}}
             %span.badge.badge-info {{conversation.comment_counts[theme.id]}}
-
-        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked'}")
-          %a(ng-click="filter_table_comments('parked')")
-            Parked
-            %span.badge.badge-info {{conversation.comment_counts['parked']}}
 
         -#%li#conversation-review-link
           %span.label.label-info Table comments
@@ -78,7 +89,7 @@
             %div.comment-outer(ng-repeat="comment in conversation.theme_comments")
               %div(ce-sortable ce-comment type="theme")
             %div(ng-if="conversation.theme_comments.length == 0")
-              %p There are no themes
+              %p There are no themes created by {{conversation.active_themer_name}}
 
 
         %div.theme-view(ng-switch-when="theme")

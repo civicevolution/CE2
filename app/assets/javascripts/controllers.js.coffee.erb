@@ -126,7 +126,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
           conversation_theme_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
-            console.log "resolve get ConversationData.theme"
+            console.log "resolve get ThemeData.conversation_theme_data"
             ThemeData.conversation_theme_data($stateParams.code)
             #console.log "conversation state with path: #{$stateParams.path}"
           ]
@@ -586,9 +586,7 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
     $timeout ->
       $scope.conversation.filter_mode = 'themes'
-      $scope.refilter_table_comments()
-      $scope.$root.$broadcast 'calculate-tag-counts'
-      $scope.$root.$broadcast 'update-comment-tags'
+      $scope.change_themer($scope.user.name)
     , 500
 
     # Subscribe to updates for this data
@@ -597,26 +595,52 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
     FirebaseService.initialize_source(url, $scope.conversation.firebase_token)
 
     $scope.$on 'TableComment_update', (event, data) ->
-      data.data.reference_ids = [] unless data.data.reference_ids
+      data.data.parent_theme_ids = [] unless data.data.parent_theme_ids
+      data.data.current_theme_ids = [] unless data.data.current_theme_ids
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.table_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
       if data.action == 'create'
         $timeout ->
+          $scope.conversation.comments[updated_rec.id] = updated_rec
           $scope.$root.$broadcast 'calculate-tag-counts'
           $scope.$root.$broadcast 'update-comment-tags', updated_rec
-          $scope.refilter_table_comments()
+          refilter_table_comments()
     , 500
 
+
+    $scope.change_themer = (name) ->
+      console.log "change theme page to show themer: #{name}"
+      $scope.conversation.active_themer_name = name
+      $scope.conversation.theme_comments = (comment for comment in $scope.conversation.all_theme_comments when comment.name == $scope.conversation.active_themer_name)
+      $scope.conversation.theme_tag_hash = {}
+      theme_ids = []
+      for comment in $scope.conversation.theme_comments
+        $scope.conversation.theme_tag_hash[comment.id] = comment.tag_name
+        theme_ids.push(comment.id)
+      for comment in $scope.conversation.table_comments
+        comment.parked = false
+        comment.current_theme_ids = _.intersection(comment.parent_theme_ids, theme_ids)
+      ThemeData.parked_comments($scope.conversation.code, name).then(
+        (response)->
+          $scope.conversation.parked_comment_ids = response.data
+          console.log "$scope.conversation.parked_comment_ids: #{$scope.conversation.parked_comment_ids}"
+          for id in response.data
+            $scope.conversation.comments[id].parked = true
+          $scope.$root.$broadcast 'update-comment-tags'
+          $scope.$root.$broadcast 'calculate-tag-counts'
+      )
+      $scope.conversation.filter_mode = "themes"
+      refilter_table_comments()
 
 
     $scope.filter_table_comments = (mode, id=null) ->
       #console.log "filter_table_comments mode: #{mode}, id: #{id}"
       $scope.conversation.filter_mode = mode
       $scope.conversation.filter_id = id
-      $scope.refilter_table_comments()
+      refilter_table_comments()
 
-    $scope.refilter_table_comments = () ->
+    refilter_table_comments = () ->
       mode = $scope.conversation.filter_mode
       id = $scope.conversation.filter_id
       console.log "refilter_table_comments mode: #{mode}, id: #{id}"
@@ -625,13 +649,16 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
           $scope.conversation.filtered_comments = $scope.conversation.table_comments
 
         when mode is 'untagged'
-          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0] && comment.status != 'parked' )
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0] && !comment.parked )
 
         when mode is 'parked'
-          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.status == 'parked')
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.parked)
 
         when mode is 'themes'
-          $scope.conversation.filtered_comments = $scope.conversation.theme_comments.sort((a,b)-> a.order_id - b.order_id)
+          if $scope.conversation.theme_comments?.length > 0
+            $scope.conversation.filtered_comments = $scope.conversation.theme_comments.sort((a,b)-> a.order_id - b.order_id)
+          else
+            $scope.conversation.filtered_comments = []
 
         when mode is 'theme'
           $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
@@ -647,9 +674,19 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
     $scope.$on 'ThemeComment_update', (event, data) ->
       #console.log "received broadcast ThemeComment_update"
-      [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.theme_comments, data)
+      [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.all_theme_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+      $scope.conversation.comments[updated_rec.id] = updated_rec
+      $scope.conversation.theme_comments = (comment for comment in $scope.conversation.all_theme_comments when comment.name == $scope.conversation.active_themer_name)
+
+      themers = {}
+      for comment in $scope.conversation.all_theme_comments
+        if themers[comment.name]
+          themers[comment.name] += 1
+        else
+          themers[comment.name] = 1
+
       tag_hash = {}
       for comment in $scope.conversation.theme_comments
         tag_hash[comment.id] = comment.tag_name
@@ -659,6 +696,7 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
           comment.popover = comment.text
 
       $scope.conversation.theme_tag_hash = tag_hash
+      $scope.conversation.themers = themers
       # Update the visible tag widgets
       $scope.$root.$broadcast 'update-comment-tags'
       $scope.$root.$broadcast 'calculate-tag-counts'
@@ -682,12 +720,12 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       comments = if comment then [comment] else $scope.conversation.table_comments
       for comment in comments
         comment.tag_bools = new class then constructor: ->
-          if comment.reference_ids.length is 0
+          if comment.current_theme_ids.length is 0
             @[0] = true
           else
-            @[id] = true for id in comment.reference_ids
-        tags = ($scope.conversation.theme_tag_hash[id] for id in comment.reference_ids)
-        tags.push 'Parked' if comment.status == 'parked'
+            @[id] = true for id in comment.current_theme_ids
+        tags = ($scope.conversation.theme_tag_hash[id] for id in comment.current_theme_ids)
+        tags.push 'Parked' if comment.parked
         comment.tags = tags.join(', ') || 'Tag this comment'
 
     $scope.$on 'calculate-tag-counts', ->
@@ -709,12 +747,12 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       for comment in $scope.conversation.table_comments
         counts['all'] += 1
         counts["table#{comment.table_number}"] += 1
-        if comment.status == 'parked'
+        if comment.parked
           counts['parked'] += 1
-        if comment.reference_ids && comment.reference_ids.length == 0 && comment.status != 'parked'
+        if comment.current_theme_ids && comment.current_theme_ids.length == 0 && !comment.parked
           counts['untagged'] += 1
         else
-          for id in comment.reference_ids
+          for id in comment.current_theme_ids
             counts[id] += 1
 
       for theme in $scope.conversation.theme_comments
@@ -744,7 +782,7 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
               }
             $timeout ->
               $scope.conversation.filter_mode = 'themes'
-              $scope.refilter_table_comments()
+              refilter_table_comments()
 
         ,
         (reason) ->
@@ -760,8 +798,13 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       #console.log "show theme page for theme: #{theme.tag_name}"
       $scope.conversation.filter_mode = 'theme'
       $scope.conversation.filter_id = theme.id
-      $scope.refilter_table_comments()
+      refilter_table_comments()
 
+
+    $scope.$on 'update-user-data', () ->
+      if $scope.conversation.can('edit_theme_comment') && not $scope.conversation.themers[ $scope.user.name ]
+        $scope.conversation.themers[ $scope.user.name ] = 0
+      $scope.change_themer($scope.user.name)
 
 ]
 
@@ -779,45 +822,26 @@ conversation_group_controller = [ "$scope", "conversation_group_data", "Firebase
     $timeout ->
       $scope.conversation.filter_mode = 'table'
       $scope.conversation.filter_id = Number($scope.$root.user.last_name)
-      $scope.refilter_table_comments()
+      refilter_table_comments()
       #$scope.$root.$broadcast 'calculate-tag-counts'
     , 500
 
-    $scope.refilter_table_comments = () ->
+    refilter_table_comments = () ->
       mode = $scope.conversation.filter_mode
       id = $scope.conversation.filter_id
       console.log "refilter_table_comments mode: #{mode}, id: #{id}"
       switch
-        when mode is 'all'
-          $scope.conversation.filtered_comments = $scope.conversation.table_comments
-
-        when mode is 'untagged'
-          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0] && comment.status != 'parked' )
-
-        when mode is 'parked'
-          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.status == 'parked')
-
-        when mode is 'themes'
-          $scope.conversation.filtered_comments = $scope.conversation.theme_comments.sort((a,b)-> a.order_id - b.order_id)
-
-        when mode is 'theme'
-          $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
-          $scope.conversation.filtered_comments = []
-          for id in $scope.conversation.current_theme.ordered_child_ids
-            for comment in $scope.conversation.table_comments
-              if comment.id is id
-                $scope.conversation.filtered_comments.push comment
-                break;
-
         when mode is 'table'
           $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is id)
+        else
+          console.log "XXXXXXXXXXX undefined filter mode: #{mode}"
 
     $scope.$on 'TableComment_update', (event, data) ->
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.table_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
       if data.action is 'save'
-        $scope.refilter_table_comments()
+        refilter_table_comments()
 ]
 live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData", "$timeout", "$dialog",
   ($scope, conversations_and_themes, LiveChooseData, $timeout, $dialog) ->

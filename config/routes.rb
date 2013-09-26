@@ -38,6 +38,7 @@ Ce2::Application.routes.draw do
         post 'update_role', on: :member
         get 'stats', on: :member
         get 'theme_data', on: :member
+        get 'parked_comments', on: :member
         get 'group_data', on: :member
         get 'themes', on: :member
         get 'theme_votes', on: :member

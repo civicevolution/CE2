@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130917171536) do
+ActiveRecord::Schema.define(version: 20130925061902) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -333,6 +333,14 @@ ActiveRecord::Schema.define(version: 20130917171536) do
   end
 
   add_index "notification_requests", ["conversation_id", "user_id"], name: "index_notification_requests_on_conversation_id_and_user_id", using: :btree
+
+  create_table "parked_comments", force: true do |t|
+    t.integer  "conversation_id"
+    t.integer  "user_id"
+    t.integer  "parked_ids",      array: true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "pro_con_votes", force: true do |t|
     t.integer  "comment_id"

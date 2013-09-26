@@ -3,7 +3,7 @@ class TableCommentSerializer < ActiveModel::Serializer
 
   attributes :type, :id, :order_id, :text, :updated_at, :purpose, :version, :published, :status,
              :pro_votes, :con_votes,
-             :table_number, :reference_ids, :editable_by_user, :name
+             :table_number, :parent_theme_ids, :editable_by_user, :name
 
   def table_number
     object.author.last_name
@@ -13,8 +13,8 @@ class TableCommentSerializer < ActiveModel::Serializer
     "Table #{object.author.last_name}"
   end
 
-  def reference_ids
-    # get the reference_ids from the HABTM association
+  def parent_theme_ids
+    # get the parent_theme_ids from the HABTM association
     object.parent_targets.map(&:parent_id)
   end
 

@@ -324,6 +324,7 @@ services.factory "FirebaseService", [ "$timeout", "$rootScope", "CommentData", (
           new_obj[prop] = new_rec[prop] for prop of new_rec when not prop.match(/^\$/)
           item_array.push new_obj
           update_reply_data(new_obj)
+          updated_rec = new_obj
       $rootScope.$$phase || $rootScope.$apply();
     [original_rec, updated_rec]
 ]
@@ -360,7 +361,7 @@ find_comment_in_conversation = (id) ->
   # find the comment in any of the arrays I use
   #console.log "find_comment_in_conversation with id: #{id}"
   conversation = angular.element(document.getElementById('conversation')).scope().conversation
-  for source in ['conversation_comments','summary_comments','call_to_action_comment', 'table_comments', 'theme_comments']
+  for source in ['conversation_comments','summary_comments','call_to_action_comment', 'table_comments', 'all_theme_comments']
     item_array = conversation[source]
     if item_array
       if !angular.isArray(item_array)
@@ -372,34 +373,47 @@ find_comment_in_conversation = (id) ->
           return item
 
 
-services.factory "ThemeData", ["$http",
-  ($http) ->
+services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
+  ($http, $rootScope, $timeout) ->
     name: "ThemeData"
 
     conversation_theme_data: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/theme_data.json").then (response) ->
         if response.status is 200
           #data: response.data
-          theme_comments = []
+          comments = {}
+          all_theme_comments = []
           table_comments = []
           #authors = {}
-          for comment in response.data.theme_page_comments
+          for comment in response.data.theme_and_table_comments
+            comments[comment.id] = comment
             switch comment.type
-              when "ThemeComment" then theme_comments.push comment
+              when "ThemeComment" then all_theme_comments.push comment
               when "TableComment" then table_comments.push comment
           sorted_table_comments = table_comments.sort((a,b)-> a.id - b.id)
 
           tag_hash = {}
-          for comment in theme_comments
+          themers = {}
+          for comment in all_theme_comments
             tag_hash[comment.id] = comment.tag_name
             if comment.text.match(/\[quote/)
               comment.popover = comment.text.split('[quot')[0]
             else
               comment.popover = comment.text
+            if themers[comment.name]
+              themers[comment.name] += 1
+            else
+              themers[comment.name] = 1
 
+          $timeout ->
+            $rootScope.$broadcast 'update-user-data'
+          , 1000
+
+          comments: comments
           table_comments: sorted_table_comments
-          theme_comments: theme_comments.sort((a,b)-> a.id - b.id)
+          all_theme_comments: all_theme_comments.sort((a,b)-> a.id - b.id)
           theme_tag_hash: tag_hash
+          themers: themers
           title: response.data.title
           code: response.data.code
           current_timestamp: response.data.current_timestamp
@@ -408,34 +422,6 @@ services.factory "ThemeData", ["$http",
           can: (action) ->
             _.indexOf(this.abilities, action ) > -1
           firebase_token: response.data.firebase_token
-
-
-    #summary_comments: summary_comments.sort((a,b)-> a.order_id - b.order_id)
-    #conversation_comments: conversation_comments.sort((a,b)-> a.order_id - b.order_id)
-    #title_comment: title_comment
-    #call_to_action_comment: call_to_action_comment || {
-    #editable_by_user: true
-    #id: 0
-    #purpose: "Call to action"
-    #text: "This area is for your call-to-action. Here you describe this conversation and suggest ways for people to contribute."
-    #type: "CallToActionComment"
-    #updated_at: new Date()
-    #version: 0
-    #}
-
-    #tags: response.data.tags.sort()
-    #starts_at: new Date(response.data.starts_at)
-    #ends_at: new Date(response.data.ends_at)
-    #published: response.data.published
-    #list: response.data.list
-    #status: response.data.status
-    #notification_request  : response.data.notification_request
-    #participants: authors
-    #role: response.data.role.name
-    #abilities: response.data.role.abilities
-    #can: (action) ->
-    #  _.indexOf(this.abilities, action ) > -1
-
 
     create_new_theme: (data) ->
       $http.post("/api/conversations/#{data.conversation_code}/comments.json", data)
@@ -449,7 +435,8 @@ services.factory "ThemeData", ["$http",
     conversation_themes: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/themes.json")
 
-
+    parked_comments: (conversation_code, name) ->
+      $http.get("/api/conversations/#{conversation_code}/parked_comments.json?name=#{name}")
 ]
 
 

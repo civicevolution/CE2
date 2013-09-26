@@ -10,6 +10,9 @@ class Conversation < ActiveRecord::Base
   has_one :title_comment #, -> { includes author: :profile   }
   has_one :call_to_action_comment, -> { includes author: :profile   }
   has_many  :comments, -> { includes [{author: :profile}, :replies, :reply_to_targets, :child_targets, :parent_targets, :pro_con_vote] }
+
+  has_many  :theme_page_comments, -> { includes [:author, :child_targets, :parent_targets, :pro_con_vote] }, class_name: "Comment"
+
   has_many  :conversation_comments, -> { includes author: :profile }
   has_many :summary_comments, -> { includes author: :profile }
 
@@ -44,11 +47,6 @@ class Conversation < ActiveRecord::Base
       comments.where("type != 'ConversationComment'")
     end
   end
-
-  def theme_page_comments
-    comments.includes( :author).where("type in ('TitleComment','ThemeComment','TableComment')")
-  end
-
 
   def initialize_display_mode_to_show_all
     self.display_mode = :show_all

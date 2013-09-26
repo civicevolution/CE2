@@ -165,13 +165,20 @@ module Api
           end
         else
           # this comment is being parked or unparked
+          parked_comments = ParkedComment.where(conversation_id: comment.conversation_id, user_id: current_user.id).first_or_create
+          parked_ids = parked_comments.parked_ids || []
           if params[:act] == 'add'
-            comment.update_column( :status, 'parked')
+            parked_ids.push comment.id
           else
-            comment.update_column( :status, 'unparked')
+            parked_ids.delete comment.id
+          end
+          if parked_ids.size == 0
+            parked_comments.destroy unless parked_comments.nil?
+          else
+            parked_comments.update_column(:parked_ids, "{#{parked_ids.uniq.join(',')}}" )
           end
         end
-        respond_with comment
+        render json: 'ok'
       end
 
       def update_comment_order
