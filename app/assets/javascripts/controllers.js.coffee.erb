@@ -92,6 +92,26 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       })
 
+      .state( 'agenda',
+        url: "/agenda/{code}/{munged_title}"
+        template: '<div ng-include="agenda_template_url"></div>'
+        resolve:
+          agenda: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            console.log "resolve get AgendaData.agenda"
+            AgendaData.agenda($stateParams.code).then(
+              (response)->
+                response.data
+            )
+          ]
+        controller: agenda_controller
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+
+      )
+
+
       .state( 'conversation',
         url: "/conversation/{code}/{munged_title}"
         #url: "/conversation/{code}/{munged_title:[^/]*}{path:.*}"
@@ -956,5 +976,59 @@ live_allocate_controller = [ "$scope", "allocation_themes", "LiveAllocateData", 
           btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
           $dialog.messageBox('Thanks', "Your group's allocation has been recorded", btns).open()
       )
+
+]
+
+agenda_controller = [ "$scope", "agenda", "AgendaData",
+  ($scope, agenda, AgendaData) ->
+    console.log "agenda controller agenda.template_name: #{agenda.template_name}"
+    $scope.agenda_template_url = "/assets/custom/#{agenda.template_name}.html";
+    $scope.agenda = agenda
+    $scope.$root.initialize_markdown_system( {disable_editor: true} )
+
+    $scope.agenda.roles = [
+      #{value: 'agenda_admin', key: 'Agenda admin'},
+      {value: 'coordinator', key: 'Coordinator'},
+      {value: 'themer', key: 'Themer'},
+      {value: 'group', key: 'Group scribe'},
+      {value: 'reporter', key: 'Reporter'}
+    ]
+
+    $scope.agenda.active_role =
+      name: "undefined"
+      role: "undefined"
+      identifier: ""
+
+    $scope.update_role = () ->
+      console.log " update_role to #{$scope.agenda.select_role}"
+
+    $scope.accept_role = () ->
+      console.log "accept_role #{$scope.agenda.active_role.role} with identifier: #{$scope.agenda.active_role.identifier} and code: #{agenda.active_role.access_code}"
+      AgendaData.sign_in($scope.agenda.code, $scope.agenda.active_role).then(
+        (response) ->
+          console.log "AgendaData.sign_in success"
+          $scope.$root.user = response.data
+          $scope.$root.$broadcast 'update-user-data'
+          $scope.agenda.active_role.name = "#{$scope.agenda.active_role.role} #{$scope.agenda.active_role.identifier}"
+        , (reason) ->
+          console.log "AgendaData.sign_in FAIL"
+      )
+
+    $scope.signout_role = () ->
+      AgendaData.sign_out($scope.agenda.code).then (response) ->
+        console.log "AgendaData.sign_out success"
+        $scope.agenda.active_role =
+          name: "undefined"
+          role: "undefined"
+          identifier: ""
+        $scope.$root.user = {}
+        $scope.$root.$broadcast 'update-user-data'
+
+    $scope.$on 'update-user-data', () ->
+      if $scope.user.email
+        pcs = $scope.user.email.match(/-\d+-(\w+)-(\d+)/)
+        $scope.agenda.active_role.role = pcs[1]
+        $scope.agenda.active_role.identifier = pcs[2]
+        $scope.agenda.active_role.name = "#{$scope.agenda.active_role.role} #{$scope.agenda.active_role.identifier}"
 
 ]

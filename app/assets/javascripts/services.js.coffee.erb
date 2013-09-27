@@ -509,3 +509,15 @@ services.factory "LiveData", ["$http",
       $http.get("/api/conversations/#{conversation_code}/theme_votes.json")
 
 ]
+
+services.factory "AgendaData", ["$http",
+  ($http) ->
+    name: "AgendaData"
+    agenda: (code) ->
+      $http.get("/api/agendas/#{code}/agenda.json")
+    sign_in: (code, data) ->
+      $http.post("/api/agendas/#{code}/accept_role.json", {data: data})
+    sign_out: (code) ->
+      $http.post("/api/agendas/#{code}/release_role.json")
+
+]

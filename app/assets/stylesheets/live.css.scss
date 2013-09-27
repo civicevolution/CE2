@@ -151,6 +151,7 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
   }
 }
 
+/*
 .iap2{
   max-width: 650px;
   h3{line-height: 1.2em;}
@@ -159,6 +160,7 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
   padding-bottom: 50px;
   a{font-size: 1.6em;}
 }
+*/
 
 .content{
   box-shadow: none;
@@ -345,4 +347,9 @@ body{
     }
   }
   &.loading .ce-loading{ display: block; }
+}
+
+.agenda-home{
+  input.id{ width: 30px;}
+  input.code{ width: 100px;}
 }
