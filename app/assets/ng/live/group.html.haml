@@ -7,54 +7,13 @@
           %span.label.label-info Select a question
 
         %li(ng-repeat="conv in conversations" ng-class="{active: conversation.code == conv.code}")
-          %a{href: "/#/conversation/{{conv.code}}/group/{{conv.munged-title}}"}
+          %a{href: "/#/cmp/{{conv.component_code}}/sgd/{{conv.code}}/{{conv.munged-title}}"}
             {{conv.title}}
 
         -#%li.add_comment(popover="Click here to add a new answer to the current question" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
         %li.add_comment
           %p#add-conversation-comment
             %input.btn-primary.btn-large.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: 'Add a new comment'}
-
-        -#%li
-          %a(ng-click="test()")
-            %span.def-msg Test
-            %span.busy-msg Loading...
-      -#
-        %li#conversation-review-link(ng-class="{active: true}" popover="Click here to enter answers to this question" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-          %a(ng-click="filter_table_comments('all')")
-            Institutionalise "meaningful" participation
-            %span.badge.badge-info {{conversation.comment_counts['all']}}
-
-
-        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'untagged'}" popover="Click here to enter answers to this question" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-          %a(ng-click="filter_table_comments('untagged')")
-            Scale up to address complexity
-            %span.badge.badge-important {{conversation.comment_counts['untagged']}}
-
-        %li#conversation-review-link(ng-class="{active: (conversation.filter_mode == 'table' && conversation.filter_id == id)}" popover="Click here to enter answers to this question" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-          %a(ng-click="filter_table_comments('table', id)")
-            Scale out to involve more people
-            %span.badge.badge-info {{conversation.comment_counts['table' + id]}}
-
-
-      -#
-        %li#conversation-review-link
-          %span.label.label-info Your themes
-
-        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'themes'}")
-          %a(ng-click="filter_table_comments('themes')")
-            All themes
-            %span.badge.badge-info {{conversation.comment_counts['themes']}}
-
-        %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: conversation.filter_mode == 'theme' && conversation.filter_id == theme.id}" popover="{{theme.popover}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-          %a(ng-click="filter_table_comments('theme', theme.id)")
-            {{theme.tag_name}}
-            %span.badge.badge-info {{conversation.comment_counts[theme.id]}}
-
-        %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked'}")
-          %a(ng-click="filter_table_comments('parked')")
-            Parked
-            %span.badge.badge-info {{conversation.comment_counts['parked']}}
 
     .span9
       %h4#conversation-title.title {{conversation.title}}

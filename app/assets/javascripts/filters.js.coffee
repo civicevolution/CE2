@@ -41,3 +41,17 @@ ce2_filters.filter 'vote_count', ->
     switch
       when count == 1 then "<div class='count'>#{count}</div><div class='lbl'>vote</div>"
       else "<div class='count'>#{count}</div><div class='lbl'>votes</div>"
+
+
+ce2_filters.filter 'view_children', ->
+  (count, scope) ->
+    if scope.conversation.theme_themes_mode
+      switch
+        when count == 0 then "No table themes"
+        when count == 1 then "View 1 table theme"
+        when count > 1 then "View #{count} table themes"
+    else
+      switch
+        when count == 0 then "No table comments"
+        when count == 1 then "View 1 table comment"
+        when count > 1 then "View #{count} table comments`"

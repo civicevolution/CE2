@@ -111,7 +111,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       )
 
-
       .state( 'conversation',
         url: "/conversation/{code}/{munged_title}"
         #url: "/conversation/{code}/{munged_title:[^/]*}{path:.*}"
@@ -125,32 +124,37 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_controller
       )
 
+      .state( 'small-group-discussion',
+        url: "/cmp/{component_code}/sgd/{conversation_code}/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/group.html" %>'
+        resolve:
+          small_group_deliberation_data: ["ComponentData", "$stateParams", (ComponentData, $stateParams) ->
+            console.log "resolve get ComponentData.small_group_deliberation_data"
+            ComponentData.small_group_deliberation_data($stateParams.component_code, $stateParams.conversation_code )
+          ]
+        controller: conversation_group_controller
+      )
 
-      .state( 'live-conversation-group',
-          url: "/conversation/{code}/group/{munged_title}"
-          templateUrl: '<%= path_to_asset "live/group.html" %>'
-          resolve:
-            conversation_group_data: ["LiveGroupData", "$stateParams", (LiveGroupData, $stateParams) ->
-              console.log "resolve get LiveGroupData.conversation_group_data"
-              LiveGroupData.conversation_group_data($stateParams.code)
-            ]
-            conversations: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
-              LiveData.conversations()
-            ]
-          controller: conversation_group_controller
-        )
-
-
-      .state( 'live-conversation-theme',
-        url: "/conversation/{code}/theme/{munged_title}"
+      .state( 'theme-small-group-discussion',
+        url: "/cmp/{component_code}/sgd_theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
-          conversation_theme_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
-            console.log "resolve get ThemeData.conversation_theme_data"
-            ThemeData.conversation_theme_data($stateParams.code)
-            #console.log "conversation state with path: #{$stateParams.path}"
+          theming_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
+            console.log "resolve get ThemeData.theming_data"
+            ThemeData.small_group_deliberation_theme_data($stateParams.component_code)
           ]
-        controller: conversation_theme_controller
+        controller: small_group_deliberation_theme_controller
+      )
+
+      .state( 'theme-small-group-themes',
+        url: "/cmp/{component_code}/themes_theme/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/theme.html" %>'
+        resolve:
+          theming_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
+            console.log "resolve get ThemeData.theming_data"
+            ThemeData.small_group_themes_theme_data($stateParams.component_code)
+          ]
+        controller: small_group_deliberation_theme_controller
       )
 
       # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/themes/xyz
@@ -296,20 +300,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: [ "$scope", "allocated_points",
           ($scope, allocated_points) ->
             $scope.allocated_points = allocated_points
-            $scope.$root.initialize_markdown_system( {disable_editor: true} )
-        ]
-      )
-
-      .state('iap2',
-        url: '/iap2'
-        templateUrl: '<%= path_to_asset "iap2.html" %>'
-        resolve:
-          conversations: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
-            LiveData.conversations()
-          ]
-        controller: [ "$scope", "conversations",
-          ($scope, conversations) ->
-            $scope.conversations = conversations
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
         ]
       )
@@ -596,11 +586,11 @@ ce2_app.controller 'ActivityMonitorController', ($scope, User, $dialog) ->
     )
 
 
-conversation_theme_controller = [ "$scope", "conversation_theme_data", "FirebaseService", "$timeout", "$dialog", "ThemeData",
-  ($scope, conversation_theme_data, FirebaseService, $timeout, $dialog, ThemeData) ->
+small_group_deliberation_theme_controller = [ "$scope", "theming_data", "FirebaseService", "$timeout", "$dialog", "ThemeData",
+  ($scope, theming_data, FirebaseService, $timeout, $dialog, ThemeData) ->
     console.log "In conversation state controller at bottom"
-    $scope.conversation = conversation_theme_data
-    $scope.$root.timestamp = conversation_theme_data.current_timestamp
+    $scope.conversation = theming_data
+    $scope.$root.timestamp = theming_data.current_timestamp
 
     $scope.name = 'ceConversationTheme'
 
@@ -609,10 +599,11 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       $scope.change_themer($scope.user.name)
     , 500
 
-    # Subscribe to updates for this data
-    url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"
-    #console.log "firebase url: #{url}"
-    FirebaseService.initialize_source(url, $scope.conversation.firebase_token)
+    ThemeData.firebase_token($scope.conversation.code).then(
+      (response)->
+        url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"
+        FirebaseService.initialize_source(url, response.data.firebase_token)
+    )
 
     $scope.$on 'TableComment_update', (event, data) ->
       data.data.parent_theme_ids = [] unless data.data.parent_theme_ids
@@ -632,6 +623,9 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
     $scope.change_themer = (name) ->
       console.log "change theme page to show themer: #{name}"
       $scope.conversation.active_themer_name = name
+
+      $scope.conversation.theme_themes_mode = if name?.match(/Coordinator/) then true else false
+
       $scope.conversation.theme_comments = (comment for comment in $scope.conversation.all_theme_comments when comment.name == $scope.conversation.active_themer_name)
       $scope.conversation.theme_tag_hash = {}
       theme_ids = []
@@ -641,12 +635,20 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       for comment in $scope.conversation.table_comments
         comment.parked = false
         comment.current_theme_ids = _.intersection(comment.parent_theme_ids, theme_ids)
-      ThemeData.parked_comments($scope.conversation.code, name).then(
+      for comment in $scope.conversation.team_theme_comments
+        comment.parked = false
+        comment.current_theme_ids = comment.parent_theme_ids
+      ThemeData.parked_comments($scope.conversation.code).then(
         (response)->
-          $scope.conversation.parked_comment_ids = response.data
+          $scope.conversation.parked_comments = response.data
+          parked_comment_ids = []
+          for pc in response.data
+            if name == "#{pc.first_name} #{pc.last_name}"
+              parked_comment_ids = pc.parked_ids
+          $scope.conversation.parked_comment_ids = parked_comment_ids
           console.log "$scope.conversation.parked_comment_ids: #{$scope.conversation.parked_comment_ids}"
-          for id in response.data
-            $scope.conversation.comments[id].parked = true
+          for id in parked_comment_ids
+            $scope.conversation.comments[id]?.parked = true
           $scope.$root.$broadcast 'update-comment-tags'
           $scope.$root.$broadcast 'calculate-tag-counts'
       )
@@ -665,14 +667,23 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       id = $scope.conversation.filter_id
       console.log "refilter_table_comments mode: #{mode}, id: #{id}"
       switch
-        when mode is 'all'
+        when mode is 'all_table_comments'
           $scope.conversation.filtered_comments = $scope.conversation.table_comments
 
-        when mode is 'untagged'
+        when mode is 'untagged_comments'
           $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0] && !comment.parked )
 
-        when mode is 'parked'
+        when mode is 'parked_comments'
           $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.parked)
+
+        when mode is 'all_theme_comments'
+          $scope.conversation.filtered_comments = $scope.conversation.team_theme_comments
+
+        when mode is 'untagged_themes'
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.team_theme_comments when comment.tag_bools && comment.tag_bools[0] && !comment.parked )
+
+        when mode is 'parked_themes'
+          $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.team_theme_comments when comment.parked)
 
         when mode is 'themes'
           if $scope.conversation.theme_comments?.length > 0
@@ -684,10 +695,8 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
           $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
           $scope.conversation.filtered_comments = []
           for id in $scope.conversation.current_theme.ordered_child_ids
-            for comment in $scope.conversation.table_comments
-              if comment.id is id
-                $scope.conversation.filtered_comments.push comment
-                break;
+            comment = $scope.conversation.comments[id]
+            $scope.conversation.filtered_comments.push comment unless not comment
 
         when mode is 'table'
           $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is id)
@@ -737,7 +746,7 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
       $scope.$root.$broadcast 'open-comment-form', {action: 'add-example-from-selected-text', quote_insert: example_insert, comment: $scope.conversation.current_theme, append_to_existing: true}
 
     $scope.$on 'update-comment-tags', (event,comment) ->
-      comments = if comment then [comment] else $scope.conversation.table_comments
+      comments = if comment then [comment] else if $scope.conversation.theme_themes_mode then $scope.conversation.team_theme_comments else $scope.conversation.table_comments
       for comment in comments
         comment.tag_bools = new class then constructor: ->
           if comment.current_theme_ids.length is 0
@@ -746,7 +755,8 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
             @[id] = true for id in comment.current_theme_ids
         tags = ($scope.conversation.theme_tag_hash[id] for id in comment.current_theme_ids)
         tags.push 'Parked' if comment.parked
-        comment.tags = tags.join(', ') || 'Tag this comment'
+        comment.tags = tags.join(', ') || if $scope.conversation.theme_themes_mode then 'Tag this theme' else 'Tag this comment'
+
 
     $scope.$on 'calculate-tag-counts', ->
       #console.log "calculate-tag-counts"
@@ -754,17 +764,18 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
         themes: 0
         all: 0
         untagged: 0
+        parked: 0
         table1: 0
         table2: 0
         table3: 0
         table4: 0
-        parked: 0
 
       for theme in $scope.conversation.theme_comments
         counts['themes'] += 1
         counts[theme.id] = 0
 
-      for comment in $scope.conversation.table_comments
+      comments = if $scope.conversation.theme_themes_mode then $scope.conversation.team_theme_comments else $scope.conversation.table_comments
+      for comment in comments
         counts['all'] += 1
         counts["table#{comment.table_number}"] += 1
         if comment.parked
@@ -822,18 +833,19 @@ conversation_theme_controller = [ "$scope", "conversation_theme_data", "Firebase
 
 
     $scope.$on 'update-user-data', () ->
-      if $scope.conversation.can('edit_theme_comment') && not $scope.conversation.themers[ $scope.user.name ]
-        $scope.conversation.themers[ $scope.user.name ] = 0
-      $scope.change_themer($scope.user.name)
+      user_name = "#{$scope.user.first_name} #{$scope.user.last_name}"
+      if $scope.conversation.can('edit_theme_comment') && not $scope.conversation.themers[ user_name ]
+        $scope.conversation.themers[ user_name ] = 0
+      $scope.change_themer(user_name)
 
 ]
 
-conversation_group_controller = [ "$scope", "conversation_group_data", "FirebaseService", "$timeout", "$dialog", "LiveGroupData", "conversations",
-  ($scope, conversation_group_data, FirebaseService, $timeout, $dialog, LiveGroupData, conversations) ->
+conversation_group_controller = [ "$scope", "small_group_deliberation_data", "FirebaseService", "$timeout", "$dialog",
+  ($scope, small_group_deliberation_data, FirebaseService, $timeout, $dialog) ->
     console.log "In conversation state controller at bottom"
-    $scope.conversation = conversation_group_data
-    $scope.conversations = conversations
-    $scope.$root.timestamp = conversation_group_data.current_timestamp
+    $scope.conversation = small_group_deliberation_data
+    $scope.conversations = small_group_deliberation_data.conversations_list
+    $scope.$root.timestamp = small_group_deliberation_data.current_timestamp
 
     $scope.name = 'ceConversationGroup'
 

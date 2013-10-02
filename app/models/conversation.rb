@@ -18,7 +18,7 @@ class Conversation < ActiveRecord::Base
 
   has_many :table_comments, ->{ includes [:author, :pro_con_vote, :parent_targets] }
 
-  has_many :theme_comments, ->{ includes :child_targets }
+  has_many :theme_comments, ->{ includes [:author, :child_targets, :parent_targets] }
 
   has_many :attachments, :as => :attachable
 
@@ -33,6 +33,8 @@ class Conversation < ActiveRecord::Base
   has_many :invites, -> {includes :sender}
 
   has_many :roles, -> {includes :users}, class_name: 'Role', primary_key: :id, foreign_key: :resource_id
+
+  has_many :parked_comments, -> {includes :user}
 
   validates :status, presence: true
   validate :conversation_code_is_unique, on: :create

@@ -1,0 +1,41 @@
+%ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
+
+  %li#conversation-review-link
+    %span.label.label-info Themers
+
+  %li#conversation-review-link(ng-repeat="(name, theme_cnt) in conversation.themers" ng-class="{active: (conversation.active_themer_name == name)}" popover="Click to view Theming by {{name}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="change_themer(name)")
+      {{name}}
+      %span.badge.badge-info {{theme_cnt}}
+
+  %li#conversation-review-link
+    %span.label.label-info Themes
+
+  %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'all_theme_comments'}" popover="Click here to view all of the themes" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('all_theme_comments')")
+      All themes
+      %span.badge.badge-info {{conversation.comment_counts['all']}}
+
+
+  %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'untagged_themes'}" popover="Click here to view all of the themes that need to be tagged to a theme" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('untagged_themes')")
+      Untagged
+      %span.badge.badge-important {{conversation.comment_counts['untagged']}}
+
+  %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked_themes'}" popover="Click here to view all of the themes that have been parked" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('parked_themes')")
+      Parked
+      %span.badge.badge-info {{conversation.comment_counts['parked']}}
+
+  %li#conversation-review-link
+    %span.label.label-info My themes
+
+  %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'themes'}")
+    %a(ng-click="filter_table_comments('themes')")
+      All themes
+      %span.badge.badge-info {{conversation.comment_counts['themes']}}
+
+  %li#conversation-review-link(ng-repeat="theme in conversation.theme_comments" ng-class="{active: conversation.filter_mode == 'theme' && conversation.filter_id == theme.id}" popover="{{theme.popover}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('theme', theme.id)")
+      {{theme.tag_name}}
+      %span.badge.badge-info {{conversation.comment_counts[theme.id]}}

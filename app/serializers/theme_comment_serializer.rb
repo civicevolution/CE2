@@ -4,14 +4,10 @@ class ThemeCommentSerializer < ActiveModel::Serializer
   attributes :type, :id, :order_id, :text, :updated_at, :purpose,
              :version, :tag_name,
              :editable_by_user, :name, :code, :published, :status,
-             :bookmark, :ordered_child_ids
+             :bookmark, :parent_theme_ids, :ordered_child_ids
 
   def name
-    if object.author.name_count.nil? || object.author.name_count  == 1
-      "#{object.author.first_name}_#{object.author.last_name}"
-    else
-      "#{object.author.first_name}_#{object.author.last_name}_#{object.author.name_count}"
-    end
+    "#{object.author.first_name} #{object.author.last_name}"
   end
 
   def code
@@ -20,6 +16,11 @@ class ThemeCommentSerializer < ActiveModel::Serializer
 
   def purpose
     object.purpose || 'Comment'
+  end
+
+  def parent_theme_ids
+    # get the parent_theme_ids from the HABTM association
+    object.parent_targets.map(&:parent_id)
   end
 
   def ordered_child_ids

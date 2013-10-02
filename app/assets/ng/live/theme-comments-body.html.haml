@@ -1,0 +1,57 @@
+%div(ng-switch="conversation.filter_mode")
+
+  %div(ng-switch-when="all_table_comments")
+    %h4 All table comments
+    %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+      %div(ce-comment type="table")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no table comments
+
+  %div(ng-switch-when="untagged_comments")
+    %h4 All untagged table comments
+
+    %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+      %div(ce-comment type="table")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no untagged table comments
+
+
+  %div(ng-switch-when="parked_comments")
+    %h4 All parked table comments
+
+    %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+      %div(ce-comment type="table")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no parked table comments
+
+
+  %div(ng-switch-when="themes")
+    %h4 All themes
+
+    %div.all-themes
+      %div.comment-outer(ng-repeat="comment in conversation.theme_comments")
+        %div(ce-sortable ce-comment type="theme")
+      %div(ng-if="conversation.theme_comments.length == 0")
+        %p There are no themes created by {{conversation.active_themer_name}}
+
+
+  %div.theme-view(ng-switch-when="theme")
+    %div.comment-outer(ng-repeat="comment in [conversation.current_theme]")
+      %div(ce-comment type="theme")
+
+    %h4 Comments for this theme
+
+    %div(comment_id="{{conversation.current_theme.id}}")
+      %div.comment-outer(ng-repeat="comment in conversation.filtered_comments" )
+        %div(ce-sortable ce-comment type="table")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no table comments in this theme
+
+
+  %div(ng-switch-when="table")
+    %h4 Comments from Table {{conversation.filter_id}}
+
+    %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+      %div(ce-comment type="table")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no comments from this table

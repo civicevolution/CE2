@@ -1,0 +1,57 @@
+%div(ng-switch="conversation.filter_mode")
+
+  %div(ng-switch-when="all_theme_comments")
+    %h4 All themes
+    %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+      %div(ce-comment type="theme")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no themes
+
+  %div(ng-switch-when="untagged_themes")
+    %h4 All untagged themes
+
+    %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+      %div(ce-comment type="theme")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no untagged themes
+
+
+  %div(ng-switch-when="parked_themes")
+    %h4 All parked themes
+
+    %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+      %div(ce-comment type="theme")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no parked themes
+
+
+  %div(ng-switch-when="themes")
+    %h4 All themes
+
+    %div.all-themes
+      %div.comment-outer(ng-repeat="comment in conversation.theme_comments")
+        %div(ce-sortable ce-comment type="theme")
+      %div(ng-if="conversation.theme_comments.length == 0")
+        %p There are no themes created by {{conversation.active_themer_name}}
+
+
+  %div.theme-view(ng-switch-when="theme")
+    %div.comment-outer(ng-repeat="comment in [conversation.current_theme]")
+      %div(ce-comment type="theme")
+
+    %h4 Table themes for this theme
+
+    %div(comment_id="{{conversation.current_theme.id}}")
+      %div.comment-outer(ng-repeat="comment in conversation.filtered_comments" )
+        %div(ce-sortable ce-comment type="table")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no table themes in this theme
+
+
+  -#%div(ng-switch-when="table")
+    %h4 Comments from Table {{conversation.filter_id}}
+
+    %div.comment-outer(ng-repeat="comment in conversation.filtered_comments")
+      %div(ce-comment type="table")
+    %div(ng-if="conversation.filtered_comments.length == 0")
+      %p There are no comments from this table

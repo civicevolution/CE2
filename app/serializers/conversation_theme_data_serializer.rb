@@ -1,5 +1,4 @@
 class ConversationThemeDataSerializer < ActiveModel::Serializer
-  #embed :ids, :include => true
   attributes :updated_at, :firebase_token, :code, :title, :munged_title,
              :current_timestamp, :privacy, :published, :starts_at, :ends_at, :role
   has_many :theme_and_table_comments

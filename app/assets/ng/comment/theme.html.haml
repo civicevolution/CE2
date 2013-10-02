@@ -20,7 +20,7 @@
               %span(ng-if="comment.replies_expanded")
                 %i.icon-chevron-up
 
-            -#%div(ce-tag-comment)
+            %div(ng-if="!comment.editable_by_user" ce-tag-comment)
 
             %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
               History v{{comment.version}}
@@ -33,7 +33,8 @@
               Delete
 
             %div.count
-              %a.edit(ng-click="broadcast_action('show-theme-page')" ng-pluralize count="comment.comments" when="{'0': 'No table comments.', 'one': 'View 1 table comment', 'other': 'View {} table comments'}")
+              %a.edit(ng-click="broadcast_action('show-theme-page')")
+                {{comment.comments | view_children:this}}
 
           %div.comment-replies(ng-if="comment.replies_expanded")
             %div(ng-repeat="reply in comment.reply_comments")

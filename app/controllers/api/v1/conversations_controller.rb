@@ -158,9 +158,7 @@ module Api
       def parked_comments
         conversation = Conversation.find_by(code: params[:id])
         authorize! :edit_theme_comment, conversation
-        themer = User.find_by(name: params[:name])
-        parked_comment_ids = ParkedComment.select(:parked_ids).find_by(conversation_id: conversation.id, user_id: themer.id).try{|rec| rec.parked_ids} ||[]
-        render json: parked_comment_ids
+        respond_with conversation.parked_comments
       end
 
       def group_data
@@ -178,6 +176,13 @@ module Api
 
       def theme_votes
         render json: ThemeVote.theme_votes(params[:id])
+      end
+
+      def firebase_token
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :edit_theme_comment, conversation
+        firebase_auth_data = { conversations_read: { "#{conversation.code}" => true } }
+        render json: {"firebase_token" => Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data) }
       end
 
       def live_event_data

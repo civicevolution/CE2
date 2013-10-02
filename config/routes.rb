@@ -44,6 +44,7 @@ Ce2::Application.routes.draw do
         get 'theme_votes', on: :member
         get 'live_event_data', on: :member
         get 'import_live_event_data', on: :member
+        get 'firebase_token', on: :member
         resources :comments, shallow: true
       end
     end
@@ -105,7 +106,6 @@ Ce2::Application.routes.draw do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       #resources :users
       get 'users/user'
-      get 'users/conversations'
       get 'users/conversations_and_themes'
     end
   end
@@ -176,6 +176,16 @@ Ce2::Application.routes.draw do
       end
     end
   end
+
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :components, only: [ ], controller: 'agenda_components' do
+        get 'data', on: :member
+        get 'results', on: :member
+      end
+    end
+  end
+
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

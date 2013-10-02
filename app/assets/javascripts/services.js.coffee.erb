@@ -377,20 +377,79 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
   ($http, $rootScope, $timeout) ->
     name: "ThemeData"
 
-    conversation_theme_data: (conversation_code) ->
-      $http.get("/api/conversations/#{conversation_code}/theme_data.json").then (response) ->
+    small_group_deliberation_theme_data: (component_code) ->
+      $http.get("/api/components/#{component_code}/data.json").then (response) ->
         if response.status is 200
-          #data: response.data
+          all_theme_comments = response.data.theme_comments
+          table_comments = response.data.table_comments.sort((a,b)-> a.id - b.id)
           comments = {}
-          all_theme_comments = []
-          table_comments = []
-          #authors = {}
-          for comment in response.data.theme_and_table_comments
+          for comment in table_comments
             comments[comment.id] = comment
-            switch comment.type
-              when "ThemeComment" then all_theme_comments.push comment
-              when "TableComment" then table_comments.push comment
-          sorted_table_comments = table_comments.sort((a,b)-> a.id - b.id)
+
+          tag_hash = {}
+          themers = {}
+          for comment in all_theme_comments
+            comments[comment.id] = comment
+            tag_hash[comment.id] = comment.tag_name
+            if comment.text.match(/\[quote/)
+              comment.popover = comment.text.split('[quot')[0]
+            else
+              comment.popover = comment.text
+            if themers[comment.name]
+              themers[comment.name] += 1
+            else
+              themers[comment.name] = 1
+
+          $timeout ->
+            $rootScope.$broadcast 'update-user-data'
+          , 1000
+
+          comments: comments
+          table_comments: table_comments.sort((a,b)-> a.id - b.id)
+          all_theme_comments: all_theme_comments.sort((a,b)-> a.id - b.id)
+          theme_tag_hash: tag_hash
+          themers: themers
+          title: response.data.title
+          code: response.data.code
+          current_timestamp: response.data.current_timestamp
+          privacy: response.data.privacy
+          abilities: response.data.role.abilities
+          can: (action) ->
+            _.indexOf(this.abilities, action ) > -1
+
+    create_new_theme: (data) ->
+      $http.post("/api/conversations/#{data.conversation_code}/comments.json", data)
+
+    save_theme_assignment: (data) ->
+      $http.post("/api/comments/#{data.comment_id}/assign_themes.json", data)
+
+    delete: (data) ->
+      $http.delete("/api/comments/#{data.id}.json")
+
+    conversation_themes: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/themes.json")
+
+    parked_comments: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/parked_comments.json")
+
+    firebase_token: (conversation_code) ->
+      $http.get("/api/conversations/#{conversation_code}/firebase_token.json")
+
+    small_group_themes_theme_data: (component_code) ->
+      $http.get("/api/components/#{component_code}/data.json").then (response) ->
+        if response.status is 200
+          table_comments = []
+          coordinator_theme_comments = response.data.coordinator_theme_comments
+          team_theme_comments = response.data.theme_comments
+          all_theme_comments = []
+          comments = {}
+          for comment in coordinator_theme_comments
+            comments[comment.id] = comment
+            all_theme_comments.push(comment)
+          for comment in team_theme_comments
+            comments[comment.id] = comment
+            all_theme_comments.push(comment)
+
 
           tag_hash = {}
           themers = {}
@@ -410,46 +469,12 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
           , 1000
 
           comments: comments
-          table_comments: sorted_table_comments
+          table_comments: table_comments.sort((a,b)-> a.id - b.id)
           all_theme_comments: all_theme_comments.sort((a,b)-> a.id - b.id)
+          coordinator_theme_comments: coordinator_theme_comments.sort((a,b)-> a.id - b.id)
+          team_theme_comments: team_theme_comments.sort((a,b)-> a.id - b.id)
           theme_tag_hash: tag_hash
           themers: themers
-          title: response.data.title
-          code: response.data.code
-          current_timestamp: response.data.current_timestamp
-          privacy: response.data.privacy
-          abilities: response.data.role.abilities
-          can: (action) ->
-            _.indexOf(this.abilities, action ) > -1
-          firebase_token: response.data.firebase_token
-
-    create_new_theme: (data) ->
-      $http.post("/api/conversations/#{data.conversation_code}/comments.json", data)
-
-    save_theme_assignment: (data) ->
-      $http.post("/api/comments/#{data.comment_id}/assign_themes.json", data)
-
-    delete: (data) ->
-      $http.delete("/api/comments/#{data.id}.json")
-
-    conversation_themes: (conversation_code) ->
-      $http.get("/api/conversations/#{conversation_code}/themes.json")
-
-    parked_comments: (conversation_code, name) ->
-      $http.get("/api/conversations/#{conversation_code}/parked_comments.json?name=#{name}")
-]
-
-
-services.factory "LiveGroupData", ["$http",
-  ($http) ->
-    name: "LiveGroupData"
-
-    conversation_group_data: (conversation_code) ->
-      $http.get("/api/conversations/#{conversation_code}/group_data.json").then (response) ->
-        if response.status is 200
-          sorted_table_comments = response.data.table_comments.sort((a,b)-> a.id - b.id)
-
-          table_comments: sorted_table_comments
           title: response.data.title
           code: response.data.code
           current_timestamp: response.data.current_timestamp
@@ -496,11 +521,6 @@ services.factory "LiveAllocateData", ["$http",
 services.factory "LiveData", ["$http",
   ($http) ->
     name: "LiveData"
-    conversations: ->
-      #console.log "LiveData.conversations"
-      $http.get("/api/users/conversations.json").then (response) ->
-        if response.status is 200
-          response.data
     conversations_and_themes: ->
       #console.log "LiveData.conversations_and_themes"
       $http.get("/api/users/conversations_and_themes.json")
@@ -519,5 +539,24 @@ services.factory "AgendaData", ["$http",
       $http.post("/api/agendas/#{code}/accept_role.json", {data: data})
     sign_out: (code) ->
       $http.post("/api/agendas/#{code}/release_role.json")
+
+]
+services.factory "ComponentData", ["$http",
+  ($http) ->
+    name: "ComponentData"
+    small_group_deliberation_data: (component_code, conversation_code ) ->
+      $http.get("/api/components/#{component_code}/data.json?conv_code=#{conversation_code}").then (response) ->
+        if response.status is 200
+          sorted_table_comments = response.data.table_comments.sort((a,b)-> a.id - b.id)
+
+          conversations_list: response.data.conversations_list
+          table_comments: sorted_table_comments
+          title: response.data.title
+          code: response.data.code
+          current_timestamp: response.data.current_timestamp
+          privacy: response.data.privacy
+          abilities: response.data.role.abilities
+          can: (action) ->
+            _.indexOf(this.abilities, action ) > -1
 
 ]
