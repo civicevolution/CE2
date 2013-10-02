@@ -637,7 +637,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
         comment.current_theme_ids = _.intersection(comment.parent_theme_ids, theme_ids)
       for comment in $scope.conversation.team_theme_comments
         comment.parked = false
-        comment.current_theme_ids = comment.parent_theme_ids
+        comment.current_theme_ids = angular.copy(comment.parent_theme_ids)
       ThemeData.parked_comments($scope.conversation.code).then(
         (response)->
           $scope.conversation.parked_comments = response.data
@@ -736,11 +736,15 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
 
     $scope.$on 'text-select-add-example', (event, sel) ->
       #console.log "received broadcast message text-select-add-example"
-      example_data =
-        quote_type: "example"
-        id: sel.comment.id
-        name: sel.comment.name
-        purpose: sel.comment.purpose
+      if sel.quote_data
+        example_data = sel.quote_data
+        sel.text = sel.text.replace(/^Table \d+:\s*/,'')
+      else
+        example_data =
+          quote_type: "example"
+          id: sel.comment.id
+          name: sel.comment.name
+          purpose: sel.comment.purpose
       example_insert = "[quote=#{ angular.toJson(example_data)}]#{sel.text}[/quote]"
       #console.log "Add this example to textarea: #{example_insert}"
       $scope.$root.$broadcast 'open-comment-form', {action: 'add-example-from-selected-text', quote_insert: example_insert, comment: $scope.conversation.current_theme, append_to_existing: true}

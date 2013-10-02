@@ -860,12 +860,13 @@ ce2_directives.directive('ceTextSelect', ->
       debug_mode = false
       console.log "text_select_by_mouse" if debug_mode
       try
-        [text, comment, coords] = capture_selection()
+        [text, comment, coords, quote_data] = capture_selection()
         if text
           #console.log "use this string in form:\n#{text}" if debug_mode
           selection =
             text: text
             comment: comment
+            quote_data: quote_data
 
           body = document.documentElement || document.body
           scrollX = window.pageXOffset || body.scrollLeft
@@ -934,9 +935,9 @@ ce2_directives.directive('ceTextSelect', ->
 
       if str
         str = str.replace(/^ */gm, '').replace(/\r\n/g, '\n').replace(/\n{2,}/g,'\n\n')
-        [str, angular.element(node).scope().comment, coords]
+        [str, angular.element(node).scope().comment, coords, angular.element(node).scope().quote?.data]
       else
-        [null,null,null]
+        [null,null,null,null]
 
     clear_capture_selection_button = ->
       #console.log "clear_capture_selection_button mouseup, then clear"

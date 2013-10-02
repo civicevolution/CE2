@@ -20,12 +20,12 @@ class ThemeCommentSerializer < ActiveModel::Serializer
 
   def parent_theme_ids
     # get the parent_theme_ids from the HABTM association
-    object.parent_targets.map(&:parent_id)
+    object.parent_targets.map(&:parent_id).uniq
   end
 
   def ordered_child_ids
     # get the ordered_child_ids from the HABTM association
-    object.child_targets.map(&:child_id)
+    object.child_targets.map(&:child_id).uniq
   end
 
   def editable_by_user
