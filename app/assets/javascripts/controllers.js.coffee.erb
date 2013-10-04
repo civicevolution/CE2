@@ -1116,24 +1116,34 @@ live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$
     update_combined_votes = ->
       combined_votes = {}
       total_votes = 0
+      totals_array = []
       for theme in $scope.allocation_themes
         combined_votes[theme.id] = [ 0 ]
       for voter of $scope.participant_votes
+        voter_total = 0
         votes = $scope.participant_votes[voter]
         for vote in votes
           combined_votes[vote.theme_id][ voter ] = vote.points
+          voter_total += vote.points
           total_votes += vote.points
+        totals_array.push( [voter_total] )
+      totals_array.push( [total_votes] )
 
+      pcent_total = 0
       for theme_id of combined_votes
         console.log "theme_id: #{theme_id}"
         rec = combined_votes[theme_id]
         rec.splice(0,1)
         sum = _.reduce(rec, ( (memo, num) -> memo + num;), 0)
         rec.push(sum)
-        rec.push(Math.round(sum/total_votes*100))
+        pcent = Math.round(sum/total_votes*100)
+        pcent_total += pcent
+        rec.push(pcent)
         combined_votes[theme_id] = ([val] for val in rec)
+      totals_array.push( [pcent_total] )
 
-      console.log "total_votes: #{total_votes}"  
+      combined_votes['totals'] = totals_array
+      console.log "total_votes: #{total_votes}"
       $scope.combined_votes = combined_votes
 
       $scope.number_of_voters = (k for own k of $scope.participant_votes).length

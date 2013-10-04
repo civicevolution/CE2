@@ -179,6 +179,7 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
 }
 
 .live-choose-results, .live-allocate-results{
+  color: #324A7F;
   td{
     vertical-align: top;
     padding-bottom: 12px;
@@ -209,6 +210,20 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
     //max-width: 700px;
   }
   blockquote{ display:none;}
+  .graph{
+    margin-bottom: 20px;
+    background-image: url(bar-graph-bg.gif);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    font-weight: bold;
+    font-size: 2em;
+    line-height: 1.4em;
+    color: #324A7F;
+    .span1{ padding-left: 8px;}
+    @media screen and (max-width: 900px){
+      font-size: 1.4em;
+    }
+  }
 }
 
 .live-choose-results{

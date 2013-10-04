@@ -50,11 +50,14 @@ class ThemeAllocation < AgendaComponent
     theme_ids = self.final_themes.map(&:id)
     theme_points = {}
     total_points = 0.to_f
+    max_points = 0
 
     ThemePoint.select('theme_id, sum(points)').where(theme_id: theme_ids).group(:theme_id).each do |tp|
       theme_points[tp.theme_id] = tp.sum
       total_points += tp.sum
+      max_points = tp.sum unless max_points > tp.sum
     end
+    max_points = max_points.to_f
 
     ltr = 'A'
     allocated_points = []
@@ -63,7 +66,10 @@ class ThemeAllocation < AgendaComponent
       points = theme_points[id] || 0
       allocated_points.push( {id: id, letter: ltr, text: theme.text.gsub(/\[quote.*\/quote\]/,''),
                               points: points,
-                              percentage: (points/total_points*100).round })
+                              percentage: (points/total_points*100).round,
+                              graph_percentage: (points/max_points*100).round
+                             }
+      )
       ltr = ltr.succ
     end
 

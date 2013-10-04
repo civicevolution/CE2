@@ -1,11 +1,11 @@
 .live-allocate-results
-  %h3 {{title}}
   %h4 Allocation results
+  %h3 {{title}}
 
-  %table
-    %tr(ng-repeat="theme in allocated_points")
-      %td.votes {{theme.points}}
-      %td.percent {{theme.percentage}}%
-      %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+  %div.graph.row-fluid(ng-repeat="theme in allocated_points"){style: "background-size: {{theme.graph_percentage}}% 100%;"}
+    .span1.count {{theme.points*10}}
+    .span1 {{theme.percentage}}%
+    .span10(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
 
   %div(ce-size-adjuster)
+
