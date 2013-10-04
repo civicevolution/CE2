@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131003155715) do
+ActiveRecord::Schema.define(version: 20131004021804) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -69,13 +69,6 @@ ActiveRecord::Schema.define(version: 20131003155715) do
     t.string   "template_name"
     t.boolean  "list"
     t.hstore   "status"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "allocation_themes", force: true do |t|
-    t.string   "code"
-    t.integer  "theme_ids",  array: true
     t.datetime "created_at"
     t.datetime "updated_at"
   end
