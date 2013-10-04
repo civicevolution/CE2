@@ -167,6 +167,7 @@ Ce2::Application.routes.draw do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :agendas, only: [ ] do
         get 'agenda', on: :member
+        get 'agenda_for_component', on: :member
         post 'accept_role', on: :member
         post 'release_role', on: :member
       end

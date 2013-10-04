@@ -2,6 +2,8 @@ class AgendaComponent < ActiveRecord::Base
 
   attr_accessible :agenda_id, :code, :descriptive_name, :type, :input, :output, :status, :starts_at, :ends_at
 
+  belongs_to :agenda
+
   has_many :parent_targets, class_name: 'AgendaComponentThread', foreign_key: :child_id
 
   has_many :child_targets, -> { order 'order_id ASC' }, class_name: 'AgendaComponentThread', foreign_key: :parent_id

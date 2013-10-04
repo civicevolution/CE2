@@ -1160,11 +1160,17 @@ add_letters = (items)->
   items
 
 
-agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window",
-  ($scope, agenda, AgendaData, $timeout, $window) ->
+agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window", "$location",
+  ($scope, agenda, AgendaData, $timeout, $window, $location) ->
     console.log "agenda controller agenda.template_name: #{agenda.template_name}"
     $scope.agenda_template_url = "/assets/custom/#{agenda.template_name}.html";
     $scope.agenda = agenda
+    if $location.$$path.match(/\/agenda\/code:.*/)
+      # set the url to the actual agenda url
+      new_url = "/agenda/#{agenda.code}/#{agenda.munged_title}"
+      #console.log "new_url: #{new_url}"
+      $location.path( new_url)
+
     $scope.$root.initialize_markdown_system( {disable_editor: true} )
 
     $scope.agenda.roles = [

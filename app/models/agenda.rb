@@ -81,5 +81,8 @@ class Agenda < ActiveRecord::Base
     menu_data = role_relevant_components.map(&:menu_details)
   end
 
+  def munged_title
+    self.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50]
+  end
 
 end

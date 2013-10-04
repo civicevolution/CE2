@@ -216,6 +216,21 @@ ce2_directives.directive('ceUserBar', ->
               $scope.dialog.close()
         )
         $scope.dialog.open()
+
+      $scope.go_home = ->
+        switch
+          when $location.$$path.match(/\/cmp\/.*/)
+            component_code = $location.$$path.match(/\/cmp\/(\w+).*/)[1]
+            new_url = "/agenda/code:#{component_code}/agenda-home"
+            $location.path( new_url)
+          when $location.$$path.match(/\/agenda\/.*/)
+            $location.path( "/events" )
+          when $location.$$path.match(/\/events.*/)
+            $location.path( "/home" )
+          when $location.$$path.match(/\/home.*/)
+            $location.path( "/home" )
+          else
+            console.error "I don't know where to go for $location.$$path: #{$location.$$path}"
   ]
 )
 

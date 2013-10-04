@@ -539,7 +539,10 @@ services.factory "AgendaData", ["$http",
   ($http) ->
     name: "AgendaData"
     agenda: (code) ->
-      $http.get("/api/agendas/#{code}/agenda.json")
+      if code.match(/code:/)
+        $http.get("/api/agendas/#{code.replace('code:','')}/agenda_for_component.json")
+      else
+        $http.get("/api/agendas/#{code}/agenda.json")
     sign_in: (code, data) ->
       $http.post("/api/agendas/#{code}/accept_role.json", {data: data})
     sign_out: (code) ->
