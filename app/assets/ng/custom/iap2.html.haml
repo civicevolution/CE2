@@ -40,7 +40,7 @@
             con%input.code(ng-model="agenda.active_role.access_code")
             %button.btn-primary.btn(ng-click="accept_role()") Start
 
-    %div(ng-switch-default)
+    -#%div(ng-switch-default)
       %div(ng-switch="agenda.active_role.role" )
         %div(ng-switch-when="coordinator" )
           %p coordinator links
@@ -55,3 +55,12 @@
           %p Reporter links
 
       %a(ng-click="signout_role()") Sign out
+
+
+    %hr
+
+    %div(ng-repeat="comp in agenda.menu_data" )
+      %h4 {{comp.descriptive_name}}
+      %div(ng-include="'/assets/live/menu/' + comp.menu_template + '.html'")
+
+    %a(ng-click="signout_role()") Sign out

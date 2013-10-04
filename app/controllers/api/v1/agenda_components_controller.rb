@@ -2,16 +2,21 @@ module Api
   module V1
 
     class AgendaComponentsController < Api::BaseController
-      skip_authorization_check :only => [:data]
+      skip_authorization_check :only => [:data, :results]
 
       def data
         component = AgendaComponent.find_by(code: params[:id])
         #authorize! :XXX, component.agenda
-        Rails.logger.debug "Provide the data for this component"
-        data = component.data(params[:conv_code])
+        data = component.data(params, current_user)
 
         respond_with data
-        #render json: data
+      end
+
+      def results
+        component = AgendaComponent.find_by(code: params[:id])
+        #authorize! :XXX, component.agenda
+        results = component.results(params, current_user)
+        respond_with results
       end
 
     end

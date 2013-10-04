@@ -18,7 +18,7 @@ class Agenda < ActiveRecord::Base
     (0...10).map{ o[rand(o.length)] }.join
   end
 
-  def get_user_for_accept_role(current_user, data)
+  def get_user_for_accept_role( data)
     #Rails.logger.debug "Agenda.sign_in my_id: #{self.id}"
 
     case data[:role]
@@ -52,6 +52,33 @@ class Agenda < ActiveRecord::Base
   def release_role(current_user)
     #Rails.logger.debug "Agenda.sign_out my_id: #{self.id}"
 
+  end
+
+  def agenda_data(current_user)
+    # get the role for this user
+    if current_user.nil?
+      menu_data = []
+    else
+      role = current_user.email.match(/agenda-\d+-(\w+)-\d/)[1]
+      role_relevant_components = AgendaComponent.where("agenda_id = ? AND (?) = ANY (menu_roles)",self.id, role).order(:starts_at)
+      menu_data = role_relevant_components.map(&:menu_details)
+    end
+
+    details = {
+        title: self.title,
+        munged_title: self.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50],
+        description: self.description,
+        code: self.code,
+        template_name: template_name,
+        menu_data: menu_data
+    }
+  end
+
+  def role_menu_data(current_user)
+    # get the role for this user
+    role = current_user.email.match(/agenda-\d+-(\w+)-\d/)[1]
+    role_relevant_components = AgendaComponent.where("agenda_id = ? AND (?) = ANY (menu_roles)",self.id, role).order(:starts_at)
+    menu_data = role_relevant_components.map(&:menu_details)
   end
 
 

@@ -109,7 +109,7 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
     font-size: .7em;
   }
   &.no-ex{
-    blockquote{
+    blockquote, div.quote{
       display:none;
     }
   }
@@ -121,6 +121,12 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
       padding: 0;
       line-height: 1em;
     }
+  }
+  a.show-examples{
+    opacity: .3;
+    position: fixed;
+    top: 90px;
+    right: 20px;
   }
 }
 .live-choose-results{
@@ -240,6 +246,7 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
   position: fixed;
   top: 60px;
   right: 20px;
+  opacity: .3;
   //border: 3px solid red;
   background-color: #ccc;
   z-index: 2000;
@@ -352,4 +359,12 @@ body{
 .agenda-home{
   input.id{ width: 30px;}
   input.code{ width: 100px;}
+}
+
+.menu-link-set{
+  margin-bottom: 40px;
+}
+
+#home{
+  a.btn, a.btn:hover {color: white;}
 }

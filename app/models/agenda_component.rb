@@ -22,7 +22,15 @@ class AgendaComponent < ActiveRecord::Base
   end
 
   def data
-    "return data for AgendaComponent"
+    raise "CivicEvolution::AgendaComponentDataNotDefined No data for #{self.class.to_s}"
+  end
+
+  def menu_details
+    raise "CivicEvolution::AgendaComponentMenuDetailsNotDefined No menu_details for #{self.class.to_s}"
+  end
+
+  def results
+    raise "CivicEvolution::AgendaComponentResultsNotDefined No results for #{self.class.to_s}"
   end
 
 end

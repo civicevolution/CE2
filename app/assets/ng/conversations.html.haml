@@ -1,0 +1,21 @@
+#conversations
+  .row-fluid
+    .span12
+      %h3 Welcome to CivicEvolution
+
+      %h4
+        %input.btn-primary.btn(ng-click="create_conversation()"){type: 'button', value: 'Start a conversation!'}
+
+      %h4 List the categories
+
+
+  .row-fluid
+    .span12.conversation
+      %h4 Conversations
+      %div(ng-repeat="conversation in conversations" )
+        %div(ce-conversation-card)
+
+
+      %h4 List a few conversations that might interest you and/or are trending
+
+

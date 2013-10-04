@@ -7,6 +7,14 @@ class ThemeSmallGroupThemeSerializer < ActiveModel::Serializer
   has_many :coordinator_theme_comments
   #has_many :parked_comments
 
+  def include_theme_comments?
+    ! object.theme_comments.nil?
+  end
+
+  def include_coordinator_theme_comments?
+    ! object.coordinator_theme_comments.nil?
+  end
+
   def table_comments
     []
   end

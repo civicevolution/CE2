@@ -54,4 +54,4 @@ ce2_filters.filter 'view_children', ->
       switch
         when count == 0 then "No table comments"
         when count == 1 then "View 1 table comment"
-        when count > 1 then "View #{count} table comments`"
+        when count > 1 then "View #{count} table comments"

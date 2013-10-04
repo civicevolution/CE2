@@ -1,0 +1,5 @@
+%div.menu-link-set
+  %div(ng-repeat="conversation in comp.conversations")
+    %h4
+      %a{href: "{{conversation.link}}"}
+        {{conversation.title}}

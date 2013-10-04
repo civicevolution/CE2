@@ -154,15 +154,11 @@ Ce2::Application.routes.draw do
   post 'clear_autosaved', to: 'api/v1/autosave#clear'
 
   post 'api/vote', to: 'api/v1/theme_votes#save'
-  #post 'api/allocate', to: 'api/v1/allocation_items#save'
-  #get 'api/allocation_votes', to: 'api/v1/allocation_items#allocation_votes'
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-      resources :allocation_themes, only: [ ] do
-        get 'list', on: :member
+      resources :theme_points, only: [ ] do
         post 'save', on: :member
-        get 'allocated_points', on: :member
       end
     end
   end

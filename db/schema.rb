@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130930060809) do
+ActiveRecord::Schema.define(version: 20131003155715) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,15 @@ ActiveRecord::Schema.define(version: 20130930060809) do
     t.datetime "updated_at"
   end
 
+  create_table "agenda_component_threads", force: true do |t|
+    t.integer  "agenda_id"
+    t.integer  "child_id"
+    t.integer  "parent_id"
+    t.integer  "order_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "agenda_components", force: true do |t|
     t.integer  "agenda_id"
     t.string   "code"
@@ -40,6 +49,7 @@ ActiveRecord::Schema.define(version: 20130930060809) do
     t.datetime "ends_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "menu_roles",       array: true
   end
 
   create_table "agenda_roles", force: true do |t|
@@ -441,6 +451,7 @@ ActiveRecord::Schema.define(version: 20130930060809) do
     t.integer  "points"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "voter_id"
   end
 
   create_table "theme_votes", force: true do |t|

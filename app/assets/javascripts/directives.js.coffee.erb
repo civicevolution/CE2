@@ -51,6 +51,7 @@ ce2_directives.directive('ceUserBar', ->
         $scope.dialog.open()
 
       $scope.sign_out = ->
+        $scope.$root.$broadcast 'user-sign-out'
         User.sign_out().then(
           (response)->
             #console.log "signout received response"

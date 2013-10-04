@@ -444,6 +444,7 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
           all_theme_comments = []
           comments = {}
           for comment in coordinator_theme_comments
+            comment.is_coordinator_theme = true
             comments[comment.id] = comment
             all_theme_comments.push(comment)
           for comment in team_theme_comments
@@ -483,6 +484,10 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
           can: (action) ->
             _.indexOf(this.abilities, action ) > -1
 
+    themes_data: (component_code) ->
+      $http.get("/api/components/#{component_code}/results.json").then (response) ->
+        if response.status is 200
+          response.data
 ]
 
 services.factory "LiveChooseData", ["$http",
@@ -504,16 +509,16 @@ services.factory "LiveAllocateData", ["$http",
   ($http) ->
     name: "LiveAllocateData"
 
-    allocation_themes: (code) ->
-      $http.get("/api/allocation_themes/#{code}/list.json").then (response) ->
+    allocation_data: (component_code) ->
+      $http.get("/api/components/#{component_code}/data.json").then (response) ->
         if response.status is 200
           response.data
 
     record_allocation: (code, data) ->
-      $http.post("/api/allocation_themes/#{code}/save.json", {data: data})
+      $http.post("/api/theme_points/#{code}/save.json", {data: data})
 
-    allocated_points: (code) ->
-      $http.get("/api/allocation_themes/#{code}/allocated_points.json").then (response) ->
+    allocated_points: (component_code) ->
+      $http.get("/api/components/#{component_code}/results.json").then (response) ->
         if response.status is 200
           response.data
 ]

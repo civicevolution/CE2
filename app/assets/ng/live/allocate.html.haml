@@ -1,13 +1,17 @@
 .live-allocate
-  %h4 Divide $100 between all the ideas with no more than $50 for your most important idea(s)
+  -#%h4 Divide $100 between all the ideas with no more than $50 for your most important idea(s)
+  %h4 Divide 100 points between all the ideas with no more than 50 points for your most important idea(s)
 
+  %h3(ng-hide="edit_vote_mode") Enter votes for participant \#{{voter_id}} of Group {{user.last_name}}
+  %h3.warn(ng-show="edit_vote_mode")  Edit votes for participant \#{{voter_id}} of Group {{user.last_name}}
 
   %table(border="1")
     %tr
       %th(colspan="2")
         %h3 Our prioritised Ideas
       %th
-        %h3 $ Spent
+        -#%h3 $ Spent
+        %h3 Points
     %tr(ng-repeat="theme in allocation_themes" )
       %td.letter
         {{theme.letter}}
@@ -15,7 +19,7 @@
         {{theme.text}}
 
       %td.alloc
-        %h3 $
+        -#%h3 $
         %input.allocation(type="number" ng-model="theme.value" ng-change="total()")
 
 
@@ -25,8 +29,40 @@
         %h3 TOTAL
       %th
         %h3(ng-class="{warn: over100}")
-          ${{ total() }}
+          -#${{ total() }}
+          {{ total() }}
 
     %tr
       %td(colspan="3")
         %button.btn.btn-success.btn-large.right(ng-click="save()" ng-disabled="over100") Submit
+        %button.btn.btn-link.btn-large.right(ng-click="start_new_vote()" ng-show="edit_vote_mode") Start new vote
+
+
+  %h3 Group Allocation Table
+
+  %table(border="1")
+    %tr
+      %th(colspan="2" rowspan="2")
+        %h3 Our prioritised Ideas
+      %th(colspan="{{number_of_voters}}" )
+        Voters
+
+      %th(rowspan="2")
+        %b
+          Total
+          %br
+          points
+      %th(rowspan="2")
+        %b %
+    %tr
+      %th(ng-repeat="(voter_id, vote) in participant_votes" )
+        %a(ng-click="edit_vote(voter_id)") \#{{voter_id}}
+
+    %tr(ng-repeat="theme in allocation_themes" )
+      %td.letter
+        {{theme.letter}}
+      %td.text
+        {{theme.text}}
+
+      %td(ng-repeat="vote in combined_votes[theme.id]")
+        {{vote[0]}}

@@ -74,8 +74,20 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
     $stateProvider
       # registers the urls with $urlRouterProvider
       .state('home', {
-        url: '/home',
+        url: '/home'
         templateUrl: '<%= path_to_asset "home.html" %>'
+
+      })
+
+      .state('events', {
+        url: '/events'
+        templateUrl: '<%= path_to_asset "events.html" %>'
+
+      })
+
+      .state('conversations', {
+        url: '/conversations',
+        templateUrl: '<%= path_to_asset "conversations.html" %>'
         resolve:
           conversations: ["ConversationData", (ConversationData) ->
             ConversationData.conversations()
@@ -97,7 +109,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         template: '<div ng-include="agenda_template_url"></div>'
         resolve:
           agenda: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-            console.log "resolve get AgendaData.agenda"
             AgendaData.agenda($stateParams.code).then(
               (response)->
                 response.data
@@ -151,10 +162,75 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
           theming_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
-            console.log "resolve get ThemeData.theming_data"
             ThemeData.small_group_themes_theme_data($stateParams.component_code)
           ]
         controller: small_group_deliberation_theme_controller
+      )
+
+      .state('display-themes',
+        url: "/cmp/{component_code}/theme-results/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/themes.html" %>'
+        resolve:
+          themes_data: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
+            ThemeData.themes_data($stateParams.component_code)
+          ]
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+
+        controller: [ "$scope", "themes_data", "$location", "$compile", "$timeout",
+          ($scope, themes_data, $location, $compile, $timeout) ->
+            $scope.conversation_title = themes_data.title
+            $scope.conversation_themes = themes_data.theme_comments
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+            $scope.no_examples = true
+            $scope.examples_link = "Show examples"
+            examples_are_compiled = false
+
+            $scope.toggle_examples = ->
+              if $scope.examples_link.match(/Show/)
+                $scope.no_examples = false
+                $scope.examples_link = "Hide examples"
+              else
+                $scope.no_examples = true
+                $scope.examples_link = "Show examples"
+
+              if !$scope.no_examples && !examples_are_compiled
+                $timeout ->
+                  $scope.theme_display_only = true
+                  examples_are_compiled = true
+                  $compile(angular.element(document.body).find('blockquote'))($scope)
+                ,100
+        ]
+      )
+      .state( 'allocate-to-themes',
+        url: "/cmp/{component_code}/allocate/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/allocate.html" %>'
+        resolve:
+          allocation_data: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
+            LiveAllocateData.allocation_data($stateParams.component_code)
+          ]
+        controller: live_allocate_controller
+      )
+
+      .state('allocate-to-themes-results',
+        url: "/cmp/{component_code}/allocate-results/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/allocate-results.html" %>'
+        resolve:
+          allocation_data: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
+            LiveAllocateData.allocated_points($stateParams.component_code)
+          ]
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+        controller: [ "$scope", "allocation_data",
+          ($scope, allocation_data) ->
+            $scope.allocated_points = allocation_data.allocated_points
+            $scope.title = allocation_data.title
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
       )
 
       # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/themes/xyz
@@ -635,7 +711,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       for comment in $scope.conversation.table_comments
         comment.parked = false
         comment.current_theme_ids = _.intersection(comment.parent_theme_ids, theme_ids)
-      for comment in $scope.conversation.team_theme_comments
+      for comment in ($scope.conversation.team_theme_comments || [])
         comment.parked = false
         comment.current_theme_ids = angular.copy(comment.parent_theme_ids)
       ThemeData.parked_comments($scope.conversation.code).then(
@@ -957,12 +1033,20 @@ live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData
       else
         console.log "complete the form first"
 ]
-live_allocate_controller = [ "$scope", "allocation_themes", "LiveAllocateData", "code", "$dialog",
-  ($scope, allocation_themes, LiveAllocateData, code, $dialog) ->
-    $scope.allocation_themes = allocation_themes
+live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$dialog", "$timeout",
+  ($scope, allocation_data, LiveAllocateData, $dialog, $timeout) ->
+    $scope.allocation_themes = add_letters( allocation_data.final_themes )
 
     $scope.name = 'live_allocate_controller'
-    $scope.code = code
+    $scope.code = allocation_data.code
+    $scope.participant_votes = allocation_data.votes
+    $scope.number_of_voters = (k for own k of $scope.participant_votes).length
+    $scope.voter_id = Number($scope.number_of_voters) + 1
+    for at in $scope.allocation_themes
+      at.value = 0
+    $scope.combined_votes = {}
+    $timeout ->
+      update_combined_votes()
 
     $scope.over100 = false
 
@@ -983,20 +1067,91 @@ live_allocate_controller = [ "$scope", "allocation_themes", "LiveAllocateData", 
 
       tot
 
-    $scope.save = ->
-      console.log "Save the allocation"
-      data = ( {id: at.id, points: at.value} for at in $scope.allocation_themes)
+    $scope.save = (confirmed_edit=false) ->
+      if !confirmed_edit && $scope.edit_vote_mode
+        msg = "Are you sure you want to update this voter's allocation?"
+        btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
+        $dialog.messageBox("Confirm", msg, btns).open().then (result) ->
+          if result is "yes"
+            $scope.edit_confirmed = true
+            $scope.save(true)
+        return false
+      if $scope.total() == 0 && !$scope.edit_vote_mode
+        title = "Warning"
+        msg = "You must enter points before submitting"
+        btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+        $dialog.messageBox(title, msg, btns).open()
+        return
+
+      vote_points = ( {theme_id: at.id, points: at.value} for at in $scope.allocation_themes)
+      data =
+        voter_id: $scope.voter_id
+        vote_points: vote_points
 
       LiveAllocateData.record_allocation($scope.code, data).then(
         (response)->
-          btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-          $dialog.messageBox('Thanks', "Your group's allocation has been recorded", btns).open()
+          $scope.participant_votes[$scope.voter_id] = vote_points
+          for at in $scope.allocation_themes
+            at.value = 0
+          update_combined_votes()
+          $scope.voter_id = Number($scope.number_of_voters) + 1
+          $scope.edit_vote_mode = false
       )
 
+    $scope.edit_vote = (voter_id) ->
+      $scope.voter_id = voter_id
+      votes = {}
+      for vote in $scope.participant_votes[voter_id]
+        votes[vote.theme_id] = vote.points
+      for at in $scope.allocation_themes
+        at.value = votes[at.id] || 0
+      $scope.edit_vote_mode = true
+
+    $scope.start_new_vote = ->
+      $scope.voter_id = Number((k for own k of $scope.participant_votes).length) + 1
+      for at in $scope.allocation_themes
+        at.value = ""
+      $scope.edit_vote_mode = false
+
+    update_combined_votes = ->
+      combined_votes = {}
+      total_votes = 0
+      for theme in $scope.allocation_themes
+        combined_votes[theme.id] = [ 0 ]
+      for voter of $scope.participant_votes
+        votes = $scope.participant_votes[voter]
+        for vote in votes
+          combined_votes[vote.theme_id][ voter ] = vote.points
+          total_votes += vote.points
+
+      for theme_id of combined_votes
+        console.log "theme_id: #{theme_id}"
+        rec = combined_votes[theme_id]
+        rec.splice(0,1)
+        sum = _.reduce(rec, ( (memo, num) -> memo + num;), 0)
+        rec.push(sum)
+        rec.push(Math.round(sum/total_votes*100))
+        combined_votes[theme_id] = ([val] for val in rec)
+
+      console.log "total_votes: #{total_votes}"  
+      $scope.combined_votes = combined_votes
+
+      $scope.number_of_voters = (k for own k of $scope.participant_votes).length
+
+    console.log "End of live_allocate_controller"
 ]
 
-agenda_controller = [ "$scope", "agenda", "AgendaData",
-  ($scope, agenda, AgendaData) ->
+
+add_letters = (items)->
+  letter_ctr = 0;
+  for item in items
+    item.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
+    letter_ctr += 1
+  items
+
+
+agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window",
+  ($scope, agenda, AgendaData, $timeout, $window) ->
     console.log "agenda controller agenda.template_name: #{agenda.template_name}"
     $scope.agenda_template_url = "/assets/custom/#{agenda.template_name}.html";
     $scope.agenda = agenda
@@ -1023,7 +1178,9 @@ agenda_controller = [ "$scope", "agenda", "AgendaData",
       AgendaData.sign_in($scope.agenda.code, $scope.agenda.active_role).then(
         (response) ->
           console.log "AgendaData.sign_in success"
-          $scope.$root.user = response.data
+          $scope.$root.user = response.data.user
+          $scope.agenda_template_url = "/assets/custom/#{response.data.template_name}.html";
+          $scope.agenda[prop] = response.data[prop] for prop of response.data when not prop.match(/^\$/)
           $scope.$root.$broadcast 'update-user-data'
           $scope.agenda.active_role.name = "#{$scope.agenda.active_role.role} #{$scope.agenda.active_role.identifier}"
         , (reason) ->
@@ -1031,14 +1188,16 @@ agenda_controller = [ "$scope", "agenda", "AgendaData",
       )
 
     $scope.signout_role = () ->
-      AgendaData.sign_out($scope.agenda.code).then (response) ->
-        console.log "AgendaData.sign_out success"
-        $scope.agenda.active_role =
-          name: "undefined"
-          role: "undefined"
-          identifier: ""
-        $scope.$root.user = {}
-        $scope.$root.$broadcast 'update-user-data'
+      $scope.$root.$broadcast 'user-sign-out'
+      #AgendaData.sign_out($scope.agenda.code).then (response) ->
+        #console.log "AgendaData.sign_out success"
+        #$scope.agenda.active_role =
+        #  name: "undefined"
+        #  role: "undefined"
+        #  identifier: ""
+        #$scope.$root.user = {}
+        #$scope.$root.$broadcast 'update-user-data'
+        #$window.location.reload()
 
     $scope.$on 'update-user-data', () ->
       if $scope.user.email
@@ -1046,5 +1205,16 @@ agenda_controller = [ "$scope", "agenda", "AgendaData",
         $scope.agenda.active_role.role = pcs[1]
         $scope.agenda.active_role.identifier = pcs[2]
         $scope.agenda.active_role.name = "#{$scope.agenda.active_role.role} #{$scope.agenda.active_role.identifier}"
+
+    $scope.$on 'user-sign-out', () ->
+      AgendaData.sign_out($scope.agenda.code).then (response) ->
+        $timeout ->
+          new_hash = "#/agenda/#{$scope.agenda.code}/#{$scope.agenda.munged_title}"
+          if new_hash == $window.location.hash
+            $window.location.reload()
+          else
+            $window.location.replace("/#{new_hash}")
+        , 20
+
 
 ]
