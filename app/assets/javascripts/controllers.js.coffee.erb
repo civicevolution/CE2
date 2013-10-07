@@ -182,7 +182,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: [ "$scope", "themes_data", "$location", "$compile", "$timeout",
           ($scope, themes_data, $location, $compile, $timeout) ->
             $scope.conversation_title = themes_data.title
-            $scope.conversation_themes = themes_data.theme_comments
+            $scope.conversation_themes = add_letters( themes_data.theme_comments )
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
             $scope.no_examples = true
             $scope.examples_link = "Show examples"
@@ -782,7 +782,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.all_theme_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
-      $scope.conversation.comments[updated_rec.id] = updated_rec
+      $scope.conversation.comments[updated_rec.id] = updated_rec unless not updated_rec
       $scope.conversation.theme_comments = (comment for comment in $scope.conversation.all_theme_comments when comment.name == $scope.conversation.active_themer_name)
 
       themers = {}
@@ -1056,9 +1056,9 @@ live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$
         num = a.value
         if !isNaN(num)
           num = Number(a.value)
-          if num > 50
-            num = 50
-            a.value = 50
+          if num > 40
+            num = 40
+            a.value = 40
           tot += num
       if tot > 100
         $scope.over100 = true

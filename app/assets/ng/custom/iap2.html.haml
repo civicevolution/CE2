@@ -14,7 +14,7 @@
           %p
             Coordinator
             Access code:
-            %input.code(ng-model="agenda.active_role.access_code")
+            %input.code(type="password" ng-model="agenda.active_role.access_code")
             %button.btn-primary.btn(ng-click="accept_role()") Start
 
         %div(ng-switch-when="themer" )
@@ -22,7 +22,7 @@
             Please enter Team #:
             %input.id(ng-model="agenda.active_role.identifier")
             and Access code:
-            %input.code(ng-model="agenda.active_role.access_code")
+            %input.code(type="password" ng-model="agenda.active_role.access_code")
             %button.btn-primary.btn(ng-click="accept_role()") Start
 
         %div(ng-switch-when="group" )
@@ -30,7 +30,7 @@
             Please enter Group #:
             %input.id(ng-model="agenda.active_role.identifier")
             and Access code:
-            %input.code(ng-model="agenda.active_role.access_code")
+            %input.code(type="password" ng-model="agenda.active_role.access_code")
             %button.btn-primary.btn(ng-click="accept_role()") Start
 
         %div(ng-switch-when="reporter" )

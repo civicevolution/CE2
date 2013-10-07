@@ -46,6 +46,7 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
     .wmd-controls .textarea-wrapper{
       width: 60%;
       max-width: 600px;
+      textarea{ line-height: 1.4em;}
     }
     .wmd-controls .preview-wrapper{
       width: 40%;
@@ -117,9 +118,10 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
     font-size: .7em;
     line-height: 1.2em;
     p.title{
-      margin: 0 0 8px 0;
-      padding: 0;
-      line-height: 1em;
+      display: none;
+      //margin: 0 0 8px 0;
+      //padding: 0;
+      //line-height: 1em;
     }
   }
   a.show-examples{
@@ -212,14 +214,17 @@ ul.dropdown-menu form {margin: 8px 0 0 0;}
   blockquote{ display:none;}
   .graph{
     margin-bottom: 20px;
-    background-image: url(bar-graph-bg.gif);
-    background-size: 50% 100%;
-    background-repeat: no-repeat;
+    .theme{
+      background-image: url(bar-graph-bg.gif);
+      background-size: 50% 100%;
+      background-repeat: no-repeat;
+    }
     font-weight: bold;
     font-size: 2em;
     line-height: 1.4em;
     color: #324A7F;
-    .span1{ padding-left: 8px;}
+    .count {padding-right: 8xp;}
+    .percent{ padding-left: 8px; font-style: italic;}
     @media screen and (max-width: 900px){
       font-size: 1.4em;
     }
