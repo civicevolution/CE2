@@ -170,6 +170,7 @@ Ce2::Application.routes.draw do
         get 'agenda_for_component', on: :member
         post 'accept_role', on: :member
         post 'release_role', on: :member
+        get 'participant_report', on: :member
       end
     end
   end

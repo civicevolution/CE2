@@ -78,10 +78,19 @@ class ThemeAllocation < AgendaComponent
     self
   end
 
+  def participant_report_details
+    self.results(nil,nil)
+    {
+        klass: self.class.to_s,
+        title: self.conversation.title,
+        allocated_points: self.allocated_points
+    }
+  end
+
 
   private
   def assign_defaults
-    self.menu_roles = ['group']
+    self.menu_roles = ['group', 'participant_report']
   end
 
 end

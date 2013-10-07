@@ -233,47 +233,26 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
-      # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/themes/xyz
-      .state('live-themes',
-        url: "/conversation/{code}/themes/{munged_title}"
-        templateUrl: '<%= path_to_asset "live/themes.html" %>'
+      .state('participant-report',
+        url: "/agenda/{agenda_code}/participant-report/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/participant-report.html" %>'
         resolve:
-          conversation_title: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
-            ConversationData.title($stateParams.code).then(
+          participant_report: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.participant_report($stateParams.agenda_code).then(
               (response)->
                 response.data
             )
           ]
-          conversation_themes: ["ThemeData", "$stateParams", (ThemeData, $stateParams) ->
-            ThemeData.conversation_themes($stateParams.code).then(
-              (response)->
-                letter_ctr = 0;
-                themes = response.data.sort((a,b)-> a.order_id - b.order_id)
-                for comment in themes
-                  comment.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
-                  letter_ctr += 1
-                themes
-            )
-          ]
-
         onEnter: ->
           angular.element(document.body).addClass('display-page')
         onExit: ->
           angular.element(document.body).removeClass('display-page')
 
-        controller: [ "$scope", "conversation_themes", "$location", "conversation_title", "$compile", "$timeout",
-          ($scope, conversation_themes, $location, conversation_title, $compile, $timeout) ->
-            $scope.conversation_title = conversation_title
-            $scope.conversation_themes = conversation_themes
+        controller: [ "$scope", "$location", "$compile", "$timeout", "participant_report",
+          ($scope, $location, $compile, $timeout, participant_report) ->
+            console.log "participant-report"
+            $scope.participant_report = participant_report
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
-            $scope.no_examples = $location.search()['ex'] == '0'
-            if not $scope.no_examples
-              #console.log "compile the blockquotes"
-              $timeout ->
-                $scope.theme_display_only = true
-                $compile(angular.element(document.body).find('blockquote'))($scope)
-              ,1000
-
         ]
       )
 

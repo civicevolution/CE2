@@ -1,6 +1,6 @@
 class AgendaComponent < ActiveRecord::Base
 
-  attr_accessible :agenda_id, :code, :descriptive_name, :type, :input, :output, :status, :starts_at, :ends_at
+  attr_accessible :agenda_id, :code, :descriptive_name, :type, :input, :output, :status, :starts_at, :ends_at, :menu_roles
 
   belongs_to :agenda
 

@@ -85,4 +85,9 @@ class Agenda < ActiveRecord::Base
     self.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50]
   end
 
+  def participant_report
+    participant_report_components = AgendaComponent.where("agenda_id = ? AND (?) = ANY (menu_roles)",self.id, 'participant_report').order(:starts_at)
+    participant_report_components.map(&:participant_report_details)
+  end
+
 end

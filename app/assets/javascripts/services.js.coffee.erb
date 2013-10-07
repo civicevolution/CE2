@@ -548,6 +548,9 @@ services.factory "AgendaData", ["$http",
     sign_out: (code) ->
       $http.post("/api/agendas/#{code}/release_role.json")
 
+    participant_report: (code) ->
+      $http.get("/api/agendas/#{code}/participant_report.json")
+
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->

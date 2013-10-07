@@ -45,7 +45,7 @@ class ThemeSmallGroupTheme < AgendaComponent
     details
   end
 
-  def results(params, current_user)
+  def results(params=nil, current_user=nil)
     self.conversation = Conversation.includes(:title_comment).find_by(id: self.input[ "conversation_id" ])
 
     self.theme_comments = self.conversation.theme_comments.where(user_id: self.input[ "coordinator_user_id" ]).order(:order_id)
@@ -53,10 +53,28 @@ class ThemeSmallGroupTheme < AgendaComponent
     self
   end
 
+  def participant_report_details
+
+    self.results()
+
+    ltr = 'A'
+    theme_comments = []
+    self.theme_comments.each do |theme|
+      theme_comments.push( {id: id, letter: ltr, text: theme.text}
+      )
+      ltr = ltr.succ
+    end
+
+    {
+      klass: self.class.to_s,
+      title: self.conversation.title,
+      theme_comments: theme_comments
+    }
+  end
 
   private
   def assign_defaults
-    self.menu_roles = ['coordinator']
+    self.menu_roles = ['coordinator', 'participant_report']
   end
 
 end

@@ -1,0 +1,28 @@
+.participant-report
+
+  %div.report-section(ng-repeat="report in participant_report" )
+
+    %div(ng-switch="report.klass")
+
+      %div.live-themes(ng-switch-when="ThemeSmallGroupTheme" )
+        %p.section-title {{report.title}}
+        %div(ng-class="{'no-ex': no_examples}")
+          %a.show-examples(ng-click="toggle_examples()") {{examples_link}}
+          %p.sub Essential themes
+
+          %table
+            %tr(ng-repeat="theme in report.theme_comments")
+              %td.letter {{theme.letter}}
+              %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+
+      %div.live-allocate-results(ng-switch-when="ThemeAllocation" )
+        %p.section-title {{report.title}}
+        %p.sub Prioritised essential themes
+
+
+        %table.graph
+          %tr(ng-repeat="theme in report.allocated_points")
+            %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+            %td.percent {{theme.percentage}}%
+            %td.count ({{theme.points*10 | number:0}})
+
