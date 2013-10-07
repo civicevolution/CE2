@@ -20,7 +20,7 @@
               %span(ng-if="comment.replies_expanded")
                 %i.icon-chevron-up
 
-            %div(ng-if="!comment.is_coordinator_theme" ce-tag-comment)
+            %div(ng-if="comment.show_tag_widget == true" ce-tag-comment)
 
             %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
               History v{{comment.version}}

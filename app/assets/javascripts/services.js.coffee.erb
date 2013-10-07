@@ -396,9 +396,9 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
             else
               comment.popover = comment.text
             if themers[comment.name]
-              themers[comment.name] += 1
+              themers[comment.name]['cnt'] += 1
             else
-              themers[comment.name] = 1
+              themers[comment.name] = {cnt: 1}
 
           $timeout ->
             $rootScope.$broadcast 'update-user-data'
@@ -444,12 +444,12 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
           all_theme_comments = []
           comments = {}
           for comment in coordinator_theme_comments
-            comment.is_coordinator_theme = true
             comments[comment.id] = comment
             all_theme_comments.push(comment)
           for comment in team_theme_comments
             comments[comment.id] = comment
             all_theme_comments.push(comment)
+            comment.show_tag_widget = true
 
 
           tag_hash = {}
@@ -461,9 +461,9 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
             else
               comment.popover = comment.text
             if themers[comment.name]
-              themers[comment.name] += 1
+              themers[comment.name]['cnt'] += 1
             else
-              themers[comment.name] = 1
+              themers[comment.name] = {cnt: 1}
 
           $timeout ->
             $rootScope.$broadcast 'update-user-data'

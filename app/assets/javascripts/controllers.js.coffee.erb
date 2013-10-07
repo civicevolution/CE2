@@ -767,9 +767,9 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       themers = {}
       for comment in $scope.conversation.all_theme_comments
         if themers[comment.name]
-          themers[comment.name] += 1
+          themers[comment.name]['cnt'] += 1
         else
-          themers[comment.name] = 1
+          themers[comment.name] = {cnt: 1}
 
       tag_hash = {}
       for comment in $scope.conversation.theme_comments
@@ -894,7 +894,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
     $scope.$on 'update-user-data', () ->
       user_name = "#{$scope.user.first_name} #{$scope.user.last_name}"
       if $scope.conversation.can('edit_theme_comment') && not $scope.conversation.themers[ user_name ]
-        $scope.conversation.themers[ user_name ] = 0
+        $scope.conversation.themers[ user_name ] = {cnt: 0}
       $scope.change_themer(user_name)
 
 ]
