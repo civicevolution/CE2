@@ -106,7 +106,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state( 'agenda',
         url: "/agenda/{code}/{munged_title}"
-        template: '<div ng-include="agenda_template_url"></div>'
+        #template: '<div ng-include="agenda_template_url"></div>'
+        templateUrl: '<%= path_to_asset "custom/iap2.html" %>'
         resolve:
           agenda: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.agenda($stateParams.code).then(
@@ -1305,6 +1306,7 @@ add_letters = (items)->
 agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window", "$location",
   ($scope, agenda, AgendaData, $timeout, $window, $location) ->
     console.log "agenda controller agenda.template_name: #{agenda.template_name}"
+    #$scope.agenda_template_url = "/assets/custom/#{agenda.template_name}.html";
     $scope.agenda_template_url = "/assets/custom/#{agenda.template_name}.html";
     $scope.agenda = agenda
     if $location.$$path.match(/\/agenda\/code:.*/)
