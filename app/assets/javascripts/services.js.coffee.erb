@@ -523,6 +523,24 @@ services.factory "LiveAllocateData", ["$http",
           response.data
 ]
 
+services.factory "LiveSelectData", ["$http",
+  ($http) ->
+    name: "LiveSelectData"
+
+    selection_data: (component_code) ->
+      $http.get("/api/components/#{component_code}/data.json").then (response) ->
+        if response.status is 200
+          response.data
+
+    record_selection: (code, data) ->
+      $http.post("/api/theme_votes/#{code}/save.json", {data: data})
+
+    selection_votes: (component_code) ->
+      $http.get("/api/components/#{component_code}/results.json").then (response) ->
+        if response.status is 200
+          response.data
+]
+
 services.factory "LiveData", ["$http",
   ($http) ->
     name: "LiveData"

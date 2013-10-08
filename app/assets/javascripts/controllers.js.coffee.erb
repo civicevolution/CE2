@@ -233,6 +233,39 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
+
+
+      .state( 'select-themes',
+        url: "/cmp/{component_code}/select/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/select.html" %>'
+        resolve:
+          selection_data: ["LiveSelectData", "$stateParams", (LiveSelectData, $stateParams) ->
+            LiveSelectData.selection_data($stateParams.component_code)
+          ]
+        controller: live_select_controller
+      )
+
+      .state('select-themes-results',
+        url: "/cmp/{component_code}/select-results/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/select-results.html" %>'
+        resolve:
+          selection_votes: ["LiveSelectData", "$stateParams", (LiveSelectData, $stateParams) ->
+            LiveSelectData.selection_votes($stateParams.component_code)
+          ]
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+        controller: [ "$scope", "selection_votes",
+          ($scope, selection_votes) ->
+            $scope.selection_votes = selection_votes.votes
+            $scope.title = selection_votes.title
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
+      )
+
+
+
       .state('participant-report',
         url: "/agenda/{agenda_code}/participant-report/{munged_title}"
         templateUrl: '<%= path_to_asset "live/participant-report.html" %>'
@@ -934,6 +967,121 @@ conversation_group_controller = [ "$scope", "small_group_deliberation_data", "Fi
       if data.action is 'save'
         refilter_table_comments()
 ]
+
+live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeout", "$dialog",
+  ($scope, selection_data, LiveSelectData, $timeout, $dialog) ->
+    $scope.selection_themes = add_letters( selection_data.final_themes )
+
+    $scope.name = 'live_select_controller'
+    $scope.code = selection_data.code
+    $scope.participant_votes = selection_data.votes
+    $scope.number_of_voters = (k for own k of $scope.participant_votes).length
+    $scope.voter_id = Number($scope.number_of_voters) + 1
+    for at in $scope.selection_themes
+      at.value = false
+    $scope.combined_votes = {}
+    $timeout ->
+      update_combined_votes()
+
+    $scope.out_of_range = false
+
+    $scope.count_selected = ->
+      cnt = 0
+      for a in $scope.selection_themes
+        if a.selected
+          cnt += 1
+      $scope.out_of_range = if 0 < cnt < 3 then false else true
+      cnt
+
+    $scope.save = (confirmed_edit=false) ->
+      if !confirmed_edit && $scope.edit_vote_mode
+        msg = "Are you sure you want to update this voter's selection?"
+        btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
+        $dialog.messageBox("Confirm", msg, btns).open().then (result) ->
+          if result is "yes"
+            $scope.edit_confirmed = true
+            $scope.save(true)
+        return false
+      if $scope.count_selected() == 0 && !$scope.edit_vote_mode
+        title = "Warning"
+        msg = "You must enter points before submitting"
+        btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+        $dialog.messageBox(title, msg, btns).open()
+        return
+
+      selected_ids = ( {theme_id: at.id} for at in $scope.selection_themes when at.selected)
+      data =
+        voter_id: $scope.voter_id
+        selected_ids: selected_ids
+
+      LiveSelectData.record_selection($scope.code, data).then(
+        (response)->
+          $scope.participant_votes[$scope.voter_id] = selected_ids
+          for at in $scope.selection_themes
+            at.selected = false
+          update_combined_votes()
+          $scope.voter_id = Number($scope.number_of_voters) + 1
+          $scope.edit_vote_mode = false
+      )
+
+    $scope.edit_vote = (voter_id) ->
+      $scope.voter_id = voter_id
+      votes = {}
+      for vote in $scope.participant_votes[voter_id]
+        votes[vote.theme_id] = true
+      for at in $scope.selection_themes
+        at.selected = votes[at.id] || false
+      $scope.edit_vote_mode = true
+
+    $scope.start_new_vote = ->
+      $scope.voter_id = Number((k for own k of $scope.participant_votes).length) + 1
+      for at in $scope.selection_themes
+        at.selected = false
+      $scope.edit_vote_mode = false
+
+    update_combined_votes = ->
+      $scope.number_of_voters = (k for own k of $scope.participant_votes).length
+      combined_votes = {}
+      total_votes = 0
+      totals_array = []
+      for theme in $scope.selection_themes
+        #combined_votes[theme.id] = [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+        combined_votes[theme.id] = new Array( $scope.number_of_voters + 1).join("x").split("x").map(-> return ' ' )
+      for voter of $scope.participant_votes
+        voter_total = 0
+        votes = $scope.participant_votes[voter]
+        console.log "votes: #{votes}"
+        for vote in votes  # theme_id in [theme_ids]
+          combined_votes[vote.theme_id][ voter ] = 1
+          voter_total += Number(1)
+          total_votes += Number(1)
+        totals_array.push( [voter_total] )
+      totals_array.push( [total_votes] )
+
+      pcent_total = 0
+      for theme_id of combined_votes
+        console.log "theme_id: #{theme_id}"
+        rec = combined_votes[theme_id]
+        #rec.splice(0,1)
+        sum = _.reduce(rec, ( (memo, num) -> Number(memo) + num;), 0)
+        rec.splice(0,1)
+        rec.push(sum)
+        pcent = Math.round(sum/total_votes*100)
+        pcent_total += pcent
+        rec.push(pcent)
+        #combined_votes[theme_id] = ([val] for val in rec)
+        combined_votes[theme_id] = ([val] for val in rec)
+      totals_array.push( [pcent_total] )
+
+      combined_votes['totals'] = totals_array
+      console.log "total_votes: #{total_votes}"
+      $scope.combined_votes = combined_votes
+
+
+
+]
+
+
 live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData", "$timeout", "$dialog",
   ($scope, conversations_and_themes, LiveChooseData, $timeout, $dialog) ->
     $scope.question_1_themes = conversations_and_themes[0].theme_comments

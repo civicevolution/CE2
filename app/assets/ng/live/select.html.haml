@@ -1,0 +1,71 @@
+.live-allocate.live-select
+  -#%h4 Divide $100 between all the ideas with no more than $50 for your most important idea(s)
+  %h4 Select your 2 favorite themes
+
+  %h3(ng-hide="edit_vote_mode") Enter selections for participant \#{{voter_id}} of Group {{user.last_name}}
+  %h3.warn(ng-show="edit_vote_mode")  Edit selections for participant \#{{voter_id}} of Group {{user.last_name}}
+
+  %table(border="1")
+    %tr
+      %th(colspan="2")
+        %h3 Our prioritised Ideas
+      %th
+        -#%h3 $ Spent
+        %h3 Select
+    %tr(ng-repeat="theme in selection_themes" )
+      %td.letter
+        {{theme.letter}}
+      %td.text
+        {{theme.text}}
+
+      %td.select
+        %input.selection(type="checkbox" ng-model="theme.selected" ng-checked="theme.selected" ng-click="count_selected()")
+
+    %tr
+      %th(colspan="2")
+        %h3 Selected items
+      %th
+        %h3(ng-class="{warn: out_of_range}")
+          -#${{ total() }}
+          {{ count_selected() }}
+
+    %tr
+      %td(colspan="3")
+        %button.btn.btn-success.btn-large.right(ng-click="save()" ng-disabled="out_of_range") Submit
+        %button.btn.btn-link.btn-large.right(ng-click="start_new_vote()" ng-show="edit_vote_mode") Start new vote
+
+
+  %h3 Group Allocation Table
+
+  %table(border="1")
+    %tr
+      %th(colspan="2" rowspan="2")
+        %h3 Our prioritised Ideas
+      %th(colspan="{{number_of_voters}}" )
+        Voters
+
+      %th(rowspan="2")
+        %b
+          Total
+          %br
+          points
+      %th(rowspan="2")
+        %b %
+    %tr
+      %th(ng-repeat="(voter_id, vote) in participant_votes" )
+        %a(ng-click="edit_vote(voter_id)") \#{{voter_id}}
+
+    %tr(ng-repeat="theme in selection_themes" )
+      %td.letter
+        {{theme.letter}}
+      %td.text
+        {{theme.text}}
+
+      %td(ng-repeat="vote in combined_votes[theme.id]")
+        {{vote[0]}}
+
+    %tr
+      %td(colspan="2")
+        %b Totals
+      %td(ng-repeat="vote in combined_votes['totals']")
+        {{vote[0]}}
