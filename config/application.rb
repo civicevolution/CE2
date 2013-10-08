@@ -55,7 +55,7 @@ module Ce2
     config.assets.enabled = false
 
 
-    config.assets.precompile += %w( live/menu/small-group-deliberation.html live/menu/theme-allocation
+    config.assets.precompile += %w( live/menu/small-group-deliberation.html live/menu/theme-allocation )
 
 
     # Only load the plugins named here, in the order given (default is alphabetical).
