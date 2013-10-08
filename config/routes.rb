@@ -188,6 +188,7 @@ Ce2::Application.routes.draw do
       resources :components, only: [ ], controller: 'agenda_components' do
         get 'data', on: :member
         get 'results', on: :member
+        get 'participant_worksheet', on: :member
       end
     end
   end

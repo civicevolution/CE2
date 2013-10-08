@@ -1,0 +1,14 @@
+.live-allocate.select-worksheet
+  %h3.page-title Worksheet for selecting your 2 favorite themes
+  %hr
+
+  %div.section(ng-repeat="conversation in conversations" )
+    %h3 {{conversation.title}}
+
+    %table(border="1")
+      %tr(ng-repeat="theme in conversation.essential_themes" )
+        %td.letter
+          {{theme.letter}}
+        %td.text
+          {{theme.text}}
+        %td.select

@@ -234,6 +234,21 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       )
 
 
+      .state( 'select-themes-worksheet',
+        url: "/cmp/{component_code}/select-worksheet/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/select-worksheet.html" %>'
+        resolve:
+          worksheet_data: ["LiveSelectData", "$stateParams", (LiveSelectData, $stateParams) ->
+            LiveSelectData.participant_worksheet($stateParams.component_code)
+          ]
+        controller: [ "$scope", "worksheet_data",
+          ($scope, worksheet_data) ->
+            $scope.conversations = worksheet_data
+            for conversation in $scope.conversations
+              conversation.essential_themes = add_letters(conversation.essential_themes)
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
+      )
 
       .state( 'select-themes',
         url: "/cmp/{component_code}/select/{munged_title}"

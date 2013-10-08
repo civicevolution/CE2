@@ -420,7 +420,8 @@ body{
     margin-bottom: 12px;
   }
   body { background: white; }
-
+}
+@media print {
   .participant-report{
     .report-section{
       margin-bottom: 24px;
@@ -470,16 +471,34 @@ body{
           */
         }
       }
+    }
+  }
+}
 
-      .test-float{
-        border: 1px solid blue;
-        .float{
-          border: 1px solid orange;
-          float: left;
-        }
+@media print{
+  @page{
+    margin: 0cm 0cm;
+  }
+
+  .select-worksheet{
+    h3{
+      font-size: 12pt;
+
+      &.page-title{
+        margin: 0;
+        line-height: 1em;
       }
-
-
+    }
+    hr{ margin: 0;}
+    .section{
+      h3{ margin: 10px 0 4px 0;}
+      page-break-inside:avoid;
+      table{ margin-left: 16px; width: 100%;}
+      td{padding:4px;vertical-align: top;}
+      td.letter{ font-size: 12pt;}
+      td.text{font-size: 10pt;}
+      td.select{ min-width: 30px;}
+      margin-bottom: 24px;
     }
   }
 

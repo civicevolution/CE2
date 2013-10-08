@@ -532,6 +532,11 @@ services.factory "LiveSelectData", ["$http",
         if response.status is 200
           response.data
 
+    participant_worksheet: (component_code) ->
+      $http.get("/api/components/#{component_code}/participant_worksheet.json").then (response) ->
+        if response.status is 200
+          response.data
+
     record_selection: (code, data) ->
       $http.post("/api/theme_votes/#{code}/save.json", {data: data})
 
