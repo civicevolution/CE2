@@ -58,10 +58,13 @@
 
 
     %hr
+    %a(href="/#/cmp/on0dc47axr/sgd/6ko91rkoem/xyz")
+      Manual link to the first two questions
+
 
     %div(ng-repeat="comp in agenda.menu_data" )
       %h4 {{comp.descriptive_name}}
-      %div(ng-include="'/assets/live/menu/small-group-deliberation.html'")
+      -#%div(ng-include="'/assets/live/menu/small-group-deliberation.html'")
       -#%div(ng-include="'/assets/live/menu/' + comp.menu_template + '.html'")
       -#%div{'ng-include' => "'#{ path_to_asset("live/menu/{{comp.menu_template}}.html") }'"}
 
