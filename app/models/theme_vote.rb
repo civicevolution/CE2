@@ -23,13 +23,13 @@ class ThemeVote < ActiveRecord::Base
       #if result[:votes].nil? || result[:votes] = 0
       #  result[:percent] = 0
       #else
-        result[:percentage] = (result[:votes]/total_votes*100).round
-        result[:graph_percentage] = (result[:votes]/max_votes*100).round
+        result[:percentage] = total_votes > 0 ? (result[:votes]/total_votes*100).round : 0
+        result[:graph_percentage] = max_votes > 0 ? (result[:votes]/max_votes*100).round : 0
       #end
     end
     results = results.sort{|b,a| a[:votes] <=> b[:votes]}
-    results[0][:highlight] = true
-    results[1][:highlight] = true
+    #results[0][:highlight] = true
+    #results[1][:highlight] = true
     results
   end
 

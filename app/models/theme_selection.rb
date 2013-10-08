@@ -36,7 +36,7 @@ class ThemeSelection < AgendaComponent
         title: conversation.title,
         munged_title: conversation.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50],
         conversation_code: conversation.code,
-        link: "/#/cmp/#{self.code}/allocate/#{conversation.munged_title}"
+        link: "/#/cmp/#{self.code}/select/#{conversation.munged_title}"
     }
     details
   end

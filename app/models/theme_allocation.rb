@@ -66,8 +66,8 @@ class ThemeAllocation < AgendaComponent
       points = theme_points[id] || 0
       allocated_points.push( {id: id, letter: ltr, text: theme.text.gsub(/\[quote.*\/quote\]/,''),
                               points: points,
-                              percentage: (points/total_points*100).round,
-                              graph_percentage: (points/max_points*100).round
+                              percentage: total_points > 0 ? (points/total_points*100).round : 0,
+                              graph_percentage: max_points > 0 ? (points/max_points*100).round : 0
                              }
       )
       ltr = ltr.succ
