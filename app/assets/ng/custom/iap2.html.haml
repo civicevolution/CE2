@@ -58,6 +58,13 @@
 
 
     %hr
+
+    %div(ng-repeat="comp in agenda.menu_data" )
+      %h4 {{comp.descriptive_name}}
+      %div(ng-include="'/assets/live/menu/' + comp.menu_template + '.html'")
+
+
+    %hr
     %p
       %a(href="/#/cmp/on0dc47axr/sgd/6ko91rkoem/xyz")
         Group Scribe click here to enter comments and ideas for questions 1 & 2
@@ -114,10 +121,5 @@
         Q2 Priorisation results
 
 
-    -#%div(ng-repeat="comp in agenda.menu_data" )
-      %h4 {{comp.descriptive_name}}
-      -#%div(ng-include="'/assets/live/menu/small-group-deliberation.html'")
-      %div(ng-include="'/assets/live/menu/' + comp.menu_template + '.html'")
-      -#%div{'ng-include' => "'#{ path_to_asset("live/menu/{{comp.menu_template}}.html") }'"}
 
     %a(ng-click="signout_role()") Sign out
