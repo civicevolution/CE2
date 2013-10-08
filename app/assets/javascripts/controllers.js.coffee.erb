@@ -1338,6 +1338,10 @@ agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window", "
       AgendaData.sign_in($scope.agenda.code, $scope.agenda.active_role).then(
         (response) ->
           console.log "AgendaData.sign_in success"
+          if $scope.user.id
+            $timeout ->
+              $window.location.reload()
+
           $scope.$root.user = response.data.user
           $scope.agenda_template_url = "/assets/custom/#{response.data.template_name}.html";
           $scope.agenda[prop] = response.data[prop] for prop of response.data when not prop.match(/^\$/)
