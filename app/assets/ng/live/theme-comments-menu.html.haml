@@ -1,9 +1,9 @@
 %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
 
-  %li#conversation-review-link
+  -#%li#conversation-review-link
     %span.label.label-info Themers
 
-  %li#conversation-review-link(ng-repeat="(name, theme_cnt) in conversation.themers" ng-class="{active: (conversation.active_themer_name == name)}" popover="Click to view Theming by {{name}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+  -#%li#conversation-review-link(ng-repeat="(name, theme_cnt) in conversation.themers" ng-class="{active: (conversation.active_themer_name == name)}" popover="Click to view Theming by {{name}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
     %a(ng-click="change_themer(name)")
       {{name}}
       %span.badge.badge-info {{theme_cnt.cnt}}
