@@ -105,7 +105,7 @@ class ThemeAllocation < AgendaComponent
     Conversation.includes(:title_comment).where(id: self.input[ "conversation_id" ]).order(:starts_at).each do |conversation|
       themes = []
       conversation.theme_comments.where(user_id: self.input[ "coordinator_user_id" ]).order(:order_id).each do |theme|
-        themes.push( { text: theme.text.gsub(/\[quote.*\/quote\]/,'') })
+        themes.push( { text: theme.text.gsub(/\[quote.*\/quote\]/m,'') })
       end
       worksheet_data.push( {title: conversation.title, essential_themes: themes })
     end
