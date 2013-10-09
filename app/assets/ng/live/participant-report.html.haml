@@ -5,7 +5,7 @@
     %div(ng-switch="report.klass")
 
       %div.live-themes(ng-switch-when="ThemeSmallGroupTheme" )
-        -#%p.section-title {{report.title}}
+        %p.section-title {{report.title}}
         %div(ng-class="{'no-ex': no_examples}")
           %a.show-examples(ng-click="toggle_examples()") {{examples_link}}
           -#%p.sub Essential themes
