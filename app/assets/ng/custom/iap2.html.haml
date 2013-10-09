@@ -63,6 +63,20 @@
       %h4 {{comp.descriptive_name}}
       %div(ng-include="'/assets/live/menu/' + comp.menu_template + '.html'")
 
+    %hr
+
+    %a(ng-click="signout_role()") Sign out
+
+
+    %hr
+      %b Reports
+      %p
+        %a(href="/#/cmp/hwqpv7alv3/allocate-worksheet/how-do-we-make-value-capture-work-in-india")
+          Value capture prioritisation worksheet
+
+      %p
+        %a(href="/#/cmp/yvoah9heyj/allocate-worksheet/how-we-can-achieve-more-equitable-outcomes---consid")
+          Equitable outcomes prioritisation worksheet
 
     -#%hr
       %p
@@ -122,4 +136,3 @@
 
 
 
-    %a(ng-click="signout_role()") Sign out
