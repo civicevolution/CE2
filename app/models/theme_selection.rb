@@ -22,7 +22,7 @@ class ThemeSelection < AgendaComponent
     self
   end
 
-  def menu_details
+  def menu_details(role)
     details = {
         type: self.class.to_s,
         descriptive_name: self.descriptive_name,
@@ -32,12 +32,13 @@ class ThemeSelection < AgendaComponent
         menu_template: 'theme-allocation'
     }
     conversation = Conversation.includes(:title_comment).find_by(id: self.input[ "conversation_id" ])
-    details[:conversation] =  {
+    details[:links] =  [ {
         title: conversation.title,
         munged_title: conversation.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50],
         conversation_code: conversation.code,
-        link: "/#/cmp/#{self.code}/select/#{conversation.munged_title}"
-    }
+        href: "/#/cmp/#{self.code}/select/#{conversation.munged_title}"
+      }
+    ]
     details
   end
 

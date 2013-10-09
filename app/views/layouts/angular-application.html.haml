@@ -28,9 +28,9 @@
       / ! end of .container
       %script(type="text/ng-template" id="/assets/live/menu/theme-allocation.html")
         %div.menu-link-set
-          %h4
-            %a{href: "{{comp.conversation.link}}"}
-              {{comp.conversation.title}}
+          %h4(ng-repeat="link in comp.links")
+            %a{href: "{{link.href}}"}
+              {{link.title}}
 
       %script(type="text/ng-template" id="/assets/live/menu/small-group-deliberation.html")
         %div.menu-link-set

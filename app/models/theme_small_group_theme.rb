@@ -26,7 +26,7 @@ class ThemeSmallGroupTheme < AgendaComponent
     self
   end
 
-  def menu_details
+  def menu_details(role)
     details = {
         type: self.class.to_s,
         descriptive_name: self.descriptive_name,
@@ -36,12 +36,19 @@ class ThemeSmallGroupTheme < AgendaComponent
         menu_template: 'theme-allocation'
     }
     conversation = Conversation.includes(:title_comment).find_by(id: self.input[ "conversation_id" ])
-    details[:conversation] =  {
-        title: conversation.title,
-        munged_title: conversation.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50],
-        conversation_code: conversation.code,
-        link: "/#/cmp/#{self.code}/themes_theme/#{conversation.munged_title}"
-    }
+    details[:links] =  []
+    details[:links].push(
+      {
+        title: "Theme: #{conversation.title}",
+        href: "/#/cmp/#{self.code}/themes_theme/#{conversation.munged_title}"
+      }
+    ) if role == 'coordinator'
+    details[:links].push(
+     {
+         title: "Display themes: #{conversation.title}",
+         href: "/#/cmp/#{self.code}/theme-results/#{conversation.munged_title}"
+     }
+    )  if ['coordinator', 'reporter'].include?(role)
     details
   end
 
@@ -74,7 +81,7 @@ class ThemeSmallGroupTheme < AgendaComponent
 
   private
   def assign_defaults
-    self.menu_roles = ['coordinator', 'participant_report']
+    self.menu_roles = ['coordinator', 'participant_report', 'reporter']
   end
 
 end

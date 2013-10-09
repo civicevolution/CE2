@@ -22,7 +22,7 @@ class ThemeAllocation < AgendaComponent
     self
   end
 
-  def menu_details
+  def menu_details(role)
     details = {
         type: self.class.to_s,
         descriptive_name: self.descriptive_name,
@@ -32,12 +32,25 @@ class ThemeAllocation < AgendaComponent
         menu_template: 'theme-allocation'
     }
     conversation = Conversation.includes(:title_comment).find_by(id: self.input[ "conversation_id" ])
-    details[:conversation] =  {
-                                title: conversation.title,
-                                munged_title: conversation.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50],
-                                conversation_code: conversation.code,
-                                link: "/#/cmp/#{self.code}/allocate/#{conversation.munged_title}"
-                              }
+    details[:links] =  []
+    details[:links].push(
+        {
+            title: conversation.title,
+            href: "/#/cmp/#{self.code}/allocate/#{conversation.munged_title}"
+        }
+    ) if role == 'scribe'
+    details[:links].push(
+        {
+            title: conversation.title,
+            href: "/#/cmp/#{self.code}/allocate-worksheet/#{conversation.munged_title}"
+        }
+    ) if role == 'reporter'
+    details[:links].push(
+        {
+            title: conversation.title,
+            href: "/#/cmp/#{self.code}/allocate-results/#{conversation.munged_title}"
+        }
+    ) if ['coordinator', 'reporter'].include?(role)
     details
   end
 
@@ -90,7 +103,7 @@ class ThemeAllocation < AgendaComponent
 
   private
   def assign_defaults
-    self.menu_roles = ['group', 'participant_report']
+    self.menu_roles = ['group', 'participant_report', 'coordinator', 'reporter']
   end
 
 end

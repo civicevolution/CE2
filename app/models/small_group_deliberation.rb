@@ -19,7 +19,7 @@ class SmallGroupDeliberation < AgendaComponent
     self
   end
 
-  def menu_details
+  def menu_details(role)
     details = {
       type: self.class.to_s,
       descriptive_name: self.descriptive_name,

@@ -27,7 +27,7 @@ class AgendaComponent < ActiveRecord::Base
     raise "CivicEvolution::AgendaComponentDataNotDefined No data for #{self.class.to_s}"
   end
 
-  def menu_details
+  def menu_details(role)
     raise "CivicEvolution::AgendaComponentMenuDetailsNotDefined No menu_details for #{self.class.to_s}"
   end
 

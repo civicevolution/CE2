@@ -235,8 +235,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       )
 
 
-      .state( 'select-themes-worksheet',
-        url: "/cmp/{component_code}/select-worksheet/{munged_title}"
+      .state( 'allocate-themes-worksheet',
+        url: "/cmp/{component_code}/allocate-worksheet/{munged_title}"
         templateUrl: '<%= path_to_asset "live/select-worksheet.html" %>'
         resolve:
           worksheet_data: ["LiveSelectData", "$stateParams", (LiveSelectData, $stateParams) ->

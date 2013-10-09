@@ -59,9 +59,9 @@ class Agenda < ActiveRecord::Base
     if current_user.nil?
       menu_data = []
     else
-      role = current_user.email.match(/agenda-\d+-(\w+)-\d/)[1]
+      role = current_user.email.match(/agenda-\d+-(\w+)-\d/).try{ |matches| matches[1] } || ''
       role_relevant_components = AgendaComponent.where("agenda_id = ? AND (?) = ANY (menu_roles)",self.id, role).order(:starts_at)
-      menu_data = role_relevant_components.map(&:menu_details)
+      menu_data = role_relevant_components.map{|c| c.menu_details(role)}
     end
 
     details = {
@@ -78,7 +78,7 @@ class Agenda < ActiveRecord::Base
     # get the role for this user
     role = current_user.email.match(/agenda-\d+-(\w+)-\d/)[1]
     role_relevant_components = AgendaComponent.where("agenda_id = ? AND (?) = ANY (menu_roles)",self.id, role).order(:starts_at)
-    menu_data = role_relevant_components.map(&:menu_details)
+    menu_data = role_relevant_components.map{|c| c.menu_details(role)}
   end
 
   def munged_title
