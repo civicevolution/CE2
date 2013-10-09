@@ -22,7 +22,7 @@ class ThemeSelection < AgendaComponent
     self
   end
 
-  def menu_details(role)
+  def menu_details(role,email)
     details = {
         type: self.class.to_s,
         descriptive_name: self.descriptive_name,

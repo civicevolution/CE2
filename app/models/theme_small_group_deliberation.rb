@@ -14,7 +14,15 @@ class ThemeSmallGroupDeliberation < AgendaComponent
     self
   end
 
-  def menu_details(role)
+  def menu_details(role,email)
+    begin
+      name_id = self.descriptive_name.match(/(\d+)$/).try{|m| m[1]} || ''
+      if name_id != ''
+        email_id = email.match(/themer-(\d+)/).try{|m| m[1] } || ''
+        return nil if email_id != '' && email_id != name_id
+      end
+    rescue
+    end
     details = {
         type: self.class.to_s,
         descriptive_name: self.descriptive_name,
