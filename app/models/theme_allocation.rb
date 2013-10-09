@@ -41,13 +41,13 @@ class ThemeAllocation < AgendaComponent
     ) if role == 'group'
     details[:links].push(
         {
-            title: conversation.title,
+            title: "Display prioritisation results: #{conversation.title}",
             href: "/#/cmp/#{self.code}/allocate-worksheet/#{conversation.munged_title}"
         }
     ) if role == 'reporter'
     details[:links].push(
         {
-            title: conversation.title,
+            title: "Display prioritisation results: #{conversation.title}",
             href: "/#/cmp/#{self.code}/allocate-results/#{conversation.munged_title}"
         }
     ) if ['coordinator', 'reporter'].include?(role)
