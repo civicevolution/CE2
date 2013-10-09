@@ -1,7 +1,7 @@
 class ThemeAllocation < AgendaComponent
   after_initialize :assign_defaults, if: 'new_record?'
 
-  attr_accessor :conversation, :final_themes, :votes, :allocated_points
+  attr_accessor :conversation, :final_themes, :votes, :allocated_points, :participant_worksheet_data
 
   def data(params, current_user)
     self.conversation = Conversation.includes(:title_comment).find_by(id: self.input[ "conversation_id" ])
@@ -100,6 +100,17 @@ class ThemeAllocation < AgendaComponent
     }
   end
 
+  def participant_worksheet(params, current_user)
+    worksheet_data = []
+    Conversation.includes(:title_comment).where(id: self.input[ "conversation_id" ]).order(:starts_at).each do |conversation|
+      themes = []
+      conversation.theme_comments.where(user_id: self.input[ "coordinator_user_id" ]).order(:order_id).each do |theme|
+        themes.push( { text: theme.text.gsub(/\[quote.*\/quote\]/,'') })
+      end
+      worksheet_data.push( {title: conversation.title, essential_themes: themes })
+    end
+    worksheet_data
+  end
 
   private
   def assign_defaults

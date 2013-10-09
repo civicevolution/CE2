@@ -1,5 +1,6 @@
 .live-allocate.select-worksheet
-  %h3.page-title Worksheet for selecting your 2 favorite themes
+  %h3.page-title Worksheet dividing 100 points between your most important ideas
+  %P No more than 40 points for your most important idea(s)
   %hr
 
   %div.section(ng-repeat="conversation in conversations" )
@@ -12,3 +13,7 @@
         %td.text
           {{theme.text}}
         %td.select
+      %tr
+        %th.total(colspan="2")
+          Total points
+        %td
