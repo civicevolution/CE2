@@ -38,7 +38,7 @@ class ThemeAllocation < AgendaComponent
             title: conversation.title,
             href: "/#/cmp/#{self.code}/allocate/#{conversation.munged_title}"
         }
-    ) if role == 'scribe'
+    ) if role == 'group'
     details[:links].push(
         {
             title: conversation.title,
