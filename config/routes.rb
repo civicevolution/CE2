@@ -42,8 +42,6 @@ Ce2::Application.routes.draw do
         get 'group_data', on: :member
         get 'themes', on: :member
         get 'theme_votes', on: :member
-        get 'live_event_data', on: :member
-        get 'import_live_event_data', on: :member
         get 'firebase_token', on: :member
         resources :comments, shallow: true
       end
@@ -179,6 +177,7 @@ Ce2::Application.routes.draw do
         post 'accept_role', on: :member
         post 'release_role', on: :member
         get 'participant_report', on: :member
+        get 'export', on: :member
       end
     end
   end

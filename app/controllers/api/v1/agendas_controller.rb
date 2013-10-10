@@ -2,7 +2,7 @@ module Api
   module V1
 
     class AgendasController < Api::BaseController
-      skip_authorization_check :only => [:agenda, :agenda_for_component, :accept_role, :release_role, :role_menu_data, :participant_report]
+      skip_authorization_check :only => [:agenda, :agenda_for_component, :accept_role, :release_role, :role_menu_data, :participant_report, :export, :import]
 
       def agenda
         agenda = Agenda.find_by(code: params[:id])
@@ -39,6 +39,19 @@ module Api
       def participant_report
         agenda = Agenda.find_by(code: params[:id])
         render json: agenda.participant_report
+      end
+
+      def export
+        agenda = Agenda.find_by(code: params[:id])
+        begin
+          filename = "agenda-export-#{agenda.munged_title}.yaml"
+          file = Tempfile.new(filename, 'tmp')
+          # file.unlink   # removes the filesystem entry without closing the file
+          agenda.export_to_file(file)
+          send_file file.path, :filename => filename, :type => "x-yaml"
+        ensure
+          file.close
+        end
       end
 
     end
