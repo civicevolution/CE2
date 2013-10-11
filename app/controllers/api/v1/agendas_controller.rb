@@ -42,6 +42,7 @@ module Api
       end
 
       def export
+        #authorize! :export, Agenda
         agenda = Agenda.find_by(code: params[:id])
         begin
           filename = "agenda-export-#{agenda.munged_title}.yaml"
@@ -52,6 +53,22 @@ module Api
         ensure
           file.close
         end
+      end
+
+      def import
+        #authorize! :import, Agenda
+        # Eventually I want to upload the file, for now it will be in the Rails root
+        filename = params[:filename]
+        begin
+          file = File.open( "#{Rails.root}/#{filename}" )
+
+          Agenda.import(file)
+        ensure
+          file.close
+        end
+
+        #render :file => "#{Rails.root}/#{params[:filename]}"
+        render text: "Import of #{filename} is complete"
       end
 
     end

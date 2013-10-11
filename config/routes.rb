@@ -178,6 +178,7 @@ Ce2::Application.routes.draw do
         post 'release_role', on: :member
         get 'participant_report', on: :member
         get 'export', on: :member
+        get 'import', on: :member
       end
     end
   end
