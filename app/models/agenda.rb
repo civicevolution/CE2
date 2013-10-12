@@ -448,4 +448,78 @@ class Agenda < ActiveRecord::Base
     CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
   end
 
+
+  def self.init_new_agenda(title, description, titles)
+    agenda = Agenda.create title: title, description: description
+
+    coordinator = agenda.create_user('coordinator', 1)
+    AgendaRole.where(agenda_id: agenda.id, name: 'coordinator', identifier: 1, access_code: 'annie7').first_or_create
+
+    agenda.create_user('reporter', 1)
+    AgendaRole.where( agenda_id: agenda.id, name: 'reporter', identifier: 1, access_code: 'reporter').first_or_create
+
+    (1..3).each do |i|
+      agenda.create_user('themer', i)
+      AgendaRole.where( agenda_id: agenda.id, name: 'themer', identifier: i, access_code: "pune").first_or_create
+    end
+
+    (1..10).each do |i|
+      agenda.create_user('scribe', i)
+      AgendaRole.where( agenda_id: agenda.id, name: 'group', identifier: i, access_code: "g#{i}").first_or_create
+    end
+
+    titles.each_index do |index|
+      privacy = {"list"=>"true", "invite"=>"true", "screen"=>"true", "summary"=>"true", "comments"=>"true", "unknown_users"=>"true"}
+      conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now + index.hours, privacy: privacy
+      title_comment = conversation.build_title_comment user_id: coordinator.id, text: titles[index], order_id: index
+      title_comment.post_process_disabled = true
+      title_comment.save
+    end
+    agenda
+  end
+
+
+  def create_user(name, index)
+    case name
+      when "coordinator"
+        email_name = "coordinator"
+        first_name = "Coordinator"
+        role = :coordinator
+      when "themer"
+        email_name = "themer"
+        first_name = "Theme team"
+        role = :coordinator
+      when "scribe"
+        email_name = "group"
+        first_name = "Group"
+        role = :scribe
+      when "reporter"
+        email_name = "reporter"
+        first_name = "Reporter"
+        role = :reporter
+
+    end
+    email = "agenda-#{self.id}-#{email_name}-#{index}@civicevolution.org"
+    user = User.find_by(email: email)
+    return user unless user.nil?
+
+    o =  [('a'..'z'),('A'..'Z'),(0..9)].map{|x| x.to_a}.flatten
+    pw = (0...30).map{ o[rand(o.length)] }.join
+    user = User.new email: email, first_name: first_name, last_name: "#{index}", password: pw, password_confirmation: pw
+    user.skip_confirmation!
+    user.save
+    Unsubscribe.create email: user.email
+
+    user.add_role role, self
+    user
+  end
+
+  def coordinator
+    User.where("email ~* 'agenda-#{self.id}-coordinator-1'")
+  end
+
+  def participants
+    User.where("email ~* 'agenda-#{self.id}'").order(:id)
+  end
+
 end

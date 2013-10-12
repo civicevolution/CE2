@@ -4,7 +4,7 @@ class Conversation < ActiveRecord::Base
     ConversationSerializer
   end
 
-  attr_accessible :user_id, :status
+  attr_accessible :user_id, :status, :starts_at, :privacy
   attr_accessor :firebase_token, :display_mode
 
   has_one :title_comment #, -> { includes author: :profile   }
