@@ -71,6 +71,14 @@ module Api
         render text: "Import of #{filename} is complete"
       end
 
+      def reset
+        authorize! :reset, Agenda
+        agenda = Agenda.find_by(code: params[:id])
+        agenda.reset
+        render text: "Agenda \"#{agenda.title}\" has been reset"
+      end
+
+
     end
   end
 end

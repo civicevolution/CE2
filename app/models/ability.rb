@@ -64,12 +64,21 @@ class Ability
     if !user.id.nil?
       can :create, Conversation
     end
+
+
+    if user.id == 1
+      can :import, Agenda
+      can :export, Agenda
+      can :reset, Agenda
+    end
+
   end
 
   def self.abilities(user, type, id)
     role = user && user.id ? Role.joins(:users).find_by(users: {id: user.id}, resource_type: type, resource_id: id).try{|r| r.name} || 'none' : 'none'
     {name: role, abilities: role ? @@conversation_actions_by_role[ role.to_sym ] || [] : [] }
   end
+
 end
 
     #case

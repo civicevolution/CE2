@@ -70,6 +70,7 @@ class Agenda < ActiveRecord::Base
         title: self.title,
         munged_title: self.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50],
         description: self.description,
+        test_mode: self.test_mode,
         code: self.code,
         template_name: template_name,
         menu_data: menu_data
@@ -407,6 +408,44 @@ class Agenda < ActiveRecord::Base
     Unsubscribe.create email: user.email
     user.add_role role, agenda unless user.has_role? role, agenda
     user
+  end
+
+  def reset
+    raise "CivicEvolution::AgendaCannotBeReset Not in test mode" unless self.test_mode
+    Rails.logger.debug "Reset the data for this Agenda"
+
+    #
+    # ParkedComments conversation.id
+    # Comments - conversation.id
+    #
+    # ProConVotes - comment.id
+    # CommentVersions comment.id
+    # ThemeVotes theme_id (comment.id)
+    # ThemePoints theme_id (comment.id)
+    # CommentThreads comment.id
+    #
+
+    # collect the conversation ids from the component inputs
+    conversation_ids = []
+    self.agenda_components.each do |c|
+      c.input.each_pair do|key,value|
+        if key.match(/conversation/)
+          conversation_ids << value
+        end
+      end
+    end
+
+    conversation_ids = conversation_ids.flatten.uniq
+    comments = Comment.where(type: ['TableComment','ThemeComment'], conversation_id: conversation_ids)
+    comment_ids = comments.map(&:id)
+    comments.destroy_all
+    ParkedComment.where(conversation_id: conversation_ids).destroy_all
+
+    ProConVote.where(comment_id: comment_ids).destroy_all
+    ThemeVote.where(theme_id: comment_ids).destroy_all
+    ThemePoint.where(theme_id: comment_ids).destroy_all
+    CommentThread.where(parent_id: comment_ids).destroy_all
+    CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
   end
 
 end

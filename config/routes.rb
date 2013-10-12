@@ -179,6 +179,7 @@ Ce2::Application.routes.draw do
         get 'participant_report', on: :member
         get 'export', on: :member
         get 'import', on: :member
+        post 'reset', on: :member
       end
     end
   end
