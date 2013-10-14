@@ -647,7 +647,8 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.table_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
-      if data.action == 'create'
+      # Does this id exist in $scope.conversation.comments?
+      if not $scope.conversation.comments[updated_rec.id]
         $timeout ->
           $scope.conversation.comments[updated_rec.id] = updated_rec
           $scope.$root.$broadcast 'calculate-tag-counts'
