@@ -455,26 +455,38 @@ class Agenda < ActiveRecord::Base
     coordinator = agenda.create_user('coordinator', 1)
     AgendaRole.where(agenda_id: agenda.id, name: 'coordinator', identifier: 1, access_code: 'annie7').first_or_create
 
-    agenda.create_user('reporter', 1)
-    AgendaRole.where( agenda_id: agenda.id, name: 'reporter', identifier: 1, access_code: 'reporter').first_or_create
 
-    (1..3).each do |i|
-      agenda.create_user('themer', i)
-      AgendaRole.where( agenda_id: agenda.id, name: 'themer', identifier: i, access_code: "pune").first_or_create
-    end
-
-    (1..10).each do |i|
-      agenda.create_user('scribe', i)
-      AgendaRole.where( agenda_id: agenda.id, name: 'group', identifier: i, access_code: "g#{i}").first_or_create
-    end
-
+    # create the conversations needed for this agenda
+    conversations = []
     titles.each_index do |index|
       privacy = {"list"=>"true", "invite"=>"true", "screen"=>"true", "summary"=>"true", "comments"=>"true", "unknown_users"=>"true"}
       conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now + index.hours, privacy: privacy
       title_comment = conversation.build_title_comment user_id: coordinator.id, text: titles[index], order_id: index
       title_comment.post_process_disabled = true
       title_comment.save
+      conversations.push( conversation )
     end
+
+
+    conversations.each{|conversation| coordinator.add_role :coordinator, conversation }
+
+
+    reporter = agenda.create_user('reporter', 1)
+    conversations.each{|conversation| reporter.add_role :reporter, conversation }
+    AgendaRole.where( agenda_id: agenda.id, name: 'reporter', identifier: 1, access_code: 'reporter').first_or_create
+
+    (1..3).each do |i|
+      themer = agenda.create_user('themer', i)
+      conversations.each{|conversation| themer.add_role :themer, conversation }
+      AgendaRole.where( agenda_id: agenda.id, name: 'themer', identifier: i, access_code: "pune").first_or_create
+    end
+
+    (1..10).each do |i|
+      scribe = agenda.create_user('scribe', i)
+      conversations.each{|conversation| scribe.add_role :scribe, conversation }
+      AgendaRole.where( agenda_id: agenda.id, name: 'group', identifier: i, access_code: "g#{i}").first_or_create
+    end
+
     agenda
   end
 
@@ -488,7 +500,7 @@ class Agenda < ActiveRecord::Base
       when "themer"
         email_name = "themer"
         first_name = "Theme team"
-        role = :coordinator
+        role = :themer
       when "scribe"
         email_name = "group"
         first_name = "Group"
@@ -518,6 +530,10 @@ class Agenda < ActiveRecord::Base
     User.where("email ~* 'agenda-#{self.id}-coordinator-1'")
   end
 
+  def themers
+    User.where("email ~* 'agenda-#{self.id}-themer-'")
+  end
+
   def participants
     User.where("email ~* 'agenda-#{self.id}'").order(:id)
   end
@@ -533,6 +549,11 @@ class Agenda < ActiveRecord::Base
       end
     end
     conversations = Conversation.where(id: conversation_ids.flatten.uniq).order(:id)
+  end
+
+  def self.agendas
+    #Agenda.where(list: true).select('code, title')
+    Agenda.where(list: true).map{|a| {code: a.code, title: a.title, munged_title: a.munged_title } }
   end
 
 end

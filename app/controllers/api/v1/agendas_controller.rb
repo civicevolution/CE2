@@ -2,7 +2,7 @@ module Api
   module V1
 
     class AgendasController < Api::BaseController
-      skip_authorization_check :only => [:agenda, :agenda_for_component, :accept_role, :release_role, :role_menu_data, :participant_report, :export, :import]
+      skip_authorization_check :only => [:agenda, :agenda_for_component, :accept_role, :release_role, :role_menu_data, :participant_report, :export, :import, :agendas]
 
       def agenda
         agenda = Agenda.find_by(code: params[:id])
@@ -76,6 +76,10 @@ module Api
         agenda = Agenda.find_by(code: params[:id])
         agenda.reset
         render text: "Agenda \"#{agenda.title}\" has been reset"
+      end
+
+      def agendas
+        render json: Agenda.agendas
       end
 
 

@@ -82,7 +82,17 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('events', {
         url: '/events'
         templateUrl: '<%= path_to_asset "events.html" %>'
-
+        resolve:
+          events: ["EventsData", (EventsData) ->
+            EventsData.events().then(
+              (response)->
+                response.data
+            )
+          ]
+        controller: [ "$scope", "events",
+          ($scope, events) ->
+            $scope.events = events
+        ]
       })
 
       .state('conversations', {

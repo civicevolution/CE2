@@ -569,3 +569,9 @@ services.factory "ComponentData", ["$http",
             _.indexOf(this.abilities, action ) > -1
 
 ]
+services.factory "EventsData", ["$http",
+  ($http) ->
+    name: "EventsData"
+    events: ->
+      $http.get("/api/agendas.json")
+]
