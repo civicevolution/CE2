@@ -469,7 +469,7 @@ class Agenda < ActiveRecord::Base
 
 
     conversations.each{|conversation| coordinator.add_role :coordinator, conversation }
-
+    agenda.update_attribute(:conversation_ids, conversations.map(&:id) )
 
     reporter = agenda.create_user('reporter', 1)
     conversations.each{|conversation| reporter.add_role :reporter, conversation }

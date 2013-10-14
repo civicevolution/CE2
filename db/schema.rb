@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131011230858) do
+ActiveRecord::Schema.define(version: 20131014204852) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -71,7 +71,8 @@ ActiveRecord::Schema.define(version: 20131011230858) do
     t.hstore   "status"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "test_mode",     default: true
+    t.boolean  "test_mode",        default: true
+    t.integer  "conversation_ids",                array: true
   end
 
   create_table "attachments", force: true do |t|
