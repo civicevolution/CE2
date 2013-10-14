@@ -1,15 +1,12 @@
 .live-allocate.select-worksheet
-  %h3.page-title Worksheet to select your 3 most important ideas
-  %P Check three ideas for each question
+  %h3.page-title Worksheet dividing 100 points between your most important ideas
+  %P No more than 40 points for your most important idea(s)
   %hr
 
   %div.section(ng-repeat="conversation in conversations" )
     %h3 {{conversation.title}}
 
     %table(border="1")
-      %tr
-        %td(colspan="2") Our prioritised ideas
-        %td Check 3
       %tr(ng-repeat="theme in conversation.essential_themes" )
         %td.letter
           {{theme.letter}}
@@ -18,5 +15,5 @@
         %td.select
       %tr
         %th.total(colspan="2")
-
+          Total points
         %td

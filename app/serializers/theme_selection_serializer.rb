@@ -1,8 +1,9 @@
 class ThemeSelectionSerializer < ActiveModel::Serializer
-  attributes :code, :title,
-             :current_timestamp, :privacy, :role, :votes, :allocated_points
+  #attributes :code, :title,
+  #           :current_timestamp, :privacy, :role, :votes, :allocated_points
+  #has_many :final_themes
 
-  has_many :final_themes
+  attributes :votes, :conversations_list, :agenda_code
 
   def include_final_themes?
     !object.final_themes.nil?

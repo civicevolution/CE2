@@ -522,4 +522,17 @@ class Agenda < ActiveRecord::Base
     User.where("email ~* 'agenda-#{self.id}'").order(:id)
   end
 
+  def conversations
+    # collect the conversation ids from the component inputs
+    conversation_ids = []
+    self.agenda_components.each do |c|
+      c.input.each_pair do|key,value|
+        if key.match(/conversation/)
+          conversation_ids << value
+        end
+      end
+    end
+    conversations = Conversation.where(id: conversation_ids.flatten.uniq).order(:id)
+  end
+
 end

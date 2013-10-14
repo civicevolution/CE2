@@ -237,7 +237,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state( 'allocate-themes-worksheet',
         url: "/cmp/{component_code}/allocate-worksheet/{munged_title}"
-        templateUrl: '<%= path_to_asset "live/select-worksheet.html" %>'
+        templateUrl: '<%= path_to_asset "live/allocate-worksheet.html" %>'
         resolve:
           worksheet_data: ["LiveSelectData", "$stateParams", (LiveSelectData, $stateParams) ->
             LiveSelectData.participant_worksheet($stateParams.component_code)
@@ -259,6 +259,22 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             LiveSelectData.selection_data($stateParams.component_code)
           ]
         controller: live_select_controller
+      )
+
+      .state( 'select-themes-worksheet',
+        url: "/cmp/{component_code}/select-worksheet/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/select-worksheet.html" %>'
+        resolve:
+          worksheet_data: ["LiveSelectData", "$stateParams", (LiveSelectData, $stateParams) ->
+            LiveSelectData.participant_worksheet($stateParams.component_code)
+          ]
+        controller: [ "$scope", "worksheet_data",
+          ($scope, worksheet_data) ->
+            $scope.conversations = worksheet_data
+            for conversation in $scope.conversations
+              conversation.essential_themes = add_letters(conversation.essential_themes)
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
       )
 
       .state('select-themes-results',
@@ -301,109 +317,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           ($scope, $location, $compile, $timeout, participant_report) ->
             console.log "participant-report"
             $scope.participant_report = participant_report
-            $scope.$root.initialize_markdown_system( {disable_editor: true} )
-        ]
-      )
-
-
-      # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/choose/xyz
-      .state( 'live-theme-choose',
-        url: "/conversation/{code}/choose/{munged_title}"
-        templateUrl: '<%= path_to_asset "live/choose.html" %>'
-        resolve:
-          conversations_and_themes: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
-            LiveData.conversations_and_themes($stateParams.code).then(
-              (response)->
-                for question in response.data
-                  letter_ctr = 0;
-                  for theme in question.theme_comments
-                    theme.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
-                    letter_ctr += 1
-                response.data
-            )
-          ]
-        controller: live_choice_controller
-      )
-
-      # http://app.civicevolution.dev:8001/#/conversation/tfxdeqclv3/choose-results/xyz
-      .state('live-choose-results',
-        url: "/conversation/{code}/choose-results/{munged_title}"
-        templateUrl: '<%= path_to_asset "live/choose-results.html" %>'
-        resolve:
-          conversation_title: ["ConversationData", "$stateParams", (ConversationData, $stateParams) ->
-            ConversationData.title($stateParams.code).then(
-              (response)->
-                response.data
-            )
-          ]
-          theme_votes: ["LiveData", "$stateParams", (LiveData, $stateParams) ->
-            LiveData.theme_votes($stateParams.code).then(
-              (response)->
-                response.data
-            )
-          ]
-        onEnter: ->
-          angular.element(document.body).addClass('display-page')
-        onExit: ->
-          angular.element(document.body).removeClass('display-page')
-
-        controller: [ "$scope", "theme_votes", "conversation_title",
-          ($scope, theme_votes, conversation_title) ->
-            $scope.theme_votes = theme_votes
-            $scope.conversation_title = conversation_title
-            $scope.$root.initialize_markdown_system( {disable_editor: true} )
-        ]
-      )
-
-      # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/options
-      .state('live-options',
-        url: "/live/{code}/options"
-        templateUrl: '<%= path_to_asset "live/options.html" %>'
-        resolve:
-          allocation_themes: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
-            LiveAllocateData.allocation_themes($stateParams.code)
-          ]
-        onEnter: ->
-          angular.element(document.body).addClass('display-page')
-        onExit: ->
-          angular.element(document.body).removeClass('display-page')
-        controller: [ "$scope", "allocation_themes",
-          ($scope, allocation_themes) ->
-            $scope.allocation_themes = allocation_themes
-            $scope.$root.initialize_markdown_system( {disable_editor: true} )
-        ]
-
-      )
-
-      # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate
-      .state( 'live-theme-allocate',
-        url: "/live/{code}/allocate"
-        templateUrl: '<%= path_to_asset "live/allocate.html" %>'
-        resolve:
-          allocation_themes: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
-            LiveAllocateData.allocation_themes($stateParams.code)
-          ]
-          code: ["$stateParams", ($stateParams) ->
-            $stateParams.code
-          ]
-        controller: live_allocate_controller
-      )
-
-      # http://app.civicevolution.dev:8001/#/live/tfxdeqclv3/allocate-results
-      .state('live-allocate-results',
-        url: "/live/{code}/allocate-results"
-        templateUrl: '<%= path_to_asset "live/allocate-results.html" %>'
-        resolve:
-          allocated_points: ["LiveAllocateData", "$stateParams", (LiveAllocateData, $stateParams) ->
-            LiveAllocateData.allocated_points($stateParams.code)
-          ]
-        onEnter: ->
-          angular.element(document.body).addClass('display-page')
-        onExit: ->
-          angular.element(document.body).removeClass('display-page')
-        controller: [ "$scope", "allocated_points",
-          ($scope, allocated_points) ->
-            $scope.allocated_points = allocated_points
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
         ]
       )
@@ -999,14 +912,36 @@ conversation_group_controller = [ "$scope", "small_group_deliberation_data", "Fi
 
 live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeout", "$dialog",
   ($scope, selection_data, LiveSelectData, $timeout, $dialog) ->
-    $scope.selection_themes = add_letters( selection_data.final_themes )
 
-    $scope.name = 'live_select_controller'
-    $scope.code = selection_data.code
+    $scope.conversations_list = selection_data.conversations_list
+    $scope.agenda_code = selection_data.agenda_code
+    $scope.all_selection_themes = []
+    for conversation in $scope.conversations_list
+      for theme in conversation.final_themes
+        $scope.all_selection_themes.push(theme)
+
+
+    set_current_conversation = (arg) ->
+      index = switch arg
+        when 'first' then 0
+        when 'next' then $scope.conversation_ptr + 1
+        when 'back' then $scope.conversation_ptr - 1
+      index = 0 if index < 0
+      index = $scope.conversations_list.length -1 if index > $scope.conversations_list.length - 1
+
+      $scope.conversation_ptr = index
+      $scope.current_selection_themes = $scope.conversations_list[index].final_themes
+      $scope.title = $scope.conversations_list[index].title
+      $scope.code = $scope.conversations_list[index].code
+
+      $scope.show_next = if $scope.conversations_list.length > $scope.conversation_ptr + 1 then true else false
+      $scope.show_back = if $scope.conversation_ptr >  0 then true else false
+
+    set_current_conversation('first')
     $scope.participant_votes = selection_data.votes
     $scope.number_of_voters = (k for own k of $scope.participant_votes).length
     $scope.voter_id = Number($scope.number_of_voters) + 1
-    for at in $scope.selection_themes
+    for at in $scope.all_selection_themes
       at.value = false
     $scope.combined_votes = {}
     $timeout ->
@@ -1016,11 +951,17 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
 
     $scope.count_selected = ->
       cnt = 0
-      for a in $scope.selection_themes
+      for a in $scope.current_selection_themes
         if a.selected
           cnt += 1
-      $scope.out_of_range = if 0 < cnt < 3 then false else true
+      $scope.out_of_range = if 0 < cnt < 4 then false else true
       cnt
+
+    $scope.next = ->
+      set_current_conversation('next')
+
+    $scope.back = ->
+      set_current_conversation('back')
 
     $scope.save = (confirmed_edit=false) ->
       if !confirmed_edit && $scope.edit_vote_mode
@@ -1038,19 +979,21 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
         $dialog.messageBox(title, msg, btns).open()
         return
 
-      selected_ids = ( {theme_id: at.id} for at in $scope.selection_themes when at.selected)
+      selected_ids = ( {theme_id: at.id} for at in $scope.all_selection_themes when at.selected)
+
       data =
         voter_id: $scope.voter_id
         selected_ids: selected_ids
 
-      LiveSelectData.record_selection($scope.code, data).then(
+      LiveSelectData.record_selection($scope.agenda_code, data).then(
         (response)->
           $scope.participant_votes[$scope.voter_id] = selected_ids
-          for at in $scope.selection_themes
+          for at in $scope.all_selection_themes
             at.selected = false
           update_combined_votes()
           $scope.voter_id = Number($scope.number_of_voters) + 1
           $scope.edit_vote_mode = false
+          set_current_conversation('first')
       )
 
     $scope.edit_vote = (voter_id) ->
@@ -1058,137 +1001,63 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
       votes = {}
       for vote in $scope.participant_votes[voter_id]
         votes[vote.theme_id] = true
-      for at in $scope.selection_themes
+      for at in $scope.all_selection_themes
         at.selected = votes[at.id] || false
       $scope.edit_vote_mode = true
 
     $scope.start_new_vote = ->
       $scope.voter_id = Number((k for own k of $scope.participant_votes).length) + 1
-      for at in $scope.selection_themes
+      for at in $scope.all_selection_themes
         at.selected = false
       $scope.edit_vote_mode = false
 
     update_combined_votes = ->
       $scope.number_of_voters = (k for own k of $scope.participant_votes).length
-      combined_votes = {}
-      total_votes = 0
-      totals_array = []
-      for theme in $scope.selection_themes
-        #combined_votes[theme.id] = [ 0, 0, 0, 0, 0, 0, 0, 0 ]
-        combined_votes[theme.id] = new Array( $scope.number_of_voters + 1).join("x").split("x").map(-> return ' ' )
-      for voter of $scope.participant_votes
-        voter_total = 0
-        votes = $scope.participant_votes[voter]
-        console.log "votes: #{votes}"
-        for vote in votes  # theme_id in [theme_ids]
-          combined_votes[vote.theme_id][ voter ] = 1
-          voter_total += Number(1)
-          total_votes += Number(1)
-        totals_array.push( [voter_total] )
-      totals_array.push( [total_votes] )
+      $scope.conversations_combined_votes = []
+      for conversation in $scope.conversations_list
+        combined_votes = {}
+        total_votes = 0
+        totals_array = []
+        for theme in conversation.final_themes
+          #combined_votes[theme.id] = [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+          combined_votes[theme.id] = new Array( $scope.number_of_voters + 1).join("x").split("x").map(-> return ' ' )
+        for voter of $scope.participant_votes
+          voter_total = 0
+          votes = $scope.participant_votes[voter]
+          #console.log "votes: #{votes}"
+          for vote in votes  # theme_id in [theme_ids]
+            if combined_votes[vote.theme_id]
+              combined_votes[vote.theme_id][ voter ] = 1
+              voter_total += Number(1)
+              total_votes += Number(1)
+          totals_array.push( [voter_total] )
+        totals_array.push( [total_votes] )
 
-      pcent_total = 0
-      for theme_id of combined_votes
-        console.log "theme_id: #{theme_id}"
-        rec = combined_votes[theme_id]
-        #rec.splice(0,1)
-        sum = _.reduce(rec, ( (memo, num) -> Number(memo) + num;), 0)
-        rec.splice(0,1)
-        rec.push(sum)
-        pcent = Math.round(sum/total_votes*100)
-        pcent_total += pcent
-        rec.push(pcent)
-        #combined_votes[theme_id] = ([val] for val in rec)
-        combined_votes[theme_id] = ([val] for val in rec)
-      totals_array.push( [pcent_total] )
+        pcent_total = 0
+        for theme_id of combined_votes
+          #console.log "theme_id: #{theme_id}"
+          rec = combined_votes[theme_id]
+          #rec.splice(0,1)
+          sum = _.reduce(rec, ( (memo, num) -> Number(memo) + num;), 0)
+          rec.splice(0,1)
+          rec.push(sum)
+          pcent = Math.round(sum/total_votes*100)
+          pcent_total += pcent
+          rec.push(pcent)
+          #combined_votes[theme_id] = ([val] for val in rec)
+          combined_votes[theme_id] = ([val] for val in rec)
+        totals_array.push( [pcent_total] )
 
-      combined_votes['totals'] = totals_array
-      console.log "total_votes: #{total_votes}"
-      $scope.combined_votes = combined_votes
+        combined_votes['totals'] = totals_array
+        #console.log "total_votes: #{total_votes}"
+        $scope.conversations_combined_votes.push( { title: conversation.title, final_themes: conversation.final_themes, combined_votes: combined_votes} )
 
 
 
 ]
 
 
-live_choice_controller = [ "$scope", "conversations_and_themes", "LiveChooseData", "$timeout", "$dialog",
-  ($scope, conversations_and_themes, LiveChooseData, $timeout, $dialog) ->
-    $scope.question_1_themes = conversations_and_themes[0].theme_comments
-    $scope.question_2_themes = conversations_and_themes[1].theme_comments
-    $scope.question_3_themes = conversations_and_themes[2].theme_comments
 
-    $scope.name = 'live_choice_controller'
-    $scope.completed = false
-    $scope.data = {}
-    $scope.voter_id = 1
-    $scope.member_votes = {}
-
-    $scope.note_choice = ->
-      choice = event.toElement.text
-      id = event.toElement.id
-      #console.log "note_choice: #{choice}, event.toElement: #{event.toElement.nodeName} with id: #{id}"
-      li = angular.element(event.toElement).parent()
-      if li.hasClass('disabled')
-        event.stopPropagation()
-        return
-      li.parent().children().removeClass('active')
-      li.addClass('active')
-      par_button = li.parent().parent().find('button')
-      #console.log "par_button.box: #{par_button.attr('box')}"
-      par_button.attr('id', id )
-      par_button.find('span').html(choice)
-      # find the other A with the same id and set its LI to disabled
-      a_links = angular.element( document.getElementById('live-choose')).find('a')
-      for x, index in a_links
-        a = a_links.eq(index)
-        if a.attr('id') == id
-          li = a.parent()
-          if !li.hasClass('active')
-            li.parent().find('li').removeClass('disabled')
-            li.addClass('disabled')
-
-
-      check_completed()
-
-    check_completed = ->
-      data = {}
-      completed = true
-      btns = angular.element( document.getElementById('live-choose')).find('button')
-      for b, index in btns
-        #buttom = angular.element(btn)
-        button = btns.eq(index)
-        box = button.attr('box')
-        if box
-          id = button.attr('id')
-          data[box] = id
-          #console.log "box: #{box} has id: #{id}"
-      for key of data
-        if typeof data[key] == 'undefined' || data[key] == null
-          completed = false
-        #console.log "key: #{key}: #{data[key]}"
-      $scope.completed = completed
-      $scope.data = data
-      #console.log "$scope.completed: #{$scope.completed}"
-
-    $scope.save = ->
-      if $scope.completed
-        console.log "save now"
-        #for key of $scope.data
-        #  console.log "'#{key}': #{$scope.data[key]}"
-        LiveChooseData.record_choices($scope.data, $scope.voter_id).then(
-          (response)->
-            $scope.member_votes[$scope.voter_id] = response.data
-            $scope.voter_id += 1
-            page_top = angular.element( document.getElementById('live-choose'))
-            page_top.find('button').find('span').removeAttr('id').html('Select choice')
-            page_top.find('li').removeClass('active').removeClass('disabled')
-            data = {}
-            $scope.completed = false
-        )
-
-      else
-        console.log "complete the form first"
-]
 live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$dialog", "$timeout",
   ($scope, allocation_data, LiveAllocateData, $dialog, $timeout) ->
     $scope.allocation_themes = add_letters( allocation_data.final_themes )

@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      skip_authorization_check only: [:theme_votes, :group_data]
+      skip_authorization_check only: [:group_data]
       #def default_serializer_options
       #  {
       #      root: false
@@ -172,10 +172,6 @@ module Api
         authorize! :view_themes, conversation
         themes = conversation.themes
         respond_with themes
-      end
-
-      def theme_votes
-        render json: ThemeVote.theme_votes(params[:id])
       end
 
       def firebase_token

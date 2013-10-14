@@ -5,7 +5,7 @@ class Conversation < ActiveRecord::Base
   end
 
   attr_accessible :user_id, :status, :starts_at, :privacy
-  attr_accessor :firebase_token, :display_mode
+  attr_accessor :firebase_token, :display_mode, :final_themes
 
   has_one :title_comment #, -> { includes author: :profile   }
   has_one :call_to_action_comment, -> { includes author: :profile   }

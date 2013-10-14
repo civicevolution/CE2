@@ -41,7 +41,6 @@ Ce2::Application.routes.draw do
         get 'parked_comments', on: :member
         get 'group_data', on: :member
         get 'themes', on: :member
-        get 'theme_votes', on: :member
         get 'firebase_token', on: :member
         resources :comments, shallow: true
       end
@@ -104,7 +103,6 @@ Ce2::Application.routes.draw do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       #resources :users
       get 'users/user'
-      get 'users/conversations_and_themes'
     end
   end
   #get '/api/users(.:format)',            api/v1/comments#index {:format=>"json"}
@@ -150,8 +148,6 @@ Ce2::Application.routes.draw do
   post 'autosave', to: 'api/v1/autosave#save'
   get 'load_autosaved', to: 'api/v1/autosave#load'
   post 'clear_autosaved', to: 'api/v1/autosave#clear'
-
-  post 'api/vote', to: 'api/v1/theme_votes#save'
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do

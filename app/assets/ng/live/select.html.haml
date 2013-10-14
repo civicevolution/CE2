@@ -8,18 +8,23 @@
   %table(border="1")
     %tr
       %th(colspan="2")
-        %h3 Our prioritised Ideas
+        %p Our prioritised Ideas for
+        %h4
+          "{{title}}"
       %th
         -#%h3 $ Spent
         %h3 Select
-    %tr(ng-repeat="theme in selection_themes" )
+    %tr(ng-repeat="theme in current_selection_themes" )
       %td.letter
         {{theme.letter}}
       %td.text
         {{theme.text}}
 
       %td.select
-        %input.selection(type="checkbox" ng-model="theme.selected" ng-checked="theme.selected" ng-click="count_selected()")
+        %label{for: "chk-{{theme.id}}"}
+          %input.selection(id="chk-{{theme.id}}" type="checkbox" ng-model="theme.selected" ng-checked="theme.selected" ng-click="count_selected()")
+
+
 
     %tr
       %th(colspan="2")
@@ -31,16 +36,20 @@
 
     %tr
       %td(colspan="3")
-        %button.btn.btn-success.btn-large.right(ng-click="save()" ng-disabled="out_of_range") Submit
+        %button.btn.btn-success.btn-large.left(ng-click="back()" ng-show="show_back") < Back
+        %button.btn.btn-success.btn-large.right(ng-click="next()" ng-show="show_next" ng-disabled="out_of_range") Next >
+
+        %button.btn.btn-success.btn-large.right(ng-click="save()" ng-hide="show_next" ng-disabled="out_of_range") Submit
         %button.btn.btn-link.btn-large.right(ng-click="start_new_vote()" ng-show="edit_vote_mode") Start new vote
 
 
-  %h3 Group Allocation Table
+  %h3.selection_review_title Group Selection Report
 
-  %table(border="1")
+
+  %table.selection_review(ng-repeat="conversation in conversations_combined_votes" border="1")
     %tr
       %th(colspan="2" rowspan="2")
-        %h3 Our prioritised Ideas
+        %h3 {{conversation.title}}
       %th(colspan="{{number_of_voters}}" )
         Voters
 
@@ -55,17 +64,17 @@
       %th(ng-repeat="(voter_id, vote) in participant_votes" )
         %a(ng-click="edit_vote(voter_id)") \#{{voter_id}}
 
-    %tr(ng-repeat="theme in selection_themes" )
+    %tr(ng-repeat="theme in conversation.final_themes" )
       %td.letter
         {{theme.letter}}
       %td.text
         {{theme.text}}
 
-      %td(ng-repeat="vote in combined_votes[theme.id]")
+      %td(ng-repeat="vote in conversation.combined_votes[theme.id]")
         {{vote[0]}}
 
     %tr
       %td(colspan="2")
         %b Totals
-      %td(ng-repeat="vote in combined_votes['totals']")
+      %td(ng-repeat="vote in conversation.combined_votes['totals']")
         {{vote[0]}}
