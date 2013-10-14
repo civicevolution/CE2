@@ -633,18 +633,14 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
     )
 
     $scope.$on 'TableComment_update', (event, data) ->
-
+      table_number = Number(data.data.table_number)
       switch $scope.user.last_name
         when "1"
-          if data.data.table_number > 2
-            return
+          return unless _.contains([1, 2, 7, 10], table_number)
         when "2"
-          if Number(data.data.table_number) != 3 && Number(data.data.table_number) != 4
-            return
+          return unless _.contains([3, 4, 8], table_number)
         when "3"
-          if data.data.table_number < 5
-            return
-
+          return unless _.contains([5, 6, 9], table_number)
 
       data.data.parent_theme_ids = [] unless data.data.parent_theme_ids
       data.data.current_theme_ids = [] unless data.data.current_theme_ids
