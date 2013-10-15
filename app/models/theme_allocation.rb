@@ -82,7 +82,7 @@ class ThemeAllocation < AgendaComponent
     conversations.each do |conversation|
       themes = ThemeVote.theme_votes(conversation.code, self.input[ "coordinator_user_id" ])[0..2]
       themes.each do|theme|
-        allocation_themes.push( {id: theme[:theme_id], text: theme[:text].gsub(/\[quote.*\/quote\]/m,'')} )
+        allocation_themes.push( {id: theme[:theme_id], text: theme[:text].gsub(/\[quote.*\/quote\]/m,'') } )
       end
     end
 

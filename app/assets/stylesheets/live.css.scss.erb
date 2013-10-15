@@ -552,3 +552,144 @@ body{
     margin-bottom: 50px;
   }
 }
+
+.final-allocation-report{
+  .graph{
+    font-weight: bold;
+    font-size: 2em;
+    line-height: 1.4em;
+    color: #324A7F;
+  }
+  .bar{
+    height: 20px;
+  }
+  .theme-beneath-bar{
+    margin-top: 0px;
+  }
+  @media screen and (max-width: 900px){
+    .graph{
+      font-size: 1.4em;
+    }
+  }
+}
+@media print{
+  .final-allocation-report{
+    .graph{
+      font-size: 1.0em;
+    }
+    .bar{
+      height: 20px;
+      //overflow: visible;
+    }
+    .theme-beneath-bar{
+      margin-top: 0px;
+      margin-bottom: 16px;
+    }
+    .row-fluid .span10{
+      max-width: 350pt;
+      float: left;
+    }
+    .row-fluid .span1{
+      max-width: 50pt;
+      //border: 1px solid red;
+      float: right;
+    }
+  }
+}
+
+.themes-report{
+  h3{
+    page-break-after: avoid;
+  }
+  .conversation{
+    margin-bottom: 40px;
+  }
+  h3{margin-bottom: 16px;}
+  table.themes{
+    td{
+      vertical-align: top;
+    }
+    td.letter{
+      font-weight: bold;
+      font-size: 1.4em;
+      min-width: 40px;
+      padding-left: 12px;
+      padding-top: 6px;
+    }
+    td.text{
+      font-weight: bold;
+      blockquote{
+        border:none;
+        border-left: 5px solid #cccccc;
+        font-style: italic;
+        font-weight: normal;
+      }
+    }
+  }
+  .prioritisation-results{
+    margin-top: 20px;
+  }
+  .graph{
+    page-break-before: avoid;
+    font-weight: bold;
+    font-size: 2em;
+    line-height: 1.4em;
+    color: #324A7F;
+    blockquote{
+      display:none;
+    }
+  }
+  .bar{
+    height: 20px;
+  }
+  .theme-beneath-bar{
+    margin-top: 0px;
+  }
+  @media screen and (max-width: 900px){
+    .graph{
+      font-size: 1.4em;
+    }
+  }
+}
+@media print{
+  .themes-report{
+    h3{
+      page-break-after: avoid;
+    }
+    table.themes{
+      td.letter{
+        padding-top: 0;
+      }
+      td.text{
+        padding-top: 2px;
+      }
+
+    }
+    .graph{
+      font-size: 1.0em;
+      page-break-before: avoid;
+    }
+    .bar{
+      height: 20px;
+      //overflow: visible;
+    }
+    .theme-beneath-bar{
+      margin-top: 0px;
+      margin-bottom: 16px;
+    }
+    .row-fluid .span10{
+      max-width: 350pt;
+      float: left;
+    }
+    .row-fluid .span1{
+      max-width: 50pt;
+      //border: 1px solid red;
+      float: right;
+    }
+
+  }
+  .prioritisation-results{
+    page-break-inside:avoid;
+    page-break-after:always;
+  }
+}

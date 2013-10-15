@@ -93,6 +93,75 @@ class Agenda < ActiveRecord::Base
     participant_report_components.map(&:participant_report_details)
   end
 
+  def participant_report_data(report_name)
+    if Rails.env == 'development'
+      theme_codes = %w(ttzxnuapl8 u8f6bhjlx2 525ssgokpc tkvj8uucab gry7xefoym)
+      selection_code = 'vpsf5rlifd'
+      conversation_codes = %w(r20cdxmx7t qwnf98m3a1 7po16s3i2e e4r5nem8wj ll3yfsp8c0)
+      allocation_code = 'y93fb7d8to'
+    elsif self.id = 1 # Bangalore
+      theme_codes = %w(euw7lt3fph u6s2brz7bj 35az9en2yt k677f6p41e ozxdqsvmv4 a94ve0wv0p)
+      selection_code = 'hwqpv7alv3'
+      conversation_codes = %w( 6ko91rkoem h9ehcxq5qq plps8t4gtz tciu7gqjv2 ddjirn056n btub29g1vw )
+      allocation_code = 'hwqpv7alv3'
+    else  # pune
+      theme_codes = %w(fv9myv0wl6 fs407vdgpw ji5iohd1vd 92bef653go bw1jy3lyo7)
+      selection_code = 'vd2o2kmch2'
+      conversation_codes = %w( 9mb33orctg b0fjcaq88n bpr8hkxrsw mxe3lplge4 6gun3cifwf )
+      allocation_code = '1wtjjvzttk'
+    end
+
+    case report_name
+      when 'deliberation1'
+        # return the
+        # headers + themes for 2 conversations
+        data = {
+          page_title: 'Designing our Pune Precinct: Deliberation session 1',
+          conversations: [
+            {
+              title: 'The things you value about living/working in Dattawadi',
+              themes: AgendaComponent.find_by(code: theme_codes[0]).report_data
+            },
+            {
+              title: 'The legacy you want to leave future generations living and working in Dattawadi',
+              themes: AgendaComponent.find_by(code: theme_codes[1]).report_data
+            }
+          ]
+        }
+
+      when 'deliberation2'
+        data = {
+            page_title: 'Designing our Pune Precinct: Deliberation session 2',
+            conversations: [
+                {
+                    title: 'What do you want to keep in Dattawadi?',
+                    themes: AgendaComponent.find_by(code: theme_codes[2]).report_data,
+                    prioritisation_title: 'What you want to keep in Dattawadi',
+                    voted_themes: AgendaComponent.find_by(code: selection_code).report_data(conversation_codes[2])
+                },
+                {
+                    title: 'What do you want to change in Dattawadi?',
+                    themes: AgendaComponent.find_by(code: theme_codes[3]).report_data,
+                    prioritisation_title: 'What you want to change in Dattawadi',
+                    voted_themes: AgendaComponent.find_by(code: selection_code).report_data(conversation_codes[3])
+                },
+                {
+                    title: 'What the ‘hot spots’ are or are likely to be in Dattawadi?',
+                    themes: AgendaComponent.find_by(code: theme_codes[4]).report_data,
+                    prioritisation_title: 'What the ‘hot spots’ are or are likely to be in Dattawadi',
+                    voted_themes: AgendaComponent.find_by(code: selection_code).report_data(conversation_codes[4])
+                }
+            ]
+        }
+
+      when 'final-allocation'
+        data = {
+          page_title: 'Designing our Pune Precinct: Our Top Priorities',
+          allocated_themes: AgendaComponent.find_by(code: allocation_code).results(nil,nil).allocated_points
+        }
+    end
+    data
+  end
 
   def export_to_file(file)
     # This writes all of the data to the file and to be sent to the browser

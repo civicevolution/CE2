@@ -82,6 +82,22 @@ class ThemeSelection < AgendaComponent
     }
   end
 
+  def report_data(conversation_code)
+
+    self.votes = ThemeVote.theme_votes(conversation_code, self.input[ "coordinator_user_id" ])
+
+    #self.results()
+    #
+    #ltr = 'A'
+    #theme_comments = []
+    #self.theme_comments.each do |theme|
+    #  theme_comments.push( {id: id, letter: ltr, text: theme.text}
+    #  )
+    #  ltr = ltr.succ
+    #end
+    #theme_comments
+  end
+
   def participant_worksheet(params, current_user)
     conversations = Conversation.includes(:title_comment).where(id: self.input[ "conversations_list_ids" ])
     self.conversations_list = []

@@ -79,6 +79,20 @@ class ThemeSmallGroupTheme < AgendaComponent
     }
   end
 
+  def report_data
+
+    self.results()
+
+    ltr = 'A'
+    theme_comments = []
+    self.theme_comments.each do |theme|
+      theme_comments.push( {id: id, letter: ltr, text: theme.text}
+      )
+      ltr = ltr.succ
+    end
+    theme_comments
+  end
+
   private
   def assign_defaults
     self.menu_roles = ['coordinator', 'participant_report', 'reporter']

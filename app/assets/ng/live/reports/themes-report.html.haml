@@ -1,0 +1,20 @@
+.themes-report
+  %h2 {{participant_report_data.page_title}}
+
+  .conversation(ng-repeat="conversation in participant_report_data.conversations")
+    %h3 {{conversation.title}}
+    %table.themes
+      %tr(ng-repeat="theme in conversation.themes")
+        %td.letter {{theme.letter}}
+        %td.text(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+
+    .prioritisation-results(ng-if="conversation.voted_themes")
+      %h3 {{conversation.prioritisation_title}}
+
+      %div.graph.row-fluid(ng-repeat="theme in conversation.voted_themes")
+        .span10
+          %img.bar{src: path_to_asset("bar-graph-bg-dark.gif"), style: "width: {{theme.graph_percentage}}%"}
+          .theme-beneath-bar(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+        .span1.count ({{theme.votes | number:0}})
+        .span1.percent {{theme.percentage}}%
+
