@@ -5,7 +5,7 @@
   %div.warn(ng-if="agenda.test_mode")
     %h2 This agenda is in test mode
 
-  %div(ng-switch="agenda.active_role.name")
+  %div(ng-switch="user.first_name")
     %div(ng-switch-when="undefined" )
       %p
         Select your role:
@@ -40,7 +40,7 @@
           %p
             Reporter
             Access code:
-            con%input.code(ng-model="agenda.active_role.access_code")
+            %input.code(ng-model="agenda.active_role.access_code")
             %button.btn-primary.btn(ng-click="accept_role()") Start
 
     -#%div(ng-switch-default)
@@ -66,12 +66,20 @@
       %h4 {{comp.descriptive_name}}
       %div(ng-include="'/assets/live/menu/' + comp.menu_template + '.html'")
 
-    %hr
+    %div(ng-if="user.first_name == 'Coordinator' || user.first_name == 'Reporter'")
 
-    %a(ng-click="signout_role()") Sign out
+      %p
+        %a(href="/#/cmp/vd2o2kmch2/select-results/bpr8hkxrsw/what-do-you-want-to-keep-in-dattawadi")
+          Display Prioritisation results: What do you want to keep in Dattawadi?
+      %p
+        %a(href="/#/cmp/vd2o2kmch2/select-results/mxe3lplge4/what-do-you-want-to-change-in-dattawadi")
+          Display Prioritisation results: What do you want to change in Dattawadi?
+      %p
+        %a(href="/#/cmp/vd2o2kmch2/select-results/6gun3cifwf/what-are-hot-spots-in-dattawadi-that-you-think-curr")
+          Display Prioritisation results: What are ‘hot spots’ in Dattawadi?
 
+      %hr
 
-    %hr
       %b Reports
       %p
         %a(href="/#/cmp/hwqpv7alv3/allocate-worksheet/how-do-we-make-value-capture-work-in-india")
@@ -85,6 +93,9 @@
         %a(href="/#/agenda/f3zp7xglzp/participant-report/bangalore-sub-urban-rail-project-potential-for-inno")
           Participant report
 
+
+    %hr
+      %a(ng-click="signout_role()") Sign out
 
     -#%hr
       %p
