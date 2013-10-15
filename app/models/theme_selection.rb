@@ -66,7 +66,7 @@ class ThemeSelection < AgendaComponent
   end
 
   def results(params, current_user)
-    self.conversation = Conversation.includes(:title_comment).find_by(id: self.input[ "conversation_id" ])
+    self.conversation = Conversation.includes(:title_comment).find_by(code: params[:conv_code])
 
     self.votes = ThemeVote.theme_votes(self.conversation.code, self.input[ "coordinator_user_id" ])
 

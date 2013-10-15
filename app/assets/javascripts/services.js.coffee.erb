@@ -527,8 +527,8 @@ services.factory "LiveSelectData", ["$http",
     record_selection: (code, data) ->
       $http.post("/api/theme_votes/#{code}/save.json", {data: data})
 
-    selection_votes: (component_code) ->
-      $http.get("/api/components/#{component_code}/results.json").then (response) ->
+    selection_votes: (component_code, conversation_code) ->
+      $http.get("/api/components/#{component_code}/results.json?conv_code=#{conversation_code}").then (response) ->
         if response.status is 200
           response.data
 ]

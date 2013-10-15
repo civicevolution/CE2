@@ -288,11 +288,11 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       )
 
       .state('select-themes-results',
-        url: "/cmp/{component_code}/select-results/{munged_title}"
+        url: "/cmp/{component_code}/select-results/{conversation_code}/{munged_title}"
         templateUrl: '<%= path_to_asset "live/select-results.html" %>'
         resolve:
           selection_votes: ["LiveSelectData", "$stateParams", (LiveSelectData, $stateParams) ->
-            LiveSelectData.selection_votes($stateParams.component_code)
+            LiveSelectData.selection_votes($stateParams.component_code, $stateParams.conversation_code)
           ]
         onEnter: ->
           angular.element(document.body).addClass('display-page')
