@@ -254,9 +254,13 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           ]
         controller: [ "$scope", "worksheet_data",
           ($scope, worksheet_data) ->
-            $scope.conversations = worksheet_data
-            for conversation in $scope.conversations
-              conversation.essential_themes = add_letters(conversation.essential_themes)
+            #$scope.conversations = worksheet_data
+            #for conversation in $scope.conversations
+            #  conversation.essential_themes = add_letters(conversation.essential_themes)
+            essential_themes = add_letters(worksheet_data)
+            $scope.conversations = [
+              {essential_themes: essential_themes}
+            ]
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
         ]
       )
@@ -1065,7 +1069,7 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
 
 live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$dialog", "$timeout",
   ($scope, allocation_data, LiveAllocateData, $dialog, $timeout) ->
-    $scope.allocation_themes = add_letters( allocation_data.final_themes )
+    $scope.allocation_themes = add_letters( allocation_data.allocation_themes )
 
     $scope.name = 'live_allocate_controller'
     $scope.code = allocation_data.code

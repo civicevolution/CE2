@@ -1,7 +1,6 @@
 .live-allocate-results
-  %h4 Allocation results
-  %h3 {{title}}
-
+  %h2 Your top priorities
+  -#%h4 Allocation results
   %div.graph.row-fluid(ng-repeat="theme in allocated_points")
     .span10.theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)"){style: "background-size: {{theme.graph_percentage}}% 100%;"}
     .span1.percent {{theme.percentage}}%

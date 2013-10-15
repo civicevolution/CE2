@@ -23,7 +23,8 @@ module Api
         component = AgendaComponent.find_by(code: params[:id])
         #authorize! :XXX, component.agenda
         participant_worksheet = component.participant_worksheet(params, current_user)
-        respond_with participant_worksheet
+        #respond_with participant_worksheet
+        render json: participant_worksheet.final_themes
       end
 
 

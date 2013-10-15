@@ -1,8 +1,12 @@
 class ThemeAllocationSerializer < ActiveModel::Serializer
   attributes :code, :title,
-             :current_timestamp, :privacy, :role, :votes, :allocated_points
+             :current_timestamp, :privacy, :role, :votes, :allocated_points, :allocation_themes
 
   has_many :final_themes
+
+  def include_final_themes?
+    !object.final_themes.nil?
+  end
 
   def title
     object.conversation.title
