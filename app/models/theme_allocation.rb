@@ -41,7 +41,7 @@ class ThemeAllocation < AgendaComponent
         ends_at: self.ends_at,
         menu_template: 'theme-allocation'
     }
-    conversation = Conversation.includes(:title_comment).find_by(id: self.input[ "conversation_id" ])
+    conversation = Conversation.includes(:title_comment).where(id: self.input[ "conversations_list_ids" ]).order(:id)[0]
     details[:links] =  []
     details[:links].push(
         {
