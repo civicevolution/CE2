@@ -1,6 +1,6 @@
 .live-allocate-results
   %h2 {{title}}
-  %h4 Theme selection results
+  %h4 Your prioritised key themes
 
   %div.graph.row-fluid(ng-repeat="theme in selection_votes")
     .span10.theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)"){style: "background-size: {{theme.graph_percentage}}% 100%;"}

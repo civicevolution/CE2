@@ -1,6 +1,6 @@
 .live-allocate.live-select
   -#%h4 Divide $100 between all the ideas with no more than $50 for your most important idea(s)
-  %h4 Select your 2 favorite themes
+  %h4 Select your THREE favorite themes
 
   %h3(ng-hide="edit_vote_mode") Enter selections for participant \#{{voter_id}} of Group {{user.last_name}}
   %h3.warn(ng-show="edit_vote_mode")  Edit selections for participant \#{{voter_id}} of Group {{user.last_name}}
@@ -8,12 +8,10 @@
   %table(border="1")
     %tr
       %th(colspan="2")
-        %p Our prioritised Ideas for
-        %h4
-          "{{title}}"
+        %h4 {{title}}
       %th
         -#%h3 $ Spent
-        %h3 Select
+        %h3 Select 3
     %tr(ng-repeat="theme in current_selection_themes" )
       %td.letter
         {{theme.letter}}
