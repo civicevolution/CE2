@@ -146,8 +146,7 @@ class ThemeAllocation < AgendaComponent
         allocation_themes.push( {theme_id: theme[:theme_id], text: theme[:text].gsub(/\[quote.*\/quote\]/m,'')} )
       end
     end
-    self.final_themes = allocation_themes
-    self
+    allocation_themes
   end
 
   private
