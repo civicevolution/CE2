@@ -83,15 +83,28 @@ class ThemeSelection < AgendaComponent
   end
 
   def participant_worksheet(params, current_user)
-    worksheet_data = []
-    Conversation.includes(:title_comment).where(id: self.input[ "conversation_id" ]).order(:starts_at).each do |conversation|
-      themes = []
+    conversations = Conversation.includes(:title_comment).where(id: self.input[ "conversations_list_ids" ])
+    self.conversations_list = []
+    final_theme_ids = []
+    self.input[ "conversations_list_ids" ].each do |id|
+      conversation = conversations.detect{|c| c.id == id}
+      conversation_data = { code: conversation.code, title: conversation.title}
+
+      final_themes = []
+      ltr = 'A'
       conversation.theme_comments.where(user_id: self.input[ "coordinator_user_id" ]).order(:order_id).each do |theme|
-        themes.push( { text: theme.text.gsub(/\[quote.*\/quote\]/,'') })
+        final_themes.push({
+                              id: theme.id,
+                              letter: ltr,
+                              text: theme.text.gsub(/\[quote.*\/quote\]/,'')
+                          })
+        ltr = ltr.succ
+        final_theme_ids << theme.id
       end
-      worksheet_data.push( {title: conversation.title, essential_themes: themes })
+      conversation_data[:final_themes] = final_themes
+      self.conversations_list.push( conversation_data )
     end
-    worksheet_data
+    self
   end
 
 

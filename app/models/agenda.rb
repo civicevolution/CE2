@@ -254,7 +254,7 @@ class Agenda < ActiveRecord::Base
           when "user_ids"
             new_values = []
             value.each do |id|
-              new_values.push( users[id][:new_user_id] )
+              new_values.push( users[id].try{|user|[:new_user_id]} || 1 )
             end
             details["input"]["user_ids"] = new_values
 

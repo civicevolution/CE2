@@ -500,6 +500,11 @@ body{
   @page{
     margin: 0cm 0cm;
   }
+  .container-fluid .content{
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 
   .select-worksheet{
     h3{
@@ -509,6 +514,7 @@ body{
         margin: 0;
         line-height: 1em;
       }
+      th.select{ text-align: center;}
     }
     hr{ margin: 0;}
     .section{
@@ -525,6 +531,10 @@ body{
 
 }
 .select-worksheet{
+  table{
+    width: 100%;
+    margin-bottom: 50px;
+  }
   td.select{ min-width: 40px;}
   th.total{text-align: right;}
 }

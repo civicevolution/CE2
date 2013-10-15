@@ -280,9 +280,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           ]
         controller: [ "$scope", "worksheet_data",
           ($scope, worksheet_data) ->
-            $scope.conversations = worksheet_data
-            for conversation in $scope.conversations
-              conversation.essential_themes = add_letters(conversation.essential_themes)
+            $scope.conversations = worksheet_data.conversations_list
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
         ]
       )
