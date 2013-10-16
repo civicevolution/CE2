@@ -99,7 +99,7 @@ class Agenda < ActiveRecord::Base
       selection_code = 'vpsf5rlifd'
       conversation_codes = %w(r20cdxmx7t qwnf98m3a1 7po16s3i2e e4r5nem8wj ll3yfsp8c0)
       allocation_code = 'y93fb7d8to'
-    elsif self.id = 1 # Bangalore
+    elsif self.id == 1 # Bangalore
       theme_codes = %w(euw7lt3fph u6s2brz7bj 35az9en2yt k677f6p41e ozxdqsvmv4 a94ve0wv0p)
       selection_code = 'hwqpv7alv3'
       conversation_codes = %w( 6ko91rkoem h9ehcxq5qq plps8t4gtz tciu7gqjv2 ddjirn056n btub29g1vw )
