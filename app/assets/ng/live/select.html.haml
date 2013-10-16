@@ -9,9 +9,8 @@
     %tr
       %th(colspan="2")
         %h4 {{title}}
-      %th
-        -#%h3 $ Spent
-        %h3 Select 3
+      %th Select 3
+      -#%h3 $ Spent
     %tr(ng-repeat="theme in current_selection_themes" )
       %td.letter
         {{theme.letter}}

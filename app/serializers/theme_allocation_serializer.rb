@@ -13,7 +13,7 @@ class ThemeAllocationSerializer < ActiveModel::Serializer
   end
 
   def code
-    object.conversation.code
+    object.code
   end
 
   def privacy
