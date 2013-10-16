@@ -1,6 +1,6 @@
 class ThemeVote < ActiveRecord::Base
 
-  attr_accessible :group_id,  :voter_id, :theme_id
+  attr_accessible :group_id,  :voter_id, :theme_id, :code
 
   def self.theme_votes(conversation_code, user_id)
     conversation = Conversation.find_by(code: conversation_code)

@@ -6,13 +6,14 @@ module Api
 
       def save
         #Rails.logger.debug "ThemeVotesController#save"
+        code = params[:id]
         voter_id = params[:data][:voter_id]
         group_id = current_user.last_name.to_i
         # destroy any votes they have set already
-        ThemeVote.where(voter_id: voter_id, group_id: group_id).destroy_all
+        ThemeVote.where(code: code, voter_id: voter_id, group_id: group_id).destroy_all
         votes = []
         params[:data][:selected_ids].each do |vote|
-          votes.push ThemeVote.create(group_id: group_id, voter_id: voter_id, theme_id: vote[:theme_id].to_i)
+          votes.push ThemeVote.create(code: code, group_id: group_id, voter_id: voter_id, theme_id: vote[:theme_id].to_i)
         end
         render json: votes
       end
