@@ -395,7 +395,7 @@ body{
     margin: 2cm 1.5cm;
   }
   body {
-    font: 12pt Georgia, "Times New Roman", Times, serif;
+    font: 12pt Georgia, "Times New Roman", Times, serif !important;
     line-height: 1.3;
   }
   .navbar {display: none}
@@ -498,10 +498,10 @@ body{
 
 @media print{
   @page{
-    margin: 0cm 0cm;
+    //margin: 0cm 0cm;
   }
   .container-fluid .content{
-    margin-top: 0;
+    margin-top: 20px;
     padding-top: 0;
     padding-bottom: 0;
   }
@@ -555,7 +555,7 @@ body{
 
 .final-allocation-report{
   .graph{
-    font-weight: bold;
+    //font-weight: bold;
     font-size: 2em;
     line-height: 1.4em;
     color: #324A7F;
@@ -598,13 +598,14 @@ body{
 }
 
 .themes-report{
+  margin-top: 40px;
   h3{
+    margin-bottom: 16px;
     page-break-after: avoid;
   }
   .conversation{
     margin-bottom: 40px;
   }
-  h3{margin-bottom: 16px;}
   table.themes{
     td{
       vertical-align: top;
@@ -617,21 +618,21 @@ body{
       padding-top: 6px;
     }
     td.text{
-      font-weight: bold;
+      //font-weight: bold;
       blockquote{
         border:none;
         border-left: 5px solid #cccccc;
         font-style: italic;
-        font-weight: normal;
+        //font-weight: normal;
       }
     }
   }
   .prioritisation-results{
-    margin-top: 20px;
+    margin-top: 50px;
   }
   .graph{
     page-break-before: avoid;
-    font-weight: bold;
+    //font-weight: bold;
     font-size: 2em;
     line-height: 1.4em;
     color: #324A7F;
@@ -653,8 +654,12 @@ body{
 }
 @media print{
   .themes-report{
+    h2{
+      font-size: 14pt;
+    }
     h3{
       page-break-after: avoid;
+      font-size: 12pt;
     }
     table.themes{
       td.letter{
