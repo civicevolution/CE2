@@ -1,0 +1,138 @@
+class Reporter
+
+  create_report: (report_specs) ->
+    console.log "Reporter.create_report"
+    canvas = document.getElementById('final-allocation-canvas')
+    G_vmlCanvasManager.initElement(this.canvas) if G_vmlCanvasManager?
+    ctx = canvas.getContext('2d');
+    canvas.width = report_specs.canvas_width
+    ctx.width = canvas.width
+    ctx.fillStyle = '#000';
+    this.canvas = canvas
+    this.ctx = ctx
+
+    # Set initial height
+    actual_height = canvas_height = 40
+    # loop twice, first to determine needed height
+    # second to redraw at the exact height
+    loop
+      canvas_height = actual_height
+      actual_height = this.render_report(report_specs, canvas_height)
+      break if actual_height <= canvas_height
+
+
+
+  render_report: (report_specs, canvas_height) ->
+    console.log "Reporter.draw_graph"
+
+    this.canvas.height = canvas_height
+    this.ctx.height = this.canvas.height
+    this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height )
+    if report_specs.header
+      y_offset = this.render_header(report_specs)
+    else
+      y_offset = 0
+    if report_specs.allocated_themes
+      y_offset = this.render_prioritized_themes(report_specs, y_offset)
+    else if report_specs.themes
+      y_offset = this.render_themes(report_specs, y_offset)
+
+
+  render_header: (report_specs) ->
+    console.log "render_header: #{report_specs.header}"
+    ctx = this.ctx
+    font_height = report_specs.font_size*1.5
+    ctx.font = "#{font_height}px #{report_specs.font_family}"
+    line_height = font_height * 1.1
+    ctx.textBaseline = "top"
+    ctx.textAlign = "left"
+    line_ctr = this.wrapText(report_specs.header, 0, 0, this.canvas.width-40, line_height);
+    line_height*line_ctr + 32
+
+
+  render_themes: (report_specs, y_offset) ->
+    console.log "render_themes"
+    width = this.canvas.width
+    ctx = this.ctx
+
+    for theme in report_specs.themes
+      #console.log theme.text
+      lineHeight = report_specs.font_size * 1.2
+      ctx.textBaseline = "top"
+      ctx.font = "#{report_specs.font_size *2}px #{report_specs.font_family}"
+      ctx.textAlign = "center"
+      ctx.fillText("#{theme.letter}", report_specs.font_size, y_offset);
+      ctx.textAlign = "left"
+      starting_height = y_offset
+      for text_line in theme.text.replace(/\[quote/mg,"\n[quote").replace(/\/quote\]/mg,"/quote]\n").replace(/\n{2,}/mg,"\n\n").split(/\n/)
+        console.log "y_offset: #{y_offset}, text: #{text_line.substring(0,40)}"
+        if text_line.match(/\[quote/)
+          ctx.font = "italic #{report_specs.font_size}px #{report_specs.font_family}"
+          text_line = text_line.replace(/\[quote[^\]]*\]/,'').replace(/\[\/quote[^\]]*\]/,'')
+          x_offset = width*.15
+          text_width = width * .85
+          y_offset -= report_specs.font_size*.8
+        else
+          ctx.font = "#{report_specs.font_size}px #{report_specs.font_family}"
+          x_offset = width*.1
+          text_width = width * .9
+        line_ctr = this.wrapText(text_line, x_offset, y_offset, text_width, lineHeight);
+        y_offset += line_ctr * lineHeight
+      theme_height = y_offset - starting_height
+      if theme_height < lineHeight * 3
+        y_offset += (lineHeight * 3 - theme_height)
+    y_offset
+
+
+  render_prioritized_themes: (report_specs, y_offset) ->
+    line_width = 24
+    y_offset += 12
+    width = this.canvas.width
+    width_text = width*.8
+    percent_width = width *.1
+    ctx = this.ctx
+    ctx.font = "#{report_specs.font_size}px #{report_specs.font_family}"
+
+    for theme in report_specs.allocated_themes
+      graph_width = theme.graph_percentage/100 * width_text
+      ctx.strokeStyle = "#3D5B9C"
+      ctx.lineWidth = line_width
+      ctx.beginPath();
+      ctx.moveTo(4,y_offset);
+      ctx.lineTo(graph_width-4,y_offset);
+      ctx.stroke();
+
+      ctx.textBaseline = "top"
+      ctx.textAlign = "left"
+      ctx.fillText("#{theme.percentage}%", width_text + 10, y_offset - line_width/2);
+      ctx.fillText("#{theme.points}pts", width_text + percent_width + 10, y_offset - line_width/2);
+
+      y_offset += 32
+
+      lineHeight = report_specs.font_size * 1.2
+      ctx.textBaseline = "middle"
+
+      line_ctr = this.wrapText(theme.text, 0, y_offset, width_text, lineHeight);
+      y_offset += line_ctr * lineHeight + 32
+    y_offset
+
+  wrapText: (text, x, y, maxWidth, lineHeight) ->
+    context = this.ctx
+    line_ctr = 1
+    words = text.split(' ')
+    line = ''
+    for word, index in words
+      testLine = line + word + ' '
+      metrics = context.measureText(testLine);
+      testWidth = metrics.width
+      if testWidth > maxWidth && index > 0
+        context.fillText(line, x, y)
+        line = word + ' '
+        y += lineHeight
+        line_ctr += 1
+      else
+        line = testLine;
+    context.fillText(line, x, y)
+    line_ctr
+
+window.Reporter = Reporter

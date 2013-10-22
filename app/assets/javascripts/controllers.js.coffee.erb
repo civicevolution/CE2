@@ -319,7 +319,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             when "deliberation2"
               '<%= path_to_asset "live/reports/themes-report.html" %>'
             when "final-allocation"
-              '<%= path_to_asset "live/reports/final-allocation-report.html" %>'
+              #'<%= path_to_asset "live/reports/final-allocation-report.html" %>'
+              '<%= path_to_asset "live/reports/report-canvas.html" %>'
         resolve:
           participant_report_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.participant_report_data($stateParams.agenda_code,$stateParams.report_name).then(
@@ -332,13 +333,42 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         onExit: ->
           angular.element(document.body).removeClass('display-page')
 
-        controller: [ "$scope", "participant_report_data",
-          ($scope, participant_report_data) ->
+        controller: [ "$scope", "participant_report_data", "$timeout",
+          ($scope, participant_report_data, $timeout) ->
             console.log "participant-report"
             $scope.participant_report_data = participant_report_data
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
-        ]
-      )
+
+            reporter = new window.Reporter()
+            $timeout ->
+              $scope.create_report()
+            ,500
+
+            $scope.test = ->
+              canvas = document.getElementById('final-allocation-canvas')
+              #G_vmlCanvasManager.initElement(canvas) if G_vmlCanvasManager?
+              #canvas.width = 900
+              #canvas.height = 1600
+              dataURL = canvas.toDataURL("image/png")
+              new_window = window.open();
+              new_window.document.write('<img src="'+dataURL+'"/>');
+
+            $scope.create_report = ->
+              console.log "$scope.create_report"
+              report_specs =
+                canvas_width: 800
+                #header: "Green spaces need to be retained, particularly green cover (e.g. near Shani Mandir) and spaces along the river."
+                header: "My allocated themes..."
+                #allocated_themes: $scope.participant_report_data.allocated_themes
+                themes: $scope.participant_report_data.allocated_themes
+                font_size: '24'
+                font_family: 'Times New Roman'
+                #font_family: 'Arial'
+
+              reporter.create_report(report_specs)
+
+          ]
+        )
 
       .state('about', {
         url: '/about',

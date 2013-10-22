@@ -29,6 +29,7 @@
 //= require services.js
 
 //= require graph.js
+//= require reporter.js
 //= require moment.js
 
 // require utilities

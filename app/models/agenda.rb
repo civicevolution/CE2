@@ -95,10 +95,10 @@ class Agenda < ActiveRecord::Base
 
   def participant_report_data(report_name)
     if Rails.env == 'development'
-      theme_codes = %w(ttzxnuapl8 u8f6bhjlx2 525ssgokpc tkvj8uucab gry7xefoym)
-      selection_code = 'vpsf5rlifd'
-      conversation_codes = %w(r20cdxmx7t qwnf98m3a1 7po16s3i2e e4r5nem8wj ll3yfsp8c0)
-      allocation_code = 'y93fb7d8to'
+      theme_codes = %w( gfoqqtr61z prujspa0dw 0n3oxo8n6r rmrfiasq1n s4ypdu1d66 )
+      selection_code = 'pxolvec6gr'
+      conversation_codes = %w( tlqudnj0th kkw5ay4njf izva2603ad iei0szxbrf pmlqve2dzi )
+      allocation_code = '8g9735qj0w'
     elsif self.id == 1 # Bangalore
       theme_codes = %w(euw7lt3fph u6s2brz7bj 35az9en2yt k677f6p41e ozxdqsvmv4 a94ve0wv0p)
       selection_code = 'hwqpv7alv3'
@@ -294,6 +294,7 @@ class Agenda < ActiveRecord::Base
     # Do the AgendaComponents after I have the new conversation ids
 
     conversations_details = {}
+    conversation_ids = []
     docs["Conversations"].each do |details|
       conversations_details[details['id']] = details
       conversation = Conversation.new
@@ -306,7 +307,10 @@ class Agenda < ActiveRecord::Base
       conversation.save
       details[:new_id] = conversation.id
       details[:new_code] = conversation.code
+      conversation_ids.push( conversation.id )
     end
+
+    agenda.update_attribute(:conversation_ids, conversation_ids)
 
 
     docs["AgendaComponents"].each do |details|
