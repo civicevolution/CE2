@@ -1,5 +1,11 @@
 .report-canvas
   %h3 Report setup
+
+  %p
+    Base font:
+    %select(ng-model="report_specs.font_family" ng-options="o.value as o.key for o in setup.font_families" ng-change="update_setup()")
+
+
   %hr
   %div.canvas-panel(ng-repeat="canvas in report_specs.canvases")
     %canvas{id: "report-canvas-{{canvas.id}}"}
