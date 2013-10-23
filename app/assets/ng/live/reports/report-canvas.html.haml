@@ -1,9 +1,8 @@
 .report-canvas
-  %h1 Canvas
-
-  %p
-    %a(ng-click="test()") Open as image
-
-  -#%canvas#final-allocation-canvas(width="800" height="800")
-  %canvas#final-allocation-canvas
+  %h3 Report setup
+  %hr
+  %div.canvas-panel(ng-repeat="canvas in report_specs.canvases")
+    %p
+      %a(ng-click="test(canvas.id)") Open canvas {{canvas.id}} as image
+    %canvas{id: "report-canvas-{{canvas.id}}"}
 

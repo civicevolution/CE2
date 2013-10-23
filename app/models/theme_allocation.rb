@@ -82,7 +82,8 @@ class ThemeAllocation < AgendaComponent
     conversations.each do |conversation|
       themes = ThemeVote.theme_votes(conversation.code, self.input[ "coordinator_user_id" ])[0..2]
       themes.each do|theme|
-        allocation_themes.push( {id: theme[:theme_id], text: theme[:text].gsub(/\[quote.*\/quote\]/m,'') } )
+        #allocation_themes.push( {id: theme[:theme_id], text: theme[:text].gsub(/\[quote.*\/quote\]/m,'') } )
+        allocation_themes.push( {id: theme[:theme_id], text: theme[:text] } )
       end
     end
 
@@ -101,18 +102,20 @@ class ThemeAllocation < AgendaComponent
 
     ltr = 'A'
     allocated_points = []
+    final_themes = []
     theme_ids.each do |id|
       theme = allocation_themes.detect{|t| t[:id] == id}
       points = theme_points[id] || 0
-      allocated_points.push( {id: id, letter: ltr, text: theme[:text],
+      allocated_points.push( {id: id, letter: ltr, text: theme[:text].gsub(/\[quote.*\/quote\]/m,''),
                               points: points,
                               percentage: total_points > 0 ? (points/total_points*100).round : 0,
                               graph_percentage: max_points > 0 ? (points/max_points*100).round : 0
-                             }
-      )
+                             })
+      final_themes.push( {id: id, letter: ltr, text: theme[:text] })
       ltr = ltr.succ
     end
 
+    self.final_themes = final_themes.sort{|a,b| a[:letter] <=> b[:letter]}
     self.allocated_points = allocated_points.sort{|b,a| a[:points] <=> b[:points]}
 
     self

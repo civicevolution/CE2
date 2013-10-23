@@ -154,10 +154,15 @@ class Agenda < ActiveRecord::Base
             ]
         }
 
+      when 'final-themes'
+        data = {
+            page_title: 'Designing our Pune Precinct: Our Top Priorities',
+            themes: AgendaComponent.find_by(code: allocation_code).results(nil,nil).final_themes
+        }
       when 'final-allocation'
         data = {
-          page_title: 'Designing our Pune Precinct: Our Top Priorities',
-          allocated_themes: AgendaComponent.find_by(code: allocation_code).results(nil,nil).allocated_points
+            page_title: 'Designing our Pune Precinct: Our Top Priorities',
+            allocated_themes: AgendaComponent.find_by(code: allocation_code).results(nil,nil).allocated_points
         }
     end
     data

@@ -321,6 +321,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             when "final-allocation"
               #'<%= path_to_asset "live/reports/final-allocation-report.html" %>'
               '<%= path_to_asset "live/reports/report-canvas.html" %>'
+            else
+              '<%= path_to_asset "live/reports/report-canvas.html" %>'
         resolve:
           participant_report_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.participant_report_data($stateParams.agenda_code,$stateParams.report_name).then(
@@ -344,8 +346,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               $scope.create_report()
             ,500
 
-            $scope.test = ->
-              canvas = document.getElementById('final-allocation-canvas')
+            $scope.test = (canvas_id) ->
+              canvas = document.getElementById("report-canvas-#{canvas_id}")
               #G_vmlCanvasManager.initElement(canvas) if G_vmlCanvasManager?
               #canvas.width = 900
               #canvas.height = 1600
@@ -357,15 +359,29 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               console.log "$scope.create_report"
               report_specs =
                 canvas_width: 800
-                #header: "Green spaces need to be retained, particularly green cover (e.g. near Shani Mandir) and spaces along the river."
-                header: "My allocated themes..."
-                #allocated_themes: $scope.participant_report_data.allocated_themes
-                themes: $scope.participant_report_data.allocated_themes
+                max_canvas_height: 1200
                 font_size: '24'
                 font_family: 'Times New Roman'
                 #font_family: 'Arial'
+              #header: "Green spaces need to be retained, particularly green cover (e.g. near Shani Mandir) and spaces along the river."
+              if $scope.participant_report_data.allocated_themes
+                report_specs.header = "My allocated themes..."
+                report_specs.allocated_themes = $scope.participant_report_data.allocated_themes
+              else if $scope.participant_report_data.themes
+                report_specs.header = "Final themes for allocation..."
+                report_specs.themes = $scope.participant_report_data.themes
+              report_specs.canvases = [{id: 1}]
+              $scope.report_specs = report_specs
 
-              reporter.create_report(report_specs)
+              start_report(report_specs)
+
+            start_report = (report_specs) ->
+              status = reporter.create_report(report_specs)
+              if status == "delay for canvas"
+                $timeout ->
+                  start_report(report_specs)
+                ,200
+
 
           ]
         )

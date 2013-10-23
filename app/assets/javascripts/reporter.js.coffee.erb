@@ -1,41 +1,93 @@
 class Reporter
 
   create_report: (report_specs) ->
-    console.log "Reporter.create_report"
-    canvas = document.getElementById('final-allocation-canvas')
-    G_vmlCanvasManager.initElement(this.canvas) if G_vmlCanvasManager?
+    #console.log "Reporter.create_report"
+    this.klass_name = "Reporter"
+    status = this.initialize_report_canvas(report_specs, 1)
+    console.log "initialize_report_canvas status: #{status}"
+    if status == "delay for canvas"
+      return "delay for canvas"
+
+    report_specs.include_header = if report_specs.header then true else false
+    if report_specs.allocated_themes
+      report_specs.num_of_themes = report_specs.allocated_themes.length
+    else if report_specs.themes
+      report_specs.num_of_themes = report_specs.themes.length
+    report_specs.theme_start_num = 0
+    report_specs.theme_end_num = report_specs.num_of_themes
+
+
+    #loop
+    [last_theme_that_fit, actual_height] = this.fit_report(report_specs)
+
+    if report_specs.theme_end_num < report_specs.num_of_themes
+      console.log "I have to add another canvas, actual_height: #{actual_height}"
+      # add a new canvas and redefine this.canvas and this.ctx
+      this.initialize_report_canvas(report_specs,0)
+      report_specs.theme_start_num = last_theme_that_fit + 1
+      report_specs.theme_end_num = report_specs.num_of_themes
+      report_specs.include_header = false
+      console.log "Printed themes to number #{last_theme_that_fit} "
+      console.log "Create a new canvas starting at #{report_specs.theme_start_num}"
+      [last_theme_that_fit, actual_height] = this.fit_report(report_specs)
+
+  initialize_report_canvas: (report_specs, canvas_id) ->
+    console.log "initialize_report_canvas for canvas_id: #{canvas_id}"
+    if canvas_id == 1
+      canvas = document.getElementById("report-canvas-#{canvas_id}")
+      return "delay for canvas" if not canvas
+    else
+      canvas = document.getElementById("report-canvas-1")
+      $scope = angular.element(canvas).scope()
+      new_canvas_number = $scope.report_specs.canvases.length + 1
+      console.log "add canvas #{new_canvas_number}"
+      $scope.report_specs.canvases.push( {id: new_canvas_number} )
+      $scope.$apply()
+      canvas = document.getElementById("report-canvas-#{new_canvas_number}")
+    G_vmlCanvasManager.initElement(canvas) if G_vmlCanvasManager?
     ctx = canvas.getContext('2d');
     canvas.width = report_specs.canvas_width
     ctx.width = canvas.width
     ctx.fillStyle = '#000';
     this.canvas = canvas
     this.ctx = ctx
+    "canvas ready"
 
+  fit_report: (report_specs) ->
     # Set initial height
     actual_height = canvas_height = 40
     # loop twice, first to determine needed height
     # second to redraw at the exact height
     loop
       canvas_height = actual_height
-      actual_height = this.render_report(report_specs, canvas_height)
+      [actual_height,last_theme_that_fit] = this.render_report(report_specs, canvas_height)
+      console.log "last_theme_that_fit: #{last_theme_that_fit}, actual_height: #{actual_height}"
+      if last_theme_that_fit < report_specs.theme_end_num
+        report_specs.theme_end_num = last_theme_that_fit
+        continue
       break if actual_height <= canvas_height
+    [last_theme_that_fit, actual_height]
 
 
 
   render_report: (report_specs, canvas_height) ->
-    console.log "Reporter.draw_graph"
+    console.log "Reporter.draw_graph with canvas_height: #{canvas_height}"
 
     this.canvas.height = canvas_height
     this.ctx.height = this.canvas.height
     this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height )
-    if report_specs.header
+    if report_specs.include_header
       y_offset = this.render_header(report_specs)
     else
       y_offset = 0
+
     if report_specs.allocated_themes
-      y_offset = this.render_prioritized_themes(report_specs, y_offset)
+      report_specs.num_of_themes = report_specs.allocated_themes.length
+      [y_offset,last_theme_that_fit] = this.render_prioritized_themes(report_specs, y_offset)
     else if report_specs.themes
-      y_offset = this.render_themes(report_specs, y_offset)
+      report_specs.num_of_themes = report_specs.themes.length
+      [y_offset,last_theme_that_fit] = this.render_themes(report_specs, y_offset)
+    return [y_offset,last_theme_that_fit]
 
 
   render_header: (report_specs) ->
@@ -54,8 +106,14 @@ class Reporter
     console.log "render_themes"
     width = this.canvas.width
     ctx = this.ctx
+    theme_ctr = 0
+    last_theme_that_fit = 0
+    last_theme_that_fit_y_offset = 0
 
     for theme in report_specs.themes
+      theme_ctr += 1
+      continue if theme_ctr < report_specs.theme_start_num
+      return [last_theme_that_fit_y_offset,last_theme_that_fit] if theme_ctr > report_specs.theme_end_num
       #console.log theme.text
       lineHeight = report_specs.font_size * 1.2
       ctx.textBaseline = "top"
@@ -65,7 +123,7 @@ class Reporter
       ctx.textAlign = "left"
       starting_height = y_offset
       for text_line in theme.text.replace(/\[quote/mg,"\n[quote").replace(/\/quote\]/mg,"/quote]\n").replace(/\n{2,}/mg,"\n\n").split(/\n/)
-        console.log "y_offset: #{y_offset}, text: #{text_line.substring(0,40)}"
+        #console.log "y_offset: #{y_offset}, text: #{text_line.substring(0,40)}"
         if text_line.match(/\[quote/)
           ctx.font = "italic #{report_specs.font_size}px #{report_specs.font_family}"
           text_line = text_line.replace(/\[quote[^\]]*\]/,'').replace(/\[\/quote[^\]]*\]/,'')
@@ -81,7 +139,11 @@ class Reporter
       theme_height = y_offset - starting_height
       if theme_height < lineHeight * 3
         y_offset += (lineHeight * 3 - theme_height)
-    y_offset
+
+      if y_offset < report_specs.max_canvas_height
+        last_theme_that_fit = theme_ctr
+        last_theme_that_fit_y_offset = y_offset
+    [last_theme_that_fit_y_offset,last_theme_that_fit]
 
 
   render_prioritized_themes: (report_specs, y_offset) ->
