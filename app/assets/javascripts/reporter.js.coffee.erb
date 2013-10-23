@@ -29,6 +29,12 @@ class Reporter
         #console.log "Printed themes to number #{last_theme_that_fit} "
         #console.log "Create a new canvas starting at #{report_specs.theme_start_num}"
       else
+        console.log "Convert the canvases in report images"
+        report_images = []
+        for canvas, index in document.getElementsByTagName("canvas")
+          report_images.push( {id: index+1, dataURL: canvas.toDataURL("image/png") })
+        report_specs.report_images = report_images
+        report_specs.canvases = []
         return
 
   initialize_report_canvas: (report_specs, canvas_id) ->

@@ -2,7 +2,12 @@
   %h3 Report setup
   %hr
   %div.canvas-panel(ng-repeat="canvas in report_specs.canvases")
-    %p
-      %a(ng-click="test(canvas.id)") Open canvas {{canvas.id}} as image
     %canvas{id: "report-canvas-{{canvas.id}}"}
+
+  %p(ng-if="report_specs.report_images")
+    %b Right click on each report image below to copy it and then paste it into a Word document
+  %div.report-images(ng-repeat="(index, report) in report_specs.report_images")
+    %p Report section {{index}}
+    %img(src="{{report.dataURL}}")
+    %hr
 

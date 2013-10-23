@@ -346,15 +346,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               $scope.create_report()
             ,500
 
-            $scope.test = (canvas_id) ->
-              canvas = document.getElementById("report-canvas-#{canvas_id}")
-              #G_vmlCanvasManager.initElement(canvas) if G_vmlCanvasManager?
-              #canvas.width = 900
-              #canvas.height = 1600
-              dataURL = canvas.toDataURL("image/png")
-              new_window = window.open();
-              new_window.document.write('<img src="'+dataURL+'"/>');
-
             $scope.create_report = ->
               console.log "$scope.create_report"
               report_specs =
