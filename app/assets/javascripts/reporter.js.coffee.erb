@@ -14,7 +14,7 @@ class Reporter
       report_specs.num_of_themes = report_specs.themes.length
     report_specs.theme_start_num = 0
     report_specs.theme_end_num = report_specs.num_of_themes
-
+    report_specs.max_canvas_height = report_specs.max_canvas_height_first_block
 
     loop
       [last_theme_that_fit, actual_height] = this.fit_report(report_specs)
@@ -22,6 +22,7 @@ class Reporter
       if report_specs.theme_end_num < report_specs.num_of_themes
         #console.log "I have to add another canvas, actual_height: #{actual_height}"
         # add a new canvas and redefine this.canvas and this.ctx
+        report_specs.max_canvas_height = report_specs.max_canvas_height_addtl_blocks
         this.initialize_report_canvas(report_specs,0)
         report_specs.theme_start_num = last_theme_that_fit + 1
         report_specs.theme_end_num = report_specs.num_of_themes
@@ -128,7 +129,10 @@ class Reporter
       ctx.fillText("#{theme.letter}", report_specs.font_size, y_offset);
       ctx.textAlign = "left"
       starting_height = y_offset
-      for text_line in theme.text.replace(/\[quote/mg,"\n[quote").replace(/\/quote\]/mg,"/quote]\n").replace(/\n{2,}/mg,"\n\n").split(/\n/)
+      theme_text = theme.text
+      if report_specs.hide_examples
+        theme_text = theme_text.replace(/\[quote.*\/quote\]/mg,'')
+      for text_line in theme_text.replace(/\[quote/mg,"\n[quote").replace(/\/quote\]/mg,"/quote]\n").replace(/\n{2,}/mg,"\n\n").split(/\n/)
         #console.log "y_offset: #{y_offset}, #{theme.letter} text: #{text_line.substring(0,40)}"
         if text_line.match(/\[quote/)
           ctx.font = "italic #{report_specs.font_size}px #{report_specs.font_family}"

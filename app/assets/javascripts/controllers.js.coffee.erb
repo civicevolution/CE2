@@ -338,7 +338,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
   
             $scope.setup = {}
             $scope.report_specs.canvas_width = 800
-            $scope.report_specs.max_canvas_height = 1200
+            $scope.report_specs.max_canvas_height_first_block = 1200
+            $scope.report_specs.max_canvas_height_addtl_blocks = 1200
+            $scope.report_specs.hide_examples = false
             $scope.report_specs.font_family = "Times New Roman"
             $scope.setup.font_families = [
               {value: 'Times New Roman', key: 'Times New Roman'},

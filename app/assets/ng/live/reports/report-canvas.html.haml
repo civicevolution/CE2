@@ -6,6 +6,9 @@
     %select(ng-model="report_specs.data_set_name" ng-options="o.value as o.key for o in setup.data_sets" ng-change="update_data_set()")
       %option(value="" disabled selected) Select the data for this report
 
+  %p
+    %input(type='checkbox' ng-model="report_specs.hide_examples" ng-checked="report_specs.hide_examples" ng-change="update_setup()")
+      Hide example quotes
 
   %p
     Report header:
@@ -19,8 +22,10 @@
   %p
     Width:
     %input.size(ng-model="report_specs.canvas_width")
-    Height:
-    %input.size(ng-model="report_specs.max_canvas_height")
+    Height of first block:
+    %input.size(ng-model="report_specs.max_canvas_height_first_block")
+    Height of subsequent blocks:
+    %input.size(ng-model="report_specs.max_canvas_height_addtl_blocks")
 
   %p
     %button.btn-primary.btn(ng-click="update_setup()") Re-display report
