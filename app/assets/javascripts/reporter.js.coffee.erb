@@ -99,17 +99,17 @@ class Reporter
   render_header: (report_specs) ->
     console.log "render_header: #{report_specs.header}"
     ctx = this.ctx
-    font_height = report_specs.font_size*1.5
+    font_height = report_specs.font_size*1.3
     ctx.font = "#{font_height}px #{report_specs.font_family}"
     line_height = font_height * 1.1
     ctx.textBaseline = "top"
     ctx.textAlign = "left"
     line_ctr = this.wrapText(report_specs.header_text, 0, 0, this.canvas.width-40, line_height);
-    line_height*line_ctr + 32
+    line_height*line_ctr + line_height*.5
 
 
   render_themes: (report_specs, y_offset) ->
-    console.log "render_themes"
+    #console.log "render_themes"
     width = this.canvas.width
     ctx = this.ctx
     theme_ctr = 0
@@ -166,8 +166,15 @@ class Reporter
     percent_width = width *.1
     ctx = this.ctx
     ctx.font = "#{report_specs.font_size}px #{report_specs.font_family}"
+    theme_ctr = 0
+    last_theme_that_fit = 0
+    last_theme_that_fit_y_offset = 0
 
     for theme in report_specs.allocated_themes
+      theme_ctr += 1
+      continue if theme_ctr < report_specs.theme_start_num
+      return [last_theme_that_fit_y_offset,last_theme_that_fit] if theme_ctr > report_specs.theme_end_num
+
       graph_width = theme.graph_percentage/100 * width_text
       ctx.strokeStyle = "#3D5B9C"
       ctx.lineWidth = line_width
@@ -188,7 +195,17 @@ class Reporter
 
       line_ctr = this.wrapText(theme.text, 0, y_offset, width_text, lineHeight);
       y_offset += line_ctr * lineHeight + 32
-    y_offset
+
+      if y_offset < report_specs.max_canvas_height
+        last_theme_that_fit = theme_ctr
+        last_theme_that_fit_y_offset = y_offset
+        #console.log "Found last_theme_that_fit: #{last_theme_that_fit}"
+      else
+        if last_theme_that_fit == 0
+          last_theme_that_fit = theme_ctr
+          last_theme_that_fit_y_offset = y_offset
+        return [last_theme_that_fit_y_offset,last_theme_that_fit]
+    [last_theme_that_fit_y_offset,last_theme_that_fit]
 
   wrapText: (text, x, y, maxWidth, lineHeight) ->
     context = this.ctx

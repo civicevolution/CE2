@@ -9,18 +9,18 @@
 
   %p
     Report header:
-    %input(ng-model="report_specs.header_text")
+    %input.header(ng-model="report_specs.header_text")
 
   %p
     Base font:
     %select(ng-model="report_specs.font_family" ng-options="o.value as o.key for o in setup.font_families" ng-change="update_setup()")
-    %select(ng-model="report_specs.font_size" ng-options="o.value as o.key for o in setup.font_sizes" ng-change="update_setup()")
+    %select.size(ng-model="report_specs.font_size" ng-options="o.value as o.key for o in setup.font_sizes" ng-change="update_setup()")
 
   %p
     Width:
-    %input(ng-model="report_specs.canvas_width")
+    %input.size(ng-model="report_specs.canvas_width")
     Height:
-    %input(ng-model="report_specs.max_canvas_height")
+    %input.size(ng-model="report_specs.max_canvas_height")
 
   %p
     %button.btn-primary.btn(ng-click="update_setup()") Re-display report
@@ -32,7 +32,6 @@
   %p(ng-if="report_specs.report_images")
     %b Right click on each report image below to copy it and then paste it into a Word document
   %div.report-images(ng-repeat="(index, report) in report_specs.report_images")
-    %p Report section {{index}}
+    %p Report section {{index + 1}}
     %img(src="{{report.dataURL}}")
-    %hr
 
