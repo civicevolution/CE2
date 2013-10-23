@@ -2,9 +2,28 @@
   %h3 Report setup
 
   %p
+    Data to report:
+    %select(ng-model="report_specs.data_set_name" ng-options="o.value as o.key for o in setup.data_sets" ng-change="update_data_set()")
+      %option(value="" disabled selected) Select the data for this report
+
+
+  %p
+    Report header:
+    %input(ng-model="report_specs.header_text")
+
+  %p
     Base font:
     %select(ng-model="report_specs.font_family" ng-options="o.value as o.key for o in setup.font_families" ng-change="update_setup()")
+    %select(ng-model="report_specs.font_size" ng-options="o.value as o.key for o in setup.font_sizes" ng-change="update_setup()")
 
+  %p
+    Width:
+    %input(ng-model="report_specs.canvas_width")
+    Height:
+    %input(ng-model="report_specs.max_canvas_height")
+
+  %p
+    %button.btn-primary.btn(ng-click="update_setup()") Re-display report
 
   %hr
   %div.canvas-panel(ng-repeat="canvas in report_specs.canvases")

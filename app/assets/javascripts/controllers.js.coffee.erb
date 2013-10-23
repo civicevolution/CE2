@@ -312,61 +312,24 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
       .state('participant-report',
         url: "/agenda/{agenda_code}/participant-report/{report_name}"
-        templateUrl: (stateParams) ->
-          switch stateParams.report_name
-            when "deliberation1"
-              '<%= path_to_asset "live/reports/themes-report.html" %>'
-            when "deliberation2"
-              '<%= path_to_asset "live/reports/themes-report.html" %>'
-            when "final-allocation"
-              #'<%= path_to_asset "live/reports/final-allocation-report.html" %>'
-              '<%= path_to_asset "live/reports/report-canvas.html" %>'
-            else
-              '<%= path_to_asset "live/reports/report-canvas.html" %>'
-        resolve:
-          participant_report_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-            AgendaData.participant_report_data($stateParams.agenda_code,$stateParams.report_name).then(
-              (response)->
-                response.data
-            )
-          ]
+        templateUrl: '<%= path_to_asset "live/reports/report-canvas.html" %>'
         onEnter: ->
           angular.element(document.body).addClass('display-page')
         onExit: ->
           angular.element(document.body).removeClass('display-page')
 
-        controller: [ "$scope", "participant_report_data", "$timeout",
-          ($scope, participant_report_data, $timeout) ->
+        controller: [ "$scope", "$timeout", "$state", "AgendaData",
+          ($scope, $timeout, $state, AgendaData) ->
             console.log "participant-report"
-            $scope.participant_report_data = participant_report_data
+            #$scope.participant_report_data = participant_report_data
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
 
             $scope.report_specs = {}
 
             reporter = new window.Reporter()
-            $timeout ->
-              $scope.create_report()
-            ,500
-
-            $scope.create_report = ->
-              console.log "$scope.create_report"
-              $scope.report_specs.canvas_width = 800
-              $scope.report_specs.max_canvas_height = 1200
-              $scope.report_specs.font_size = '24'
-                #font_family: 'Times New Roman'
-                #font_family: 'Arial'
-              #header: "Green spaces need to be retained, particularly green cover (e.g. near Shani Mandir) and spaces along the river."
-              if $scope.participant_report_data.allocated_themes
-                $scope.report_specs.header = "My allocated themes..."
-                $scope.report_specs.allocated_themes = $scope.participant_report_data.allocated_themes
-              else if $scope.participant_report_data.themes
-                $scope.report_specs.header = "Final themes for allocation..."
-                $scope.report_specs.themes = $scope.participant_report_data.themes
-              $scope.report_specs.canvases = [{id: 1}]
-
-              start_report($scope.report_specs)
 
             start_report = (report_specs) ->
+              console.log "start_report"
               status = reporter.create_report(report_specs)
               if status == "delay for canvas"
                 $timeout ->
@@ -374,14 +337,42 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 ,200
   
             $scope.setup = {}
+            $scope.report_specs.canvas_width = 800
+            $scope.report_specs.max_canvas_height = 1200
             $scope.report_specs.font_family = "Times New Roman"
             $scope.setup.font_families = [
               {value: 'Times New Roman', key: 'Times New Roman'},
               {value: 'Arial', key: 'Arial'}
             ]
+            $scope.report_specs.font_size = "24"
+            $scope.setup.font_sizes = [
+              {value: '16', key: '16'},
+              {value: '18', key: '18'},
+              {value: '20', key: '20'},
+              {value: '22', key: '22'},
+              {value: '24', key: '24'},
+              {value: '26', key: '26'},
+              {value: '28', key: '28'},
+              {value: '30', key: '30'},
+              {value: '32', key: '32'}
+            ]
+            $scope.setup.data_sets = [
+              {value: 'final-themes', key: 'Final themes for allocation'},
+              {value: 'prioritised-final-themes', key: 'Prioritised final themes'}
+            ]
+            $scope.update_data_set = ->
+              console.log "update_data_set with #{$scope.report_specs.data_set_name}"
+              AgendaData.participant_report_data($state.params.agenda_code,$scope.report_specs.data_set_name).then(
+                (response)->
+                  $scope.report_specs.header_text = response.data.title
+                  $scope.report_specs.allocated_themes = response.data.allocated_themes
+                  $scope.report_specs.themes = response.data.themes
+              )
+
             $scope.update_setup = ->
               console.log " update_setup"
-              $scope.create_report()
+              $scope.report_specs.canvases = [{id: 1}]
+              start_report($scope.report_specs)
 
         ]
         )

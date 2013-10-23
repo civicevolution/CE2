@@ -7,7 +7,7 @@ class Reporter
     if status == "delay for canvas"
       return "delay for canvas"
 
-    report_specs.include_header = if report_specs.header then true else false
+    report_specs.include_header = if report_specs.header_text then true else false
     if report_specs.allocated_themes
       report_specs.num_of_themes = report_specs.allocated_themes.length
     else if report_specs.themes
@@ -104,7 +104,7 @@ class Reporter
     line_height = font_height * 1.1
     ctx.textBaseline = "top"
     ctx.textAlign = "left"
-    line_ctr = this.wrapText(report_specs.header, 0, 0, this.canvas.width-40, line_height);
+    line_ctr = this.wrapText(report_specs.header_text, 0, 0, this.canvas.width-40, line_height);
     line_height*line_ctr + 32
 
 

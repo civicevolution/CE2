@@ -43,7 +43,7 @@ module Api
 
       def participant_report_data
         agenda = Agenda.find_by(code: params[:id])
-        render json: agenda.participant_report_data(params[:report_name])
+        render json: agenda.participant_report_data(params[:data_set_name])
       end
 
       def export

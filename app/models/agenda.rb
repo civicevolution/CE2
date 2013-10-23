@@ -93,7 +93,7 @@ class Agenda < ActiveRecord::Base
     participant_report_components.map(&:participant_report_details)
   end
 
-  def participant_report_data(report_name)
+  def participant_report_data(data_set_name)
     if Rails.env == 'development'
       theme_codes = %w( gfoqqtr61z prujspa0dw 0n3oxo8n6r rmrfiasq1n s4ypdu1d66 )
       selection_code = 'pxolvec6gr'
@@ -111,7 +111,7 @@ class Agenda < ActiveRecord::Base
       allocation_code = '1wtjjvzttk'
     end
 
-    case report_name
+    case data_set_name
       when 'deliberation1'
         # return the
         # headers + themes for 2 conversations
@@ -128,7 +128,7 @@ class Agenda < ActiveRecord::Base
             }
           ]
         }
-
+        
       when 'deliberation2'
         data = {
             page_title: 'Designing our Pune Precinct: Deliberation session 2',
@@ -156,12 +156,12 @@ class Agenda < ActiveRecord::Base
 
       when 'final-themes'
         data = {
-            page_title: 'Designing our Pune Precinct: Our Top Priorities',
+            title: 'Final themes: Designing our Pune Precinct',
             themes: AgendaComponent.find_by(code: allocation_code).results(nil,nil).final_themes
         }
-      when 'final-allocation'
+      when 'prioritised-final-themes'
         data = {
-            page_title: 'Designing our Pune Precinct: Our Top Priorities',
+            title: 'Our Top Priorities: Designing our Pune Precinct',
             allocated_themes: AgendaComponent.find_by(code: allocation_code).results(nil,nil).allocated_points
         }
     end

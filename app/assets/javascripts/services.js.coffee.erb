@@ -549,8 +549,8 @@ services.factory "AgendaData", ["$http",
     participant_report: (code) ->
       $http.get("/api/agendas/#{code}/participant_report.json")
 
-    participant_report_data: (agenda_code, report_name) ->
-      $http.get("/api/agendas/#{agenda_code}/participant_report_data.json?report_name=#{report_name}")
+    participant_report_data: (agenda_code, data_set_name) ->
+      $http.get("/api/agendas/#{agenda_code}/participant_report_data.json?data_set_name=#{data_set_name}")
 
 ]
 services.factory "ComponentData", ["$http",
