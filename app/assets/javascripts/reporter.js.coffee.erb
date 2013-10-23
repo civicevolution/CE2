@@ -2,9 +2,8 @@ class Reporter
 
   create_report: (report_specs) ->
     #console.log "Reporter.create_report"
-    this.klass_name = "Reporter"
     status = this.initialize_report_canvas(report_specs, 1)
-    console.log "initialize_report_canvas status: #{status}"
+    #console.log "initialize_report_canvas status: #{status}"
     if status == "delay for canvas"
       return "delay for canvas"
 
@@ -17,19 +16,20 @@ class Reporter
     report_specs.theme_end_num = report_specs.num_of_themes
 
 
-    #loop
-    [last_theme_that_fit, actual_height] = this.fit_report(report_specs)
-
-    if report_specs.theme_end_num < report_specs.num_of_themes
-      console.log "I have to add another canvas, actual_height: #{actual_height}"
-      # add a new canvas and redefine this.canvas and this.ctx
-      this.initialize_report_canvas(report_specs,0)
-      report_specs.theme_start_num = last_theme_that_fit + 1
-      report_specs.theme_end_num = report_specs.num_of_themes
-      report_specs.include_header = false
-      console.log "Printed themes to number #{last_theme_that_fit} "
-      console.log "Create a new canvas starting at #{report_specs.theme_start_num}"
+    loop
       [last_theme_that_fit, actual_height] = this.fit_report(report_specs)
+
+      if report_specs.theme_end_num < report_specs.num_of_themes
+        #console.log "I have to add another canvas, actual_height: #{actual_height}"
+        # add a new canvas and redefine this.canvas and this.ctx
+        this.initialize_report_canvas(report_specs,0)
+        report_specs.theme_start_num = last_theme_that_fit + 1
+        report_specs.theme_end_num = report_specs.num_of_themes
+        report_specs.include_header = false
+        #console.log "Printed themes to number #{last_theme_that_fit} "
+        #console.log "Create a new canvas starting at #{report_specs.theme_start_num}"
+      else
+        return
 
   initialize_report_canvas: (report_specs, canvas_id) ->
     console.log "initialize_report_canvas for canvas_id: #{canvas_id}"
@@ -123,7 +123,7 @@ class Reporter
       ctx.textAlign = "left"
       starting_height = y_offset
       for text_line in theme.text.replace(/\[quote/mg,"\n[quote").replace(/\/quote\]/mg,"/quote]\n").replace(/\n{2,}/mg,"\n\n").split(/\n/)
-        #console.log "y_offset: #{y_offset}, text: #{text_line.substring(0,40)}"
+        #console.log "y_offset: #{y_offset}, #{theme.letter} text: #{text_line.substring(0,40)}"
         if text_line.match(/\[quote/)
           ctx.font = "italic #{report_specs.font_size}px #{report_specs.font_family}"
           text_line = text_line.replace(/\[quote[^\]]*\]/,'').replace(/\[\/quote[^\]]*\]/,'')
@@ -143,6 +143,12 @@ class Reporter
       if y_offset < report_specs.max_canvas_height
         last_theme_that_fit = theme_ctr
         last_theme_that_fit_y_offset = y_offset
+        #console.log "Found last_theme_that_fit: #{last_theme_that_fit}"
+      else
+        if last_theme_that_fit == 0
+          last_theme_that_fit = theme_ctr
+          last_theme_that_fit_y_offset = y_offset
+        return [last_theme_that_fit_y_offset,last_theme_that_fit]
     [last_theme_that_fit_y_offset,last_theme_that_fit]
 
 
