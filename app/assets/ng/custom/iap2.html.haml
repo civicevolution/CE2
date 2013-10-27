@@ -62,11 +62,12 @@
 
     %hr
 
-    %div(ng-repeat="comp in agenda.menu_data" )
-      %h4 {{comp.descriptive_name}}
-      %div(ng-include="'/assets/live/menu/' + comp.menu_template + '.html'")
+    %div(ng-repeat="link in agenda.menu_data" )
+      %h4{id: "{{link.link_code}}"}
+        %a{href: "{{link.href}}"}
+          {{link.title}}
 
-    %div(ng-if="user.first_name == 'Coordinator' || user.first_name == 'Reporter'")
+    -#%div(ng-if="user.first_name == 'Coordinator' || user.first_name == 'Reporter'")
 
       %h4
         %a(href="/#/cmp/vd2o2kmch2/select-results/bpr8hkxrsw/what-do-you-want-to-keep-in-dattawadi")
@@ -124,62 +125,3 @@
 
     %hr
       %a(ng-click="signout_role()") Sign out
-
-    -#%hr
-      %p
-        %a(href="/#/cmp/on0dc47axr/sgd/6ko91rkoem/xyz")
-          Group Scribe click here to enter comments and ideas for questions 1 & 2
-      %p
-        %a(href="/#/cmp/atw06kwq2d/sgd_theme/what-could-we-do-differently-to-scale-up-to-address")
-          Q1 Theme team 1
-      %p
-        %a(href="/#/cmp/ncux4g28f2/sgd_theme/what-could-we-do-differently-to-scale-up-to-address")
-          Q1 Theme team 2
-      %p
-        %a(href="/#/cmp/r84dimztm3/sgd_theme/what-could-we-do-differently-to-scale-up-to-address")
-          Q1 Theme team 3
-      %p
-        %a(href="/#/cmp/oli411olr0/sgd_theme/what-could-we-do-differently-to-scale-up-to-address")
-          Q2 Theme team 1
-      %p
-        %a(href="/#/cmp/3y85w0s2e1/sgd_theme/what-could-we-do-differently-to-scale-up-to-address")
-          Q2 Theme team 2
-      %p
-        %a(href="/#/cmp/ofjrdisvok/sgd_theme/what-could-we-do-differently-to-scale-up-to-address")
-          Q2 Theme team 3
-      %p
-        %a(href="/#/cmp/euw7lt3fph/themes_theme/xyz")
-          Q1 Coordinator
-      %p
-        %a(href="/#/cmp/u6s2brz7bj/themes_theme/xyz")
-          Q2 Coordinator
-
-      %p
-        %a(href="/#/cmp/euw7lt3fph/theme-results/what-could-we-do-differently-to-scale-up-to-address")
-          Q1 Essential themes
-      %p
-        %a(href="/#/cmp/u6s2brz7bj/theme-results/what-could-we-do-differently-to-scale-up-to-address")
-          Q2 Essential themes
-
-
-      %p
-        %a(href="/#/cmp/g3cbh2fixd/sgd/plps8t4gtz/xyz")
-          Group Scribe click here to enter comments and ideas for Session 2 Deliberation questions 3, 4 & 5
-
-
-      %p
-        %a(href="/#/cmp/hwqpv7alv3/allocate/what-could-we-do-differently-to-scale-up-to-address")
-          Q1 Priorisation
-      %p
-        %a(href="/#/cmp/yvoah9heyj/allocate/what-could-we-do-differently-to-scale-up-to-address")
-          Q2 Priorisation
-
-      %p
-        %a(href="/#/cmp/hwqpv7alv3/allocate-results/what-could-we-do-differently-to-scale-up-to-address")
-          Q1 Priorisation results
-      %p
-        %a(href="/#/cmp/yvoah9heyj/allocate-results/what-could-we-do-differently-to-scale-up-to-address")
-          Q2 Priorisation results
-
-
-

@@ -2,7 +2,7 @@ module Api
   module V1
 
     class AgendasController < Api::BaseController
-      skip_authorization_check :only => [:agenda, :agenda_for_component, :accept_role, :release_role, :role_menu_data, :participant_report, :export, :import, :agendas, :participant_report_data]
+      skip_authorization_check :only => [:agenda, :agenda_for_component, :accept_role, :release_role, :participant_report, :export, :import, :agendas, :participant_report_data, :data_set]
 
       def agenda
         agenda = Agenda.find_by(code: params[:id])
@@ -29,11 +29,6 @@ module Api
         agenda.release_role( current_user )
         sign_out(current_user) unless current_user.nil?
         render json: "Sign out successful"
-      end
-
-      def role_menu_data
-        agenda = Agenda.find_by(code: params[:id])
-        render json: agenda.role_menu_data( current_user )
       end
 
       def participant_report
@@ -87,6 +82,11 @@ module Api
         render json: Agenda.agendas
       end
 
+      def data_set
+        agenda = Agenda.find_by(code: params[:id])
+        #authorize! :data_set, agenda
+        render json: agenda.data_set(current_user, params[:link_code])
+      end
 
     end
   end

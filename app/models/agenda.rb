@@ -57,31 +57,26 @@ class Agenda < ActiveRecord::Base
   end
 
   def agenda_data(current_user)
+    agenda_details = self.get_details
+    menu_data = []
+
     # get the role for this user
-    if current_user.nil?
-      menu_data = []
-    else
-      role = current_user.email.match(/agenda-\d+-(\w+)-\d/).try{ |matches| matches[1] } || ''
-      role_relevant_components = AgendaComponent.where("agenda_id = ? AND (?) = ANY (menu_roles)",self.id, role).order(:starts_at)
-      menu_data = role_relevant_components.map{|c| c.menu_details(role, current_user.email)}.compact
+    role, role_id = self.get_role(current_user)
+    if role
+      # use agenda_details to construct the menu_data
+      agenda_details["links"][role].each_value do |link|
+        menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"]})
+      end
     end
 
     details = {
         title: self.title,
-        munged_title: self.title.gsub(/\s/, "-").gsub(/[^\w&-]/,'').downcase[0..50],
+        munged_title: self.munged_title,
         description: self.description,
         test_mode: self.test_mode,
         code: self.code,
-        template_name: template_name,
         menu_data: menu_data
     }
-  end
-
-  def role_menu_data(current_user)
-    # get the role for this user
-    role = current_user.email.match(/agenda-\d+-(\w+)-\d/)[1]
-    role_relevant_components = AgendaComponent.where("agenda_id = ? AND (?) = ANY (menu_roles)",self.id, role).order(:ends_at)
-    menu_data = role_relevant_components.map{|c| c.menu_details(role, current_user.email)}.compact
   end
 
   def munged_title
@@ -605,7 +600,7 @@ class Agenda < ActiveRecord::Base
   end
 
   def coordinator
-    User.where("email ~* 'agenda-#{self.id}-coordinator-1'")
+    User.find_by("email ~* 'agenda-#{self.id}-coordinator-1'")
   end
 
   def themers
@@ -618,13 +613,18 @@ class Agenda < ActiveRecord::Base
 
   def conversations
     # collect the conversation ids from the component inputs
-    conversation_ids = []
-    self.agenda_components.each do |c|
-      c.input.each_pair do|key,value|
-        if key.match(/conversation/)
-          conversation_ids << value
+    if self.conversation_ids.nil?
+      conversation_ids = []
+      self.agenda_components.each do |c|
+        c.input.each_pair do|key,value|
+          if key.match(/conversation/)
+            conversation_ids << value
+          end
         end
       end
+      self.update_attribute(:conversation_ids, conversation_ids)
+    else
+      conversation_ids = self.conversation_ids
     end
     conversations = Conversation.where(id: conversation_ids.flatten.uniq).order(:id)
   end
@@ -632,6 +632,100 @@ class Agenda < ActiveRecord::Base
   def self.agendas
     #Agenda.where(list: true).select('code, title')
     Agenda.where(list: true).map{|a| {code: a.code, title: a.title, munged_title: a.munged_title } }
+  end
+
+  def data_set( current_user, link_code )
+    Rails.logger.debug "Agenda.data_set with link_code: #{link_code}"
+
+    role, role_id = self.get_role(current_user)
+
+    agenda_details = self.get_details
+
+    link = agenda_details["links"][role][link_code]
+
+    raise "CivicEvolution::InvalidLinkCode for role: #{role}, link_code: #{link_code}" if link.nil?
+
+    details = agenda_details["data_sets"][ link["data_set"] ]
+    details["data_class"].constantize.send( details["data_method"], details["parameters"] )
+
+  end
+
+
+
+  def get_details
+    # hardcode the details for development and then create save/retrieve from db
+
+    agenda_details = self.details
+    return self.details unless self.details.nil?
+
+    agenda_details = {}
+
+    agenda_details[:conversations] = self.conversations.includes(:title_comment).map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
+
+    agenda_details[:theme_map] =
+      {
+        1=>[357,354,356],
+        2=>[355,360,363],
+        3=>[359,358,365]
+      }
+
+    agenda_details[:coordinator_user_id] = self.coordinator.id
+
+    agenda_details[:links] = {
+      coordinator: {},
+      themer:{},
+      group: {},
+      reporter: {},
+      public: {}
+    }
+
+    agenda_details[:data_sets] = {}
+    agenda_details[:links][:lookup] = {}
+    agenda_details[:conversations].each_index do |conv_index|
+      conversation = agenda_details[:conversations][conv_index]
+
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+        title: %Q|Display final themes for "#{conversation[:title]}"|,
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/theme-results/#{conversation[:munged_title]}",
+        data_set: "conversation-#{conv_index + 1}-final-themes",
+        disabled: false,
+        role: 'reporter'
+      }
+      agenda_details[:links][:reporter][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "reporter"
+
+      agenda_details[:data_sets]["conversation-#{conv_index + 1}-final-themes"] =
+          {
+              data_class: "ThemeSmallGroupTheme",
+              data_method: "data_key_themes_with_examples",
+              parameters: { conversation_id: conversation[:id], coordinator_user_id: agenda_details[:coordinator_user_id] }
+          }
+
+
+    end
+
+
+    self.update_attribute(:details, agenda_details)
+    agenda_details
+  end
+
+  def create_link_code(codes_hash)
+    begin
+      code = (0..2).map{ ('a'..'z').to_a[rand(26)] }.join
+    end while codes_hash[code]
+    code  # return a code that is not used yet
+  end
+
+  def get_role(current_user)
+    match = current_user.try{|user| user.email.match(/agenda-#{self.id}-(\w*)-(\d+)/)}
+    if match
+      return match[1], match[2]
+    else
+      return nil, nil
+    end
+
   end
 
 end

@@ -223,6 +223,10 @@ ce2_directives.directive('ceUserBar', ->
             component_code = $location.$$path.match(/\/cmp\/(\w+).*/)[1]
             new_url = "/agenda/code:#{component_code}/agenda-home"
             $location.path( new_url)
+          when $location.$$path.match(/\/agenda\/\w+-\w+/)
+            agenda_code = $location.$$path.match(/\/agenda\/(\w+)-.*/)[1]
+            new_url = "/agenda/#{agenda_code}/agenda-home"
+            $location.path( new_url)
           when $location.$$path.match(/\/agenda\/.*/)
             $location.path( "/events" )
           when $location.$$path.match(/\/events.*/)

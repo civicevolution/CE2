@@ -180,8 +180,11 @@ Ce2::Application.routes.draw do
         post 'reset', on: :member
         get 'participant_report_data', on: :member
       end
+      get 'agendas/:id/link/:link_code/data_set(.:format)', to: 'agendas#data_set'
     end
   end
+
+
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
