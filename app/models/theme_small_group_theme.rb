@@ -95,7 +95,7 @@ class ThemeSmallGroupTheme < AgendaComponent
 
 
   def self.data_key_themes_with_examples(params)
-    conversation = Conversation.includes(:title_comment).find_by(id: params["conversation_id"])
+    conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
     themes = conversation.theme_comments.where(user_id: params["coordinator_user_id"]).order(:order_id)
     themes = themes.map{|theme| {id: theme.id, order_id: theme.order_id, text: theme.text}}
     {title: conversation.title, themes: themes}

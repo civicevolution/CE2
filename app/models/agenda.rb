@@ -641,16 +641,24 @@ class Agenda < ActiveRecord::Base
 
     agenda_details = self.get_details
 
-    link = agenda_details["links"][role][link_code]
+    link_details = agenda_details["links"][role][link_code]
 
-    raise "CivicEvolution::InvalidLinkCode for role: #{role}, link_code: #{link_code}" if link.nil?
+    raise "CivicEvolution::InvalidLinkCode for role: #{role}, link_code: #{link_code}" if link_details.nil?
 
-    details = agenda_details["data_sets"][ link["data_set"] ]
-    details["data_class"].constantize.send( details["data_method"], details["parameters"] )
+    data_set_details = agenda_details["data_sets"][ link_details["data_set"] ]
+
+    # check if there are any parameters that need to be evaluated for their interpolated variables
+    data_set_details["parameters"].each_pair do |key,value|
+      Rails.logger.debug "value for eval: #{value}"
+      data_set_details["parameters"][key] = eval( '"' + value + '"') if value.class.to_s == 'String' && value.match(/#/)
+    end
+    data_set_details["parameters"]["current_user"] = current_user
+
+    data_set_details["parameters"].each_pair{|key,value| Rails.logger.debug "#{key}: #{value}" }
+
+    data_set_details["data_class"].constantize.send( data_set_details["data_method"], data_set_details["parameters"] )
 
   end
-
-
 
   def get_details
     # hardcode the details for development and then create save/retrieve from db
@@ -684,27 +692,55 @@ class Agenda < ActiveRecord::Base
     agenda_details[:conversations].each_index do |conv_index|
       conversation = agenda_details[:conversations][conv_index]
 
+      # link for display final themes
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
         title: %Q|Display final themes for "#{conversation[:title]}"|,
         link_code:  link_code,
         href: "/#/agenda/#{self.code}-#{link_code}/theme-results/#{conversation[:munged_title]}",
-        data_set: "conversation-#{conv_index + 1}-final-themes",
+        conversation_code: "#{conversation[:code]}",
+        data_set: "conversation-final-themes",
         disabled: false,
         role: 'reporter'
       }
       agenda_details[:links][:reporter][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "reporter"
 
-      agenda_details[:data_sets]["conversation-#{conv_index + 1}-final-themes"] =
-          {
-              data_class: "ThemeSmallGroupTheme",
-              data_method: "data_key_themes_with_examples",
-              parameters: { conversation_id: conversation[:id], coordinator_user_id: agenda_details[:coordinator_user_id] }
-          }
+      # link for theme small group deliberation
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Theme groups for "#{conversation[:title]}"|,
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/sgd-theme/#{conversation[:munged_title]}",
+          conversation_code: "#{conversation[:code]}",
+          data_set: "theme-small-group",
+          disabled: false,
+          role: 'reporter'
+      }
+      agenda_details[:links][:themer][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "themer"
 
 
     end
+    agenda_details[:data_sets]["conversation-final-themes"] =
+        {
+            data_class: "ThemeSmallGroupTheme",
+            data_method: "data_key_themes_with_examples",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}',
+                coordinator_user_id: agenda_details[:coordinator_user_id]
+            }
+        }
+
+    agenda_details[:data_sets]["theme-small-group"] =
+        {
+            data_class: "ThemeSmallGroupDeliberation",
+            data_method: "data_theme_small_groups_page_data",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}',
+                group_user_ids: '#{agenda_details["theme_map"][role_id]}'
+            }
+        }
 
 
     self.update_attribute(:details, agenda_details)

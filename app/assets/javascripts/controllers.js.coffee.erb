@@ -168,6 +168,16 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: small_group_deliberation_theme_controller
       )
 
+      .state( 'theme-small-group-discussion-agenda',
+        url: "/agenda/{agenda_code}-{link_code}/sgd-theme/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/theme.html" %>'
+        resolve:
+          theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.data_set('sgd-theme', $stateParams.agenda_code, $stateParams.link_code)
+          ]
+        controller: small_group_deliberation_theme_controller
+      )
+
       .state( 'theme-small-group-themes',
         url: "/cmp/{component_code}/themes_theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
@@ -178,12 +188,22 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: small_group_deliberation_theme_controller
       )
 
-      .state('display-themes-agenda',
+    .state( 'theme-small-group-themes-agenda',
+        url: "/agenda/{agenda_code}-{link_code}/themes-theme/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/theme.html" %>'
+        resolve:
+          theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.data_set('themes-theme', $stateParams.agenda_code, $stateParams.link_code)
+          ]
+        controller: small_group_deliberation_theme_controller
+      )
+
+    .state('display-themes-agenda',
         url: "/agenda/{agenda_code}-{link_code}/theme-results/{munged_title}"
         templateUrl: '<%= path_to_asset "live/themes.html" %>'
         resolve:
           themes_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-            AgendaData.data_set($stateParams.agenda_code, $stateParams.link_code)
+            AgendaData.data_set('theme-results', $stateParams.agenda_code, $stateParams.link_code)
           ]
         onEnter: ->
           angular.element(document.body).addClass('display-page')
@@ -663,7 +683,17 @@ ce2_app.controller 'ActivityMonitorController', ($scope, User, $dialog) ->
 
 small_group_deliberation_theme_controller = [ "$scope", "theming_data", "FirebaseService", "$timeout", "$dialog", "ThemeData",
   ($scope, theming_data, FirebaseService, $timeout, $dialog, ThemeData) ->
-    console.log "In conversation state controller at bottom"
+    #console.log "In conversation state controller at bottom"
+
+    if theming_data.data_set_state == 'sgd-theme'
+      theming_data = process_team_theming_data(theming_data)
+    else if theming_data.data_set_state == 'themes-theme'
+      theming_data = process_coordinator_theming_data(theming_data)
+    $timeout ->
+      $scope.$root.$broadcast 'update-user-data'
+    , 1000
+
+
     $scope.conversation = theming_data
     $scope.$root.timestamp = theming_data.current_timestamp
 
@@ -928,6 +958,85 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       $scope.change_themer(user_name)
 
 ]
+
+process_team_theming_data = (data) ->
+  all_theme_comments = data.theme_comments
+  table_comments = data.table_comments.sort((a,b)-> a.id - b.id)
+  comments = {}
+  for comment in table_comments
+    comments[comment.id] = comment
+
+  tag_hash = {}
+  themers = {}
+  for comment in all_theme_comments
+    comments[comment.id] = comment
+    tag_hash[comment.id] = comment.tag_name
+    if comment.text.match(/\[quote/)
+      comment.popover = comment.text.split('[quot')[0]
+    else
+      comment.popover = comment.text
+    if themers[comment.name]
+      themers[comment.name]['cnt'] += 1
+    else
+      themers[comment.name] = {cnt: 1}
+
+  comments: comments
+  table_comments: table_comments.sort((a,b)-> a.id - b.id)
+  all_theme_comments: all_theme_comments.sort((a,b)-> a.id - b.id)
+  theme_tag_hash: tag_hash
+  themers: themers
+  title: data.title
+  code: data.code
+  current_timestamp: data.current_timestamp
+  privacy: data.privacy
+  abilities: data.role.abilities
+  can: (action) ->
+    _.indexOf(this.abilities, action ) > -1
+
+process_coordinator_theming_data = (data) ->
+  table_comments = []
+  coordinator_theme_comments = response.data.coordinator_theme_comments
+  team_theme_comments = response.data.theme_comments
+  all_theme_comments = []
+  comments = {}
+  for comment in coordinator_theme_comments
+    comments[comment.id] = comment
+    all_theme_comments.push(comment)
+  for comment in team_theme_comments
+    comments[comment.id] = comment
+    all_theme_comments.push(comment)
+    comment.show_tag_widget = true
+
+
+  tag_hash = {}
+  themers = {}
+  for comment in all_theme_comments
+    tag_hash[comment.id] = comment.tag_name
+    if comment.text.match(/\[quote/)
+      comment.popover = comment.text.split('[quot')[0]
+    else
+      comment.popover = comment.text
+    if themers[comment.name]
+      themers[comment.name]['cnt'] += 1
+    else
+      themers[comment.name] = {cnt: 1}
+
+  comments: comments
+  table_comments: table_comments.sort((a,b)-> a.id - b.id)
+  all_theme_comments: all_theme_comments.sort((a,b)-> a.id - b.id)
+  coordinator_theme_comments: coordinator_theme_comments.sort((a,b)-> a.id - b.id)
+  team_theme_comments: team_theme_comments.sort((a,b)-> a.id - b.id)
+  theme_tag_hash: tag_hash
+  themers: themers
+  title: response.data.title
+  code: response.data.code
+  current_timestamp: response.data.current_timestamp
+  privacy: response.data.privacy
+  abilities: response.data.role.abilities
+  can: (action) ->
+    _.indexOf(this.abilities, action ) > -1
+
+
 
 conversation_group_controller = [ "$scope", "small_group_deliberation_data", "FirebaseService", "$timeout", "$dialog",
   ($scope, small_group_deliberation_data, FirebaseService, $timeout, $dialog) ->

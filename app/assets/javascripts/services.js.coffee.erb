@@ -547,9 +547,10 @@ services.factory "AgendaData", ["$http",
     participant_report_data: (agenda_code, report_name) ->
       $http.get("/api/agendas/#{agenda_code}/participant_report_data.json?report_name=#{report_name}")
 
-    data_set: (agenda_code, link_code) ->
+    data_set: (state, agenda_code, link_code) ->
       $http.get("/api/agendas/#{agenda_code}/link/#{link_code}/data_set.json").then (response) ->
         if response.status is 200
+          response.data.data_set_state = state
           response.data
 
 ]
