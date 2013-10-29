@@ -26,6 +26,46 @@ class ThemeSmallGroupTheme < AgendaComponent
     self
   end
 
+
+  def self.data_coordinator_theming_page_data(params)
+    current_user = params["current_user"]
+    conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
+    coord_user_id = params["coordinator_user_id"].to_i
+
+    theme_comments = []
+    coordinator_theme_comments = []
+    conversation.theme_comments.each do |comment|
+      comment_json = {}
+      comment_json[:parent_theme_ids] = comment.parent_targets.map(&:parent_id).uniq
+      comment_json[:ordered_child_ids] = comment.child_targets.map(&:child_id).uniq
+      comment_json[:name] = "#{comment.author.first_name} #{comment.author.last_name}"
+      comment_json[:editable_by_user] = ((defined? current_user).nil? || current_user.nil?) ? false : comment.editable_by_user?(current_user)
+      comment_json[:text] = comment.text
+      comment_json[:version] = comment.version
+      comment_json[:tag_name] = comment.tag_name
+      comment_json[:id] = comment.id
+      comment_json[:type] = comment.type
+      comment_json[:order_id] = comment.order_id
+      comment_json[:updated_at] = comment.updated_at
+
+      if comment.user_id == coord_user_id
+        coordinator_theme_comments.push(comment_json)
+      else
+        theme_comments.push(comment_json)
+      end
+    end
+    {
+        title: conversation.title,
+        code: conversation.code,
+        privacy: conversation.privacy,
+        table_comments: [],
+        coordinator_theme_comments: coordinator_theme_comments,
+        theme_comments: theme_comments,
+        role: Ability.abilities(params["current_user"], 'Conversation', conversation.id),
+        current_timestamp: Time.new.to_i
+    }
+  end
+
   def menu_details(role,email)
     details = {
         type: self.class.to_s,

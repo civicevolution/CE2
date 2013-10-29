@@ -715,11 +715,24 @@ class Agenda < ActiveRecord::Base
           conversation_code: "#{conversation[:code]}",
           data_set: "theme-small-group",
           disabled: false,
-          role: 'reporter'
+          role: 'themer'
       }
       agenda_details[:links][:themer][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "themer"
 
+      # link for coordinator theming
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Coordinator theming for "#{conversation[:title]}"|,
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/coord-theme/#{conversation[:munged_title]}",
+          conversation_code: "#{conversation[:code]}",
+          data_set: "coordinator-theming",
+          disabled: false,
+          role: 'coordinator'
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
 
     end
     agenda_details[:data_sets]["conversation-final-themes"] =
@@ -739,6 +752,16 @@ class Agenda < ActiveRecord::Base
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
                 group_user_ids: '#{agenda_details["theme_map"][role_id]}'
+            }
+        }
+
+    agenda_details[:data_sets]["coordinator-theming"] =
+        {
+            data_class: "ThemeSmallGroupTheme",
+            data_method: "data_coordinator_theming_page_data",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}',
+                coordinator_user_id: agenda_details[:coordinator_user_id]
             }
         }
 

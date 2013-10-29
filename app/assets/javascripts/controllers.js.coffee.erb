@@ -5,7 +5,7 @@
 bootstrap_CE2 = ->
 	#console.log "In bootstrap_CE2"
 
-  if typeof Firebase == 'undefined'
+  if typeof Firebase == 'undefined' || typeof Markdown == 'undefined' || typeof Markdown.BBCode == 'undefined'
     setTimeout bootstrap_CE2, 50
   else
     try
@@ -188,12 +188,12 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: small_group_deliberation_theme_controller
       )
 
-    .state( 'theme-small-group-themes-agenda',
-        url: "/agenda/{agenda_code}-{link_code}/themes-theme/{munged_title}"
+    .state( 'coordinator-theme-agenda',
+        url: "/agenda/{agenda_code}-{link_code}/coord-theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
           theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-            AgendaData.data_set('themes-theme', $stateParams.agenda_code, $stateParams.link_code)
+            AgendaData.data_set('coord-theme', $stateParams.agenda_code, $stateParams.link_code)
           ]
         controller: small_group_deliberation_theme_controller
       )
@@ -687,7 +687,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
 
     if theming_data.data_set_state == 'sgd-theme'
       theming_data = process_team_theming_data(theming_data)
-    else if theming_data.data_set_state == 'themes-theme'
+    else if theming_data.data_set_state == 'coord-theme'
       theming_data = process_coordinator_theming_data(theming_data)
     $timeout ->
       $scope.$root.$broadcast 'update-user-data'
@@ -995,8 +995,8 @@ process_team_theming_data = (data) ->
 
 process_coordinator_theming_data = (data) ->
   table_comments = []
-  coordinator_theme_comments = response.data.coordinator_theme_comments
-  team_theme_comments = response.data.theme_comments
+  coordinator_theme_comments = data.coordinator_theme_comments
+  team_theme_comments = data.theme_comments
   all_theme_comments = []
   comments = {}
   for comment in coordinator_theme_comments
@@ -1028,11 +1028,11 @@ process_coordinator_theming_data = (data) ->
   team_theme_comments: team_theme_comments.sort((a,b)-> a.id - b.id)
   theme_tag_hash: tag_hash
   themers: themers
-  title: response.data.title
-  code: response.data.code
-  current_timestamp: response.data.current_timestamp
-  privacy: response.data.privacy
-  abilities: response.data.role.abilities
+  title: data.title
+  code: data.code
+  current_timestamp: data.current_timestamp
+  privacy: data.privacy
+  abilities: data.role.abilities
   can: (action) ->
     _.indexOf(this.abilities, action ) > -1
 
