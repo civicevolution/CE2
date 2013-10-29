@@ -32,6 +32,45 @@ class ThemeAllocation < AgendaComponent
     self
   end
 
+  def self.data_themes_allocate_page_data(params)
+    conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
+    current_user = params["current_user"]
+    coord_user_id = params["coordinator_user_id"].to_i
+    agenda_details = params["agenda_details"]
+
+    allocation_themes = []
+    allocation_theme_ids = []
+    ltr = 'A'
+    conversation.theme_comments.where(user_id: coord_user_id ).order(:order_id).each do |theme|
+      allocation_themes.push({
+                            id: theme.id,
+                            letter: ltr,
+                            text: theme.text.gsub(/\[quote.*\/quote\]/,'')
+                        })
+      ltr = ltr.succ
+      allocation_theme_ids << theme.id
+    end
+
+    all_votes = ThemePoint.where(group_id: current_user.last_name.to_i, theme_id: allocation_theme_ids )
+    votes = {}
+    all_votes.each do |vote|
+      votes[ vote.voter_id ] = [] unless votes[ vote.voter_id ]
+      votes[ vote.voter_id ].push( {theme_id: vote.theme_id, points: vote.points} )
+    end
+    {
+        title: conversation.title,
+        agenda_code: agenda_details["code"],
+        code: conversation.code,
+        privacy: conversation.privacy,
+        allocation_themes: allocation_themes,
+        role: Ability.abilities(params["current_user"], 'Conversation', conversation.id),
+        current_timestamp: Time.new.to_i,
+        votes: votes
+    }
+  end
+
+
+
   def menu_details(role,email)
     details = {
         type: self.class.to_s,

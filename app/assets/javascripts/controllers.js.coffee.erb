@@ -146,7 +146,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_controller
       )
 
-    .state( 'small-group-discussion',
+    .state( 'small-group-deliberation',
         url: "/cmp/{component_code}/sgd/{conversation_code}/{munged_title}"
         templateUrl: '<%= path_to_asset "live/group.html" %>'
         resolve:
@@ -157,7 +157,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_group_controller
       )
 
-    .state( 'small-group-discussion-agenda',
+    .state( 'small-group-deliberation-agenda',
         url: "/agenda/{agenda_code}-{link_code}/sgd/{munged_title}"
         templateUrl: '<%= path_to_asset "live/group.html" %>'
         resolve:
@@ -167,7 +167,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_group_controller
       )
 
-    .state( 'theme-small-group-discussion',
+    .state( 'theme-small-group-deliberation',
         url: "/cmp/{component_code}/sgd_theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
@@ -178,7 +178,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: small_group_deliberation_theme_controller
       )
 
-      .state( 'theme-small-group-discussion-agenda',
+      .state( 'theme-small-group-deliberation-agenda',
         url: "/agenda/{agenda_code}-{link_code}/sgd-theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
@@ -188,7 +188,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: small_group_deliberation_theme_controller
       )
 
-      .state( 'theme-small-group-themes',
+      .state( 'coordinator-theme',
         url: "/cmp/{component_code}/themes_theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
@@ -245,7 +245,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 ,100
         ]
       )
-      .state( 'allocate-to-themes',
+    .state( 'allocate-to-themes',
         url: "/cmp/{component_code}/allocate/{munged_title}"
         templateUrl: '<%= path_to_asset "live/allocate.html" %>'
         resolve:
@@ -255,7 +255,17 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: live_allocate_controller
       )
 
-      .state('allocate-to-themes-results',
+    .state( 'allocate-to-themes-agenda',
+        url: "/agenda/{agenda_code}-{link_code}/allocate/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/allocate.html" %>'
+        resolve:
+          allocation_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.data_set('allocate', $stateParams.agenda_code, $stateParams.link_code)
+          ]
+        controller: live_allocate_controller
+      )
+
+    .state('allocate-to-themes-results',
         url: "/cmp/{component_code}/allocate-results/{munged_title}"
         templateUrl: '<%= path_to_asset "live/allocate-results.html" %>'
         resolve:
@@ -295,7 +305,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
-      .state( 'select-themes',
+    .state( 'select-themes',
         url: "/cmp/{component_code}/select/{munged_title}"
         templateUrl: '<%= path_to_asset "live/select.html" %>'
         resolve:
@@ -305,7 +315,17 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: live_select_controller
       )
 
-      .state( 'select-themes-worksheet',
+    .state( 'select-themes-agenda',
+        url: "/agenda/{agenda_code}-{link_code}/select/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/select.html" %>'
+        resolve:
+          selection_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.data_set('select', $stateParams.agenda_code, $stateParams.link_code)
+          ]
+        controller: live_select_controller
+      )
+
+    .state( 'select-themes-worksheet',
         url: "/cmp/{component_code}/select-worksheet/{munged_title}"
         templateUrl: '<%= path_to_asset "live/select-worksheet.html" %>'
         resolve:
@@ -1107,6 +1127,7 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
 
     $scope.conversations_list = selection_data.conversations_list
     $scope.agenda_code = selection_data.agenda_code
+    $scope.conversations_list = [ selection_data ]
     $scope.all_selection_themes = []
     for conversation in $scope.conversations_list
       for theme in conversation.final_themes
@@ -1252,7 +1273,7 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
 
 live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$dialog", "$timeout",
   ($scope, allocation_data, LiveAllocateData, $dialog, $timeout) ->
-    $scope.allocation_themes = add_letters( allocation_data.allocation_themes )
+    $scope.allocation_themes = allocation_data.allocation_themes
 
     $scope.name = 'live_allocate_controller'
     $scope.code = allocation_data.code
