@@ -8,7 +8,7 @@
             Home
 
         %li(ng-repeat="conv in conversations" ng-class="{active: conversation.code == conv.code}")
-          %a{href: "/#/cmp/{{conv.component_code}}/sgd/{{conv.code}}/{{conv.munged_title}}"}
+          %a{href: "/#/agenda/{{conv.agenda_code}}-{{conv.link_code}}/sgd/{{conv.munged_title}}"}
             {{conv.title}}
 
         -#%li.add_comment(popover="Click here to add a new answer to the current question" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")

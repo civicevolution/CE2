@@ -653,6 +653,7 @@ class Agenda < ActiveRecord::Base
       data_set_details["parameters"][key] = eval( '"' + value + '"') if value.class.to_s == 'String' && value.match(/#/)
     end
     data_set_details["parameters"]["current_user"] = current_user
+    data_set_details["parameters"]["agenda_details"] = agenda_details
 
     data_set_details["parameters"].each_pair{|key,value| Rails.logger.debug "#{key}: #{value}" }
 
@@ -666,9 +667,12 @@ class Agenda < ActiveRecord::Base
     agenda_details = self.details
     return self.details unless self.details.nil?
 
-    agenda_details = {}
+    agenda_details = {code: self.code}
 
     agenda_details[:conversations] = self.conversations.includes(:title_comment).map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
+
+    agenda_details[:concurrent_conversations] =
+      [[206,207],[208,209,210]]
 
     agenda_details[:theme_map] =
       {
@@ -734,6 +738,21 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "coordinator"
 
+      # link for group scribe
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Deliberate on "#{conversation[:title]}"|,
+          id: conversation[:id],
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/sgd/#{conversation[:munged_title]}",
+          conversation_code: "#{conversation[:code]}",
+          data_set: "small-group-deliberation",
+          disabled: false,
+          role: 'group'
+      }
+      agenda_details[:links][:group][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "group"
+
     end
     agenda_details[:data_sets]["conversation-final-themes"] =
         {
@@ -762,6 +781,15 @@ class Agenda < ActiveRecord::Base
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
                 coordinator_user_id: agenda_details[:coordinator_user_id]
+            }
+        }
+
+    agenda_details[:data_sets]["small-group-deliberation"] =
+        {
+            data_class: "SmallGroupDeliberation",
+            data_method: "data_small_group_deliberation_page_data",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}'
             }
         }
 
