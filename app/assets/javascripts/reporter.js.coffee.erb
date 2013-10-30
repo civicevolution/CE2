@@ -39,7 +39,7 @@ class Reporter
         return
 
   initialize_report_canvas: (report_specs, canvas_id) ->
-    console.log "initialize_report_canvas for canvas_id: #{canvas_id}"
+    #console.log "initialize_report_canvas for canvas_id: #{canvas_id}"
     if canvas_id == 1
       canvas = document.getElementById("report-canvas-#{canvas_id}")
       return "delay for canvas" if not canvas
@@ -47,7 +47,7 @@ class Reporter
       canvas = document.getElementById("report-canvas-1")
       $scope = angular.element(canvas).scope()
       new_canvas_number = $scope.report_specs.canvases.length + 1
-      console.log "add canvas #{new_canvas_number}"
+      #console.log "add canvas #{new_canvas_number}"
       $scope.report_specs.canvases.push( {id: new_canvas_number} )
       $scope.$apply()
       canvas = document.getElementById("report-canvas-#{new_canvas_number}")
@@ -68,7 +68,7 @@ class Reporter
     loop
       canvas_height = actual_height
       [actual_height,last_theme_that_fit] = this.render_report(report_specs, canvas_height)
-      console.log "last_theme_that_fit: #{last_theme_that_fit}, actual_height: #{actual_height}"
+      #console.log "last_theme_that_fit: #{last_theme_that_fit}, actual_height: #{actual_height}"
       if last_theme_that_fit < report_specs.theme_end_num
         report_specs.theme_end_num = last_theme_that_fit
         continue
@@ -78,7 +78,7 @@ class Reporter
 
 
   render_report: (report_specs, canvas_height) ->
-    console.log "Reporter.draw_graph with canvas_height: #{canvas_height}"
+    #console.log "Reporter.draw_graph with canvas_height: #{canvas_height}"
 
     this.canvas.height = canvas_height
     this.ctx.height = this.canvas.height
@@ -105,14 +105,14 @@ class Reporter
 
 
   render_header: (report_specs) ->
-    console.log "render_header: #{report_specs.header}"
+    #console.log "render_header: #{report_specs.header}"
     ctx = this.ctx
     font_height = report_specs.font_size*1.3
     ctx.font = "#{font_height}px #{report_specs.font_family}"
     line_height = font_height * 1.1
     ctx.textBaseline = "top"
     ctx.textAlign = "left"
-    line_ctr = this.wrapText(report_specs.header_text, 0, 0, this.canvas.width-40, line_height);
+    [line_ctr, new_y] = this.wrapText(report_specs.header_text, 0, 0, this.canvas.width-40, line_height);
     line_height*line_ctr + line_height*.5
 
 
@@ -135,28 +135,34 @@ class Reporter
       ctx.textAlign = "center"
       ctx.fillText("#{theme.letter}", report_specs.font_size, y_offset);
       ctx.textAlign = "left"
-      starting_height = y_offset
+      starting_y_offset = y_offset
       theme_text = theme.text
-      if report_specs.hide_examples
+      if report_specs.hide_examples == "true"
         theme_text = theme_text.replace(/\[quote.*\/quote\]/mg,'')
       for text_line in theme_text.replace(/\[quote/mg,"\n[quote").replace(/\/quote\]/mg,"/quote]\n").replace(/\n{2,}/mg,"\n\n").split(/\n/)
+        continue if text_line.match(/^\s*$/)
+        #console.log "#{theme.letter} in for text_line"
         #console.log "y_offset: #{y_offset}, #{theme.letter} text: #{text_line.substring(0,40)}"
         if text_line.match(/\[quote/)
           ctx.font = "italic #{report_specs.font_size}px #{report_specs.font_family}"
           text_line = text_line.replace(/\[quote[^\]]*\]/,'').replace(/\[\/quote[^\]]*\]/,'')
           x_offset = width*.15
           text_width = width * .85
-          y_offset -= report_specs.font_size*.8
+          y_offset += report_specs.font_size*.4
         else
           ctx.font = "#{report_specs.font_size}px #{report_specs.font_family}"
           x_offset = width*.1
           text_width = width * .9
-        line_ctr = this.wrapText(text_line, x_offset, y_offset, text_width, lineHeight);
-        y_offset += line_ctr * lineHeight
-      theme_height = y_offset - starting_height
-      if theme_height < lineHeight * 3
-        y_offset += (lineHeight * 3 - theme_height)
-
+        [line_ctr, new_y] = this.wrapText(text_line, x_offset, y_offset, text_width, lineHeight);
+        #console.log "line_ctr: #{line_ctr}, new_y: #{Math.round new_y}"
+        y_offset = new_y
+      theme_height = y_offset - starting_y_offset
+      
+      #console.log "theme: #{theme.letter}: starting_y_offset: #{Math.round starting_y_offset}, y_offset: #{Math.round y_offset}, line_ctr: #{line_ctr}, lineHeight: #{Math.round lineHeight}, theme_height: #{Math.round theme_height}"
+      if theme_height < lineHeight * 2.6 && line_ctr < 3
+        y_offset += (lineHeight * 2.6 - theme_height)
+      else
+        y_offset += lineHeight
       if y_offset < report_specs.max_canvas_height
         last_theme_that_fit = theme_ctr
         last_theme_that_fit_y_offset = y_offset
@@ -170,7 +176,8 @@ class Reporter
 
 
   render_prioritized_themes: (report_specs, y_offset) ->
-    line_width = 24
+    line_width = Number(report_specs.font_size)
+    line_width = 24 if line_width > 24
     y_offset += 12
     width = this.canvas.width
     width_text = width*.8
@@ -190,8 +197,8 @@ class Reporter
       ctx.strokeStyle = "#3D5B9C"
       ctx.lineWidth = line_width
       ctx.beginPath();
-      ctx.moveTo(4,y_offset);
-      ctx.lineTo(graph_width-4,y_offset);
+      ctx.moveTo(0,y_offset);
+      ctx.lineTo(graph_width+1,y_offset);
       ctx.stroke();
 
       ctx.textBaseline = "top"
@@ -199,17 +206,15 @@ class Reporter
       ctx.fillText("#{theme.percentage}%", width_text + 10, y_offset - line_width/2);
       ctx.fillText("#{theme.count}", width_text + percent_width + 10, y_offset - line_width/2);
 
-      y_offset += 32
+      y_offset += line_width * 1.25
 
       lineHeight = report_specs.font_size * 1.2
       ctx.textBaseline = "middle"
 
-      theme_text = theme.text
-      if report_specs.hide_examples
-        theme_text = theme_text.replace(/\[quote.*\/quote\]/mg,'')
+      theme_text = theme.text.replace(/\[quote.*\/quote\]/mg,'')
 
-      line_ctr = this.wrapText(theme_text, 0, y_offset, width_text, lineHeight);
-      y_offset += line_ctr * lineHeight + 32
+      [line_ctr, new_y] = this.wrapText(theme_text, 0, y_offset, width_text, lineHeight);
+      y_offset = new_y + lineHeight * .9
 
       if y_offset < report_specs.max_canvas_height
         last_theme_that_fit = theme_ctr
@@ -242,27 +247,30 @@ class Reporter
       ctx.textAlign = "center"
       ctx.fillText("#{theme.letter}", report_specs.font_size, y_offset);
       ctx.textAlign = "left"
-      starting_height = y_offset
+      starting_y_offset = y_offset
       theme_text = theme.text
-      if report_specs.hide_examples
+      if report_specs.hide_examples == "true"
         theme_text = theme_text.replace(/\[quote.*\/quote\]/mg,'')
       for text_line in theme_text.replace(/\[quote/mg,"\n[quote").replace(/\/quote\]/mg,"/quote]\n").replace(/\n{2,}/mg,"\n\n").split(/\n/)
+        continue if text_line.match(/^\s*$/)
         #console.log "y_offset: #{y_offset}, #{theme.letter} text: #{text_line.substring(0,40)}"
         if text_line.match(/\[quote/)
           ctx.font = "italic #{report_specs.font_size}px #{report_specs.font_family}"
           text_line = text_line.replace(/\[quote[^\]]*\]/,'').replace(/\[\/quote[^\]]*\]/,'')
           x_offset = width*.15
           text_width = width * .70
-          y_offset -= report_specs.font_size*.8
+          y_offset += report_specs.font_size*.4
         else
           ctx.font = "#{report_specs.font_size}px #{report_specs.font_family}"
           x_offset = width*.1
           text_width = width * .75
-        line_ctr = this.wrapText(text_line, x_offset, y_offset, text_width, lineHeight);
-        y_offset += line_ctr * lineHeight
-      theme_height = y_offset - starting_height
-      if theme_height < lineHeight * 3
-        y_offset += (lineHeight * 3 - theme_height)
+        [line_ctr, new_y] = this.wrapText(text_line, x_offset, y_offset + 6, text_width, lineHeight);
+        y_offset = new_y
+      theme_height = y_offset - starting_y_offset
+      if theme_height < lineHeight * 2.6 && line_ctr < 3
+        y_offset += (lineHeight * 2.6 - theme_height)
+      else
+        y_offset += lineHeight
 
       this.draw_table_row(top_y_offset, y_offset, [0, .08, .9, 1])
 
@@ -294,6 +302,7 @@ class Reporter
     y_offset
 
   wrapText: (text, x, y, maxWidth, lineHeight) ->
+    #console.log "wrapText for text: #{text}"
     context = this.ctx
     line_ctr = 1
     words = text.split(' ')
@@ -303,14 +312,19 @@ class Reporter
       metrics = context.measureText(testLine);
       testWidth = metrics.width
       if testWidth > maxWidth && index > 0
+        #console.log "AAA wrapText at y: #{Math.round y} write: #{line}"
         context.fillText(line, x, y)
         line = word + ' '
         y += lineHeight
         line_ctr += 1
       else
         line = testLine;
-    context.fillText(line, x, y)
-    line_ctr
+    #console.log "BBB wrapText at y: #{Math.round y} write: #{line}"
+    if not line.match(/^\s*$/)
+      context.fillText(line, x, y)
+      y += lineHeight
+    #console.log "XXX Return from wrapText with y: #{y}"
+    [line_ctr, y]
 
   draw_table_row: (top, bottom, verticals ) ->
     # draw a box around the theme to make a table

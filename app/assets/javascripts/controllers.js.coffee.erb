@@ -382,21 +382,13 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
             reporter = new window.Reporter()
 
-            start_report = (report_specs) ->
-              console.log "start_report"
-              status = reporter.create_report(report_specs)
-              if status == "delay for canvas"
-                $timeout ->
-                  start_report(report_specs)
-                ,200
-  
             $scope.setup = {}
             $scope.setup.conversations = ( {value: conversation.code, key: conversation.title.substring(0,50)} for conversation in conversations.data )
 
             $scope.report_specs.canvas_width = 800
             $scope.report_specs.max_canvas_height_first_block = 1200
             $scope.report_specs.max_canvas_height_addtl_blocks = 1200
-            $scope.report_specs.hide_examples = true
+            $scope.report_specs.hide_examples = "true"
             $scope.report_specs.font_family = "Times New Roman"
             $scope.setup.font_families = [
               {value: 'Times New Roman', key: 'Times New Roman'},
@@ -443,6 +435,16 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               console.log " update_setup"
               $scope.report_specs.canvases = [{id: 1}]
               start_report($scope.report_specs)
+
+            start_report = (report_specs) ->
+              console.log "start_report"
+              status = reporter.create_report(report_specs)
+              if status == "delay for canvas"
+                $timeout ->
+                  start_report(report_specs)
+                ,200
+
+
 
         ]
       )
