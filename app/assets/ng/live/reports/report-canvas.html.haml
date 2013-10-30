@@ -1,34 +1,64 @@
 .report-canvas
   %h3 Report setup
 
-  %p
-    Data to report:
-    %select(ng-model="report_specs.data_set_name" ng-options="o.value as o.key for o in setup.data_sets" ng-change="update_data_set()")
-      %option(value="" disabled selected) Select the data for this report
+  %table
+    %tr
+      %td
+        Deliberation to report:
+      %td
+        %select(ng-model="report_specs.conversation_code" ng-options="o.value as o.key for o in setup.conversations" ng-change="update_data_set()")
+          %option(value="" disabled selected) Select the deliberation for this report
 
-  %p
-    %input(type='checkbox' ng-model="report_specs.hide_examples" ng-checked="report_specs.hide_examples" ng-change="update_setup()")
-      Hide example quotes
+    %tr
+      %td
+        Layout for report:
+      %td
+        %select(ng-model="report_specs.layout" ng-options="o.value as o.key for o in setup.layouts" ng-change="update_data_set()")
+          %option(value="" disabled selected) Choose a layout for this report
 
-  %p
-    Report header:
-    %input.header(ng-model="report_specs.header_text")
+      -#%p
+        Data to report:
+        %select(ng-model="report_specs.data_set_name" ng-options="o.value as o.key for o in setup.data_sets" ng-change="update_data_set()")
+          %option(value="" disabled selected) Select the data for this report
 
-  %p
-    Base font:
-    %select(ng-model="report_specs.font_family" ng-options="o.value as o.key for o in setup.font_families" ng-change="update_setup()")
-    %select.size(ng-model="report_specs.font_size" ng-options="o.value as o.key for o in setup.font_sizes" ng-change="update_setup()")
+    %tr
+      %td
+        Include quotes?
+      %td
+        %select(ng-model="report_specs.hide_examples")
+          %option(value="true" selected) Hide quotes
+          %option(value="false") Display quotes
 
-  %p
-    Width:
-    %input.size(ng-model="report_specs.canvas_width")
-    Height of first block:
-    %input.size(ng-model="report_specs.max_canvas_height_first_block")
-    Height of subsequent blocks:
-    %input.size(ng-model="report_specs.max_canvas_height_addtl_blocks")
+        -#%input(type='checkbox' ng-model="report_specs.hide_examples" ng-checked="report_specs.hide_examples" ng-change="update_setup()")
+          Hide example quotes
 
-  %p
-    %button.btn-primary.btn(ng-click="update_setup()") Re-display report
+    %tr
+      %td
+        Report header:
+      %td
+        %input.header(ng-model="report_specs.header_text")
+
+    %tr
+      %td
+        Base font:
+      %td
+        %select(ng-model="report_specs.font_family" ng-options="o.value as o.key for o in setup.font_families" ng-change="update_setup()")
+        %select.size(ng-model="report_specs.font_size" ng-options="o.value as o.key for o in setup.font_sizes" ng-change="update_setup()")
+
+    %tr
+      %td
+        Report image size:
+      %td
+        Width:
+        %input.size(ng-model="report_specs.canvas_width")
+        Height of first block:
+        %input.size(ng-model="report_specs.max_canvas_height_first_block")
+        Height of subsequent blocks:
+        %input.size(ng-model="report_specs.max_canvas_height_addtl_blocks")
+
+    %tr
+      %td
+        %button.btn-primary.btn(ng-click="update_setup()") Re-display report
 
   %hr
   %div.canvas-panel(ng-repeat="canvas in report_specs.canvases")

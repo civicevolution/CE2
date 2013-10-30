@@ -69,7 +69,16 @@ class ThemeAllocation < AgendaComponent
     }
   end
 
+  def self.data_themes_allocation_results(params)
+    conversation_code = params["conversation_code"]
+    coordinator_user_id = params["coordinator_user_id"].to_i
 
+    conversation = Conversation.find_by(code: conversation_code)
+    themes = ThemeComment.where(conversation_id: conversation.id, user_id: coordinator_user_id)
+
+    allocated_themes = ThemePoint.themes_points(themes)
+    {title: conversation.title, allocated_themes: allocated_themes}
+  end
 
   def menu_details(role,email)
     details = {

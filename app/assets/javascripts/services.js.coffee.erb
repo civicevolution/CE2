@@ -544,8 +544,8 @@ services.factory "AgendaData", ["$http",
     participant_report: (code) ->
       $http.get("/api/agendas/#{code}/participant_report.json")
 
-    participant_report_data: (agenda_code, report_name) ->
-      $http.get("/api/agendas/#{agenda_code}/participant_report_data.json?report_name=#{report_name}")
+    participant_report_data: (agenda_code, conversation_code, layout) ->
+      $http.get("/api/agendas/#{agenda_code}/participant_report_data.json?code=#{conversation_code}&layout=#{layout}")
 
     data_set: (state, agenda_code, link_code) ->
       $http.get("/api/agendas/#{agenda_code}/link/#{link_code}/data_set.json").then (response) ->
@@ -553,6 +553,8 @@ services.factory "AgendaData", ["$http",
           response.data.data_set_state = state
           response.data
 
+    conversations: (code) ->
+      $http.get("/api/agendas/#{code}/conversations.json")
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->

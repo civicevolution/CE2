@@ -88,77 +88,31 @@ class Agenda < ActiveRecord::Base
     participant_report_components.map(&:participant_report_details)
   end
 
-  def participant_report_data(data_set_name)
-    if Rails.env == 'development'
-      theme_codes = %w( gfoqqtr61z prujspa0dw 0n3oxo8n6r rmrfiasq1n s4ypdu1d66 )
-      selection_code = 'pxolvec6gr'
-      conversation_codes = %w( tlqudnj0th kkw5ay4njf izva2603ad iei0szxbrf pmlqve2dzi )
-      allocation_code = '8g9735qj0w'
-    elsif self.id == 1 # Bangalore
-      theme_codes = %w(euw7lt3fph u6s2brz7bj 35az9en2yt k677f6p41e ozxdqsvmv4 a94ve0wv0p)
-      selection_code = 'hwqpv7alv3'
-      conversation_codes = %w( 6ko91rkoem h9ehcxq5qq plps8t4gtz tciu7gqjv2 ddjirn056n btub29g1vw )
-      allocation_code = 'hwqpv7alv3'
-    else  # pune
-      theme_codes = %w(fv9myv0wl6 fs407vdgpw ji5iohd1vd 92bef653go bw1jy3lyo7)
-      selection_code = 'vd2o2kmch2'
-      conversation_codes = %w( 9mb33orctg b0fjcaq88n bpr8hkxrsw mxe3lplge4 6gun3cifwf )
-      allocation_code = '1wtjjvzttk'
-    end
+  def participant_report_data(params)
+    conversation_code = params[:code]
+    layout = params[:layout]
+    agenda_details = self.details
+    coordinator_user_id = agenda_details["coordinator_user_id"]
 
-    case data_set_name
-      when 'deliberation1'
-        # return the
-        # headers + themes for 2 conversations
-        data = {
-          page_title: 'Designing our Pune Precinct: Deliberation session 1',
-          conversations: [
-            {
-              title: 'The things you value about living/working in Dattawadi',
-              themes: AgendaComponent.find_by(code: theme_codes[0]).report_data
-            },
-            {
-              title: 'The legacy you want to leave future generations living and working in Dattawadi',
-              themes: AgendaComponent.find_by(code: theme_codes[1]).report_data
-            }
-          ]
-        }
-        
-      when 'deliberation2'
-        data = {
-            page_title: 'Designing our Pune Precinct: Deliberation session 2',
-            conversations: [
-                {
-                    title: 'What do you want to keep in Dattawadi?',
-                    themes: AgendaComponent.find_by(code: theme_codes[2]).report_data,
-                    prioritisation_title: 'What you want to keep in Dattawadi',
-                    voted_themes: AgendaComponent.find_by(code: selection_code).report_data(conversation_codes[2])
-                },
-                {
-                    title: 'What do you want to change in Dattawadi?',
-                    themes: AgendaComponent.find_by(code: theme_codes[3]).report_data,
-                    prioritisation_title: 'What you want to change in Dattawadi',
-                    voted_themes: AgendaComponent.find_by(code: selection_code).report_data(conversation_codes[3])
-                },
-                {
-                    title: 'What the ‘hot spots’ are or are likely to be in Dattawadi?',
-                    themes: AgendaComponent.find_by(code: theme_codes[4]).report_data,
-                    prioritisation_title: 'What the ‘hot spots’ are or are likely to be in Dattawadi',
-                    voted_themes: AgendaComponent.find_by(code: selection_code).report_data(conversation_codes[4])
-                }
-            ]
-        }
+    case layout
+      when 'key-themes'
+        data = ThemeSmallGroupTheme.data_key_themes_with_examples( {"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id} )
 
-      when 'final-themes'
-        data = {
-            title: 'Final themes: Designing our Pune Precinct',
-            themes: AgendaComponent.find_by(code: allocation_code).results(nil,nil).final_themes
-        }
-      when 'prioritised-final-themes'
-        data = {
-            title: 'Our Top Priorities: Designing our Pune Precinct',
-            allocated_themes: AgendaComponent.find_by(code: allocation_code).results(nil,nil).allocated_points
-        }
+      when 'select-results'
+        data = ThemeSelection.data_themes_select_results({"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id})
+        data[:allocated_themes].each do|theme|
+          theme[:count] = "(#{theme[:votes]})"
+        end
+      when 'allocation-results'
+        data = ThemeAllocation.data_themes_allocation_results({"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id})
+        data[:allocated_themes].each do|theme|
+          theme[:count] = "#{theme[:points]}pts"
+        end
+
+      #'select-ws', key: 'S
+      #'allocation-ws', key
+
+
     end
     data
   end

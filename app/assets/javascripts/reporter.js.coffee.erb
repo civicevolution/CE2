@@ -190,14 +190,18 @@ class Reporter
       ctx.textBaseline = "top"
       ctx.textAlign = "left"
       ctx.fillText("#{theme.percentage}%", width_text + 10, y_offset - line_width/2);
-      ctx.fillText("#{theme.points}pts", width_text + percent_width + 10, y_offset - line_width/2);
+      ctx.fillText("#{theme.count}", width_text + percent_width + 10, y_offset - line_width/2);
 
       y_offset += 32
 
       lineHeight = report_specs.font_size * 1.2
       ctx.textBaseline = "middle"
 
-      line_ctr = this.wrapText(theme.text, 0, y_offset, width_text, lineHeight);
+      theme_text = theme.text
+      if report_specs.hide_examples
+        theme_text = theme_text.replace(/\[quote.*\/quote\]/mg,'')
+
+      line_ctr = this.wrapText(theme_text, 0, y_offset, width_text, lineHeight);
       y_offset += line_ctr * lineHeight + 32
 
       if y_offset < report_specs.max_canvas_height

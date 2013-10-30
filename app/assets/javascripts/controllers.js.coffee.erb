@@ -363,14 +363,18 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state('participant-report',
         url: "/agenda/{agenda_code}/participant-report/{report_name}"
         templateUrl: '<%= path_to_asset "live/reports/report-canvas.html" %>'
+        resolve:
+          conversations: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.conversations($stateParams.agenda_code)
+          ]
+
         onEnter: ->
           angular.element(document.body).addClass('display-page')
         onExit: ->
           angular.element(document.body).removeClass('display-page')
 
-        controller: [ "$scope", "$timeout", "$state", "AgendaData",
-          ($scope, $timeout, $state, AgendaData) ->
-            console.log "participant-report"
+        controller: [ "$scope", "$timeout", "$state", "AgendaData", "conversations",
+          ($scope, $timeout, $state, AgendaData, conversations) ->
             #$scope.participant_report_data = participant_report_data
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
 
@@ -387,10 +391,12 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 ,200
   
             $scope.setup = {}
+            $scope.setup.conversations = ( {value: conversation.code, key: conversation.title.substring(0,50)} for conversation in conversations.data )
+
             $scope.report_specs.canvas_width = 800
             $scope.report_specs.max_canvas_height_first_block = 1200
             $scope.report_specs.max_canvas_height_addtl_blocks = 1200
-            $scope.report_specs.hide_examples = false
+            $scope.report_specs.hide_examples = true
             $scope.report_specs.font_family = "Times New Roman"
             $scope.setup.font_families = [
               {value: 'Times New Roman', key: 'Times New Roman'},
@@ -408,18 +414,29 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               {value: '30', key: '30'},
               {value: '32', key: '32'}
             ]
+            $scope.setup.layouts = [
+              {value: 'key-themes', key: 'Key themes'},
+              {value: 'select-ws', key: 'Select Worksheet'},
+              {value: 'select-results', key: 'Prioritized Select results'},
+              {value: 'allocation-ws', key: 'Allocation worksheet'},
+              {value: 'allocation-results', key: 'Prioritized Allocation results'}
+            ]
+
             $scope.setup.data_sets = [
               {value: 'final-themes', key: 'Final themes for allocation'},
               {value: 'prioritised-final-themes', key: 'Prioritised final themes'}
             ]
             $scope.update_data_set = ->
-              console.log "update_data_set with #{$scope.report_specs.data_set_name}"
-              AgendaData.participant_report_data($state.params.agenda_code,$scope.report_specs.data_set_name).then(
-                (response)->
-                  $scope.report_specs.header_text = response.data.title
-                  $scope.report_specs.allocated_themes = response.data.allocated_themes
-                  $scope.report_specs.themes = response.data.themes
-              )
+              if $scope.report_specs.conversation_code && $scope.report_specs.layout
+                console.log "update_data_set with conversation_code: #{$scope.report_specs.conversation_code} in layout: #{$scope.report_specs.layout}"
+                AgendaData.participant_report_data($state.params.agenda_code,$scope.report_specs.conversation_code,$scope.report_specs.layout).then(
+                  (response)->
+                    $scope.report_specs.header_text = response.data.title
+                    $scope.report_specs.allocated_themes = response.data.allocated_themes
+                    $scope.report_specs.themes = response.data.themes
+                )
+              else
+                console.log "no update yet"
 
             $scope.update_setup = ->
               console.log " update_setup"

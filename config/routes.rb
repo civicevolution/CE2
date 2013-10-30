@@ -179,6 +179,7 @@ Ce2::Application.routes.draw do
         get 'import', on: :member
         post 'reset', on: :member
         get 'participant_report_data', on: :member
+        get 'conversations', on: :member
       end
       get 'agendas/:id/link/:link_code/data_set(.:format)', to: 'agendas#data_set'
     end
