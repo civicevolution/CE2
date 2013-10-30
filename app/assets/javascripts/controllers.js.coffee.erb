@@ -360,8 +360,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
 
 
-      .state('participant-report',
-        url: "/agenda/{agenda_code}/participant-report/{report_name}"
+      .state('report-generator',
+        url: "/agenda/{agenda_code}/report-generator/{munged_title}"
         templateUrl: '<%= path_to_asset "live/reports/report-canvas.html" %>'
         resolve:
           conversations: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
@@ -443,9 +443,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 $timeout ->
                   start_report(report_specs)
                 ,200
-
-
-
         ]
       )
 

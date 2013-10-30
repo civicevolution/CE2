@@ -751,6 +751,20 @@ class Agenda < ActiveRecord::Base
 
 
     end
+
+    # link for report-generator
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: "Report generator",
+        href: "/#/agenda/#{agenda_details[:code]}/report-generator/#{self.munged_title}",
+
+        disabled: false,
+        role: 'reporter',
+    }
+    agenda_details[:links][:reporter][ link_code ] = link
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "reporter"
+
     agenda_details[:data_sets]["conversation-final-themes"] =
         {
             data_class: "ThemeSmallGroupTheme",
