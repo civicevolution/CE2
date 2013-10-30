@@ -97,6 +97,10 @@ class Reporter
     else if report_specs.worksheet_themes
       report_specs.num_of_themes = report_specs.worksheet_themes.length
       [y_offset,last_theme_that_fit] = this.render_worksheet_themes(report_specs, y_offset)
+      if report_specs.layout.match(/alloc/i)
+        report_specs.footer_text = "Total points"
+        y_offset = this.render_worksheet_footer(report_specs, y_offset)
+      y_offset += 1
     return [y_offset,last_theme_that_fit]
 
 
@@ -260,20 +264,7 @@ class Reporter
       if theme_height < lineHeight * 3
         y_offset += (lineHeight * 3 - theme_height)
 
-      # draw a box around the theme to make a table
-      ctx.strokeStyle = "#000000"
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(0,top_y_offset)
-      ctx.lineTo(width,top_y_offset)
-      ctx.lineTo(width,y_offset)
-      ctx.lineTo(0,y_offset)
-      ctx.lineTo(0,top_y_offset)
-      ctx.moveTo(width*.08,top_y_offset)
-      ctx.lineTo(width*.08,y_offset)
-      ctx.moveTo(width*.9,top_y_offset)
-      ctx.lineTo(width*.9,y_offset)
-      ctx.stroke();
+      this.draw_table_row(top_y_offset, y_offset, [0, .08, .9, 1])
 
       if y_offset < report_specs.max_canvas_height
         last_theme_that_fit = theme_ctr
@@ -286,7 +277,21 @@ class Reporter
         return [last_theme_that_fit_y_offset,last_theme_that_fit]
     [last_theme_that_fit_y_offset,last_theme_that_fit]
 
-
+  render_worksheet_footer: (report_specs, y_offset) ->
+    #console.log "render_worksheet_footer: #{report_specs.header}"
+    top_y_offset = y_offset
+    ctx = this.ctx
+    width = this.canvas.width
+    lineHeight = report_specs.font_size * 1.2
+    font_height = report_specs.font_size
+    ctx.font = "bold #{font_height}px #{report_specs.font_family}"
+    line_height = font_height * 1.1
+    ctx.textBaseline = "top"
+    ctx.textAlign = "right"
+    ctx.fillText(report_specs.footer_text, width*.88, y_offset + 6);
+    y_offset += lineHeight * 1.4
+    this.draw_table_row(top_y_offset, y_offset, [0, .9, 1])
+    y_offset
 
   wrapText: (text, x, y, maxWidth, lineHeight) ->
     context = this.ctx
@@ -306,5 +311,24 @@ class Reporter
         line = testLine;
     context.fillText(line, x, y)
     line_ctr
+
+  draw_table_row: (top, bottom, verticals ) ->
+    # draw a box around the theme to make a table
+    width = this.canvas.width
+    left = width * verticals[0]
+    right = width * verticals[ verticals.length-1]
+    ctx = this.ctx
+    ctx.strokeStyle = "#000000"
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(left,top)
+    ctx.lineTo(right,top)
+    ctx.moveTo(left,bottom)
+    ctx.lineTo(right,bottom)
+    for vertical in verticals
+      ctx.moveTo(width * vertical,top)
+      ctx.lineTo(width * vertical,bottom)
+    ctx.stroke();
+
 
 window.Reporter = Reporter
