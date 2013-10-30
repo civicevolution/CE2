@@ -109,10 +109,19 @@ class Agenda < ActiveRecord::Base
           theme[:count] = "#{theme[:points]}pts"
         end
 
-      #'select-ws', key: 'S
-      #'allocation-ws', key
+      when 'select-worksheet'
+        data = ThemeSmallGroupTheme.data_key_themes_with_examples( {"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id} )
+        data[:themes].each do |theme|
+          theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+        end
+        data = {title: data[:title], worksheet_themes: data[:themes]}
 
-
+      when 'allocation-worksheet'
+        data = ThemeSmallGroupTheme.data_key_themes_with_examples( {"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id} )
+        data[:themes].each do |theme|
+          theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+        end
+        data = {title: data[:title], worksheet_themes: data[:themes]}
     end
     data
   end

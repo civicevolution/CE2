@@ -416,9 +416,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             ]
             $scope.setup.layouts = [
               {value: 'key-themes', key: 'Key themes'},
-              {value: 'select-ws', key: 'Select Worksheet'},
+              {value: 'select-worksheet', key: 'Select Worksheet'},
               {value: 'select-results', key: 'Prioritized Select results'},
-              {value: 'allocation-ws', key: 'Allocation worksheet'},
+              {value: 'allocation-worksheet', key: 'Allocation worksheet'},
               {value: 'allocation-results', key: 'Prioritized Allocation results'}
             ]
 
@@ -434,6 +434,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                     $scope.report_specs.header_text = response.data.title
                     $scope.report_specs.allocated_themes = response.data.allocated_themes
                     $scope.report_specs.themes = response.data.themes
+                    $scope.report_specs.worksheet_themes = response.data.worksheet_themes
                 )
               else
                 console.log "no update yet"
@@ -444,7 +445,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               start_report($scope.report_specs)
 
         ]
-        )
+      )
 
       .state('about', {
         url: '/about',

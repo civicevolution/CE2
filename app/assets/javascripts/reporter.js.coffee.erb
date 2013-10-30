@@ -94,6 +94,9 @@ class Reporter
     else if report_specs.themes
       report_specs.num_of_themes = report_specs.themes.length
       [y_offset,last_theme_that_fit] = this.render_themes(report_specs, y_offset)
+    else if report_specs.worksheet_themes
+      report_specs.num_of_themes = report_specs.worksheet_themes.length
+      [y_offset,last_theme_that_fit] = this.render_worksheet_themes(report_specs, y_offset)
     return [y_offset,last_theme_that_fit]
 
 
@@ -214,6 +217,76 @@ class Reporter
           last_theme_that_fit_y_offset = y_offset
         return [last_theme_that_fit_y_offset,last_theme_that_fit]
     [last_theme_that_fit_y_offset,last_theme_that_fit]
+
+  render_worksheet_themes: (report_specs, y_offset) ->
+    #console.log "render_themes"
+    width = this.canvas.width
+    ctx = this.ctx
+    theme_ctr = 0
+    last_theme_that_fit = 0
+    last_theme_that_fit_y_offset = 0
+
+    for theme in report_specs.worksheet_themes
+      theme_ctr += 1
+      continue if theme_ctr < report_specs.theme_start_num
+      return [last_theme_that_fit_y_offset,last_theme_that_fit] if theme_ctr > report_specs.theme_end_num
+      top_y_offset = y_offset
+      #console.log theme.text
+      lineHeight = report_specs.font_size * 1.2
+      ctx.textBaseline = "top"
+      ctx.font = "#{report_specs.font_size *2}px #{report_specs.font_family}"
+      ctx.textAlign = "center"
+      ctx.fillText("#{theme.letter}", report_specs.font_size, y_offset);
+      ctx.textAlign = "left"
+      starting_height = y_offset
+      theme_text = theme.text
+      if report_specs.hide_examples
+        theme_text = theme_text.replace(/\[quote.*\/quote\]/mg,'')
+      for text_line in theme_text.replace(/\[quote/mg,"\n[quote").replace(/\/quote\]/mg,"/quote]\n").replace(/\n{2,}/mg,"\n\n").split(/\n/)
+        #console.log "y_offset: #{y_offset}, #{theme.letter} text: #{text_line.substring(0,40)}"
+        if text_line.match(/\[quote/)
+          ctx.font = "italic #{report_specs.font_size}px #{report_specs.font_family}"
+          text_line = text_line.replace(/\[quote[^\]]*\]/,'').replace(/\[\/quote[^\]]*\]/,'')
+          x_offset = width*.15
+          text_width = width * .70
+          y_offset -= report_specs.font_size*.8
+        else
+          ctx.font = "#{report_specs.font_size}px #{report_specs.font_family}"
+          x_offset = width*.1
+          text_width = width * .75
+        line_ctr = this.wrapText(text_line, x_offset, y_offset, text_width, lineHeight);
+        y_offset += line_ctr * lineHeight
+      theme_height = y_offset - starting_height
+      if theme_height < lineHeight * 3
+        y_offset += (lineHeight * 3 - theme_height)
+
+      # draw a box around the theme to make a table
+      ctx.strokeStyle = "#000000"
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(0,top_y_offset)
+      ctx.lineTo(width,top_y_offset)
+      ctx.lineTo(width,y_offset)
+      ctx.lineTo(0,y_offset)
+      ctx.lineTo(0,top_y_offset)
+      ctx.moveTo(width*.08,top_y_offset)
+      ctx.lineTo(width*.08,y_offset)
+      ctx.moveTo(width*.9,top_y_offset)
+      ctx.lineTo(width*.9,y_offset)
+      ctx.stroke();
+
+      if y_offset < report_specs.max_canvas_height
+        last_theme_that_fit = theme_ctr
+        last_theme_that_fit_y_offset = y_offset
+        #console.log "Found last_theme_that_fit: #{last_theme_that_fit}"
+      else
+        if last_theme_that_fit == 0
+          last_theme_that_fit = theme_ctr
+          last_theme_that_fit_y_offset = y_offset
+        return [last_theme_that_fit_y_offset,last_theme_that_fit]
+    [last_theme_that_fit_y_offset,last_theme_that_fit]
+
+
 
   wrapText: (text, x, y, maxWidth, lineHeight) ->
     context = this.ctx
