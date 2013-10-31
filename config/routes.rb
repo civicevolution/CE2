@@ -134,6 +134,8 @@ Ce2::Application.routes.draw do
 
   post "api/users/photo" => "api/v1/profiles#upload_photo", format: :json
 
+  post "api/reports/image" => "api/v1/reports#upload_report", format: :json
+
   # access ui templates that are normally stored in js file but cleared by dev's clear cache command
   get '/template/*path/*file.*pre', to: redirect("/assets/ui/%{path}/%{file}.%{pre}")
 
@@ -180,6 +182,7 @@ Ce2::Application.routes.draw do
         post 'reset', on: :member
         get 'participant_report_data', on: :member
         get 'conversations', on: :member
+        get 'reports', on: :member
       end
       get 'agendas/:id/link/:link_code/data_set(.:format)', to: 'agendas#data_set'
     end

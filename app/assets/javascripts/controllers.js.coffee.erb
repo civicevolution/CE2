@@ -367,6 +367,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           conversations: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.conversations($stateParams.agenda_code)
           ]
+          reports: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.reports($stateParams.agenda_code)
+          ]
         onEnter: ->
           angular.element(document.body).addClass('display-page')
         onExit: ->
@@ -1423,8 +1426,8 @@ agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window", "
 
 ]
 
-report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "conversations",
-  ($scope, $timeout, $state, AgendaData, conversations) ->
+report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "conversations", "reports",
+  ($scope, $timeout, $state, AgendaData, conversations, reports) ->
     $scope.$root.initialize_markdown_system( {disable_editor: true} )
 
     $scope.report_specs = {}
@@ -1434,6 +1437,9 @@ report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "c
     $scope.setup = {}
     $scope.setup.conversations = ( {value: conversation.code, key: conversation.title.substring(0,50)} for conversation in conversations.data )
 
+    $scope.setup.saved_reports = reports.data
+
+    $scope.report_specs.report_title = ''
     $scope.report_specs.canvas_width = 800
     $scope.report_specs.max_canvas_height_first_block = 1200
     $scope.report_specs.max_canvas_height_addtl_blocks = 1200
@@ -1498,4 +1504,26 @@ report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "c
         $timeout ->
           start_report(report_specs)
         ,200
+
+    $scope.save_report = ->
+      console.log "save_report"
+      payload = new FormData()
+      report_images = document.getElementById('report-images').getElementsByTagName('img')
+      for image, index in report_images
+        payload.append("report-image-#{index}", image.src)
+      for report_field in ['report_title', 'conversation_code', 'layout', 'hide_examples', 'header_text', 'font_family', 'font_size', 'canvas_width', 'max_canvas_height_first_block', 'max_canvas_height_addtl_blocks']
+        payload.append(report_field, $scope.report_specs[report_field])
+      payload.append('agenda_code', $state.params.agenda_code)
+      AgendaData.upload_reports(payload)
+
+    $scope.edit_report = (id) ->
+      console.log "edit the report #{id}"
+
+    $scope.delete_report = (id) ->
+      console.log "delete report #{id}"
+
+
+
+
+
 ]

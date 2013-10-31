@@ -5,6 +5,8 @@ class Agenda < ActiveRecord::Base
   has_many :agenda_components
   has_many :agenda_component_threads
 
+  has_many :reports, primary_key: :code, foreign_key: :agenda_code
+
   validate :code_is_unique, on: :create
 
   def code_is_unique

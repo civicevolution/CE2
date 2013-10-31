@@ -57,16 +57,46 @@
         %input.size(ng-model="report_specs.max_canvas_height_addtl_blocks")
 
     %tr
-      %td
+      %td(colspan="2")
         %button.btn-primary.btn(ng-click="update_setup()") Re-display report
+    %tr
+      %td
+        Save report:
+      %td
+        Title:
+        %input.report-title(ng-model="report_specs.report_title")
+        %button.btn-primary.btn(ng-click="save_report()") Save report
+
+  %b Saved reports
+  %table.saved_reports
+    %tr(ng-repeat="report in setup.saved_reports")
+      %td
+        {{report.title}}
+      %td
+        %a(ng-click="edit_report(report.id)")
+          Edit
+      %td
+        %a(ng-click="delete_report(report.id)")
+          Delete
+      %td
+        Report images:
+      %td
+        %div(ng-repeat="image in report.report_images")
+          %a(href="{{image.url}}" target="_blank")
+            {{image.title}}
+
+
+
+
 
   %hr
   %div.canvas-panel(ng-repeat="canvas in report_specs.canvases")
     %canvas{id: "report-canvas-{{canvas.id}}"}
 
-  %p(ng-if="report_specs.report_images")
-    %b Right click on each report image below to copy it and then paste it into a Word document
-  %div.report-images(ng-repeat="(index, report) in report_specs.report_images")
-    %p Report section {{index + 1}}
-    %img(src="{{report.dataURL}}")
+  #report-images
+    %p(ng-if="report_specs.report_images")
+      %b Right click on each report image below to copy it and then paste it into a Word document
+    %div.report-images(ng-repeat="(index, report) in report_specs.report_images")
+      %p Report section {{index + 1}}
+      %img(src="{{report.dataURL}}")
 

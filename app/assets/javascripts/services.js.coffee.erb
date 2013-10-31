@@ -555,6 +555,16 @@ services.factory "AgendaData", ["$http",
 
     conversations: (code) ->
       $http.get("/api/agendas/#{code}/conversations.json")
+
+    upload_reports: (payload) ->
+      $http.post('/api/reports/image.json', payload, {
+        headers: { 'Content-Type': false },
+        transformRequest: (data) -> return data
+      })
+
+    reports: (code) ->
+      $http.get("/api/agendas/#{code}/reports.json")
+
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->
