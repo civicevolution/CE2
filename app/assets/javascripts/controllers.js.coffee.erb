@@ -1475,38 +1475,38 @@ report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "c
       {value: 'allocation-results', key: 'Prioritized Allocation results'}
     ]
 
-    $scope.setup.data_sets = [
-      {value: 'final-themes', key: 'Final themes for allocation'},
-      {value: 'prioritised-final-themes', key: 'Prioritised final themes'}
-    ]
     $scope.update_data_set = ->
       if $scope.report_specs.conversation_code && $scope.report_specs.layout
-        console.log "update_data_set with conversation_code: #{$scope.report_specs.conversation_code} in layout: #{$scope.report_specs.layout}"
+        #console.log "update_data_set with conversation_code: #{$scope.report_specs.conversation_code} in layout: #{$scope.report_specs.layout}"
         AgendaData.participant_report_data($state.params.agenda_code,$scope.report_specs.conversation_code,$scope.report_specs.layout).then(
           (response)->
             $scope.report_specs.header_text = response.data.title
             $scope.report_specs.allocated_themes = response.data.allocated_themes
             $scope.report_specs.themes = response.data.themes
             $scope.report_specs.worksheet_themes = response.data.worksheet_themes
+            $timeout ->
+              $scope.update_setup()
+            ,200
         )
       else
         console.log "no update yet"
 
     $scope.update_setup = ->
-      console.log " update_setup"
       $scope.report_specs.canvases = [{id: 1}]
       start_report($scope.report_specs)
 
     start_report = (report_specs) ->
-      console.log "start_report"
+      #console.log "start_report"
       status = reporter.create_report(report_specs)
       if status == "delay for canvas"
         $timeout ->
           start_report(report_specs)
         ,200
 
-    $scope.save_report = ->
-      console.log "save_report"
+    $scope.save_report = (event) ->
+      event = event || window.event;
+      btn = angular.element(event.currentTarget)
+      btn.addClass('busy')
       payload = new FormData()
       report_images = document.getElementById('report-images').getElementsByTagName('img')
       for image, index in report_images
@@ -1514,14 +1514,41 @@ report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "c
       for report_field in ['report_title', 'conversation_code', 'layout', 'hide_examples', 'header_text', 'font_family', 'font_size', 'canvas_width', 'max_canvas_height_first_block', 'max_canvas_height_addtl_blocks']
         payload.append(report_field, $scope.report_specs[report_field])
       payload.append('agenda_code', $state.params.agenda_code)
-      AgendaData.upload_reports(payload)
+      AgendaData.upload_reports(payload).then(
+        (response)->
+          btn.removeClass('busy')
+          $scope.setup.saved_reports.push(response.data)
+      )
 
     $scope.edit_report = (id) ->
       console.log "edit the report #{id}"
+      # get the report data and populate the #scope
+      AgendaData.read_report_setup(id).then(
+        (response)->
+          data = response.data
+          $scope.report_specs.report_title = data.title
+          $scope.report_specs.conversation_code = data.source_code
+          $scope.report_specs.layout = data.layout
+          $scope.report_specs.hide_examples = data.settings.hide_examples
+          $scope.report_specs.header_text = data.header
+          $scope.report_specs.font_family = data.settings.font_family
+          $scope.report_specs.font_size = data.settings.font_size
+          $scope.report_specs.canvas_width = data.settings.canvas_width
+          $scope.report_specs.max_canvas_height_first_block = data.settings.max_canvas_height_first_block
+          $scope.report_specs.max_canvas_height_addtl_blocks = data.settings.max_canvas_height_addtl_blocks
+          $timeout ->
+            $scope.update_data_set()
+          ,200
+      )
 
     $scope.delete_report = (id) ->
-      console.log "delete report #{id}"
-
+      AgendaData.delete_report(id).then(
+        (response)->
+          for report, index in $scope.setup.saved_reports
+            if report.id == response.data.report_destroyed_id
+              $scope.setup.saved_reports.splice(index,1)
+              return
+      )
 
 
 

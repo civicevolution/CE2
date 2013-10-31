@@ -1,4 +1,4 @@
-class ReportSerializer < ActiveModel::Serializer
+class ReportListSerializer < ActiveModel::Serializer
   attributes :id, :title, :updated_at, :report_images
 
   def report_images

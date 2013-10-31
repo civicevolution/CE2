@@ -99,7 +99,7 @@ module Api
       def reports
         agenda = Agenda.find_by(code: params[:id])
         #authorize! :reports, agenda
-        render json: agenda.reports
+        render json: agenda.reports, :each_serializer => ReportListSerializer
       end
 
     end

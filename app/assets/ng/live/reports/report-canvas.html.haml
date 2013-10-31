@@ -16,16 +16,11 @@
         %select(ng-model="report_specs.layout" ng-options="o.value as o.key for o in setup.layouts" ng-change="update_data_set()")
           %option(value="" disabled selected) Choose a layout for this report
 
-      -#%p
-        Data to report:
-        %select(ng-model="report_specs.data_set_name" ng-options="o.value as o.key for o in setup.data_sets" ng-change="update_data_set()")
-          %option(value="" disabled selected) Select the data for this report
-
     %tr
       %td
         Include quotes?
       %td
-        %select(ng-model="report_specs.hide_examples")
+        %select(ng-model="report_specs.hide_examples" ng-change="update_setup()")
           %option(value="true" selected) Hide quotes
           %option(value="false") Display quotes
 
@@ -65,7 +60,11 @@
       %td
         Title:
         %input.report-title(ng-model="report_specs.report_title")
-        %button.btn-primary.btn(ng-click="save_report()") Save report
+        %button.btn-primary.btn(ng-click="save_report($event)" ng-disabled="!report_specs.report_images")
+          %span.def-msg Save report
+          %span.busy-msg
+            Saving
+            %i.icon-spinner.icon-spin
 
   %b Saved reports
   %table.saved_reports
@@ -79,14 +78,11 @@
         %a(ng-click="delete_report(report.id)")
           Delete
       %td
-        Report images:
+        Images of report:
       %td
         %div(ng-repeat="image in report.report_images")
           %a(href="{{image.url}}" target="_blank")
             {{image.title}}
-
-
-
 
 
   %hr

@@ -565,6 +565,11 @@ services.factory "AgendaData", ["$http",
     reports: (code) ->
       $http.get("/api/agendas/#{code}/reports.json")
 
+    delete_report: (id) ->
+      $http.delete("/api/reports/#{id}.json")
+
+    read_report_setup: (id) ->
+      $http.get("/api/reports/#{id}.json")
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->
