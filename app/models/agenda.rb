@@ -639,6 +639,9 @@ class Agenda < ActiveRecord::Base
     agenda_details[:concurrent_conversations] =
       [[206,207],[208,209,210]]
 
+    agenda_details[:select_conversations] = [208,209,210]
+    agenda_details[:allocate_conversations] = [206, 208]
+
     agenda_details[:theme_map] =
       {
         1=>[357,354,356],
@@ -719,40 +722,80 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:group][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "group"
 
-      # link for group scribe select
-      link_code = self.create_link_code( agenda_details[:links][:lookup] )
-      link = {
-          title: %Q|Select favorites ideas for "#{conversation[:title]}"|,
-          id: conversation[:id],
-          link_code:  link_code,
-          href: "/#/agenda/#{self.code}-#{link_code}/select/#{conversation[:munged_title]}",
-          conversation_code: "#{conversation[:code]}",
-          data_set: "themes-select",
-          disabled: false,
-          role: 'group',
-          type: 'select'
-      }
-      agenda_details[:links][:group][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "group"
 
-      # link for group scribe allocate
-      link_code = self.create_link_code( agenda_details[:links][:lookup] )
-      link = {
-          title: %Q|Allocate points for ideas for "#{conversation[:title]}"|,
-          id: conversation[:id],
-          link_code:  link_code,
-          href: "/#/agenda/#{self.code}-#{link_code}/allocate/#{conversation[:munged_title]}",
-          conversation_code: "#{conversation[:code]}",
-          data_set: "themes-allocate",
-          disabled: false,
-          role: 'group',
-          type: 'select'
-      }
-      agenda_details[:links][:group][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "group"
+      if agenda_details[:select_conversations].include?( conversation[:id] )
+        # link for group scribe select
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Select favorites ideas for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/select/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "themes-select",
+            disabled: false,
+            role: 'group',
+            type: 'select'
+        }
+        agenda_details[:links][:group][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "group"
+
+        # link for select results
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Display Select Results for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/select-results/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "conversation-themes-select-results",
+            disabled: false,
+            role: 'reporter',
+            type: 'select-results'
+        }
+        agenda_details[:links][:reporter][ link_code ] = link
+        agenda_details[:links][:coordinator][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "reporter"
+      end
 
 
+      if agenda_details[:allocate_conversations].include?( conversation[:id] )
+        # link for group scribe allocate
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Allocate points for ideas for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/allocate/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "themes-allocate",
+            disabled: false,
+            role: 'group',
+            type: 'select'
+        }
+        agenda_details[:links][:group][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "group"
+
+        # link for allocate results
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Display allocate results for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/allocate-results/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "conversation-themes-allocate-results",
+            disabled: false,
+            role: 'reporter',
+            type: 'allocate-results'
+        }
+        agenda_details[:links][:reporter][ link_code ] = link
+        agenda_details[:links][:coordinator][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "reporter"
+      end
     end
+
+
 
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
@@ -816,10 +859,30 @@ class Agenda < ActiveRecord::Base
             }
         }
 
+    agenda_details[:data_sets]["conversation-themes-select-results"] =
+        {
+            data_class: "ThemeSelection",
+            data_method: "data_themes_select_results",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}',
+                coordinator_user_id: agenda_details[:coordinator_user_id]
+            }
+        }
+
     agenda_details[:data_sets]["themes-allocate"] =
         {
             data_class: "ThemeAllocation",
             data_method: "data_themes_allocate_page_data",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}',
+                coordinator_user_id: agenda_details[:coordinator_user_id]
+            }
+        }
+
+    agenda_details[:data_sets]["conversation-themes-allocate-results"] =
+        {
+            data_class: "ThemeAllocation",
+            data_method: "data_themes_allocation_results",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
                 coordinator_user_id: agenda_details[:coordinator_user_id]

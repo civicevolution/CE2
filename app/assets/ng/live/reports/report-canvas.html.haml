@@ -66,8 +66,12 @@
             Saving
             %i.icon-spinner.icon-spin
 
-  %b Saved reports
+
+
   %table.saved_reports
+    %tr
+      %td(colspan="5" )
+        %b Saved reports
     %tr(ng-repeat="report in setup.saved_reports")
       %td
         {{report.title}}
