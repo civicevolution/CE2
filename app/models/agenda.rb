@@ -641,6 +641,7 @@ class Agenda < ActiveRecord::Base
 
     agenda_details[:select_conversations] = [208,209,210]
     agenda_details[:allocate_conversations] = [206, 208]
+    agenda_details[:allocate_top_themes_conversations] = [208,209,210]
 
     agenda_details[:theme_map] =
       {
@@ -795,7 +796,38 @@ class Agenda < ActiveRecord::Base
       end
     end
 
+    if agenda_details[:allocate_top_themes_conversations] && agenda_details[:allocate_top_themes_conversations].size > 0
+      # link for allocate top ideas from 3 conversations
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: "Prioritise the top ideas",
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/allocate/prioritise-top-ideas",
+          data_set: "collected-themes-allocation",
+          page_title: 'Prioritise the top ideas',
+          disabled: false,
+          role: 'group',
+          type: 'select'
+      }
+      agenda_details[:links][:group][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "group"
 
+      # link for allocate results for top ideas from 3 conversations
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Display allocate results for Top Ideas|,
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/allocate-results/prioritise-top-ideas-results",
+          data_set: "collected-themes-allocation-results",
+          page_title: 'Prioritisation results for top ideas',
+          disabled: false,
+          role: 'reporter',
+          type: 'allocate-results'
+      }
+      agenda_details[:links][:reporter][ link_code ] = link
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "reporter"
+    end
 
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
@@ -886,6 +918,30 @@ class Agenda < ActiveRecord::Base
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
                 coordinator_user_id: agenda_details[:coordinator_user_id]
+            }
+        }
+
+    agenda_details[:data_sets]["collected-themes-allocation"] =
+        {
+            data_class: "ThemeAllocation",
+            data_method: "data_collected_themes_allocation_page_data",
+            parameters: {
+                conversation_ids: "#{agenda_details[:allocate_top_themes_conversations]}",
+                top_themes_count: 3,
+                coordinator_user_id: agenda_details[:coordinator_user_id],
+                page_title: '#{link_details["page_title"]}'
+            }
+        }
+
+    agenda_details[:data_sets]["collected-themes-allocation-results"] =
+        {
+            data_class: "ThemeAllocation",
+            data_method: "data_collected_themes_allocation_results",
+            parameters: {
+                conversation_ids: "#{agenda_details[:allocate_top_themes_conversations]}",
+                top_themes_count: 3,
+                coordinator_user_id: agenda_details[:coordinator_user_id],
+                page_title: '#{link_details["page_title"]}'
             }
         }
 

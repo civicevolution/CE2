@@ -4,11 +4,10 @@ class ThemePoint < ActiveRecord::Base
 
   def self.themes_points(themes)
 
-    theme_ids = themes.map(&:id)
+    theme_ids = themes.map{|t| t[:theme_id]}
     theme_points = {}
     total_points = 0.to_f
     max_points = 0
-
 
     ThemePoint.select('theme_id, sum(points)').where(theme_id: theme_ids).group(:theme_id).each do |tp|
       theme_points[tp.theme_id] = tp.sum
@@ -17,19 +16,12 @@ class ThemePoint < ActiveRecord::Base
     end
     max_points = max_points.to_f
 
-    ltr = 'A'
-    allocated_points = []
-    final_themes = []
     themes.each do |theme|
-      points = theme_points[theme.id] || 0
-      allocated_points.push( {id: theme.id, letter: ltr, text: theme[:text].gsub(/\[quote.*\/quote\]/m,''),
-                              points: points,
-                              percentage: total_points > 0 ? (points/total_points*100).round : 0,
-                              graph_percentage: max_points > 0 ? (points/max_points*100).round : 0
-                             })
-      ltr = ltr.succ
+      points = theme_points[theme[:theme_id]] || 0
+      theme[:points] = points,
+      theme[:percentage] = total_points > 0 ? (points/total_points*100).round : 0,
+      theme[:graph_percentage] = max_points > 0 ? (points/max_points*100).round : 0
     end
-    allocated_points = allocated_points.sort{|b,a| a[:points] <=> b[:points]}
+    themes = themes.sort{|b,a| a[:points] <=> b[:points]}
   end
-
 end

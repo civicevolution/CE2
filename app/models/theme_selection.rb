@@ -22,7 +22,7 @@ class ThemeSelection < AgendaComponent
         final_themes.push({
           id: theme.id,
           letter: ltr,
-          text: theme.text.gsub(/\[quote.*\/quote\]/,'')
+          text: theme.text.gsub(/\[quote.*\/quote\]/m,'')
         })
         ltr = ltr.succ
         final_theme_ids << theme.id
@@ -55,7 +55,7 @@ class ThemeSelection < AgendaComponent
       final_themes.push({
                           id: theme.id,
                           letter: ltr,
-                          text: theme.text.gsub(/\[quote.*\/quote\]/,'')
+                          text: theme.text.gsub(/\[quote.*\/quote\]/m,'')
                         })
       ltr = ltr.succ
       final_theme_ids << theme.id

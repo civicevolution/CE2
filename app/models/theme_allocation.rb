@@ -45,7 +45,7 @@ class ThemeAllocation < AgendaComponent
       allocation_themes.push({
                             id: theme.id,
                             letter: ltr,
-                            text: theme.text.gsub(/\[quote.*\/quote\]/,'')
+                            text: theme.text.gsub(/\[quote.*\/quote\]/m,'')
                         })
       ltr = ltr.succ
       allocation_theme_ids << theme.id
@@ -74,10 +74,66 @@ class ThemeAllocation < AgendaComponent
     coordinator_user_id = params["coordinator_user_id"].to_i
 
     conversation = Conversation.find_by(code: conversation_code)
-    themes = ThemeComment.where(conversation_id: conversation.id, user_id: coordinator_user_id)
+    #themes = ThemeComment.where(conversation_id: conversation.id, user_id: coordinator_user_id)
+
+    themes = ThemeAllocation.collect_top_themes_from_conversations(coordinator_user_id, [conversation.id], 1000)
 
     allocated_themes = ThemePoint.themes_points(themes)
     {title: conversation.title, allocated_themes: allocated_themes}
+  end
+
+
+  # if themes are drawn from multiple conversations
+  def self.data_collected_themes_allocation_page_data(params)
+    conversation_ids = params["conversation_ids"].scan(/\d+/).map(&:to_i)
+    top_themes_count = params["top_themes_count"]
+    current_user = params["current_user"]
+    coord_user_id = params["coordinator_user_id"].to_i
+    agenda_details = params["agenda_details"]
+
+    themes = ThemeAllocation.collect_top_themes_from_conversations(coord_user_id, conversation_ids, top_themes_count)
+
+    allocation_themes = []
+    ltr = 'A'
+    themes.each do|theme|
+      allocation_themes.push({ id: theme[:theme_id], letter: ltr, text: theme[:text].gsub(/\[quote.*\/quote\]/m,'') })
+      ltr = ltr.succ
+    end
+
+    all_votes = ThemePoint.where(group_id: current_user.last_name.to_i, theme_id: allocation_themes.map{|t| t[:id]} )
+    votes = {}
+    all_votes.each do |vote|
+      votes[ vote.voter_id ] = [] unless votes[ vote.voter_id ]
+      votes[ vote.voter_id ].push( {theme_id: vote.theme_id, points: vote.points} )
+    end
+    {
+        title: params["page_title"],
+        agenda_code: agenda_details["code"],
+        allocation_themes: allocation_themes,
+        current_timestamp: Time.new.to_i,
+        votes: votes
+    }
+  end
+
+  # if themes are drawn from multiple conversations
+  def self.data_collected_themes_allocation_results(params)
+    coord_user_id = params["coordinator_user_id"].to_i
+    conversation_ids = params["conversation_ids"].scan(/\d+/).map(&:to_i)
+    top_themes_count = params["top_themes_count"]
+
+    themes = ThemeAllocation.collect_top_themes_from_conversations(coord_user_id, conversation_ids, top_themes_count)
+
+    allocated_themes = ThemePoint.themes_points(themes)
+    {title: params["page_title"], allocated_themes: allocated_themes}
+  end
+
+  # or specified number of top themes from the specified conversations
+  def self.collect_top_themes_from_conversations(coordinator_user_id, conversation_ids, theme_count)
+    themes = []
+    Conversation.where(id: conversation_ids).each do |conversation|
+      themes << ThemeVote.theme_votes(conversation.code, coordinator_user_id )[0..theme_count-1]
+    end
+    themes.flatten
   end
 
   def menu_details(role,email)
