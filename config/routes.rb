@@ -183,6 +183,7 @@ Ce2::Application.routes.draw do
         get 'participant_report_data', on: :member
         get 'conversations', on: :member
         get 'reports', on: :member
+        get 'report_data_sets', on: :member
       end
       get 'agendas/:id/link/:link_code/data_set(.:format)', to: 'agendas#data_set'
     end

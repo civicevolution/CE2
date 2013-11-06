@@ -18,8 +18,8 @@ class ThemePoint < ActiveRecord::Base
 
     themes.each do |theme|
       points = theme_points[theme[:theme_id]] || 0
-      theme[:points] = points,
-      theme[:percentage] = total_points > 0 ? (points/total_points*100).round : 0,
+      theme[:points] = points
+      theme[:percentage] = total_points > 0 ? (points/total_points*100).round : 0
       theme[:graph_percentage] = max_points > 0 ? (points/max_points*100).round : 0
     end
     themes = themes.sort{|b,a| a[:points] <=> b[:points]}

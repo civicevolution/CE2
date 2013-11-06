@@ -135,17 +135,46 @@ class ThemeSmallGroupTheme < AgendaComponent
 
 
   def self.data_key_themes_with_examples(params)
-    conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
-    themes = conversation.theme_comments.where(user_id: params["coordinator_user_id"]).order(:order_id)
+    if params["conversation_code"].match(/-/)
+      agenda_code, data_set_code = params["conversation_code"].match(/^(\w+)-(.*)$/).captures
+      agenda = Agenda.find_by(code: agenda_code)
+      data_set_details = agenda.details["data_sets"][data_set_code]
+      title = data_set_details["data_set_title"]
+      agenda_details = agenda.details
+      link_details = {}
 
-    ltr = 'A'
-    theme_comments = []
-    themes.each do |theme|
-      theme_comments.push( {id: theme.id, order_id: theme.order_id, letter: ltr, text: theme.text} )
-      ltr = ltr.succ
+      # check if there are any parameters that need to be evaluated for their interpolated variables
+      data_set_details["parameters"].each_pair do |key,value|
+        Rails.logger.debug "value for eval: #{value}"
+        data_set_details["parameters"][key] = eval( '"' + value + '"') if value.class.to_s == 'String' && value.match(/#/)
+      end
+      coord_user_id = data_set_details["parameters"]["coordinator_user_id"].to_i
+      conversation_ids = data_set_details["parameters"]["conversation_ids"].scan(/\d+/).map(&:to_i)
+      top_themes_count = data_set_details["parameters"]["top_themes_count"]
+
+      themes = ThemeAllocation.collect_top_themes_from_conversations(coord_user_id, conversation_ids, top_themes_count)
+      ltr = 'A'
+      order_ctr = 1
+      theme_comments = []
+      themes.each do |theme|
+        theme_comments.push( {id: theme[:theme_id], order_id: order_ctr, letter: ltr, text: theme[:text]} )
+        ltr = ltr.succ
+        order_ctr += 1
+      end
+
+    else
+      conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
+      themes = conversation.theme_comments.where(user_id: params["coordinator_user_id"]).order(:order_id)
+      title = conversation.title
+
+      ltr = 'A'
+      theme_comments = []
+      themes.each do |theme|
+        theme_comments.push( {id: theme.id, order_id: theme.order_id, letter: ltr, text: theme.text} )
+        ltr = ltr.succ
+      end
     end
-    theme_comments
-    {title: conversation.title, themes: theme_comments}
+    {title: title, themes: theme_comments}
   end
 
 

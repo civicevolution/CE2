@@ -405,6 +405,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           conversations: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.conversations($stateParams.agenda_code)
           ]
+          report_data_sets: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.report_data_sets($stateParams.agenda_code)
+          ]
           reports: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.reports($stateParams.agenda_code)
           ]
@@ -1464,8 +1467,8 @@ agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window", "
 
 ]
 
-report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "conversations", "reports",
-  ($scope, $timeout, $state, AgendaData, conversations, reports) ->
+report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "conversations", "reports", "report_data_sets",
+  ($scope, $timeout, $state, AgendaData, conversations, reports, report_data_sets) ->
     $scope.$root.initialize_markdown_system( {disable_editor: true} )
 
     $scope.report_specs = {}
@@ -1474,6 +1477,8 @@ report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "c
 
     $scope.setup = {}
     $scope.setup.conversations = ( {value: conversation.code, key: conversation.title.substring(0,50)} for conversation in conversations.data )
+    for data_set in report_data_sets.data
+      $scope.setup.conversations.push( {value: data_set.key, key: data_set.title} )
 
     $scope.setup.saved_reports = reports.data
 

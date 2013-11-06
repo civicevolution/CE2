@@ -4,7 +4,7 @@ module Api
     class AgendasController < Api::BaseController
       skip_authorization_check :only => [:agenda, :agenda_for_component, :accept_role, :release_role, :participant_report,
                                          :export, :import, :agendas, :participant_report_data, :data_set, :conversations,
-                                         :reports ]
+                                         :reports, :report_data_sets ]
 
       def agenda
         agenda = Agenda.find_by(code: params[:id])
@@ -100,6 +100,12 @@ module Api
         agenda = Agenda.find_by(code: params[:id])
         #authorize! :reports, agenda
         render json: agenda.reports, :each_serializer => ReportListSerializer
+      end
+
+      def report_data_sets
+        agenda = Agenda.find_by(code: params[:id])
+        #authorize! :reports, agenda
+        render json: agenda.report_data_sets
       end
 
     end

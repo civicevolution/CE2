@@ -73,13 +73,32 @@ class ThemeAllocation < AgendaComponent
     conversation_code = params["conversation_code"]
     coordinator_user_id = params["coordinator_user_id"].to_i
 
-    conversation = Conversation.find_by(code: conversation_code)
-    #themes = ThemeComment.where(conversation_id: conversation.id, user_id: coordinator_user_id)
+    if conversation_code.match(/-/)
+      agenda_code, data_set_code = conversation_code.match(/^(\w+)-(.*)$/).captures
+      agenda = Agenda.find_by(code: agenda_code)
+      data_set_details = agenda.details["data_sets"][data_set_code]
+      title = data_set_details["data_set_title"]
+      agenda_details = agenda.details
+      link_details = {}
 
-    themes = ThemeAllocation.collect_top_themes_from_conversations(coordinator_user_id, [conversation.id], 1000)
+      # check if there are any parameters that need to be evaluated for their interpolated variables
+      data_set_details["parameters"].each_pair do |key,value|
+        Rails.logger.debug "value for eval: #{value}"
+        data_set_details["parameters"][key] = eval( '"' + value + '"') if value.class.to_s == 'String' && value.match(/#/)
+      end
+      coord_user_id = data_set_details["parameters"]["coordinator_user_id"].to_i
+      conversation_ids = data_set_details["parameters"]["conversation_ids"].scan(/\d+/).map(&:to_i)
+      top_themes_count = data_set_details["parameters"]["top_themes_count"]
 
+      themes = ThemeAllocation.collect_top_themes_from_conversations(coord_user_id, conversation_ids, top_themes_count)
+
+    else
+      conversation = Conversation.find_by(code: conversation_code)
+      themes = ThemeAllocation.collect_top_themes_from_conversations(coordinator_user_id, [conversation.id], 1000)
+      title = conversation.title
+    end
     allocated_themes = ThemePoint.themes_points(themes)
-    {title: conversation.title, allocated_themes: allocated_themes}
+    {title: title, allocated_themes: allocated_themes}
   end
 
 

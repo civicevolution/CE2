@@ -577,21 +577,12 @@ class Agenda < ActiveRecord::Base
   end
 
   def conversations
-    # collect the conversation ids from the component inputs
-    if self.conversation_ids.nil?
-      conversation_ids = []
-      self.agenda_components.each do |c|
-        c.input.each_pair do|key,value|
-          if key.match(/conversation/)
-            conversation_ids << value
-          end
-        end
-      end
-      self.update_attribute(:conversation_ids, conversation_ids)
-    else
-      conversation_ids = self.conversation_ids
+    conversations = Conversation.includes(:title_comment).where(id: self.details["conversation_ids"].flatten)
+    ordered_conversations = []
+    self.details["conversation_ids"].flatten.each do |id|
+      ordered_conversations << conversations.detect{|c| c.id == id}
     end
-    conversations = Conversation.where(id: conversation_ids.flatten.uniq).order(:id)
+    ordered_conversations
   end
 
   def self.agendas
@@ -620,7 +611,7 @@ class Agenda < ActiveRecord::Base
     data_set_details["parameters"]["current_user"] = current_user
     data_set_details["parameters"]["agenda_details"] = agenda_details
 
-    data_set_details["parameters"].each_pair{|key,value| Rails.logger.debug "#{key}: #{value}" }
+    #data_set_details["parameters"].each_pair{|key,value| Rails.logger.debug "#{key}: #{value}" }
 
     data_set_details["data_class"].constantize.send( data_set_details["data_method"], data_set_details["parameters"] )
 
@@ -634,10 +625,16 @@ class Agenda < ActiveRecord::Base
 
     agenda_details = {code: self.code}
 
-    agenda_details[:conversations] = self.conversations.includes(:title_comment).map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
+    # group concurrent conversations in sub arrays
+    agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
 
-    agenda_details[:concurrent_conversations] =
-      [[206,207],[208,209,210]]
+    conversations = Conversation.includes(:title_comment).where(id: agenda_details[:conversation_ids].flatten)
+    ordered_conversations = []
+    agenda_details[:conversation_ids].flatten.each do |id|
+      ordered_conversations << conversations.detect{|c| c.id == id}
+    end
+
+    agenda_details[:conversations] = ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
 
     agenda_details[:select_conversations] = [208,209,210]
     agenda_details[:allocate_conversations] = [206, 208]
@@ -942,7 +939,9 @@ class Agenda < ActiveRecord::Base
                 top_themes_count: 3,
                 coordinator_user_id: agenda_details[:coordinator_user_id],
                 page_title: '#{link_details["page_title"]}'
-            }
+            },
+            data_set_title: 'Top ideas',
+            report_generator_list: true
         }
 
 
@@ -965,6 +964,17 @@ class Agenda < ActiveRecord::Base
       return nil, nil
     end
 
+  end
+
+  def report_data_sets
+    # return data_sets to be included in the report generator
+    data_sets = []
+    self.details["data_sets"].each_pair do |key, data_set|
+      if data_set["report_generator_list"]
+        data_sets.push( {title: data_set["data_set_title"], key: "#{self.code}-#{key}" } )
+      end
+    end
+    data_sets
   end
 
 end
