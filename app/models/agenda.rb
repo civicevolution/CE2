@@ -630,7 +630,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
     else
       # group concurrent conversations in sub arrays
-      agenda_details[:conversation_ids] = [[11,12],[13,14,15]]
+      agenda_details[:conversation_ids] = [[1,2],[3,4,5]]
     end
 
     conversations = Conversation.includes(:title_comment).where(id: agenda_details[:conversation_ids].flatten)
@@ -653,15 +653,15 @@ class Agenda < ActiveRecord::Base
           3=>[359,358,365]
         }
     else
-      agenda_details[:select_conversations] = [13,14,15]
-      agenda_details[:allocate_conversations] = [11, 13]
-      agenda_details[:allocate_top_themes_conversations] = [13,14,15]
+      agenda_details[:select_conversations] = [3,4,5]
+      agenda_details[:allocate_conversations] = [1, 3]
+      agenda_details[:allocate_top_themes_conversations] = [3,4,5]
 
       agenda_details[:theme_map] =
           {
-              1=>[65, 62, 64],
-              2=>[63, 68, 71],
-              3=>[67, 66, 73]
+              1=>[6,3,5],
+              2=>[4,9,12],
+              3=>[8,7,14]
           }
     end
 
