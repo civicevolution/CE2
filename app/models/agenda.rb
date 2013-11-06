@@ -625,8 +625,13 @@ class Agenda < ActiveRecord::Base
 
     agenda_details = {code: self.code}
 
-    # group concurrent conversations in sub arrays
-    agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
+    if Rails.env.development?
+      # group concurrent conversations in sub arrays
+      agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
+    else
+      # group concurrent conversations in sub arrays
+      agenda_details[:conversation_ids] = [[11,12],[13,14,15]]
+    end
 
     conversations = Conversation.includes(:title_comment).where(id: agenda_details[:conversation_ids].flatten)
     ordered_conversations = []
@@ -636,16 +641,29 @@ class Agenda < ActiveRecord::Base
 
     agenda_details[:conversations] = ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
 
-    agenda_details[:select_conversations] = [208,209,210]
-    agenda_details[:allocate_conversations] = [206, 208]
-    agenda_details[:allocate_top_themes_conversations] = [208,209,210]
+    if Rails.env.development?
+      agenda_details[:select_conversations] = [208,209,210]
+      agenda_details[:allocate_conversations] = [206, 208]
+      agenda_details[:allocate_top_themes_conversations] = [208,209,210]
 
-    agenda_details[:theme_map] =
-      {
-        1=>[357,354,356],
-        2=>[355,360,363],
-        3=>[359,358,365]
-      }
+      agenda_details[:theme_map] =
+        {
+          1=>[357,354,356],
+          2=>[355,360,363],
+          3=>[359,358,365]
+        }
+    else
+      agenda_details[:select_conversations] = [13,14,15]
+      agenda_details[:allocate_conversations] = [11, 13]
+      agenda_details[:allocate_top_themes_conversations] = [13,14,15]
+
+      agenda_details[:theme_map] =
+          {
+              1=>[65, 62, 64],
+              2=>[63, 68, 71],
+              3=>[67, 66, 73]
+          }
+    end
 
     agenda_details[:coordinator_user_id] = self.coordinator.id
 
