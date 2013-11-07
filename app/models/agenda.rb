@@ -634,7 +634,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:conversation_ids] = [211, 212, 213, 214, 215]
     else
       # group concurrent conversations in sub arrays
-      agenda_details[:conversation_ids] = [[1,2],[3,4,5]]
+      agenda_details[:conversation_ids] = [6, 7, 8, 9, 10]
     end
 
     if Rails.env.development?
@@ -665,13 +665,12 @@ class Agenda < ActiveRecord::Base
       agenda_details[:select_conversations] = []
       agenda_details[:allocate_conversations] = []
       agenda_details[:allocate_top_themes_conversations] = []
-      agenda_details[:allocate_multiple_conversations] = [3,4]
+      agenda_details[:allocate_multiple_conversations] = [8, 9]
 
       agenda_details[:theme_map] =
           {
-              1=>[6,3,5],
-              2=>[4,9,12],
-              3=>[8,7,14]
+              1=>[22, 23, 24, 29],
+              2=>[25, 26, 27, 28]
           }
     end
     self.update_attribute(:details, agenda_details)
