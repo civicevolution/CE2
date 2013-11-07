@@ -93,7 +93,7 @@ module Api
       def conversations
         agenda = Agenda.find_by(code: params[:id])
         #authorize! :conversations, agenda
-        render json: agenda.details["conversations"]
+        render json: agenda.conversations
       end
 
       def reports

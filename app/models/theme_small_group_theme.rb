@@ -151,12 +151,32 @@ class ThemeSmallGroupTheme < AgendaComponent
       coord_user_id = data_set_details["parameters"]["coordinator_user_id"].to_i
       conversation_ids = data_set_details["parameters"]["conversation_ids"].scan(/\d+/).map(&:to_i)
       top_themes_count = data_set_details["parameters"]["top_themes_count"]
+      randomized_theme_ids = data_set_details["parameters"]["randomized_theme_ids"]
 
       themes = ThemeAllocation.collect_top_themes_from_conversations(coord_user_id, conversation_ids, top_themes_count)
+      # randomize themes, if needed
+      # get the ids for the key theme comments from the conversations
+      all_ids = ThemeComment.where(conversation_id: conversation_ids, user_id: coord_user_id).pluck(:id)
+      # re-shuffle if the random_ids don't match the collected ids
+      if randomized_theme_ids.sort != all_ids.sort
+        themes.shuffle!
+        randomized_theme_ids = themes.map{|t| t[:theme_id]}
+        # create new hash to force active record to do the update
+        new_details = {}
+        new_details.merge!(agenda.details)
+        new_details["data_sets"][data_set_code]["parameters"]["randomized_theme_ids"] = randomized_theme_ids
+        # In a transaction clear and then add the details to force active record to do the update
+        ActiveRecord::Base.transaction do
+          agenda.update_attribute(:details, {} )
+          agenda.update_attribute(:details, new_details )
+        end
+      end
+
       ltr = 'A'
       order_ctr = 1
       theme_comments = []
-      themes.each do |theme|
+      randomized_theme_ids.each do |id|
+        theme = themes.detect{|t| t[:theme_id] == id}
         theme_comments.push( {id: theme[:theme_id], order_id: order_ctr, letter: ltr, text: theme[:text]} )
         ltr = ltr.succ
         order_ctr += 1

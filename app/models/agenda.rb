@@ -586,7 +586,7 @@ class Agenda < ActiveRecord::Base
     self.details["conversation_ids"].flatten.each do |id|
       ordered_conversations << conversations.detect{|c| c.id == id}
     end
-    ordered_conversations
+    ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
   end
 
   def self.agendas
@@ -640,7 +640,8 @@ class Agenda < ActiveRecord::Base
     if Rails.env.development?
       agenda_details[:select_conversations] = []
       agenda_details[:allocate_conversations] = []
-      agenda_details[:allocate_top_themes_conversations] = [213, 214]
+      #agenda_details[:allocate_top_themes_conversations] = [213, 214]
+      agenda_details[:allocate_multiple_conversations] = [213, 214]
 
       agenda_details[:theme_map] =
           {
@@ -652,6 +653,7 @@ class Agenda < ActiveRecord::Base
       #agenda_details[:select_conversations] = [208,209,210]
       #agenda_details[:allocate_conversations] = [206, 208]
       #agenda_details[:allocate_top_themes_conversations] = [208,209,210]
+      #agenda_details[:allocate_multiple_conversations] = [208,209]
       #
       #agenda_details[:theme_map] =
       #  {
@@ -660,9 +662,10 @@ class Agenda < ActiveRecord::Base
       #    3=>[359,358,365]
       #  }
     else
-      agenda_details[:select_conversations] = [3,4,5]
-      agenda_details[:allocate_conversations] = [1, 3]
-      agenda_details[:allocate_top_themes_conversations] = [3,4,5]
+      agenda_details[:select_conversations] = []
+      agenda_details[:allocate_conversations] = []
+      agenda_details[:allocate_top_themes_conversations] = []
+      agenda_details[:allocate_multiple_conversations] = [3,4]
 
       agenda_details[:theme_map] =
           {
@@ -837,7 +840,7 @@ class Agenda < ActiveRecord::Base
           title: "Prioritise the top ideas",
           link_code:  link_code,
           href: "/#/agenda/#{self.code}-#{link_code}/allocate/prioritise-top-ideas",
-          data_set: "collected-themes-allocation",
+          data_set: "collected-top-themes-allocation",
           page_title: 'Prioritise the top ideas',
           disabled: false,
           role: 'group',
@@ -852,8 +855,41 @@ class Agenda < ActiveRecord::Base
           title: %Q|Display allocate results for Top Ideas|,
           link_code:  link_code,
           href: "/#/agenda/#{self.code}-#{link_code}/allocate-results/prioritise-top-ideas-results",
-          data_set: "collected-themes-allocation-results",
+          data_set: "collected-top-themes-allocation-results",
           page_title: 'Prioritisation results for top ideas',
+          disabled: false,
+          role: 'reporter',
+          type: 'allocate-results'
+      }
+      agenda_details[:links][:reporter][ link_code ] = link
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "reporter"
+    end
+
+    if agenda_details[:allocate_multiple_conversations] && agenda_details[:allocate_multiple_conversations].size > 0
+      # link for allocate ideas from multiple deliberations
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: "Prioritise combined ideas",
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/allocate/prioritise-top-ideas",
+          data_set: "collected-themes-allocation",
+          page_title: 'Prioritise the combined ideas',
+          disabled: false,
+          role: 'group',
+          type: 'select'
+      }
+      agenda_details[:links][:group][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "group"
+
+      # link for allocate results for top ideas from 3 conversations
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Display allocate results for Combined Ideas|,
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/allocate-results/prioritise-top-ideas-results",
+          data_set: "collected-themes-allocation-results",
+          page_title: 'Prioritisation results for combined ideas',
           disabled: false,
           role: 'reporter',
           type: 'allocate-results'
@@ -955,7 +991,7 @@ class Agenda < ActiveRecord::Base
             }
         }
 
-    agenda_details[:data_sets]["collected-themes-allocation"] =
+    agenda_details[:data_sets]["collected-top-themes-allocation"] =
         {
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_page_data",
@@ -967,7 +1003,7 @@ class Agenda < ActiveRecord::Base
             }
         }
 
-    agenda_details[:data_sets]["collected-themes-allocation-results"] =
+    agenda_details[:data_sets]["collected-top-themes-allocation-results"] =
         {
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_results",
@@ -978,7 +1014,35 @@ class Agenda < ActiveRecord::Base
                 page_title: '#{link_details["page_title"]}'
             },
             data_set_title: 'Top ideas',
-            report_generator_list: true
+            report_generator_list: (agenda_details[:allocate_top_themes_conversations] && agenda_details[:allocate_top_themes_conversations].size > 0)
+        }
+
+    agenda_details[:data_sets]["collected-themes-allocation"] =
+        {
+            data_class: "ThemeAllocation",
+            data_method: "data_collected_themes_allocation_page_data",
+            parameters: {
+                conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
+                randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",
+                top_themes_count: 1000,
+                coordinator_user_id: agenda_details[:coordinator_user_id],
+                page_title: '#{link_details["page_title"]}'
+            }
+        }
+
+    agenda_details[:data_sets]["collected-themes-allocation-results"] =
+        {
+            data_class: "ThemeAllocation",
+            data_method: "data_collected_themes_allocation_results",
+            parameters: {
+                conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
+                randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",
+                top_themes_count: 1000,
+                coordinator_user_id: agenda_details[:coordinator_user_id],
+                page_title: '#{link_details["page_title"]}'
+            },
+            data_set_title: 'Combined ideas',
+            report_generator_list: (agenda_details[:allocate_multiple_conversations] && agenda_details[:allocate_multiple_conversations].size > 0)
         }
 
     self.update_attribute(:details, agenda_details)

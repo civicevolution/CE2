@@ -98,5 +98,5 @@
       %b Right click on each report image below to copy it and then paste it into a Word document
     %div.report-images(ng-repeat="(index, report) in report_specs.report_images")
       %p Report section {{index + 1}}
-      %img(src="{{report.dataURL}}")
+      %img(ng-src="{{report.dataURL}}")
 
