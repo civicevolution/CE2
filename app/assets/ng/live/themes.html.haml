@@ -5,7 +5,7 @@
     %div Key themes
 
   %table
-    %tr(ng-repeat="theme in conversation_themes | limitTo:10")
+    %tr(ng-repeat="theme in conversation_themes")
       %td.letter {{theme.letter}}
       %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
 
