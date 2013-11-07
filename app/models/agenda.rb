@@ -59,7 +59,7 @@ class Agenda < ActiveRecord::Base
   end
 
   def agenda_data(current_user)
-    agenda_details = self.get_details
+    agenda_details = self.details
     menu_data = []
 
     # get the role for this user
@@ -491,6 +491,7 @@ class Agenda < ActiveRecord::Base
     agenda = Agenda.create title: title, description: description
 
     coordinator = agenda.create_user('coordinator', 1)
+    coordinator.add_role :coordinator, agenda
     AgendaRole.where(agenda_id: agenda.id, name: 'coordinator', identifier: 1, access_code: 'annie7').first_or_create
 
 
@@ -511,17 +512,20 @@ class Agenda < ActiveRecord::Base
 
     reporter = agenda.create_user('reporter', 1)
     conversations.each{|conversation| reporter.add_role :reporter, conversation }
+    reporter.add_role :reporter, agenda
     AgendaRole.where( agenda_id: agenda.id, name: 'reporter', identifier: 1, access_code: 'reporter').first_or_create
 
     (1..3).each do |i|
       themer = agenda.create_user('themer', i)
       conversations.each{|conversation| themer.add_role :themer, conversation }
+      themer.add_role :themer, agenda
       AgendaRole.where( agenda_id: agenda.id, name: 'themer', identifier: i, access_code: "pune").first_or_create
     end
 
     (1..10).each do |i|
       scribe = agenda.create_user('scribe', i)
       conversations.each{|conversation| scribe.add_role :scribe, conversation }
+      scribe.add_role :scribe, agenda
       AgendaRole.where( agenda_id: agenda.id, name: 'group', identifier: i, access_code: "g#{i}").first_or_create
     end
 
@@ -595,7 +599,7 @@ class Agenda < ActiveRecord::Base
 
     role, role_id = self.get_role(current_user)
 
-    agenda_details = self.get_details
+    agenda_details = self.details
 
     link_details = agenda_details["links"][role][link_code]
 
@@ -617,41 +621,44 @@ class Agenda < ActiveRecord::Base
 
   end
 
-  def get_details
+  def reset_details_ids
     # hardcode the details for development and then create save/retrieve from db
-
-    agenda_details = self.details
-    return self.details unless self.details.nil?
-
-    agenda_details = {code: self.code}
+    agenda_details = {
+      code: self.code,
+      coordinator_user_id: self.coordinator.id
+    }
 
     if Rails.env.development?
       # group concurrent conversations in sub arrays
-      agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
+      #agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
+      agenda_details[:conversation_ids] = [211, 212, 213, 214, 215]
     else
       # group concurrent conversations in sub arrays
       agenda_details[:conversation_ids] = [[1,2],[3,4,5]]
     end
 
-    conversations = Conversation.includes(:title_comment).where(id: agenda_details[:conversation_ids].flatten)
-    ordered_conversations = []
-    agenda_details[:conversation_ids].flatten.each do |id|
-      ordered_conversations << conversations.detect{|c| c.id == id}
-    end
-
-    agenda_details[:conversations] = ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
-
     if Rails.env.development?
-      agenda_details[:select_conversations] = [208,209,210]
-      agenda_details[:allocate_conversations] = [206, 208]
-      agenda_details[:allocate_top_themes_conversations] = [208,209,210]
+      agenda_details[:select_conversations] = []
+      agenda_details[:allocate_conversations] = []
+      agenda_details[:allocate_top_themes_conversations] = [213, 214]
 
       agenda_details[:theme_map] =
-        {
-          1=>[357,354,356],
-          2=>[355,360,363],
-          3=>[359,358,365]
-        }
+          {
+              1=>[373, 374, 379, 382],
+              2=>[375, 376, 380     ],
+              3=>[377, 378, 381     ]
+          }
+
+      #agenda_details[:select_conversations] = [208,209,210]
+      #agenda_details[:allocate_conversations] = [206, 208]
+      #agenda_details[:allocate_top_themes_conversations] = [208,209,210]
+      #
+      #agenda_details[:theme_map] =
+      #  {
+      #    1=>[357,354,356],
+      #    2=>[355,360,363],
+      #    3=>[359,358,365]
+      #  }
     else
       agenda_details[:select_conversations] = [3,4,5]
       agenda_details[:allocate_conversations] = [1, 3]
@@ -664,21 +671,33 @@ class Agenda < ActiveRecord::Base
               3=>[8,7,14]
           }
     end
+    self.update_attribute(:details, agenda_details)
+  end
 
-    agenda_details[:coordinator_user_id] = self.coordinator.id
+  def refresh_agenda_details_links_and_data_sets
 
+    agenda_details = self.details.symbolize_keys
+
+    # reset the links and data sets
+    agenda_details[:data_sets] = {}
     agenda_details[:links] = {
-      coordinator: {},
-      themer:{},
-      group: {},
-      reporter: {},
-      public: {}
+        coordinator: {},
+        themer:{},
+        group: {},
+        reporter: {},
+        public: {},
+        lookup: {}
     }
 
-    agenda_details[:data_sets] = {}
-    agenda_details[:links][:lookup] = {}
-    agenda_details[:conversations].each_index do |conv_index|
-      conversation = agenda_details[:conversations][conv_index]
+    conversations = Conversation.includes(:title_comment).where(id: agenda_details[:conversation_ids].flatten)
+    ordered_conversations = []
+    agenda_details[:conversation_ids].flatten.each do |id|
+      ordered_conversations << conversations.detect{|c| c.id == id}
+    end
+    conversations = ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
+
+    conversations.each_index do |conv_index|
+      conversation = conversations[conv_index]
 
       # link for display final themes
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
@@ -962,9 +981,7 @@ class Agenda < ActiveRecord::Base
             report_generator_list: true
         }
 
-
     self.update_attribute(:details, agenda_details)
-    self.details
   end
 
   def create_link_code(codes_hash)
