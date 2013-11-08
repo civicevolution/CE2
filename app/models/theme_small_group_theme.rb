@@ -152,7 +152,9 @@ class ThemeSmallGroupTheme < AgendaComponent
       conversation_ids = data_set_details["parameters"]["conversation_ids"].scan(/\d+/).map(&:to_i)
       top_themes_count = data_set_details["parameters"]["top_themes_count"]
       randomized_theme_ids = data_set_details["parameters"]["randomized_theme_ids"]
-
+      if randomized_theme_ids.class != Array
+        randomized_theme_ids = []
+      end
       themes = ThemeAllocation.collect_top_themes_from_conversations(coord_user_id, conversation_ids, top_themes_count)
       # randomize themes, if needed
       # get the ids for the key theme comments from the conversations
