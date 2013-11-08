@@ -27,6 +27,12 @@
       Parked
       %span.badge.badge-info {{conversation.comment_counts['parked']}}
 
+  %li#conversation-review-link(ng-repeat="id in conversation.assigned_tables" ng-class="{active: (conversation.filter_mode == 'table' && conversation.filter_id == id)}" popover="Click to view comments from table {{id}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('table', id)")
+      Table {{id}}
+      %span.badge.badge-info {{conversation.comment_counts['table' + id]}}
+
+
   %li#conversation-review-link
     %span.label.label-info My themes
 
@@ -42,9 +48,4 @@
 
   -#%li#conversation-review-link
     %span.label.label-info Table comments
-
-  -#%li#conversation-review-link(ng-repeat="id in [1,2,3,4]" ng-class="{active: (conversation.filter_mode == 'table' && conversation.filter_id == id)}" popover="Click to view comments from table {{id}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
-    %a(ng-click="filter_table_comments('table', id)")
-      Table {{id}}
-      %span.badge.badge-info {{conversation.comment_counts['table' + id]}}
 

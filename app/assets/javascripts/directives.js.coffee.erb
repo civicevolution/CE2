@@ -286,8 +286,14 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
       $scope.toggle_comment = ->
         $scope.show_comment = !$scope.show_comment
 
+      $scope.short_disable_dbl_click = false
       $scope.edit = (action) ->
-        $scope.$root.$broadcast 'open-comment-form', {action: action, comment: $scope.comment}
+        if !$scope.short_disable_dbl_click
+          $scope.$root.$broadcast 'open-comment-form', {action: action, comment: $scope.comment}
+          $scope.short_disable_dbl_click = true
+          $timeout ->
+            $scope.short_disable_dbl_click = false
+          ,700
 
       $scope.broadcast_action = (cmd) ->
         $scope.$root.$broadcast cmd, {comment: $scope.comment}
@@ -722,6 +728,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name}
             if comment.version == 0 then $scope.newComment.text = ''
+            $scope.newComment.text = $scope.newComment.text.replace(/<span.*\/span>/,'')
             $scope.newComment.reply_control_title = "Edit theme"
 
           when 'table-comment-edit'
@@ -762,6 +769,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             $scope.newComment.reply_control_title = "Edit theme"
             $scope.ce_text_select_style =
               display: "none"
+            $scope.newComment.text = $scope.newComment.text.replace(/<span.*\/span>/,'')
             $timeout ->
               textarea = document.getElementById('reply-control').getElementsByTagName('textarea')[0]
               #console.log "textarea.value: #{textarea.value}"
@@ -771,6 +779,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               # force newComment.text to recognize the change to the textarea after inserting new text
               newComment = angular.element(textarea).scope().newComment
               newComment.text = textarea.value
+              textarea.focus
 
 
       set_special_classes = ->
