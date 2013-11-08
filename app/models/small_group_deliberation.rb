@@ -25,8 +25,12 @@ class SmallGroupDeliberation < AgendaComponent
 
     conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
 
-    conversations_list_ids = agenda_details["conversation_ids"].detect{|a| a.include?(conversation.id) } || []
-    conversations_list = Conversation.includes(:title_comment).where(id: conversations_list_ids)
+    conversations_list_ids = []
+    begin
+      conversations_list_ids = agenda_details["conversation_ids"].detect{|a| a.include?(conversation.id) } || []
+    rescue
+    end
+      conversations_list = Conversation.includes(:title_comment).where(id: conversations_list_ids)
 
     links = agenda_details["links"]["group"].values
 

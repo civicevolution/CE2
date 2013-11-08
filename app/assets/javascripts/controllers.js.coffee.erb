@@ -1283,6 +1283,9 @@ live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$
         num = a.value
         if !isNaN(num)
           num = Number(a.value)
+          if num < 0
+            num = 0
+            a.value = 0
           if num > 40
             num = 40
             a.value = 40
