@@ -653,9 +653,9 @@ class Agenda < ActiveRecord::Base
       #  }
     else
       agenda_details[:select_conversations] = []
-      agenda_details[:allocate_conversations] = [6]
+      agenda_details[:allocate_conversations] = [6,8,9]
       agenda_details[:allocate_top_themes_conversations] = []
-      agenda_details[:allocate_multiple_conversations] = [6, 7, 8, 9]
+      agenda_details[:allocate_multiple_conversations] = []
 
       agenda_details[:theme_map] =
           {
