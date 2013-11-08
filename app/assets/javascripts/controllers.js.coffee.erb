@@ -840,6 +840,15 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       [original_rec, updated_rec] = FirebaseService.process_update($scope.conversation.all_theme_comments, data)
       if updated_rec && original_rec
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
+      if updated_rec.name.match(/team/i) && not original_rec
+        new_theme_team = $scope.conversation.all_theme_comments[ $scope.conversation.all_theme_comments.length-1 ]
+        new_theme_team.current_theme_ids = []
+        new_theme_team.ordered_child_ids = []
+        new_theme_team.parent_theme_ids = []
+        new_theme_team.parked = false
+        new_theme_team.show_tag_widget = true
+        $scope.conversation.team_theme_comments.push( new_theme_team )
+
       $scope.conversation.comments[updated_rec.id] = updated_rec unless not updated_rec
       $scope.conversation.theme_comments = (comment for comment in $scope.conversation.all_theme_comments when comment.name == $scope.conversation.active_themer_name)
 
@@ -863,7 +872,10 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       # Update the visible tag widgets
       $scope.$root.$broadcast 'update-comment-tags'
       $scope.$root.$broadcast 'calculate-tag-counts'
-      
+      $timeout ->
+        refilter_table_comments()
+      ,200
+
     $scope.edit = (action) ->
       #console.log "Edit with action: #{action} for  #{$scope.conversation.current_theme.tag_name}"
       $scope.$root.$broadcast 'open-comment-form', {action: action, comment: $scope.conversation.current_theme}
@@ -1281,15 +1293,16 @@ live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$
       tot = 0
       for a in $scope.allocation_themes
         num = a.value
-        if !isNaN(num)
+        if num == null || isNaN(num)
+          num = 0
+        else
           num = Number(a.value)
           if num < 0
             num = 0
-            a.value = 0
-          if num > 40
-            num = 40
-            a.value = 40
+          if num > 30
+            num = 30
           tot += num
+        a.value = num
       if tot > 100
         $scope.over100 = true
       else

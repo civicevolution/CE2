@@ -789,7 +789,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       show_form = (data) ->
         if not $scope.disable_formatting
           $timeout -> $scope.$root.editor.refreshPreview()
-        angular.element( document.getElementById('reply-control')).addClass('open show-preview').removeClass('draft')
+        angular.element( document.getElementById('reply-control')).addClass('open show-preview').removeClass('draft').find('textarea')[0].focus()
 
       adjust_conversation_to_form = ->
         console.log "adjust_conversation_to_form()"
