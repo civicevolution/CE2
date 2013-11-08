@@ -463,17 +463,7 @@ class Agenda < ActiveRecord::Base
     # CommentThreads comment.id
     #
 
-    # collect the conversation ids from the component inputs
-    conversation_ids = []
-    self.agenda_components.each do |c|
-      c.input.each_pair do|key,value|
-        if key.match(/conversation/)
-          conversation_ids << value
-        end
-      end
-    end
-
-    conversation_ids = conversation_ids.flatten.uniq
+    conversation_ids = self.conversation_ids.flatten.uniq
     comments = Comment.where(type: ['TableComment','ThemeComment'], conversation_id: conversation_ids)
     comment_ids = comments.map(&:id)
     comments.destroy_all
