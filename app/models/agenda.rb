@@ -701,19 +701,21 @@ class Agenda < ActiveRecord::Base
     conversations.each_index do |conv_index|
       conversation = conversations[conv_index]
 
-      # link for display final themes
+      # link for group scribe
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
-        title: %Q|Display final themes for "#{conversation[:title]}"|,
-        link_code:  link_code,
-        href: "/#/agenda/#{self.code}-#{link_code}/theme-results/#{conversation[:munged_title]}",
-        conversation_code: "#{conversation[:code]}",
-        data_set: "conversation-final-themes",
-        disabled: false,
-        role: 'reporter'
+          title: %Q|Deliberate on "#{conversation[:title]}"|,
+          id: conversation[:id],
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/sgd/#{conversation[:munged_title]}",
+          conversation_code: "#{conversation[:code]}",
+          data_set: "small-group-deliberation",
+          disabled: false,
+          role: 'group',
+          type: 'deliberate'
       }
-      agenda_details[:links][:reporter][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "reporter"
+      agenda_details[:links][:group][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "group"
 
       # link for theme small group deliberation
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
@@ -743,21 +745,20 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "coordinator"
 
-      # link for group scribe
+      # link for display final themes
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
-          title: %Q|Deliberate on "#{conversation[:title]}"|,
-          id: conversation[:id],
+          title: %Q|Display final themes for "#{conversation[:title]}"|,
           link_code:  link_code,
-          href: "/#/agenda/#{self.code}-#{link_code}/sgd/#{conversation[:munged_title]}",
+          href: "/#/agenda/#{self.code}-#{link_code}/theme-results/#{conversation[:munged_title]}",
           conversation_code: "#{conversation[:code]}",
-          data_set: "small-group-deliberation",
+          data_set: "conversation-final-themes",
           disabled: false,
-          role: 'group',
-          type: 'deliberate'
+          role: 'reporter'
       }
-      agenda_details[:links][:group][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "group"
+      agenda_details[:links][:reporter][ link_code ] = link
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "reporter"
 
 
       if agenda_details[:select_conversations].include?( conversation[:id] )
