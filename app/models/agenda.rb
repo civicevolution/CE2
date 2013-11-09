@@ -523,6 +523,40 @@ class Agenda < ActiveRecord::Base
   end
 
 
+  def self.add_conversations_to_agenda(code, titles)
+    titles = [ titles ] unless titles.class == Array
+
+    agenda = Agenda.find_by(code: code)
+    coordinator = agenda.coordinator
+    # create the new conversation(s) needed for this agenda
+    conversations = []
+    titles.each_index do |index|
+      privacy = {"list"=>"true", "invite"=>"true", "screen"=>"true", "summary"=>"true", "comments"=>"true", "unknown_users"=>"true"}
+      conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now + index.hours, privacy: privacy
+      title_comment = conversation.build_title_comment user_id: coordinator.id, text: titles[index], order_id: index
+      title_comment.post_process_disabled = true
+      title_comment.save
+      conversations.push( conversation )
+    end
+
+    conversations.each do |conversation|
+      agenda.participants.each do |participant|
+        role = participant.email.match(/agenda-\d+-(\w+)-/)[1]
+        if role == 'group'
+          role = :scribe
+        else
+          role = role.to_sym
+        end
+        puts role
+        participant.add_role role, conversation
+      end
+    end
+
+    conversation_ids = agenda.conversation_ids << conversations.map(&:id)
+    agenda.update_attribute(:conversation_ids, conversation_ids.flatten )
+  end
+
+
   def create_user(name, index)
     case name
       when "coordinator"
@@ -613,6 +647,7 @@ class Agenda < ActiveRecord::Base
 
   def reset_details_ids
     # hardcode the details for development and then create save/retrieve from db
+    self.update_attribute(:details, {})
     agenda_details = {
       code: self.code,
       coordinator_user_id: self.coordinator.id
@@ -621,17 +656,18 @@ class Agenda < ActiveRecord::Base
     if Rails.env.development?
       # group concurrent conversations in sub arrays
       #agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
-      agenda_details[:conversation_ids] = [211, 212, 213, 214, 215]
+      agenda_details[:conversation_ids] = [211, 212, 213, 214, 215, 216]
     else
       # group concurrent conversations in sub arrays
-      agenda_details[:conversation_ids] = [6, 7, 8, 9, 10]
+      agenda_details[:conversation_ids] = [6, 7, 8, 9, 10, 11]
     end
 
     if Rails.env.development?
-      agenda_details[:select_conversations] = []
+      agenda_details[:select_conversations] = [211,212]
       agenda_details[:allocate_conversations] = []
       #agenda_details[:allocate_top_themes_conversations] = [213, 214]
       agenda_details[:allocate_multiple_conversations] = [213, 214]
+      agenda_details[:themes_only] = [216]
 
       agenda_details[:theme_map] =
           {
@@ -656,6 +692,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:allocate_conversations] = [6,8,9]
       agenda_details[:allocate_top_themes_conversations] = []
       agenda_details[:allocate_multiple_conversations] = []
+      agenda_details[:themes_only] = [11]
 
       agenda_details[:theme_map] =
           {
@@ -691,35 +728,37 @@ class Agenda < ActiveRecord::Base
     conversations.each_index do |conv_index|
       conversation = conversations[conv_index]
 
-      # link for group scribe
-      link_code = self.create_link_code( agenda_details[:links][:lookup] )
-      link = {
-          title: %Q|Deliberate on "#{conversation[:title]}"|,
-          id: conversation[:id],
-          link_code:  link_code,
-          href: "/#/agenda/#{self.code}-#{link_code}/sgd/#{conversation[:munged_title]}",
-          conversation_code: "#{conversation[:code]}",
-          data_set: "small-group-deliberation",
-          disabled: false,
-          role: 'group',
-          type: 'deliberate'
-      }
-      agenda_details[:links][:group][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "group"
+      if !agenda_details[:themes_only].include?( conversation[:id] )
+        # link for group scribe
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Deliberate on "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/sgd/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "small-group-deliberation",
+            disabled: false,
+            role: 'group',
+            type: 'deliberate'
+        }
+        agenda_details[:links][:group][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "group"
 
-      # link for theme small group deliberation
-      link_code = self.create_link_code( agenda_details[:links][:lookup] )
-      link = {
-          title: %Q|Theme groups for "#{conversation[:title]}"|,
-          link_code:  link_code,
-          href: "/#/agenda/#{self.code}-#{link_code}/sgd-theme/#{conversation[:munged_title]}",
-          conversation_code: "#{conversation[:code]}",
-          data_set: "theme-small-group",
-          disabled: false,
-          role: 'themer'
-      }
-      agenda_details[:links][:themer][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "themer"
+        # link for theme small group deliberation
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Theme groups for "#{conversation[:title]}"|,
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/sgd-theme/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "theme-small-group",
+            disabled: false,
+            role: 'themer'
+        }
+        agenda_details[:links][:themer][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "themer"
+      end
 
       # link for coordinator theming
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
