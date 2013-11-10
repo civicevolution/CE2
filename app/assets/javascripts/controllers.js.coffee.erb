@@ -990,7 +990,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       user_name = "#{$scope.user.first_name} #{$scope.user.last_name}"
       if $scope.conversation.can('edit_theme_comment') && not $scope.conversation.themers[ user_name ]
         $scope.conversation.themers[ user_name ] = {cnt: 0}
-      $scope.conversation.assigned_tables = if $scope.user.last_name == "1" then [1,2,3,8] else [4,5,6,7]
+      $scope.conversation.assigned_tables = if $scope.user.last_name == "1" then [1,2,3,8] else if $scope.user.last_name == "2" then [4,5,6,7] else [1,2,3,4,5,6,7,8]
       $scope.change_themer(user_name)
 ]
 

@@ -697,7 +697,8 @@ class Agenda < ActiveRecord::Base
       agenda_details[:theme_map] =
           {
               1=>[22, 23, 24, 29],
-              2=>[25, 26, 27, 28]
+              2=>[25, 26, 27, 28],
+              3=>[22,23,24,25,26,27,28,29]
           }
     end
     self.update_attribute(:details, agenda_details)
