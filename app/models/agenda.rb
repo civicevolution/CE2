@@ -929,6 +929,24 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:lookup][link_code] = "reporter"
     end
 
+
+
+    # link for coord-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: "Multi Criteria Analysis Plenary Table",
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+        #data_set: "collected-themes-allocation-results",
+        page_title: 'Multi Criteria Analysis Results',
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "coordinator"
+
+
+
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {

@@ -17,7 +17,7 @@ bootstrap_CE2()
 
 
 ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', 'CE2.filters',
-  'ui.compat', 'ui.bootstrap'] )
+  'ui.compat', 'ui.bootstrap', 'ngGrid'] )
 
 ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] =
@@ -245,7 +245,18 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 ,100
         ]
       )
-    .state( 'allocate-to-themes',
+
+      .state( 'coordinator-mca-table',
+        url: "/agenda/{agenda_code}-{link_code}/coord-mca-table/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/coord-mca-table.html" %>'
+        #resolve:
+        #  theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+        #    AgendaData.data_set('coord-theme', $stateParams.agenda_code, $stateParams.link_code)
+        #  ]
+        controller: coord_mca_table
+      )
+
+      .state( 'allocate-to-themes',
         url: "/cmp/{component_code}/allocate/{munged_title}"
         templateUrl: '<%= path_to_asset "live/allocate.html" %>'
         resolve:
@@ -1612,8 +1623,33 @@ report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "c
               $scope.setup.saved_reports.splice(index,1)
               return
       )
+]
+coord_mca_table = [ "$scope", "$timeout",
+  ($scope, $timeout) ->
+    console.log "coord_mca_table"
+
+    $scope.myData = [
+      {name: "Moroni", age: 50},
+      {name: "Tiancum", age: 43},
+      {name: "Jacob", age: 27},
+      {name: "Nephi", age: 29},
+      {name: "Enos", age: 34}
+    ]
+
+    $scope.myDefs = [
+      { field: 'name', displayName: 'First Name', width: "auto", resizable: true, minWidth: 100},
+      { field: 'age', displayName: 'Age', cellClass: 'ageCell', headerClass: 'ageHeader', width: "auto", minWidth: 50}
+    ]
 
 
+    $scope.gridOptions = {
+      data: 'myData',
+      columnDefs: 'myDefs'
+    }
 
-
+    $scope.test = ->
+      console.log "test"
+      for data in $scope.myData
+        data['eye_color'] = 'blue'
+      $scope.myDefs.push( { field: 'eye_color', displayName: 'Eye color', width: "auto", resizable: true, minWidth: 100} )
 ]
