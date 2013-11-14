@@ -249,10 +249,10 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state( 'coordinator-mca-table',
         url: "/agenda/{agenda_code}-{link_code}/coord-mca-table/{munged_title}"
         templateUrl: '<%= path_to_asset "live/coord-mca-table.html" %>'
-        #resolve:
-        #  theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-        #    AgendaData.data_set('coord-theme', $stateParams.agenda_code, $stateParams.link_code)
-        #  ]
+        resolve:
+          mca_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.data_set('mca-data', $stateParams.agenda_code, $stateParams.link_code)
+          ]
         controller: coord_mca_table
       )
 
@@ -1624,32 +1624,109 @@ report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "c
               return
       )
 ]
-coord_mca_table = [ "$scope", "$timeout",
-  ($scope, $timeout) ->
-    console.log "coord_mca_table"
+coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseService",
+  ($scope, $timeout, mca_data, McaData, FirebaseService) ->
 
-    $scope.myData = [
-      {name: "Moroni", age: 50},
-      {name: "Tiancum", age: 43},
-      {name: "Jacob", age: 27},
-      {name: "Nephi", age: 29},
-      {name: "Enos", age: 34}
-    ]
+    $scope.criteria = mca_data.criteria
+    $scope.options = mca_data.options
+    $scope.$root.timestamp = mca_data.current_timestamp
 
-    $scope.myDefs = [
-      { field: 'name', displayName: 'First Name', width: "auto", resizable: true, minWidth: 100},
-      { field: 'age', displayName: 'Age', cellClass: 'ageCell', headerClass: 'ageHeader', width: "auto", minWidth: 50}
-    ]
+    mca_id = 1
+    McaData.firebase_token(mca_id).then(
+      (response)->
+        url = "https://civicevolution.firebaseio.com/mca/#{mca_id}/updates/"
+        FirebaseService.initialize_source(url, response.data.firebase_token)
+    )
 
 
-    $scope.gridOptions = {
-      data: 'myData',
-      columnDefs: 'myDefs'
-    }
+    data_cols = []
+    data_cols.push(
+      field: 'title'
+      displayName: 'Project'
+      width: 200
+      enableCellEdit: false
+    )
+    for criteria in $scope.criteria
+      cellEditableTemplate = "<input ng-class=\"'colt' + col.index\" ng-input=\"COL_FIELD\" ng-focus= \"startEdit(row, col)\" ng-blur=\"endEdit(row, col)\" ng-model=\"COL_FIELD\"/>";
+                             #<input ng-class=​"'colt' + col.index" ng-input=​"row.entity.cri_1" ng-model=​"row.entity.cri_1" class=​"ng-valid colt1 ng-dirty">​
+      data_cols.push(
+        field: "cri_#{criteria.id}"
+        displayName: "#{criteria.id}"
+        width: 50
+        #enableCellEdit: true
+        editableCellTemplate: cellEditableTemplate
+      )
+    data_cols.push(
+      field: "score"
+      displayName: 'Score'
+      width: 70
+      enableCellEdit: false
+    )
 
-    $scope.test = ->
-      console.log "test"
-      for data in $scope.myData
-        data['eye_color'] = 'blue'
-      $scope.myDefs.push( { field: 'eye_color', displayName: 'Eye color', width: "auto", resizable: true, minWidth: 100} )
+    $scope.myData = []
+    for option in $scope.options
+      title = option.title
+      option_id = option.id
+      for evaluation in option.evaluations
+        data =
+          title: title
+          option_id: option_id
+          type: "panel"
+          evaluation_id: evaluation.id
+        sum_of_scores = 0
+        for criteria in $scope.criteria
+          data["cri_#{criteria.id}"] = rating = evaluation.ratings[criteria.id]
+          sum_of_scores += rating
+        data["score"] = sum_of_scores
+        $scope.myData.push(data)
+
+    $scope.myData_evaluations_map = {}
+    for evaluation in $scope.myData
+      $scope.myData_evaluations_map[evaluation.evaluation_id] = evaluation
+
+
+    $scope.gridOptions =
+      data: 'myData'
+      columnDefs: data_cols
+      enableCellEditOnFocus: true
+      enableCellSelection: true
+      enableRowSelection: false
+
+    $scope.startEdit = (row, column) ->
+      #console.log "startEdit"
+      cell = angular.element(row.elm.children()[column.index])
+      cell.removeClass("warn")
+      cell.attr('_ce_init_val', cell.find('input').val())
+      #console.log "startEdit set init_rating: #{cell.find('input').val()}"
+
+    $scope.endEdit = (row, column, c, d) ->
+      mca_option_evaluation_id = row.entity.evaluation_id
+      mca_criteria_id = Number(column.field.match(/\d+/))
+      cell = angular.element(row.elm.children()[column.index])
+      init_rating = cell.attr('_ce_init_val')
+      rating = row.entity[column.field]
+      #console.log "endEdit init_raiting: #{init_rating}, rating: #{rating}"
+      return unless Number(rating) != Number(init_rating)
+      if 1 <= rating <= 5
+        rating = row.entity[column.field] = Math.round(rating)
+        console.log "Save rating: mca_option_evaluation_id: #{mca_option_evaluation_id}, mca_criteria_id: #{mca_criteria_id}, rating: #{rating}"
+        McaData.update_rating(mca_option_evaluation_id, mca_criteria_id, rating)
+      else
+        #console.log "Warning, out of range"
+        cell.addClass("warn")
+        row.entity[column.field] = "1..5"
+      # recalculate the score
+      new_score = 0
+      for col, value of row.entity when col.match(/^cri_/) && not isNaN(value)
+        #console.log "#{col}: #{value}"
+        new_score += Number(value)
+        #console.log "X new_score is #{new_score}"
+      #console.log "new_score is #{new_score}"
+      row.entity.score = new_score
+
+    $scope.$on 'McaRating_update', (event, data) ->
+      console.log "update McaRating_update"
+      evaluation = $scope.myData_evaluations_map[data.data.mca_option_evaluation_id]
+      evaluation["cri_#{data.data.mca_criteria_id}"] = data.data.rating
+      $scope.$$phase || $scope.$apply()
 ]

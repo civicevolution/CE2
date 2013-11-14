@@ -937,7 +937,7 @@ class Agenda < ActiveRecord::Base
         title: "Multi Criteria Analysis Plenary Table",
         link_code:  link_code,
         href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
-        #data_set: "collected-themes-allocation-results",
+        data_set: "multi-criteria-analysis-table",
         page_title: 'Multi Criteria Analysis Results',
         disabled: false,
         role: 'coordinator',
@@ -945,6 +945,19 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:coordinator][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "coordinator"
 
+    # link for group-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: "Multi Criteria Analysis for Infrastructure Projects",
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+        data_set: "multi-criteria-analysis-table",
+        page_title: 'Multi Criteria Analysis for Infrastructure Projects',
+        disabled: false,
+        role: 'group',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
 
 
     # link for report-generator
@@ -1091,6 +1104,19 @@ class Agenda < ActiveRecord::Base
             },
             data_set_title: 'Combined ideas',
             report_generator_list: (agenda_details[:allocate_multiple_conversations] && agenda_details[:allocate_multiple_conversations].size > 0)
+        }
+
+    agenda_details[:data_sets]["multi-criteria-analysis-table"] =
+        {
+            data_class: "MultiCriteriaAnalysis",
+            data_method: "evaluation_data",
+            parameters: {
+                #conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
+                #randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",
+                #top_themes_count: 1000,
+                #coordinator_user_id: agenda_details[:coordinator_user_id],
+                page_title: '#{link_details["page_title"]}'
+            }
         }
 
     self.update_attribute(:details, agenda_details)

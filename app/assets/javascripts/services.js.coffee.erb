@@ -599,3 +599,13 @@ services.factory "EventsData", ["$http",
     events: ->
       $http.get("/api/agendas.json")
 ]
+
+services.factory "McaData", ["$http",
+  ($http) ->
+    update_rating: (mca_option_evaluation_id, mca_criteria_id, rating) ->
+      $http.post("/api/mca_eval/#{mca_option_evaluation_id}/criteria/#{mca_criteria_id}.json", {rating: rating} )
+
+    firebase_token: (mca_id) ->
+      $http.get("/api/mca/#{mca_id}/firebase_token.json")
+
+]

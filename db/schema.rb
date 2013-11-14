@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131031164809) do
+ActiveRecord::Schema.define(version: 20131112220713) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -354,11 +354,59 @@ ActiveRecord::Schema.define(version: 20131031164809) do
     t.datetime "updated_at"
   end
 
+  create_table "mca_criteria", force: true do |t|
+    t.integer  "multi_criteria_analysis_id"
+    t.string   "category"
+    t.string   "title"
+    t.text     "text"
+    t.integer  "order_id"
+    t.string   "range"
+    t.float    "weight"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "mca_option_evaluations", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "mca_option_id"
+    t.integer  "order_id"
+    t.string   "category"
+    t.string   "status"
+    t.text     "notes"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "mca_options", force: true do |t|
+    t.integer  "multi_criteria_analysis_id"
+    t.string   "title"
+    t.text     "text"
+    t.integer  "order_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "mca_ratings", force: true do |t|
+    t.integer  "mca_option_evaluation_id"
+    t.integer  "mca_criteria_id"
+    t.integer  "rating"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "mentions", force: true do |t|
     t.integer  "comment_id"
     t.integer  "version"
     t.integer  "user_id"
     t.integer  "mentioned_user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "multi_criteria_analyses", force: true do |t|
+    t.integer  "agenda_id"
+    t.string   "title"
+    t.string   "description"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

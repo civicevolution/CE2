@@ -2475,3 +2475,16 @@ ce2_directives.directive('ceLoading', ->
 
   ]
 )
+
+ce2_directives.directive('ngBlur', ->
+  ( scope, elem, attrs ) ->
+    elem.bind('blur', ->
+      scope.$$phase || scope.$apply(attrs.ngBlur)
+    )
+)
+ce2_directives.directive('ngFocus', ->
+  ( scope, elem, attrs ) ->
+    elem.bind('focus', ->
+      scope.$apply(attrs.ngFocus)
+    )
+)
