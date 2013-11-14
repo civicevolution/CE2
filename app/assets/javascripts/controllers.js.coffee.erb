@@ -1648,7 +1648,6 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     )
     for criteria in $scope.criteria
       cellEditableTemplate = "<input ng-class=\"'colt' + col.index\" ng-input=\"COL_FIELD\" ng-focus= \"startEdit(row, col)\" ng-blur=\"endEdit(row, col)\" ng-model=\"COL_FIELD\"/>";
-                             #<input ng-class=​"'colt' + col.index" ng-input=​"row.entity.cri_1" ng-model=​"row.entity.cri_1" class=​"ng-valid colt1 ng-dirty">​
       data_cols.push(
         field: "cri_#{criteria.id}"
         displayName: "#{criteria.id}"
@@ -1675,8 +1674,8 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
           evaluation_id: evaluation.id
         sum_of_scores = 0
         for criteria in $scope.criteria
-          data["cri_#{criteria.id}"] = rating = evaluation.ratings[criteria.id]
-          sum_of_scores += rating
+          data["cri_#{criteria.id}"] = rating = evaluation.ratings[criteria.id]*1
+          sum_of_scores += rating*1
         data["score"] = sum_of_scores
         $scope.myData.push(data)
 
@@ -1701,15 +1700,15 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
 
     $scope.endEdit = (row, column, c, d) ->
       mca_option_evaluation_id = row.entity.evaluation_id
-      mca_criteria_id = Number(column.field.match(/\d+/))
+      mca_criteria_id = column.field.match(/\d+/)
       cell = angular.element(row.elm.children()[column.index])
-      init_rating = cell.attr('_ce_init_val')
-      rating = row.entity[column.field]
+      init_rating = cell.attr('_ce_init_val')*1
+      rating = row.entity[column.field]*1
       #console.log "endEdit init_raiting: #{init_rating}, rating: #{rating}"
-      return unless Number(rating) != Number(init_rating)
+      return unless rating != init_rating
       if 1 <= rating <= 5
         rating = row.entity[column.field] = Math.round(rating)
-        console.log "Save rating: mca_option_evaluation_id: #{mca_option_evaluation_id}, mca_criteria_id: #{mca_criteria_id}, rating: #{rating}"
+        #console.log "Save rating: mca_option_evaluation_id: #{mca_option_evaluation_id}, mca_criteria_id: #{mca_criteria_id}, rating: #{rating}"
         McaData.update_rating(mca_option_evaluation_id, mca_criteria_id, rating)
       else
         #console.log "Warning, out of range"
@@ -1719,14 +1718,20 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       new_score = 0
       for col, value of row.entity when col.match(/^cri_/) && not isNaN(value)
         #console.log "#{col}: #{value}"
-        new_score += Number(value)
+        new_score += value*1
         #console.log "X new_score is #{new_score}"
       #console.log "new_score is #{new_score}"
       row.entity.score = new_score
 
     $scope.$on 'McaRating_update', (event, data) ->
-      console.log "update McaRating_update"
+      #console.log "update McaRating_update rating: mca_option_evaluation_id: #{data.data.mca_option_evaluation_id}, mca_criteria_id: #{data.data.mca_criteria_id}, rating: #{data.data.rating}"
       evaluation = $scope.myData_evaluations_map[data.data.mca_option_evaluation_id]
       evaluation["cri_#{data.data.mca_criteria_id}"] = data.data.rating
+      score = 0
+      for criteria, rating of evaluation when criteria.match(/cri_/)
+        score += rating*1
+        #console.log "McaRating_update rating: #{rating}, score: #{score}"
+      evaluation["score"] = score
+
       $scope.$$phase || $scope.$apply()
 ]
