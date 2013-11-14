@@ -937,7 +937,7 @@ class Agenda < ActiveRecord::Base
         title: "Multi Criteria Analysis Plenary Table",
         link_code:  link_code,
         href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
-        data_set: "multi-criteria-analysis-table",
+        data_set: "coord-multi-criteria-analysis-table",
         page_title: 'Multi Criteria Analysis Results',
         disabled: false,
         role: 'coordinator',
@@ -950,8 +950,8 @@ class Agenda < ActiveRecord::Base
     link = {
         title: "Multi Criteria Analysis for Infrastructure Projects",
         link_code:  link_code,
-        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
-        data_set: "multi-criteria-analysis-table",
+        href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+        data_set: "group-multi-criteria-analysis-table",
         page_title: 'Multi Criteria Analysis for Infrastructure Projects',
         disabled: false,
         role: 'group',
@@ -1106,10 +1106,23 @@ class Agenda < ActiveRecord::Base
             report_generator_list: (agenda_details[:allocate_multiple_conversations] && agenda_details[:allocate_multiple_conversations].size > 0)
         }
 
-    agenda_details[:data_sets]["multi-criteria-analysis-table"] =
+    agenda_details[:data_sets]["coord-multi-criteria-analysis-table"] =
         {
             data_class: "MultiCriteriaAnalysis",
-            data_method: "evaluation_data",
+            data_method: "coord_evaluation_data",
+            parameters: {
+                #conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
+                #randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",
+                #top_themes_count: 1000,
+                #coordinator_user_id: agenda_details[:coordinator_user_id],
+                page_title: '#{link_details["page_title"]}'
+            }
+        }
+
+    agenda_details[:data_sets]["group-multi-criteria-analysis-table"] =
+        {
+            data_class: "MultiCriteriaAnalysis",
+            data_method: "group_evaluation_data",
             parameters: {
                 #conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
                 #randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",

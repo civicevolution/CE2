@@ -78,16 +78,19 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
 
   end
 
-  def self.evaluation_data(params)
+  def self.coord_evaluation_data(params)
     mca_id = 1
-    mca = MultiCriteriaAnalysis.find(1)
+    mca = MultiCriteriaAnalysis.find(mca_id)
     data = mca.attributes
     data[:options] = []
-    mca.options.includes(:evaluations).sort{|a,b| a.order_id <=> b.order_id}.each do |option|
+    mca.options.includes(:evaluations => [:ratings, :user]).sort{|a,b| a.order_id <=> b.order_id}.each do |option|
       option_attrs = option.attributes
       option_attrs[:evaluations] = []
       option.evaluations.each do |evaluation|
         eval_attrs = evaluation.attributes
+        eval_attrs[:last_name] = evaluation.user.last_name
+        eval_attrs[:user_id] = evaluation.user.id
+        eval_attrs[:category] = evaluation.category
         eval_attrs[:ratings] = {}
         evaluation.ratings.each do |rating|
           eval_attrs[:ratings][rating.mca_criteria_id] = rating.rating
@@ -95,6 +98,32 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
         option_attrs[:evaluations].push( eval_attrs )
       end
       data[:options].push( option_attrs )
+    end
+    data[:criteria] = []
+    mca.criteria.sort{|a,b| a.order_id <=> b.order_id}.each do |criteria|
+      data[:criteria].push( criteria.attributes )
+    end
+    data[:current_timestamp] = Time.new.to_i
+    data
+  end
+
+  def self.group_evaluation_data(params)
+    mca_id = 1
+    mca = MultiCriteriaAnalysis.find(mca_id)
+
+    option_ids = mca.options.pluck(:id)
+    evaluations = McaOptionEvaluation.where(user_id: params["current_user"].id, mca_option_id: option_ids).includes(:mca_option, :ratings)
+
+    data = mca.attributes
+    data[:evaluations] = []
+    evaluations.sort{|a,b| a.order_id <=> b.order_id}.each do |evaluation|
+      evaluation_attrs = evaluation.attributes
+      evaluation_attrs[:title] = evaluation.mca_option.title
+      evaluation_attrs[:ratings] = {}
+      evaluation.ratings.each do |rating|
+        evaluation_attrs[:ratings][rating.mca_criteria_id] = rating.rating
+      end
+      data[:evaluations].push( evaluation_attrs )
     end
     data[:criteria] = []
     mca.criteria.sort{|a,b| a.order_id <=> b.order_id}.each do |criteria|
