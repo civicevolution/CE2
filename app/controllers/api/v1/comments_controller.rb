@@ -68,8 +68,10 @@ module Api
           when "ThemeComment"
             params[:comment][:purpose] ||= 'theme'
             params[:comment][:tag_name] = params[:tag_name]
-            params[:comment][:text] ||= "<span class='warn'>Please write a description for tag: #{params[:comment][:tag_name]}</span>"
-            params[:comment][:version] = 0
+            if params[:comment][:text].nil?
+              params[:comment][:text] ||= "<span class='warn'>Please write a description for tag: #{params[:comment][:tag_name]}</span>"
+              params[:comment][:version] = 0
+            end
 
             debug_theme = false
             if !debug_theme

@@ -39,3 +39,6 @@
     %a(ng-click="filter_table_comments('theme', theme.id)")
       {{theme.tag_name}}
       %span.badge.badge-info {{conversation.comment_counts[theme.id]}}
+
+  %p
+    %a(ng-click="edit('new-theme-comment')") Add new theme

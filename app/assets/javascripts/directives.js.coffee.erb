@@ -724,6 +724,10 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
             $scope.newComment.reply_control_title = "Edit"
 
+          when 'new-theme-comment'
+            $scope.newComment.type = 'ThemeComment'
+            $scope.newComment.reply_control_title = "Add new theme comment"
+
           when 'theme-comment-edit'
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name}

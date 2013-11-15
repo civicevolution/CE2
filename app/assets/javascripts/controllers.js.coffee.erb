@@ -1822,6 +1822,8 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.getClasses = (row) ->
       if row.entity.group == "A"
         'avg-row-green'
+      else if $scope.myData_averages_map[row.entity.option_id]
+        'averaged-row'
 
     $scope.gridOptions =
       data: 'myData'
