@@ -1685,7 +1685,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
         data =
           title: title
           option_id: option_id
-          group: evaluation.last_name
+          group: evaluation.last_name*1
           user_id: evaluation.user_id
           type: evaluation.category
           evaluation_id: evaluation.id
@@ -1700,10 +1700,118 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     for evaluation in $scope.myData
       $scope.myData_evaluations_map[evaluation.evaluation_id] = evaluation
 
+    sort_evaluations = (a,b) ->
+      if a.title > b.title
+        return 1
+      else if b.title > a.title
+        return -1
+      else
+        if a.type > b.type
+          return 1
+        else if b.type > a.type
+          return -1
+        else
+          if a.group > b.group
+            return 1
+          else if b.group > a.group
+            return -1
+          else
+            return 0
+
+
+    # iterate through each row looking for multiple records for the same option_id -
+    # these need to be averaged
+    $scope.myData_averages_map = {}
+    add_average_rows = (data) ->
+      average_rows_data = []
+      last_option_id = -1
+      add_average_option_id = null
+      last_row = null
+      for row, index in data when row.type == 'group'
+        #console.log "index: #{index}: option_id: #{row.option_id}, type: #{row.type}, group: #{row.group}"
+        if last_option_id == row.option_id
+          add_average_option_id = row.option_id
+          # add the criteria to the las row and keep count of number of records
+          for key,value of row when key.match(/cri_/)
+            last_row["#{key}_values"][row.evaluation_id] = value
+            #last_row[key].push(value) if 1 <= value <= 5
+
+        else
+          last_option_id = row.option_id
+          if add_average_option_id != null
+            average_rows_data.push( {option_id: add_average_option_id, index: index, last_row: last_row})
+          add_average_option_id = null
+          # create a copy of the latest new record, in case I need to determine an average
+          last_row = angular.copy(row)
+          last_row.group = "A"
+          last_row.type = "group_average"
+          last_row.user_id = 0
+          for key, value of last_row when key.match(/cri_/)
+            last_row["#{key}_values"] = {}
+            last_row["#{key}_values"][last_row.evaluation_id] = value
+            #last_row[key] = if 1 <= value <= 5 then [value] else []
+
+      #console.log "Insert the average rows now, starting from the end"
+      while (ins_row = average_rows_data.pop() )
+        avg_row = ins_row.last_row
+        ##console.log "insert average at index #{ins_row.index} for option: #{ins_row.option_id}"
+        #for key, value of avg_row when key.match(/cri_/)
+        #  sum = _.reduce(value, (memo, num) ->
+        #    memo + num
+        #  , 0)
+        #  #console.log "#{key}: #{sum}"
+        #  avg_row[key] = if sum > 0 then Math.round(sum/value.length) else ''
+        ##console.log "insert now"
+        $scope.myData.splice(ins_row.index,0,avg_row)
+        $scope.myData_averages_map[avg_row.option_id] = avg_row
+      calculate_averages()
+
+    calculate_averages = (option_id) ->
+      options = if option_id
+        [ $scope.myData_averages_map[option_id] ]
+      else
+        (option for id, option of $scope.myData_averages_map)
+      for option in options
+        score = 0
+        for key, ratings of option when key.match(/cri_\d+_values/)
+          #console.log "found match with key #{key} and ratings: #{ratings}"
+          sum = 0
+          cnt = 0
+          for evaluation_id, rating of ratings
+            #console.log "rating: #{evaluation_id} is #{rating}"
+            if rating > 0
+              sum += rating*1
+              cnt += 1
+          if sum > 0
+            option[ key.match(/cri_\d+/) ] = Math.round(sum/cnt)
+            score += Math.round(sum/cnt)
+            #console.log "sum: #{sum}, cnt: #{cnt}, avg: #{Math.round(sum/cnt)}"
+        option["score"] = score
+      $scope.$$phase || $scope.$apply()
+
+
+    $scope.myData = $scope.myData.sort(sort_evaluations)
+    add_average_rows($scope.myData)
+
+    $scope.test = ->
+      #add_average_rows($scope.myData)
+      calculate_averages()
+
+    rowTemplate =   '<div style="height: 100%" ng-class="getClasses(row)">' +
+                      '<div ng-style="{ \'cursor\': row.cursor }" ng-repeat="col in renderedColumns" ng-class="col.colIndex()" class="ngCell {{col.cellClass}}">' +
+                        '<div class="ngVerticalBar" ng-style="{height: rowHeight}" ng-class="{ ngVerticalBarVisible: !$last }">&nbsp;</div>' +
+                        '<div ng-cell></div>' +
+                      '</div>' +
+                    '</div>'
+
+    $scope.getClasses = (row) ->
+      if row.entity.group == "A"
+        'avg-row-green'
 
     $scope.gridOptions =
       data: 'myData'
       columnDefs: data_cols
+      rowTemplate: rowTemplate
       #enableCellEditOnFocus: true
       enableCellSelection: true
       enableCellEdit: true
@@ -1766,13 +1874,24 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
 
     $scope.$on 'McaRating_update', (event, data) ->
       #console.log "update McaRating_update rating: mca_option_evaluation_id: #{data.data.mca_option_evaluation_id}, mca_criteria_id: #{data.data.mca_criteria_id}, rating: #{data.data.rating}"
-      evaluation = $scope.myData_evaluations_map[data.data.mca_option_evaluation_id]
-      evaluation["cri_#{data.data.mca_criteria_id}"] = data.data.rating
+      evaluation_id = data.data.mca_option_evaluation_id
+      criteria_id = data.data.mca_criteria_id
+      data.data.rating
+      evaluation = $scope.myData_evaluations_map[evaluation_id]
+      evaluation["cri_#{criteria_id}"] = data.data.rating
       score = 0
       for criteria, rating of evaluation when criteria.match(/cri_/)
         score += rating*1
         #console.log "McaRating_update rating: #{rating}, score: #{score}"
       evaluation["score"] = score
+
+      # update the ratings hash in average row, if any
+      avg_row = $scope.myData_averages_map[ evaluation.option_id ]
+      if avg_row
+        #console.log "update the criteria value"
+        avg_row["cri_#{criteria_id}_values"][evaluation_id] = data.data.rating
+        #then recalculate the average row
+        calculate_averages()
       $scope.$$phase || $scope.$apply()
 ]
 
