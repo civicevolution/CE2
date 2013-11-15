@@ -715,3 +715,29 @@ body{
     td {vertical-align: top; padding-right: 20px;}
   }
 }
+
+.live-edit{
+  .live-edit-theme{
+    font-size: 2.6em;
+    line-height: 1.2em;
+    .footer{
+      font-size: .5em;
+      opacity: 0;
+      line-height: .6em;
+    }
+  }
+  .ce-sortable-handle{ display: inline-block; opacity: 0.2;}
+  p.controls{ display: block; }
+  .comment-outer{
+    //.footer{ opactiy: 0;}
+    &:hover{
+      .footer{
+        opacity: .3;
+      }
+    }
+  }
+}
+
+
+
+

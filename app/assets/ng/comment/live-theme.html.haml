@@ -1,0 +1,42 @@
+%div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}"){id: "com-{{comment.id}}"}
+  %div
+    %div.full-comment.row-fluid
+      .span12.body-with-arrow
+        .live-edit-theme
+
+          -#%div.header
+            -#%p.table_name {{comment.name}}
+            %p.time {{comment.updated_at | from_now}}
+            %p {{comment.name}}
+
+          -#%p Tag name: {{comment.tag_name}}
+          %div.theme_text(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+
+          %div.history.clear(ng-include src="history_url")
+
+          %div.footer
+            -#%div.replies(ng-if="comment.replies.length>0" ng-click="show_replies()")
+              {{comment.replies.length}} replies
+              %span(ng-if="comment.replies_expanded")
+                %i.icon-chevron-up
+
+            -#%div(ng-if="comment.show_tag_widget == true" ce-tag-comment)
+
+            %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
+              History v{{comment.version}}
+
+            %a.edit(ng-if="comment.editable_by_user" ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
+              -#%i.icon-pencil
+              Edit
+
+            %a.edit(ng-if="comment.comments == 0" ng-click="broadcast_action('theme-comment-delete')"){title: "Delete this theme"}
+              Delete
+
+            -#%div.count
+              %a.edit(ng-click="broadcast_action('show-theme-page')")
+                {{comment.comments | view_children:this}}
+
+          -#%div.comment-replies(ng-if="comment.replies_expanded")
+            %div(ng-repeat="reply in comment.reply_comments")
+              %div{'ng-include' => "'#{ path_to_asset("comment/reply.html") }'"}
+            %p.clear
