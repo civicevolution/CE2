@@ -63,8 +63,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
 
 
     eval_ctr = 1
-    mca.options[1..10
-    ].each do |option|
+    mca.options[1..10].each do |option|
       evaluation = McaOptionEvaluation.create user_id:373, mca_option_id: option.id, order_id: eval_ctr, category: 'group'
       eval_ctr += 1
 
@@ -79,7 +78,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   end
 
   def self.coord_evaluation_data(params)
-    mca_id = 1
+    mca_id = 2
     mca = MultiCriteriaAnalysis.find(mca_id)
     data = mca.attributes
     data[:options] = []
@@ -87,15 +86,17 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
       option_attrs = option.attributes
       option_attrs[:evaluations] = []
       option.evaluations.each do |evaluation|
-        eval_attrs = evaluation.attributes
-        eval_attrs[:last_name] = evaluation.user.last_name
-        eval_attrs[:user_id] = evaluation.user.id
-        eval_attrs[:category] = evaluation.category
-        eval_attrs[:ratings] = {}
-        evaluation.ratings.each do |rating|
-          eval_attrs[:ratings][rating.mca_criteria_id] = rating.rating
+        if params['mode'] != 'plenary' || evaluation.status == 'plenary'
+          eval_attrs = evaluation.attributes
+          eval_attrs[:last_name] = evaluation.user.last_name
+          eval_attrs[:user_id] = evaluation.user.id
+          eval_attrs[:category] = evaluation.category
+          eval_attrs[:ratings] = {}
+          evaluation.ratings.each do |rating|
+            eval_attrs[:ratings][rating.mca_criteria_id] = rating.rating
+          end
+          option_attrs[:evaluations].push( eval_attrs )
         end
-        option_attrs[:evaluations].push( eval_attrs )
       end
       data[:options].push( option_attrs )
     end
@@ -108,17 +109,24 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   end
 
   def self.group_evaluation_data(params)
-    mca_id = 1
+    mca_id = 2
     mca = MultiCriteriaAnalysis.find(mca_id)
 
     option_ids = mca.options.pluck(:id)
-    evaluations = McaOptionEvaluation.where(user_id: params["current_user"].id, mca_option_id: option_ids).includes(:mca_option, :ratings)
+
+    if params['mode'] == 'plenary'
+      evaluations = McaOptionEvaluation.where(user_id: params["current_user"].id, mca_option_id: option_ids, status: 'plenary').includes(:mca_option, :ratings)
+    else
+      evaluations = McaOptionEvaluation.where(user_id: params["current_user"].id, mca_option_id: option_ids).includes(:mca_option, :ratings)
+      evaluations.reject!{|e| e.status == 'plenary'}
+    end
 
     data = mca.attributes
     data[:evaluations] = []
     evaluations.sort{|a,b| a.order_id <=> b.order_id}.each do |evaluation|
       evaluation_attrs = evaluation.attributes
       evaluation_attrs[:title] = evaluation.mca_option.title
+      evaluation_attrs[:project_id] = evaluation.mca_option.details['project_id']
       evaluation_attrs[:ratings] = {}
       evaluation.ratings.each do |rating|
         evaluation_attrs[:ratings][rating.mca_criteria_id] = rating.rating

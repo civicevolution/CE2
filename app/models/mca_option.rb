@@ -11,6 +11,7 @@ class McaOption < ActiveRecord::Base
         evaluation = McaOptionEvaluation.where(user_id: user_id, mca_option_id: self.id).first_or_create do |evaluation|
           evaluation.category = params[:category]
         end
+        evaluation.update_attribute(:status, params[:status])
       end
     else
       # add a planery evaluation
