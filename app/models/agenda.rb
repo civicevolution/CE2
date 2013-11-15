@@ -664,11 +664,11 @@ class Agenda < ActiveRecord::Base
     end
 
     if Rails.env.development?
-      agenda_details[:select_conversations] = []
-      agenda_details[:allocate_conversations] = []
+      agenda_details[:select_conversations] = [217]
+      agenda_details[:allocate_conversations] = [217]
       #agenda_details[:allocate_top_themes_conversations] = [213, 214]
       agenda_details[:allocate_multiple_conversations] = []
-      agenda_details[:themes_only] = []
+      agenda_details[:themes_only] = [217, 218, 219, 220]
 
       agenda_details[:theme_map] =
           {
@@ -681,7 +681,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:allocate_conversations] = []
       agenda_details[:allocate_top_themes_conversations] = []
       agenda_details[:allocate_multiple_conversations] = []
-      agenda_details[:themes_only] = []
+      agenda_details[:themes_only] = [12, 13, 14, 15]
 
       agenda_details[:theme_map] =
           {

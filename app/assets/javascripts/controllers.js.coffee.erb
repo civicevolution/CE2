@@ -752,13 +752,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
 
     $scope.$on 'TableComment_update', (event, data) ->
       table_number = Number(data.data.table_number)
-      switch $scope.user.last_name
-        when "1"
-          return unless _.contains([1, 2, 3, 8], table_number)
-        when "2"
-          return unless _.contains([4, 5, 6, 7], table_number)
-        #when "3"
-        #  return unless _.contains([5, 6, 9], table_number)
+      return unless _.contains($scope.conversation.assigned_tables, table_number)
 
       data.data.parent_theme_ids = [] unless data.data.parent_theme_ids
       data.data.current_theme_ids = [] unless data.data.current_theme_ids
@@ -1011,7 +1005,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       user_name = "#{$scope.user.first_name} #{$scope.user.last_name}"
       if $scope.conversation.can('edit_theme_comment') && not $scope.conversation.themers[ user_name ]
         $scope.conversation.themers[ user_name ] = {cnt: 0}
-      $scope.conversation.assigned_tables = if $scope.user.last_name == "1" then [1,2,3,8] else if $scope.user.last_name == "2" then [4,5,6,7] else [1,2,3,4,5,6,7,8]
+      $scope.conversation.assigned_tables = if $scope.user.last_name == "1" then [1,2,3,4] else if $scope.user.last_name == "2" then [5,6,7,8] else [1,2,3,4,5,6,7,8]
       $scope.change_themer(user_name)
 ]
 
@@ -1641,7 +1635,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.options = mca_data.options
     $scope.$root.timestamp = mca_data.current_timestamp
 
-    mca_id = 1
+    mca_id = 2
     McaData.firebase_token(mca_id).then(
       (response)->
         url = "https://civicevolution.firebaseio.com/mca/#{mca_id}/updates/"
