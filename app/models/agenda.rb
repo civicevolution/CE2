@@ -764,6 +764,20 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "coordinator"
 
+      # link for live-editing
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Live editing for "#{conversation[:title]}"|,
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/live-edit/#{conversation[:munged_title]}",
+          conversation_code: "#{conversation[:code]}",
+          data_set: "coordinator-theming",
+          disabled: false,
+          role: 'coordinator'
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
+
       # link for display final themes
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
