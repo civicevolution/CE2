@@ -1662,12 +1662,12 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       width: 300
       enableCellEdit: false
     )
-    data_cols.push(
-      field: 'city_rating'
-      displayName: 'C.R.'
-      width: 30
-      enableCellEdit: false
-    )
+    #data_cols.push(
+    #  field: 'city_rating'
+    #  displayName: 'C.R.'
+    #  width: 30
+    #  enableCellEdit: false
+    #)
     for criteria in $scope.criteria
       cellEditableTemplate = "<input ng-class=\"'colt' + col.index\" ng-input=\"COL_FIELD\" ng-focus= \"startEdit(row, col)\" ng-keydown=\"monitor_keydown(row,col)\" ng-model=\"COL_FIELD\"/>";
       data_cols.push(
@@ -1679,7 +1679,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     data_cols.push(
       field: "score"
       displayName: 'Score'
-      width: 70
+      width: 50
       enableCellEdit: false
     )
 
@@ -1942,14 +1942,14 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       cellEditableTemplate = "<input ng-class=\"'colt' + col.index\" ng-input=\"COL_FIELD\" ng-focus= \"startEdit(row, col)\" ng-keydown=\"monitor_keydown(row,col)\" ng-model=\"COL_FIELD\"/>";
       data_cols.push(
         field: "cri_#{criteria.id}"
-        displayName: "#{criteria.id}"
+        displayName: "#{criteria.title}"
         width: 40
         editableCellTemplate: cellEditableTemplate
       )
     data_cols.push(
       field: "score"
       displayName: 'Score'
-      width: 70
+      width: 50
       enableCellEdit: false
     )
 
