@@ -2,7 +2,9 @@
   -#%a.show-examples(ng-click="toggle_examples()") "ABC: {{examples_link}}"
   .row-fluid.conversation#conversation(ng-style="conversation.style")
     .span12
-      %h4#conversation-title.title {{conversation.title}}
+      %h4#conversation-title.title
+        {{conversation.title}}
+        %a.faint(ng-click="edit('new-theme-comment')") Add new theme
 
       %div.all-themes
         %div.comment-outer(ng-repeat="comment in conversation.theme_comments")
