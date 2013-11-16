@@ -847,6 +847,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
         when mode is 'themes'
           if $scope.conversation.theme_comments?.length > 0
             $scope.conversation.filtered_comments = $scope.conversation.theme_comments.sort((a,b)-> a.order_id - b.order_id)
+            add_letters($scope.conversation.theme_comments)
           else
             $scope.conversation.filtered_comments = []
 

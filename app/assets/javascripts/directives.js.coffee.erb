@@ -1250,10 +1250,12 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
           comments_order = (item.id for item in dom_scope_collection )
           comment_id = elm.parent().parent().attr('comment_id')
           if comment_id
-            CommentData.update_comment_order(comment_id, comments_order)
+            CommentData.update_comment_order(comment_id, comments_order).then (response) ->
+              ConversationData.add_letters(dom_scope_collection)
           else
             conversation_code = elm.scope().$parent.conversation?.code
-            ConversationData.update_comment_order(conversation_code, comments_order)
+            ConversationData.update_comment_order(conversation_code, comments_order).then (response) ->
+              ConversationData.add_letters(dom_scope_collection)
           $timeout ->
             angular.element(document.body).removeClass('drag_in_process')
           , 1000

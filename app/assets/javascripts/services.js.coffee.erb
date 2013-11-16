@@ -201,6 +201,13 @@ services.factory "ConversationData", ["$http",
 
     load_stats: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/stats.json")
+
+    add_letters: (items) ->
+      letter_ctr = 0;
+      for item in items
+        item.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
+        letter_ctr += 1
+      items
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
