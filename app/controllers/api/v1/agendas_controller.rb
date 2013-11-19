@@ -64,13 +64,13 @@ module Api
         begin
           file = File.open( "#{Rails.root}/#{filename}" )
 
-          Agenda.import(file)
+          code = Agenda.import(file)
         ensure
           file.close
         end
 
         #render :file => "#{Rails.root}/#{params[:filename]}"
-        render text: "Import of #{filename} is complete"
+        render text: "Import complete, code: #{code} for #{filename}"
       end
 
       def reset

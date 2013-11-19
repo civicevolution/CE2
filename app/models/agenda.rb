@@ -133,30 +133,12 @@ class Agenda < ActiveRecord::Base
 
     file.write( {"Agenda" => self.attributes}.to_yaml )
 
-    agenda_components = self.agenda_components
-    file.write( {"AgendaComponents" => agenda_components.map{|c| c.attributes}}.to_yaml )
-
     agenda_roles = self.agenda_roles
     file.write( {"AgendaRoles" => agenda_roles.map{|c| c.attributes}}.to_yaml )
 
-    agenda_component_threads = self.agenda_component_threads
-    file.write( {"AgendaComponentThreads" => agenda_component_threads.map{|c| c.attributes}}.to_yaml )
-
-    # collect the conversation ids from the component inputs
-    conversation_ids = []
-    agenda_components.each do |c|
-      c.input.each_pair do|key,value|
-        if key.match(/conversation/)
-          conversation_ids << value
-        end
-      end
-    end
-
-    conversations = Conversation.where(id: conversation_ids.flatten.uniq)
+    conversations = Conversation.where(id: self.conversation_ids.flatten.uniq)
 
     file.write( {"Conversations" => conversations.map{|c| c.attributes}}.to_yaml )
-
-    user_ids = conversations.map(&:user_id).uniq
 
     comments = []
     conversations.each do |c|
@@ -166,18 +148,15 @@ class Agenda < ActiveRecord::Base
     file.write( {"Comments" => comments.map{|c| c.attributes}}.to_yaml )
 
     comment_ids = comments.map(&:id)
-    user_ids.concat comments.map(&:user_id).uniq
 
     comment_versions = CommentVersion.where(item_type: 'Comment', item_id: comment_ids)
     file.write( {"CommentVersions" => comment_versions.map{|c| c.attributes}}.to_yaml )
-
 
     comment_threads = CommentThread.where(parent_id: comment_ids)
     file.write( {"CommentThreads" => comment_threads.map{|c| c.attributes}}.to_yaml )
 
     pro_con_vote = ProConVote.where(comment_id: comment_ids)
     file.write( {"ProConVotes" => pro_con_vote.map{|c| c.attributes}}.to_yaml )
-
 
     theme_votes = ThemeVote.where(theme_id: comment_ids)
     file.write( {"ThemeVotes" => theme_votes.map{|c| c.attributes}}.to_yaml )
@@ -187,12 +166,32 @@ class Agenda < ActiveRecord::Base
 
     # I should get parked_comments
 
-    user_ids.concat theme_votes.map(&:group_id).uniq
-    user_ids.uniq!
-    users = User.where(id: user_ids)
     user_recs = {}
-    users.each{|u| user_recs[u.id] = {email: u.email, first_name: u.first_name, last_name: u.last_name}}
+    self.participants.sort_by{|first_name, last_name| [first_name, last_name]}.each do |u|
+      user_recs[u.id] = {email: u.email, first_name: u.first_name, last_name: u.last_name}
+    end
     file.write( {"Users" => user_recs}.to_yaml )
+
+
+    mca = MultiCriteriaAnalysis.find_by(agenda_id: self.id)
+    file.write( {"MultiCriteriaAnalysis" => mca.attributes}.to_yaml )
+
+    file.write( {"McaCriteria" => mca.criteria.map{|c| c.attributes}}.to_yaml )
+
+    file.write( {"McaOptions" => mca.options.map{|c| c.attributes}}.to_yaml )
+
+    mca_evaluations = []
+    mca.options.each do |option|
+      mca_evaluations.push option.evaluations.map{|c| c.attributes}
+    end
+    file.write( {"McaEvaluations" => mca_evaluations.flatten}.to_yaml )
+
+
+    mca_ratings = []
+    mca.criteria.each do |criteria|
+      mca_ratings.push criteria.ratings.map{|c| c.attributes}
+    end
+    file.write( {"McaRatings" => mca_ratings.flatten}.to_yaml )
 
   end
 
@@ -225,6 +224,8 @@ class Agenda < ActiveRecord::Base
     agenda_details[:id] = agenda.id
     agenda_details[:code] = agenda.code
 
+    agenda.update_attribute(:title, "IMP(#{agenda.id}) #{agenda.title}")
+    agenda.update_attribute(:list, true)
 
     agenda_default_user_id = 1
 
@@ -239,6 +240,7 @@ class Agenda < ActiveRecord::Base
           user = Agenda.create_agenda_user( agenda, email )
         end
         details[:new_user_id] = user.id
+        details[:new_id] = user.id
         agenda_default_user_id = user.id if email.match(/coordinator/)
       end
     end
@@ -278,52 +280,17 @@ class Agenda < ActiveRecord::Base
     agenda.update_attribute(:conversation_ids, conversation_ids)
 
 
-    docs["AgendaComponents"].each do |details|
-      agenda_component = AgendaComponent.new
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        agenda_component[key] = value unless ['id','code'].include?(key)
-      end
-      agenda_component.agenda_id = agenda.id
-
-      # update the input data
-      details["input"].each_pair do |key,value|
-        case key
-          when "user_ids"
-            new_values = []
-            value.each do |id|
-              new_values.push( users[id].try{|user|[:new_user_id]} || 1 )
-            end
-            details["input"]["user_ids"] = new_values
-
-          when "conversation_id"
-            details["input"]["conversation_id"] = conversations_details[ value ][:new_id]
-
-          when "conversations_list_ids"
-            new_values = []
-            value.each do |id|
-              new_values.push( conversations_details[id][:new_id] )
-            end
-            details["input"]["conversations_list_ids"] = new_values
-
-          when "coordinator_user_id"
-            details["input"]["coordinator_user_id"] = users[ value ][:new_user_id]
-
-          when "worksheet_conversation_ids"
-            new_values = []
-            value.each do |id|
-              new_values.push( conversations_details[id][:new_id] )
-            end
-            details["input"]["worksheet_conversation_ids"] = new_values
-        end
-      end
-      agenda_component.input = details["input"]
-      agenda_component.save
+    details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only)
+    details_arrays.each do |name|
+      agenda_details['details'][name] = Agenda.update_record_ids(conversations_details, agenda_details['details'][name])
     end
 
 
+    agenda_details['details']['theme_map'].each_pair do |key, value|
+      agenda_details['details']['theme_map'][key] = Agenda.update_record_ids(users, value)
+    end
 
-
+    agenda.update_attribute(:details, agenda_details['details'])
 
     votes = {}
     docs["ProConVotes"].each do |v|
@@ -417,8 +384,108 @@ class Agenda < ActiveRecord::Base
       comment_thread.save
     end
 
-    return 'Import completed'
+    # add_roles to the conversations for AUTH
+    conversations = Conversation.where(id: conversation_ids)
+    conversations.each do |conversation|
+      agenda.participants.each do |participant|
+        role = participant.email.match(/agenda-\d+-(\w+)-/)[1]
+        if role == 'group'
+          role = :scribe
+        else
+          role = role.to_sym
+        end
+        puts role
+        participant.add_role role, conversation
+      end
+    end
 
+
+
+
+    # Import the mca stuff
+
+    mca_details = docs["MultiCriteriaAnalysis"]
+
+    mca = MultiCriteriaAnalysis.new
+    mca_details.each_pair do |key,value|
+      #puts "#{key}: #{value}"
+      mca[key] = value unless ['id','code'].include?(key)
+    end
+    puts mca.inspect
+    mca.save
+
+    mca_details[:id] = mca.id
+
+    criteria_details = {}
+    docs["McaCriteria"].each do |details|
+      criteria_details[details['id']] = details
+      criteria = McaCriteria.new
+      details.each_pair do |key,value|
+        #puts "#{key}: #{value}"
+        criteria[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
+      end
+      criteria.multi_criteria_analysis_id = mca_details[:id]
+      #puts criteria.inspect
+      criteria.save
+      details[:new_id] = criteria.id
+    end
+
+    options_details = {}
+    docs["McaOptions"].each do |details|
+      options_details[details['id']] = details
+      option = McaOption.new
+      details.each_pair do |key,value|
+        #puts "#{key}: #{value}"
+        option[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
+      end
+      option.multi_criteria_analysis_id = mca_details[:id]
+      #puts option.inspect
+      option.save
+      details[:new_id] = option.id
+    end
+
+    evaluation_details = {}
+    docs["McaEvaluations"].each do |details|
+      evaluation_details[details['id']] = details
+      evaluation = McaOptionEvaluation.new
+      details.each_pair do |key,value|
+        #puts "#{key}: #{value}"
+        evaluation[key] = value unless ['id','new_id','mca_option_id','user_id'].include?(key)
+      end
+      evaluation.mca_option_id = options_details[details["mca_option_id"]][:new_id]
+      evaluation.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
+      evaluation.save
+      details[:new_id] = evaluation.id
+    end
+
+    evaluation_rating_details = {}
+    docs["McaRatings"].each do |details|
+      evaluation_rating_details[details['id']] = details
+      evaluation_rating = McaRating.new
+      details.each_pair do |key,value|
+        #puts "#{key}: #{value}"
+        evaluation_rating[key] = value unless ['id','new_id', 'mca_criteria_id', 'mca_option_evaluation_id'].include?(key)
+      end
+      evaluation_rating.mca_option_evaluation_id = evaluation_details[details["mca_option_evaluation_id"]][:new_id]
+      evaluation_rating.mca_criteria_id = criteria_details[details["mca_criteria_id"] ][:new_id]
+      evaluation_rating.save
+      details[:new_id] = evaluation_rating.id
+    end
+
+    agenda.refresh_agenda_details_links_and_data_sets
+    return agenda.code
+  end
+
+  def self.update_record_ids(translation_details, ids_array)
+    return if ids_array.nil?
+    ids_array.each_index do |ind|
+      if ids_array[ind].class == Array
+        ids_array[ind] = update_record_ids(translation_details, ids_array[ind])
+      else
+        ids_array[ind] = translation_details[ ids_array[ind] ][:new_id]
+      end
+    end
+    ids_array
   end
 
   def self.create_agenda_user(agenda, email)
@@ -615,7 +682,7 @@ class Agenda < ActiveRecord::Base
 
   def self.agendas
     #Agenda.where(list: true).select('code, title')
-    Agenda.where(list: true).map{|a| {code: a.code, title: a.title, munged_title: a.munged_title } }
+    Agenda.where(list: true).order(:id).map{|a| {code: a.code, title: a.title, munged_title: a.munged_title } }
   end
 
   def data_set( current_user, link_code )
