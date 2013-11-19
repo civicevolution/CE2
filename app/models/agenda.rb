@@ -174,25 +174,26 @@ class Agenda < ActiveRecord::Base
 
 
     mca = MultiCriteriaAnalysis.find_by(agenda_id: self.id)
-    file.write( {"MultiCriteriaAnalysis" => mca.attributes}.to_yaml )
+    if mca
+      file.write( {"MultiCriteriaAnalysis" => mca.attributes}.to_yaml )
 
-    file.write( {"McaCriteria" => mca.criteria.map{|c| c.attributes}}.to_yaml )
+      file.write( {"McaCriteria" => mca.criteria.map{|c| c.attributes}}.to_yaml )
 
-    file.write( {"McaOptions" => mca.options.map{|c| c.attributes}}.to_yaml )
+      file.write( {"McaOptions" => mca.options.map{|c| c.attributes}}.to_yaml )
 
-    mca_evaluations = []
-    mca.options.each do |option|
-      mca_evaluations.push option.evaluations.map{|c| c.attributes}
+      mca_evaluations = []
+      mca.options.each do |option|
+        mca_evaluations.push option.evaluations.map{|c| c.attributes}
+      end
+      file.write( {"McaEvaluations" => mca_evaluations.flatten}.to_yaml )
+
+
+      mca_ratings = []
+      mca.criteria.each do |criteria|
+        mca_ratings.push criteria.ratings.map{|c| c.attributes}
+      end
+      file.write( {"McaRatings" => mca_ratings.flatten}.to_yaml )
     end
-    file.write( {"McaEvaluations" => mca_evaluations.flatten}.to_yaml )
-
-
-    mca_ratings = []
-    mca.criteria.each do |criteria|
-      mca_ratings.push criteria.ratings.map{|c| c.attributes}
-    end
-    file.write( {"McaRatings" => mca_ratings.flatten}.to_yaml )
-
   end
 
   def self.import(file)
