@@ -1,10 +1,12 @@
 class McaRating < ActiveRecord::Base
   attr_accessible :mca_option_evaluation_id, :mca_criteria_id, :rating
 
+  attr_accessor :post_process_disabled
+
   belongs_to :mca_option_evaluation
   belongs_to :mca_criteria
 
-  after_save :send_to_firebase
+  after_save :send_to_firebase, unless: :post_process_disabled
 
 
   def send_to_firebase

@@ -224,6 +224,7 @@ class Agenda < ActiveRecord::Base
 
     agenda_details[:id] = agenda.id
     agenda_details[:code] = agenda.code
+    agenda_details['details'][:code] = agenda.code
 
     agenda.update_attribute(:title, "IMP(#{agenda.id}) #{agenda.title}")
     agenda.update_attribute(:list, true)
@@ -280,6 +281,7 @@ class Agenda < ActiveRecord::Base
 
     agenda.update_attribute(:conversation_ids, conversation_ids)
 
+    agenda_details['details'][:coordinator_user_id] = agenda_default_user_id
 
     details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only)
     details_arrays.each do |name|
@@ -290,8 +292,6 @@ class Agenda < ActiveRecord::Base
     agenda_details['details']['theme_map'].each_pair do |key, value|
       agenda_details['details']['theme_map'][key] = Agenda.update_record_ids(users, value)
     end
-
-    agenda.update_attribute(:details, agenda_details['details'])
 
     votes = {}
     docs["ProConVotes"].each do |v|
@@ -406,73 +406,77 @@ class Agenda < ActiveRecord::Base
     # Import the mca stuff
 
     mca_details = docs["MultiCriteriaAnalysis"]
-
-    mca = MultiCriteriaAnalysis.new
-    mca_details.each_pair do |key,value|
-      #puts "#{key}: #{value}"
-      mca[key] = value unless ['id','code'].include?(key)
-    end
-    puts mca.inspect
-    mca.save
-
-    mca_details[:id] = mca.id
-
-    criteria_details = {}
-    docs["McaCriteria"].each do |details|
-      criteria_details[details['id']] = details
-      criteria = McaCriteria.new
-      details.each_pair do |key,value|
+    if mca_details
+      mca = MultiCriteriaAnalysis.new
+      mca_details.each_pair do |key,value|
         #puts "#{key}: #{value}"
-        criteria[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
+        mca[key] = value unless ['id','code'].include?(key)
       end
-      criteria.multi_criteria_analysis_id = mca_details[:id]
-      #puts criteria.inspect
-      criteria.save
-      details[:new_id] = criteria.id
+      puts mca.inspect
+      mca.save
+
+      mca_details[:id] = mca.id
+      agenda_details['details'][:multi_criteria_analysis_id] = mca.id
+
+      criteria_details = {}
+      docs["McaCriteria"].each do |details|
+        criteria_details[details['id']] = details
+        criteria = McaCriteria.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          criteria[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
+        end
+        criteria.multi_criteria_analysis_id = mca_details[:id]
+        #puts criteria.inspect
+        criteria.save
+        details[:new_id] = criteria.id
+      end
+
+      options_details = {}
+      docs["McaOptions"].each do |details|
+        options_details[details['id']] = details
+        option = McaOption.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          option[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
+        end
+        option.multi_criteria_analysis_id = mca_details[:id]
+        #puts option.inspect
+        option.save
+        details[:new_id] = option.id
+      end
+
+      evaluation_details = {}
+      docs["McaEvaluations"].each do |details|
+        evaluation_details[details['id']] = details
+        evaluation = McaOptionEvaluation.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          evaluation[key] = value unless ['id','new_id','mca_option_id','user_id'].include?(key)
+        end
+        evaluation.mca_option_id = options_details[details["mca_option_id"]][:new_id]
+        evaluation.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
+        evaluation.save
+        details[:new_id] = evaluation.id
+      end
+
+      evaluation_rating_details = {}
+      docs["McaRatings"].each do |details|
+        evaluation_rating_details[details['id']] = details
+        evaluation_rating = McaRating.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          evaluation_rating[key] = value unless ['id','new_id', 'mca_criteria_id', 'mca_option_evaluation_id'].include?(key)
+        end
+        evaluation_rating.mca_option_evaluation_id = evaluation_details[details["mca_option_evaluation_id"]][:new_id]
+        evaluation_rating.mca_criteria_id = criteria_details[details["mca_criteria_id"] ][:new_id]
+        evaluation_rating.post_process_disabled = true
+        evaluation_rating.save
+        details[:new_id] = evaluation_rating.id
+      end
     end
 
-    options_details = {}
-    docs["McaOptions"].each do |details|
-      options_details[details['id']] = details
-      option = McaOption.new
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        option[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
-      end
-      option.multi_criteria_analysis_id = mca_details[:id]
-      #puts option.inspect
-      option.save
-      details[:new_id] = option.id
-    end
-
-    evaluation_details = {}
-    docs["McaEvaluations"].each do |details|
-      evaluation_details[details['id']] = details
-      evaluation = McaOptionEvaluation.new
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        evaluation[key] = value unless ['id','new_id','mca_option_id','user_id'].include?(key)
-      end
-      evaluation.mca_option_id = options_details[details["mca_option_id"]][:new_id]
-      evaluation.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
-      evaluation.save
-      details[:new_id] = evaluation.id
-    end
-
-    evaluation_rating_details = {}
-    docs["McaRatings"].each do |details|
-      evaluation_rating_details[details['id']] = details
-      evaluation_rating = McaRating.new
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        evaluation_rating[key] = value unless ['id','new_id', 'mca_criteria_id', 'mca_option_evaluation_id'].include?(key)
-      end
-      evaluation_rating.mca_option_evaluation_id = evaluation_details[details["mca_option_evaluation_id"]][:new_id]
-      evaluation_rating.mca_criteria_id = criteria_details[details["mca_criteria_id"] ][:new_id]
-      evaluation_rating.save
-      details[:new_id] = evaluation_rating.id
-    end
-
+    agenda.update_attribute(:details, agenda_details['details'])
     agenda.refresh_agenda_details_links_and_data_sets
     return agenda.code
   end
@@ -542,6 +546,33 @@ class Agenda < ActiveRecord::Base
     ThemePoint.where(theme_id: comment_ids).destroy_all
     CommentThread.where(parent_id: comment_ids).destroy_all
     CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
+  end
+
+  def delete_agenda
+    raise "CivicEvolution::AgendaCannotBeDeleted in test mode" unless self.test_mode
+    raise "CivicEvolution::AgendaCannotBeDeleted in PROD" unless Rails.env.development?
+    Rails.logger.debug "Delete this Agenda"
+
+    conversation_ids = self.conversation_ids.flatten.uniq
+    comments = Comment.where(type: ['TableComment','ThemeComment'], conversation_id: conversation_ids)
+    comment_ids = comments.map(&:id)
+    comments.destroy_all
+    ParkedComment.where(conversation_id: conversation_ids).destroy_all
+
+    ProConVote.where(comment_id: comment_ids).destroy_all
+    ThemeVote.where(theme_id: comment_ids).destroy_all
+    ThemePoint.where(theme_id: comment_ids).destroy_all
+    CommentThread.where(parent_id: comment_ids).destroy_all
+    CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
+
+    # destroy the mca stuff
+
+    MultiCriteriaAnalysis.delete_mca( self.details["multi_criteria_analysis_id"])
+
+    Conversation.where(id: conversation_ids ).destroy_all
+    self.agenda_roles.destroy_all
+    self.participants.destroy_all
+    self.destroy
   end
 
 
@@ -1080,7 +1111,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_key_themes_with_examples",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1100,7 +1131,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_coordinator_theming_page_data",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1119,7 +1150,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_themes_select_page_data",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1129,7 +1160,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_themes_select_results",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1139,7 +1170,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_themes_allocate_page_data",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1149,7 +1180,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_themes_allocation_results",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1158,9 +1189,9 @@ class Agenda < ActiveRecord::Base
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_page_data",
             parameters: {
-                conversation_ids: "#{agenda_details[:allocate_top_themes_conversations]}",
+                conversation_ids: '#{agenda_details["allocate_top_themes_conversations"]}',
                 top_themes_count: 3,
-                coordinator_user_id: agenda_details[:coordinator_user_id],
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}',
                 page_title: '#{link_details["page_title"]}'
             }
         }
@@ -1170,9 +1201,9 @@ class Agenda < ActiveRecord::Base
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_results",
             parameters: {
-                conversation_ids: "#{agenda_details[:allocate_top_themes_conversations]}",
+                conversation_ids: '#{agenda_details["allocate_top_themes_conversations"]}',
                 top_themes_count: 3,
-                coordinator_user_id: agenda_details[:coordinator_user_id],
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}',
                 page_title: '#{link_details["page_title"]}'
             },
             data_set_title: 'Top ideas',
@@ -1184,10 +1215,10 @@ class Agenda < ActiveRecord::Base
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_page_data",
             parameters: {
-                conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
-                randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",
+                conversation_ids: '#{agenda_details["allocate_multiple_conversations"]}',
+                randomized_theme_ids: '#{agenda_details["allocate_multiple_conversations_theme_ids"]}',
                 top_themes_count: 1000,
-                coordinator_user_id: agenda_details[:coordinator_user_id],
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}',
                 page_title: '#{link_details["page_title"]}'
             }
         }
@@ -1197,10 +1228,10 @@ class Agenda < ActiveRecord::Base
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_results",
             parameters: {
-                conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
-                randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",
+                conversation_ids: '#{agenda_details["allocate_multiple_conversations"]}',
+                randomized_theme_ids: '#{agenda_details["allocate_multiple_conversations_theme_ids"]}',
                 top_themes_count: 1000,
-                coordinator_user_id: agenda_details[:coordinator_user_id],
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}',
                 page_title: '#{link_details["page_title"]}'
             },
             data_set_title: 'Combined ideas',

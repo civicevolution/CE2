@@ -78,7 +78,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   end
 
   def self.coord_evaluation_data(params)
-    mca_id = 2
+    mca_id = params["agenda_details"]["multi_criteria_analysis_id"]
     mca = MultiCriteriaAnalysis.find(mca_id)
     data = mca.attributes
     data[:options] = []
@@ -109,7 +109,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   end
 
   def self.group_evaluation_data(params)
-    mca_id = 2
+    mca_id = params["agenda_details"]["multi_criteria_analysis_id"]
     mca = MultiCriteriaAnalysis.find(mca_id)
 
     option_ids = mca.options.pluck(:id)
@@ -139,6 +139,25 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
     end
     data[:current_timestamp] = Time.new.to_i
     data
+  end
+
+  def self.delete_mca(mca_id)
+    raise "CivicEvolution::McaCannotBeDeleted in PROD" unless Rails.env.development?
+    begin
+      mca = MultiCriteriaAnalysis.find(mca_id)
+    rescue
+      return
+    end
+    mca.criteria.each do |criteria|
+      criteria.ratings.destroy_all
+    end
+    mca.criteria.destroy_all
+
+    mca.options.each do |option|
+      option.evaluations.destroy_all
+    end
+    mca.options.destroy_all
+    mca.destroy
   end
 
 end
