@@ -263,6 +263,10 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           mca_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.data_set('mca-data', $stateParams.agenda_code, $stateParams.link_code)
           ]
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
         controller: coord_mca_table
       )
 
@@ -1645,77 +1649,116 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.criteria = mca_data.criteria
     $scope.options = mca_data.options
     $scope.$root.timestamp = mca_data.current_timestamp
-
-    mca_id = 2
+    mca_id = mca_data.id
     McaData.firebase_token(mca_id).then(
       (response)->
         url = "https://civicevolution.firebaseio.com/mca/#{mca_id}/updates/"
         FirebaseService.initialize_source(url, response.data.firebase_token)
     )
+    $scope.mca =
+      panel_weight: 50
+      exec_weight: 50
+      exec: 0
+      weighted: 0
+      hide_avg: 0
 
-
-    data_cols = []
-    data_cols.push(
-      field: 'group'
-      displayName: 'Grp'
-      width: 40
-      enableCellEdit: false
-    )
-    data_cols.push(
-      field: 'project_id'
-      displayName: 'Id'
-      width: 40
-      enableCellEdit: false
-    )
-    data_cols.push(
-      field: 'title'
-      displayName: 'Project'
-      width: 300
-      enableCellEdit: false
-    )
-    #data_cols.push(
-    #  field: 'city_rating'
-    #  displayName: 'C.R.'
-    #  width: 30
-    #  enableCellEdit: false
-    #)
-    for criteria in $scope.criteria
-      cellEditableTemplate = "<input ng-class=\"'colt' + col.index\" ng-input=\"COL_FIELD\" ng-focus= \"startEdit(row, col)\" ng-keydown=\"monitor_keydown(row,col)\" ng-model=\"COL_FIELD\"/>";
+    select_columns = ->
+      data_cols = []
       data_cols.push(
-        field: "cri_#{criteria.id}"
-        displayName: "#{criteria.title}"
+        field: 'group'
+        displayName: 'Grp'
         width: 40
-        editableCellTemplate: cellEditableTemplate
       )
-    data_cols.push(
-      field: "score"
-      displayName: 'Score'
-      width: 50
-      enableCellEdit: false
-    )
+      data_cols.push(
+        field: 'project_id'
+        displayName: 'Id'
+        width: 40
+      )
+      data_cols.push(
+        field: 'title'
+        displayName: 'Project'
+        width: 300
+      )
+      data_cols.push(
+        field: 'visibility'
+        displayName: 'V'
+        width: 0
+      )
+      for criteria in $scope.criteria
+        data_cols.push(
+          field: "cri_#{criteria.id}"
+          displayName: "#{criteria.title}"
+          width: 40
+        )
+      data_cols.push(
+        field: "score"
+        displayName: 'Score'
+        width: 50
+      )
+      if $scope.mca.exec || $scope.mca.weighted
+        data_cols.push(
+          field: 'score_pct'
+          displayName: 'S%'
+          width: 50
+        )
+      if $scope.mca.weighted
+        data_cols.push(
+          field: 'score_wt_pct'
+          displayName: 'SW%'
+          width: 50
+        )
+      if $scope.mca.exec || $scope.mca.weighted
+        data_cols.push(
+          field: 'exec_pct'
+          displayName: 'E%'
+          width: 50
+        )
+      if $scope.mca.weighted
+        data_cols.push(
+          field: 'exec_wt_pct'
+          displayName: 'EW%'
+          width: 50
+        )
+      if $scope.mca.weighted
+        data_cols.push(
+          field: 'total_pct'
+          displayName: 'T%'
+          width: 50
+        )
+      data_cols
+    $scope.data_cols = select_columns()
 
-    $scope.myData = []
-    for option in $scope.options
-      title = option.title
-      option_id = option.id
-      project_id = option.details.project_id
-      city_rating = option.details.city_rating
-      for evaluation in option.evaluations
-        data =
-          project_id: project_id
-          city_rating: city_rating
-          title: title
-          option_id: option_id
-          group: evaluation.last_name*1
-          user_id: evaluation.user_id
-          type: evaluation.category
-          evaluation_id: evaluation.id
-        sum_of_scores = 0
-        for criteria in $scope.criteria
-          data["cri_#{criteria.id}"] = rating = evaluation.ratings[criteria.id]*1 || ""
-          sum_of_scores += rating*1
-        data["score"] = sum_of_scores
-        $scope.myData.push(data)
+    crunch_data = ->
+      my_data = []
+      for option in $scope.options
+        title = option.title
+        option_id = option.id
+        project_id = option.details.project_id
+        city_rating = option.details.city_rating
+        for evaluation in option.evaluations
+          data =
+            project_id: project_id
+            title: title
+            option_id: option_id
+            group: evaluation.last_name*1
+            user_id: evaluation.user_id
+            type: evaluation.category
+            evaluation_id: evaluation.id
+            visibility: 'S'
+          sum_of_scores = 0
+          for criteria in $scope.criteria
+            data["cri_#{criteria.id}"] = rating = evaluation.ratings[criteria.id]*1 || ""
+            sum_of_scores += rating*1
+          data["score"] = sum_of_scores
+          data["score_pct"] = Math.round(sum_of_scores/30 * 100 )+'%'
+          data["score_wt_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight)+'%'
+          data["exec_pct"] = Math.round(city_rating/25 *100)+'%'
+          data["exec_wt_pct"] = Math.round(city_rating/25 * $scope.mca.exec_weight)+'%'
+          data["total_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight + city_rating/25 * $scope.mca.exec_weight )+'%'
+          my_data.push(data)
+      my_data
+
+    $scope.myData = crunch_data()
 
     $scope.myData_evaluations_map = {}
     for evaluation in $scope.myData
@@ -1743,7 +1786,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     # iterate through each row looking for multiple records for the same option_id -
     # these need to be averaged
     $scope.myData_averages_map = {}
-    add_average_rows = (data) ->
+    insert_average_rows = (data) ->
       average_rows_data = []
       last_option_id = -1
       add_average_option_id = null
@@ -1752,10 +1795,12 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
         #console.log "index: #{index}: option_id: #{row.option_id}, type: #{row.type}, group: #{row.group}"
         if last_option_id == row.option_id
           add_average_option_id = row.option_id
+          row.averaged_assessment = true
+          row.visibility = 'H'
+          data[index-1].visibility = 'H'
           # add the criteria to the las row and keep count of number of records
           for key,value of row when key.match(/cri_/)
             last_row["#{key}_values"][row.evaluation_id] = value
-            #last_row[key].push(value) if 1 <= value <= 5
 
         else
           last_option_id = row.option_id
@@ -1765,29 +1810,20 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
           # create a copy of the latest new record, in case I need to determine an average
           last_row = angular.copy(row)
           last_row.group = "A"
+          last_row.visibility = 'S'
           last_row.type = "group_average"
           last_row.user_id = 0
+          last_row.assessments_average = true
           for key, value of last_row when key.match(/cri_/)
             last_row["#{key}_values"] = {}
             last_row["#{key}_values"][last_row.evaluation_id] = value
-            #last_row[key] = if 1 <= value <= 5 then [value] else []
-
 
       if add_average_option_id != null
         average_rows_data.push( {option_id: add_average_option_id, index: index, last_row: last_row})
 
-
       #console.log "Insert the average rows now, starting from the end"
       while (ins_row = average_rows_data.pop() )
         avg_row = ins_row.last_row
-        ##console.log "insert average at index #{ins_row.index} for option: #{ins_row.option_id}"
-        #for key, value of avg_row when key.match(/cri_/)
-        #  sum = _.reduce(value, (memo, num) ->
-        #    memo + num
-        #  , 0)
-        #  #console.log "#{key}: #{sum}"
-        #  avg_row[key] = if sum > 0 then Math.round(sum/value.length) else ''
-        ##console.log "insert now"
         $scope.myData.splice(ins_row.index,0,avg_row)
         $scope.myData_averages_map[avg_row.option_id] = avg_row
       calculate_averages()
@@ -1817,11 +1853,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
 
 
     $scope.myData = $scope.myData.sort(sort_evaluations)
-    add_average_rows($scope.myData)
-
-    $scope.test = ->
-      #add_average_rows($scope.myData)
-      calculate_averages()
+    insert_average_rows($scope.myData)
 
     rowTemplate =   '<div style="height: 100%" ng-class="getClasses(row)">' +
                       '<div ng-style="{ \'cursor\': row.cursor }" ng-repeat="col in renderedColumns" ng-class="col.colIndex()" class="ngCell {{col.cellClass}}">' +
@@ -1831,74 +1863,28 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
                     '</div>'
 
     $scope.getClasses = (row) ->
+      console.log "getClasses"
+      classes = []
       if row.entity.group == "A"
-        'avg-row-green'
+        classes.push 'avg-row-green'
       else if $scope.myData_averages_map[row.entity.option_id]
-        'averaged-row'
+        classes.push 'averaged-row'
+      if $scope.mca.hide_avg && row.entity.averaged_assessment
+        classes.push 'hide'
+      classes.join(' ')
+
+    $scope.filterOptions =
+      filterText: ''
 
     $scope.gridOptions =
       data: 'myData'
-      columnDefs: data_cols
+      columnDefs: 'data_cols'
       rowTemplate: rowTemplate
-      #enableCellEditOnFocus: true
       enableCellSelection: true
-      enableCellEdit: true
+      enableCellEdit: false
+      filterOptions: $scope.filterOptions
+      showFilter: true
 
-    $scope.startEdit = (row, column) ->
-      #console.log "startEdit"
-      cell = angular.element(row.elm.children()[column.index])
-      if row.entity.user_id != $scope.user.id # only the user can edit, cancel this edit immediately
-        $timeout ->
-          angular.element(cell).find('input').blur()
-        return
-      cell.removeClass("warn")
-      cell.attr('_ce_init_val', cell.find('input').val())
-      #console.log "startEdit set init_rating: #{cell.find('input').val()}"
-      $timeout -> # cancel edits after 10 seconds to prevent accidental entries
-        console.log "Cancel this edit"
-        angular.element(cell).find('input').blur()
-      , 10000
-
-    $scope.monitor_keydown = (row, column) ->
-      #console.log "monitor_keydown event.keyCode: #{event.keyCode}"
-      cell = angular.element(row.elm.children()[column.index])
-      if 49 <= event.keyCode <= 53
-        row.entity[column.field] = event.keyCode - 48
-        event.target.blur()
-        # if the rating has changed send to server and update the score
-        init_rating = cell.attr('_ce_init_val')*1
-        rating = row.entity[column.field]*1
-        #console.log "end edit init_raiting: #{init_rating}, rating: #{rating}"
-        if rating != init_rating
-          mca_option_evaluation_id = row.entity.evaluation_id
-          mca_criteria_id = column.field.match(/\d+/)
-          rating = row.entity[column.field] = Math.round(rating)
-          #console.log "Save rating: mca_option_evaluation_id: #{mca_option_evaluation_id}, mca_criteria_id: #{mca_criteria_id}, rating: #{rating}"
-          McaData.update_rating(mca_option_evaluation_id, mca_criteria_id, rating)
-          new_score = 0
-          for col, value of row.entity when col.match(/^cri_/) && not isNaN(value)
-            #console.log "#{col}: #{value}"
-            new_score += value*1
-          #console.log "X new_score is #{new_score}"
-          #console.log "new_score is #{new_score}"
-          row.entity.score = new_score
-        #console.log "monitor_keydown open next cell"
-        cell = angular.element(row.elm.children()[column.index + 1])
-        if cell.scope().editCell
-          cell.scope().editCell()
-        # don't wrap in coordinator table
-        #else
-        #  row_elm = row.elm.next()
-        #  return if not row_elm
-        #  for cell in row_elm.children()
-        #    cell = angular.element(cell)
-        #    if cell.scope().editCell
-        #      cell.scope().editCell()
-        #      return
-      else # not 1..5, just clear the entry
-        input = cell.find('input')
-        $timeout ->
-          input.val('')
 
     $scope.$on 'McaRating_update', (event, data) ->
       #console.log "update McaRating_update rating: mca_option_evaluation_id: #{data.data.mca_option_evaluation_id}, mca_criteria_id: #{data.data.mca_criteria_id}, rating: #{data.data.rating}"
@@ -1921,6 +1907,35 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
         #then recalculate the average row
         calculate_averages()
       $scope.$$phase || $scope.$apply()
+
+
+    $scope.adjust_weight = () ->
+      console.log "change adjust_weight"
+      $scope.mca.panel_weight = 0 if $scope.mca.panel_weight<0
+      $scope.mca.panel_weight = 100 if $scope.mca.panel_weight > 100
+      $scope.mca.exec_weight = 100 - $scope.mca.panel_weight
+      $scope.myData = crunch_data()
+
+    $scope.adjust_exec_view = () ->
+      console.log "change on adjust_exec_view"
+      $scope.data_cols = select_columns()
+      $scope.myData = crunch_data()
+      $scope.myData = $scope.myData.sort(sort_evaluations)
+      insert_average_rows($scope.myData)
+
+
+    $scope.adjust_weighted_view = ->
+      console.log "change on adjust_weighted_view"
+      $scope.data_cols = select_columns()
+      $scope.myData = crunch_data()
+      $scope.myData = $scope.myData.sort(sort_evaluations)
+      insert_average_rows($scope.myData)
+
+
+    $scope.adjust_avg_view = ->
+      console.log "adjust_avg_view"
+      $scope.filterOptions.filterText = if $scope.mca.hide_avg then 'visibility:S' else ''
+
 ]
 
 group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseService",
@@ -1930,7 +1945,7 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.evaluations = mca_data.evaluations
     $scope.$root.timestamp = mca_data.current_timestamp
 
-    #mca_id = 1
+    #mca_id = mca_data.id
     #McaData.firebase_token(mca_id).then(
     #  (response)->
     #    url = "https://civicevolution.firebaseio.com/mca/#{mca_id}/updates/"
@@ -1952,7 +1967,7 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       enableCellEdit: false
     )
     for criteria in $scope.criteria
-      cellEditableTemplate = "<input ng-class=\"'colt' + col.index\" ng-input=\"COL_FIELD\" ng-focus= \"startEdit(row, col)\" ng-keydown=\"monitor_keydown(row,col)\" ng-model=\"COL_FIELD\"/>";
+      cellEditableTemplate = "<input ng-class=\"'colt' + col.index\" ng-input=\"COL_FIELD\" ng-focus= \"startEdit(row, col)\" ng-blur=\"endEdit(row, col)\" ng-model=\"COL_FIELD\"/>";
       data_cols.push(
         field: "cri_#{criteria.id}"
         displayName: "#{criteria.title}"
@@ -1988,7 +2003,7 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.gridOptions =
       data: 'myData'
       columnDefs: data_cols
-      #enableCellEditOnFocus: true
+      enableCellEditOnFocus: true
       enableCellSelection: true
       enableCellEdit: true
 
@@ -2001,46 +2016,32 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       $timeout ->
         console.log "Cancel this edit"
         angular.element(cell).find('input').blur()
+        #$scope.endEdit(row, column)
       , 10000
 
-
-    $scope.monitor_keydown = (row, column) ->
-      #console.log "monitor_keydown event.keyCode: #{event.keyCode}"
+    $scope.endEdit = (row, column) ->
+      console.log "endEdit"
+      mca_option_evaluation_id = row.entity.evaluation_id
+      mca_criteria_id = column.field.match(/\d+/)
       cell = angular.element(row.elm.children()[column.index])
-      if 49 <= event.keyCode <= 53
-        row.entity[column.field] = event.keyCode - 48
-        event.target.blur()
-        # if the rating has changed send to server and update the score
-        init_rating = cell.attr('_ce_init_val')*1
-        rating = row.entity[column.field]*1
-        console.log "endEdit init_raiting: #{init_rating}, rating: #{rating}"
-        if rating != init_rating
-          mca_option_evaluation_id = row.entity.evaluation_id
-          mca_criteria_id = column.field.match(/\d+/)
-          rating = row.entity[column.field] = Math.round(rating)
-          console.log "Save rating: mca_option_evaluation_id: #{mca_option_evaluation_id}, mca_criteria_id: #{mca_criteria_id}, rating: #{rating}"
-          McaData.update_rating(mca_option_evaluation_id, mca_criteria_id, rating)
-          new_score = 0
-          for col, value of row.entity when col.match(/^cri_/) && not isNaN(value)
-            #console.log "#{col}: #{value}"
-            new_score += value*1
-          #console.log "X new_score is #{new_score}"
-          #console.log "new_score is #{new_score}"
-          row.entity.score = new_score
-        console.log "monitor_keydown open next cell"
-        cell = angular.element(row.elm.children()[column.index + 1])
-        if cell.scope().editCell
-          cell.scope().editCell()
-        else
-          row_elm = row.elm.next()
-          return if not row_elm
-          for cell in row_elm.children()
-            cell = angular.element(cell)
-            if cell.scope().editCell
-              cell.scope().editCell()
-              return
-      else # not 1..5, just clear the entry
-        input = cell.find('input')
-        $timeout ->
-          input.val('')
+      init_rating = cell.attr('_ce_init_val')*1
+      rating = row.entity[column.field]*1
+      console.log "endEdit init_raiting: #{init_rating}, rating: #{rating}"
+      return unless rating != init_rating
+      if 1 <= rating <= 5
+        rating = row.entity[column.field] = Math.round(rating)
+        #console.log "Save rating: mca_option_evaluation_id: #{mca_option_evaluation_id}, mca_criteria_id: #{mca_criteria_id}, rating: #{rating}"
+        McaData.update_rating(mca_option_evaluation_id, mca_criteria_id, rating)
+      else
+        #console.log "Warning, out of range"
+        cell.addClass("warn")
+        row.entity[column.field] = "1..5"
+      # recalculate the score
+      new_score = 0
+      for col, value of row.entity when col.match(/^cri_/) && not isNaN(value)
+        #console.log "#{col}: #{value}"
+        new_score += value*1
+      #console.log "X new_score is #{new_score}"
+      #console.log "new_score is #{new_score}"
+      row.entity.score = new_score
 ]

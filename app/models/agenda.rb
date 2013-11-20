@@ -378,8 +378,8 @@ class Agenda < ActiveRecord::Base
       details.each_pair do |key,value|
         comment_thread[key] = value unless ['id'].include?(key)
       end
-      comment_thread.child_id = comment_details[details["child_id"] ][:new_id]
-      comment_thread.parent_id = comment_details[details["parent_id"] ][:new_id]
+      comment_thread.child_id = comment_details[details["child_id"] ][:new_id] unless !comment_details[details["child_id"] ]
+      comment_thread.parent_id = comment_details[details["parent_id"] ][:new_id] unless !comment_details[details["parent_id"] ]
       #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
       #puts comment_thread.inspect
       comment_thread.save

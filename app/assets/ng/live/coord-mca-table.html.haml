@@ -1,4 +1,21 @@
 #coord-mca-table
   %h3 Plenary MCA table
 
+  %p
+    This panel's judgement should weigh
+    %input.panel-weight(ng-model="mca.panel_weight" ng-change="adjust_weight()"){type: 'numeric', placeholder: '??'}
+    and the CGG Executive body should weigh {{ mca.exec_weight }}
+
+  %p
+    %input#hide_avg.chkbx(ng-model='mca.hide_avg' ng-change="adjust_avg_view()"){type: 'checkbox', value:1}
+    %label{for: "hide_avg"} Hide the rows that have been averaged
+
+  %p
+    %input#exec.chkbx(ng-model='mca.exec' ng-change="adjust_exec_view()"){type: 'checkbox', value:1}
+    %label{for: "exec"} Display the CGG Executive rating
+
+  %p
+    %input#weighted.chkbx(ng-model='mca.weighted' ng-change="adjust_weighted_view()"){type: 'checkbox', value:1}
+    %label{for: "weighted"} Display the weighted Panel/Exec & Total scores
+
   .gridStyle(ng-grid="gridOptions")
