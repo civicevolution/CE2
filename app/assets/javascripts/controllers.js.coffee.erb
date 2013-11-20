@@ -1649,14 +1649,14 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.criteria = mca_data.criteria
     $scope.options = mca_data.options
     $scope.$root.timestamp = mca_data.current_timestamp
-    mca_id = mca_data.id
-    McaData.firebase_token(mca_id).then(
+    $scope.mca_id = mca_data.id
+    McaData.firebase_token($scope.mca_id).then(
       (response)->
-        url = "https://civicevolution.firebaseio.com/mca/#{mca_id}/updates/"
+        url = "https://civicevolution.firebaseio.com/mca/#{$scope.mca_id}/updates/"
         FirebaseService.initialize_source(url, response.data.firebase_token)
     )
     $scope.mca =
-      panel_weight: 50
+      panel_weight: mca_data.details?.panel_weight || 50
       exec_weight: 50
       exec: 0
       weighted: 0
@@ -1914,6 +1914,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       $scope.mca.panel_weight = 0 if $scope.mca.panel_weight<0
       $scope.mca.panel_weight = 100 if $scope.mca.panel_weight > 100
       $scope.mca.exec_weight = 100 - $scope.mca.panel_weight
+      McaData.store_panel_weight($scope.mca_id, $scope.mca.panel_weight )
       $scope.myData = crunch_data()
 
     $scope.adjust_exec_view = () ->

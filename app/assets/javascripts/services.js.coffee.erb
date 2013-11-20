@@ -615,4 +615,7 @@ services.factory "McaData", ["$http",
     firebase_token: (mca_id) ->
       $http.get("/api/mca/#{mca_id}/firebase_token.json")
 
+    store_panel_weight: (mca_id, panel_weight ) ->
+      $http.post("/api/mca/#{mca_id}/panel_weight.json", {panel_weight: panel_weight} )
+
 ]

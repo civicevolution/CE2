@@ -13,9 +13,6 @@
   color: green;
 }
 
-input.panel-weight{
-  width: 3em;
-}
 .chkbx{
   float: left;
   margin-right: 10px;
@@ -24,5 +21,13 @@ input.panel-weight{
   label{
     margin-left: 10px;
     padding-left: 10px;
+  }
+    input.panel-weight{
+    width: 30px;
+  }
+  button {margin-left: 16px;}
+  span.pct{
+    font-weight: bold;
+    font-size: 1.4em;
   }
 }

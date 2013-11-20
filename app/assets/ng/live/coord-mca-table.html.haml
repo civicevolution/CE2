@@ -2,9 +2,12 @@
   %h3 Plenary MCA table
 
   %p
-    This panel's judgement should weigh
-    %input.panel-weight(ng-model="mca.panel_weight" ng-change="adjust_weight()"){type: 'numeric', placeholder: '??'}
-    and the CGG Executive body should weigh {{ mca.exec_weight }}
+    Panel's judgement should weigh
+    %input.panel-weight(ng-model="mca.panel_weight"){type: 'numeric', placeholder: '??'}
+    %span.pct %
+    %button.btn-primary.btn(ng-click="adjust_weight()"){type: 'submit'} Update
+  %p
+    The CGG Executive body should weigh {{ mca.exec_weight }}
 
   %p
     %input#hide_avg.chkbx(ng-model='mca.hide_avg' ng-change="adjust_avg_view()"){type: 'checkbox', value:1}
