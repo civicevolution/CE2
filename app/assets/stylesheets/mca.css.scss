@@ -4,15 +4,6 @@
   height: 800px;
 }
 
-.avg-row-green{
-  background-color: green;
-  color: #ffffff;
-}
-
-.averaged-row{
-  color: green;
-}
-
 .chkbx{
   float: left;
   margin-right: 10px;
@@ -29,5 +20,36 @@
   span.pct{
     font-weight: bold;
     font-size: 1.4em;
+  }
+  .avg-row-green{
+    background-color: green;
+    color: #ffffff;
+  }
+  .averaged-row{
+    color: green;
+  }
+  .variance{
+    background-color: pink;
+    font-weight: bold;
+    color: black;
+  }
+  .exec-score{
+    background-color: #fbeed5;
+  }
+  .panel-score{
+    background-color: lightblue;
+  }
+  .total-score{
+    background-color: blue;
+    color: white;
+    font-weight: bold;
+  }
+  .avg-row-green{
+    .variance, .exec-score, .panel-score {
+      color: black;
+    }
+    .total-score{
+      color: white;
+    }
   }
 }

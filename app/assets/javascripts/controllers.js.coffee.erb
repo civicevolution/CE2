@@ -1648,6 +1648,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
 
     $scope.criteria = mca_data.criteria
     $scope.options = mca_data.options
+    $scope.page_title = mca_data.page_title
     $scope.$root.timestamp = mca_data.current_timestamp
     $scope.mca_id = mca_data.id
     McaData.firebase_token($scope.mca_id).then(
@@ -1657,7 +1658,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     )
     $scope.mca =
       panel_weight: mca_data.details?.panel_weight || 50
-      exec_weight: 50
+      exec_weight: 100 - ( mca_data.details?.panel_weight || 50 )
       exec: 0
       weighted: 0
       hide_avg: 0
@@ -1693,42 +1694,49 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       data_cols.push(
         field: "score"
         displayName: 'Score'
+        cellClass: 'panel-score'
         width: 50
       )
       if $scope.mca.exec || $scope.mca.weighted
         data_cols.push(
           field: 'score_pct'
-          displayName: 'S%'
-          width: 50
-        )
-      if $scope.mca.weighted
-        data_cols.push(
-          field: 'score_wt_pct'
-          displayName: 'SW%'
+          displayName: 'P%'
+          cellClass: 'panel-score'
           width: 50
         )
       if $scope.mca.exec || $scope.mca.weighted
         data_cols.push(
           field: 'exec_pct'
           displayName: 'E%'
+          cellClass: 'exec-score'
           width: 50
         )
-      if $scope.mca.exec
+      if $scope.mca.exec || $scope.mca.weighted
         data_cols.push(
           field: 'variance'
           displayName: 'V%'
+          cellClass: 'variance'
           width: 60
+        )
+      if $scope.mca.weighted
+        data_cols.push(
+          field: 'score_wt_pct'
+          displayName: 'PW%'
+          cellClass: 'panel-score'
+          width: 50
         )
       if $scope.mca.weighted
         data_cols.push(
           field: 'exec_wt_pct'
           displayName: 'EW%'
+          cellClass: 'exec-score'
           width: 50
         )
       if $scope.mca.weighted
         data_cols.push(
           field: 'total_pct'
           displayName: 'T%'
+          cellClass: 'total-score'
           width: 50
         )
       data_cols
@@ -1870,7 +1878,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
                     '</div>'
 
     $scope.getClasses = (row) ->
-      console.log "getClasses"
+      #console.log "getClasses"
       classes = []
       if row.entity.group == "A"
         classes.push 'avg-row-green'
@@ -1900,6 +1908,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       data.data.rating
       evaluation = $scope.myData_evaluations_map[evaluation_id]
       evaluation["cri_#{criteria_id}"] = data.data.rating
+      # update the row's score
       score = 0
       for criteria, rating of evaluation when criteria.match(/cri_/)
         score += rating*1
@@ -1951,6 +1960,7 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
 
     $scope.criteria = mca_data.criteria
     $scope.evaluations = mca_data.evaluations
+    $scope.page_title = mca_data.page_title
     $scope.$root.timestamp = mca_data.current_timestamp
 
     #mca_id = mca_data.id

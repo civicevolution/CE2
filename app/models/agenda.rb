@@ -1040,7 +1040,7 @@ class Agenda < ActiveRecord::Base
         href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
         data_set: "coord-multi-criteria-analysis-table",
         mode: 'plenary',
-        page_title: 'Multi Criteria Analysis Results',
+        page_title: 'Plenary: Multi Criteria Analysis Results for Infrastructure Projects',
         disabled: false,
         role: 'coordinator',
     }
@@ -1055,7 +1055,7 @@ class Agenda < ActiveRecord::Base
         href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
         data_set: "coord-multi-criteria-analysis-table",
         mode: 'projects',
-        page_title: 'Multi Criteria Analysis Results',
+        page_title: 'Multi Criteria Analysis Results for Infrastructure Projects',
         disabled: false,
         role: 'coordinator',
     }
@@ -1070,7 +1070,7 @@ class Agenda < ActiveRecord::Base
         href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
         data_set: "group-multi-criteria-analysis-table",
         mode: 'plenary',
-        page_title: 'Multi Criteria Analysis for Infrastructure Projects',
+        page_title: 'Plenary: Group input for Multi Criteria Analysis for Infrastructure Projects',
         disabled: false,
         role: 'group',
     }
@@ -1085,7 +1085,7 @@ class Agenda < ActiveRecord::Base
         href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
         data_set: "group-multi-criteria-analysis-table",
         mode: 'projects',
-        page_title: 'Multi Criteria Analysis for Infrastructure Projects',
+        page_title: 'Group input for Multi Criteria Analysis for Infrastructure Projects',
         disabled: false,
         role: 'group',
     }

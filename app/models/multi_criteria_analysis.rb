@@ -81,6 +81,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
     mca_id = params["agenda_details"]["multi_criteria_analysis_id"]
     mca = MultiCriteriaAnalysis.find(mca_id)
     data = mca.attributes
+    data[:page_title] = params['page_title']
     data[:options] = []
     mca.options.includes(:evaluations => [:ratings, :user]).sort{|a,b| a.order_id <=> b.order_id}.each do |option|
       option_attrs = option.attributes
@@ -122,6 +123,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
     end
 
     data = mca.attributes
+    data[:page_title] = params['page_title']
     data[:evaluations] = []
     evaluations.sort{|a,b| a.order_id <=> b.order_id}.each do |evaluation|
       evaluation_attrs = evaluation.attributes
