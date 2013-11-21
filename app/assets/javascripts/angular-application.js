@@ -41,6 +41,7 @@
 //= require bbcode.js
 
 //= require ng-grid/ng-grid-2.0.7.min.js
+//= require ng-grid/ng-grid-csv-export.js
 
 // Don't use these for now
 // require jquery-1.9.1

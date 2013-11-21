@@ -1899,6 +1899,8 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       enableCellEdit: false
       filterOptions: $scope.filterOptions
       showFilter: false
+      plugins: [new ngGridCsvExportPlugin()]
+      showFooter: true
 
 
     $scope.$on 'McaRating_update', (event, data) ->
