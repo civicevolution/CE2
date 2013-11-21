@@ -1713,6 +1713,12 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
           displayName: 'E%'
           width: 50
         )
+      if $scope.mca.exec
+        data_cols.push(
+          field: 'variance'
+          displayName: 'V%'
+          width: 60
+        )
       if $scope.mca.weighted
         data_cols.push(
           field: 'exec_wt_pct'
@@ -1753,6 +1759,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
           data["score_pct"] = Math.round(sum_of_scores/30 * 100 )+'%'
           data["score_wt_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight)+'%'
           data["exec_pct"] = Math.round(city_rating/25 *100)+'%'
+          data["variance"] = Math.round( (sum_of_scores/30 - city_rating/25)/(city_rating/25) *100)+'%'
           data["exec_wt_pct"] = Math.round(city_rating/25 * $scope.mca.exec_weight)+'%'
           data["total_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight + city_rating/25 * $scope.mca.exec_weight )+'%'
           my_data.push(data)
