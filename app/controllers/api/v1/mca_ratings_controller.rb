@@ -9,7 +9,7 @@ module Api
         rating = McaRating.where(mca_option_evaluation_id: params[:mca_option_evaluation_id], mca_criteria_id: params[:mca_criteria_id]).first_or_create
         rating.rating = params[:rating]
         rating.save
-        render json: 'ok'
+        render json: { status: 'accepted', mca_option_evaluation_id: rating.mca_option_evaluation_id, mca_criteria_id: rating.mca_criteria_id, rating: rating.rating}
       end
 
     end

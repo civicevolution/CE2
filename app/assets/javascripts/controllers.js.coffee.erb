@@ -2015,19 +2015,18 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       cell.attr('_ce_init_val', cell.find('input').val())
       #console.log "startEdit set init_rating: #{cell.find('input').val()}"
       $timeout ->
-        console.log "Cancel this edit"
+        #console.log "Cancel this edit"
         angular.element(cell).find('input').blur()
-        #$scope.endEdit(row, column)
-      , 10000
+      , 8000
 
     $scope.endEdit = (row, column) ->
-      console.log "endEdit"
+      #console.log "endEdit"
       mca_option_evaluation_id = row.entity.evaluation_id
       mca_criteria_id = column.field.match(/\d+/)
       cell = angular.element(row.elm.children()[column.index])
       init_rating = cell.attr('_ce_init_val')*1
       rating = row.entity[column.field]*1
-      console.log "endEdit init_raiting: #{init_rating}, rating: #{rating}"
+      #console.log "endEdit init_raiting: #{init_rating}, rating: #{rating}"
       return unless rating != init_rating
       if 1 <= rating <= 5
         rating = row.entity[column.field] = Math.round(rating)
