@@ -53,3 +53,10 @@
     }
   }
 }
+
+@media print{
+  .csv-data-link-span, .mca-table-column-select{
+    display: none !important
+  }
+}
+

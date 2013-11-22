@@ -1860,8 +1860,8 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
               sum += rating*1
               cnt += 1
           if sum > 0
-            option[ key.match(/cri_\d+/) ] = Math.round(sum/cnt)
-            score += Math.round(sum/cnt)
+            option[ key.match(/cri_\d+/) ] = Math.round(sum/cnt*10)/10
+            score += Math.round(sum/cnt*10)/10
             #console.log "sum: #{sum}, cnt: #{cnt}, avg: #{Math.round(sum/cnt)}"
         option["score"] = score
       $scope.$$phase || $scope.$apply()
