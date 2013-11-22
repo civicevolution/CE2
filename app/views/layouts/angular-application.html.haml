@@ -23,7 +23,7 @@
         .content
           %div(ng-controller="AlertCtrl")
             %alert(ng-cloak ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)")
-              {{alert.msg}}
+              %div(ng-bind-html-unsafe="alert.msg" )
           .row-fluid
             .span12
               %div(ui-view)

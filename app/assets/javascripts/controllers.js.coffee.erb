@@ -2022,7 +2022,7 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
 
     $scope.$on 'McaOptionEvaluation_update', (event, data) ->
       if data.data.user_id is $scope.user.id
-        $scope.$root.$broadcast('display_alert', {type: 'info', msg: 'We have assigned a new project for evaluation by your group. Please refresh this page to start working on it.'})
+        $scope.$root.$broadcast('display_alert', {type: 'info', msg: 'We have assigned a new project for evaluation by your group. Please <a onclick="document.location.reload()">refresh</a> this page to start working on it.'})
         $scope.$$phase || $scope.$apply()
 
     data_cols = []
