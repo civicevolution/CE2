@@ -775,7 +775,7 @@ class Agenda < ActiveRecord::Base
               2=>[392, 393, 394, 395]
           }
 
-      agenda_details[:mca_ids] = [17, 19]
+      agenda_details[:mca_ids] = [17, 19, 21]
       agenda_details[:mca_id_plenary] = [17]
       agenda_details[:mca_ids_coord_only] = [22]
 
@@ -792,7 +792,7 @@ class Agenda < ActiveRecord::Base
               2=>[41, 42, 43, 44],
               3=>[37, 38, 39, 40, 41, 42, 43, 44]
           }
-      agenda_details[:mca_ids] = [2, 3]
+      agenda_details[:mca_ids] = [2, 3, 4]
       agenda_details[:mca_id_plenary] = [2]
       agenda_details[:mca_ids_coord_only] = [6]
 

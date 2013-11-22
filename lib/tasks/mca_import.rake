@@ -44,8 +44,10 @@ namespace :mca_import do
       puts "option: #{option.inspect}"
 
       # create the evaluations
-      evaluation = McaOptionEvaluation.where(user_id: agenda_groups[ hash[:group_num].to_i ], mca_option_id: option.id, category: 'group').first_or_create
-      puts evaluation.inspect
+      if hash[:group_num]
+        evaluation = McaOptionEvaluation.where(user_id: agenda_groups[ hash[:group_num].to_i ], mca_option_id: option.id, category: 'group').first_or_create
+        puts evaluation.inspect
+      end
 
       puts "title: #{hash[:title]}"
 
