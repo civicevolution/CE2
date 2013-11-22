@@ -22,4 +22,8 @@
       %input#weighted.chkbx(ng-model='mca.weighted' ng-change="adjust_weighted_view()"){type: 'checkbox', value:1}
       %label{for: "weighted"} Display the weighted Panel/Exec & Total scores
 
+    %p
+      %input#assign.chkbx(ng-model='mca.assign' ng-change="adjust_weighted_view()"){type: 'checkbox', value:1}
+      %label{for: "assign"} Display the Assign button
+
   .gridStyle(ng-grid="gridOptions")

@@ -5,6 +5,7 @@ class McaOption < ActiveRecord::Base
   has_many :evaluations, class_name: 'McaOptionEvaluation'
 
   def add_evaluation(params)
+    evaluation = nil
     if params[:user_id]
       params[:user_id].each do |user_id|
         puts user_id
@@ -14,8 +15,9 @@ class McaOption < ActiveRecord::Base
         evaluation.update_attribute(:status, params[:status])
       end
     else
-      # add a planery evaluation
+      # add a plenary evaluation
     end
+    evaluation
   end
 
 

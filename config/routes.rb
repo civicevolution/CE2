@@ -213,6 +213,11 @@ Ce2::Application.routes.draw do
   get "api/mca/:id/firebase_token" => "api/v1/multi_criteria_analyses#firebase_token", format: :json
   post "api/mca/:id/panel_weight" => "api/v1/multi_criteria_analyses#save_panel_weight", format: :json
 
+  get "api/mca_options/:id/project_assignments" => "api/v1/mca_options#project_assignments", format: :json
+  post "api/mca_options/:id/assign_project" => "api/v1/mca_options#assign_project", format: :json
+  post "api/mca_option_evaluations/:id/remove_evaluation_assignment" => "api/v1/mca_option_evaluations#remove_evaluation_assignment", format: :json
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

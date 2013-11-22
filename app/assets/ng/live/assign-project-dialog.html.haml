@@ -1,0 +1,20 @@
+.assign-project-dialog
+  %h4 Assign another group to assess this project:
+  %h4 {{title}}
+  %div.assigned-to.clearfix
+    %div Assigned to:
+    %div.evaluator(ng-repeat="evaluator in evaluators" )
+      %button.close(ng-click="remove_assignment(evaluator.id,evaluator.user_id)"){type: 'submit'} &times;
+      %span.name {{evaluator.name}}
+
+  %div.dropdown
+    %button.btn.btn-primary.btn.dropdown-toggle{box: '1A' }
+      %span {{button_text}}
+      %b.caret
+    %ul.dropdown-menu(ng-click="note_choice()")
+      -#%li.ng-scope(ng-repeat="group in groups" ng-class="{disabled: _.contains(evaluator_ids, group.user_id)}")
+      %li.ng-scope(ng-repeat="group in groups" ng-class="check_if_disabled(group.user_id)")
+        %a{id: "{{group.user_id}}"} {{group.name}}
+
+    %button.btn-primary.btn(ng-disabled="btn_disabled" ng-click="assign_now()"){type: 'submit'} Assign now
+    %button.btn.btn-link(ng-click="cancel()") Cancel

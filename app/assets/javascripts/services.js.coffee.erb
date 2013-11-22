@@ -644,4 +644,12 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
     store_panel_weight: (mca_id, panel_weight ) ->
       $http.post("/api/mca/#{mca_id}/panel_weight.json", {panel_weight: panel_weight} )
 
+    project_assignments: (option_id) ->
+      $http.get("/api/mca_options/#{option_id}/project_assignments.json")
+
+    assign_project_evaluation: (option_id, user_id) ->
+      $http.post("/api/mca_options/#{option_id}/assign_project.json", {user_id: user_id})
+
+    remove_evaluation_assignment: (evaluation_id) ->
+      $http.post("/api/mca_option_evaluations/#{evaluation_id}/remove_evaluation_assignment.json")
 ]

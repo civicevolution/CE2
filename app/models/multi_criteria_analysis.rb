@@ -3,6 +3,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
 
   has_many :options, class_name: 'McaOption'
   has_many :criteria, class_name: 'McaCriteria'
+  belongs_to :agenda
 
   def self.create_mca_data
 
@@ -87,7 +88,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
       option_attrs = option.attributes
       option_attrs[:evaluations] = []
       option.evaluations.each do |evaluation|
-        if params['mode'] != 'plenary' || evaluation.status == 'plenary'
+        if (params['mode'] != 'plenary' || evaluation.status == 'plenary') && evaluation.status != 'deleted'
           eval_attrs = evaluation.attributes
           eval_attrs[:last_name] = evaluation.user.last_name
           eval_attrs[:user_id] = evaluation.user.id
@@ -126,14 +127,16 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
     data[:page_title] = params['page_title']
     data[:evaluations] = []
     evaluations.sort{|a,b| a.order_id <=> b.order_id}.each do |evaluation|
-      evaluation_attrs = evaluation.attributes
-      evaluation_attrs[:title] = evaluation.mca_option.title
-      evaluation_attrs[:project_id] = evaluation.mca_option.details['project_id']
-      evaluation_attrs[:ratings] = {}
-      evaluation.ratings.each do |rating|
-        evaluation_attrs[:ratings][rating.mca_criteria_id] = rating.rating
+      if evaluation.status != 'deleted'
+        evaluation_attrs = evaluation.attributes
+        evaluation_attrs[:title] = evaluation.mca_option.title
+        evaluation_attrs[:project_id] = evaluation.mca_option.details['project_id']
+        evaluation_attrs[:ratings] = {}
+        evaluation.ratings.each do |rating|
+          evaluation_attrs[:ratings][rating.mca_criteria_id] = rating.rating
+        end
+        data[:evaluations].push( evaluation_attrs )
       end
-      data[:evaluations].push( evaluation_attrs )
     end
     data[:criteria] = []
     mca.criteria.sort{|a,b| a.order_id <=> b.order_id}.each do |criteria|

@@ -1643,8 +1643,8 @@ report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "c
               return
       )
 ]
-coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseService",
-  ($scope, $timeout, mca_data, McaData, FirebaseService) ->
+coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseService", "$dialog",
+  ($scope, $timeout, mca_data, McaData, FirebaseService, $dialog) ->
 
     $scope.criteria = mca_data.criteria
     $scope.options = mca_data.options
@@ -1662,6 +1662,9 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       exec: 0
       weighted: 0
       hide_avg: 0
+      assign: 0
+
+    $scope.assignInPopup = '<button id="editBtn" type="button" class="btn btn-primary btn-mini" ng-click="option_assignment(row)" >Assign</button>'
 
     select_columns = ->
       data_cols = []
@@ -1739,6 +1742,13 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
           cellClass: 'total-score'
           width: 50
         )
+      if $scope.mca.assign
+        data_cols.push(
+          displayName: 'Assign'
+          cellTemplate: $scope.assignInPopup
+          width: 70
+        )
+
       data_cols
     $scope.data_cols = select_columns()
 
@@ -1749,12 +1759,14 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
         option_id = option.id
         project_id = option.details.project_id
         city_rating = option.details.city_rating
+        if option.evaluations.length == 0
+          option.evaluations = [ {category: 'unassigned', last_name: 'U', ratings: [] }]
         for evaluation in option.evaluations
           data =
             project_id: project_id
             title: title
             option_id: option_id
-            group: evaluation.last_name*1
+            group: evaluation.last_name
             user_id: evaluation.user_id
             type: evaluation.category
             evaluation_id: evaluation.id
@@ -1955,6 +1967,42 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       console.log "adjust_avg_view"
       $scope.filterOptions.filterText = if $scope.mca.hide_avg then 'visibility:S' else ''
 
+    $scope.option_assignment = (row) ->
+      McaData.project_assignments(row.entity.option_id).then (response) ->
+        dialog = $dialog.dialog(
+          backdrop: true
+          keyboard: true
+          backdropClick: true
+          templateUrl: '<%= path_to_asset "live/assign-project-dialog.html" %>'
+          controller: ["$scope",
+            ($scope) ->
+              $scope.button_text = "Select Group"
+              $scope.btn_disabled = true
+              $scope.title = response.data.title
+              $scope.groups = response.data.participants
+              $scope.evaluators = response.data.evaluators
+              $scope.evaluator_ids = (evaluator.user_id for evaluator in response.data.evaluators)
+              $scope.cancel = ->
+                dialog.close()
+              $scope.check_if_disabled = (user_id) ->
+                if _.contains($scope.evaluator_ids, user_id)
+                  'disabled'
+              $scope.note_choice = ->
+                if !angular.element(event.srcElement).parent().hasClass('disabled')
+                  $scope.button_text = event.srcElement.text
+                  $scope.group_user_id = event.srcElement.id
+                  $scope.btn_disabled = false
+              $scope.assign_now = ->
+                #console.log "assign this project id: #{response.data.id} to user_id: #{$scope.group_user_id}"
+                McaData.assign_project_evaluation(response.data.id, $scope.group_user_id).then (response) ->
+                  dialog.close()
+              $scope.remove_assignment = (evaluation_id,user_id) ->
+                #console.log "remove_assigment for evaluation_id: #{evaluation_id}, user_id: #{user_id}"
+                McaData.remove_evaluation_assignment(evaluation_id).then (response) ->
+                  dialog.close()
+          ]
+        )
+        dialog.open()
 ]
 
 group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseService",
@@ -1965,13 +2013,17 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.page_title = mca_data.page_title
     $scope.$root.timestamp = mca_data.current_timestamp
 
-    #mca_id = mca_data.id
-    #McaData.firebase_token(mca_id).then(
-    #  (response)->
-    #    url = "https://civicevolution.firebaseio.com/mca/#{mca_id}/updates/"
-    #    FirebaseService.initialize_source(url, response.data.firebase_token)
-    #)
+    mca_id = mca_data.id
+    McaData.firebase_token(mca_id).then(
+      (response)->
+        url = "https://civicevolution.firebaseio.com/mca/#{mca_id}/assignments/"
+        FirebaseService.initialize_source(url, response.data.firebase_token)
+    )
 
+    $scope.$on 'McaOptionEvaluation_update', (event, data) ->
+      if data.data.user_id is $scope.user.id
+        $scope.$root.$broadcast('display_alert', {type: 'info', msg: 'We have assigned a new project for evaluation by your group. Please refresh this page to start working on it.'})
+        $scope.$$phase || $scope.$apply()
 
     data_cols = []
     data_cols.push(
@@ -2064,3 +2116,15 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       #console.log "new_score is #{new_score}"
       row.entity.score = new_score
 ]
+
+ce2_app.controller('AlertCtrl', ['$scope',
+  ($scope) ->
+    $scope.alerts = []
+
+    $scope.$on 'display_alert', (event, data) ->
+      console.log "display_alert"
+      $scope.alerts.push({type: data.type, msg: data.msg});
+
+    $scope.closeAlert = (index) ->
+      $scope.alerts.splice(index, 1);
+] )
