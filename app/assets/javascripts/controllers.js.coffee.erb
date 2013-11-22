@@ -1695,7 +1695,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
         field: "score"
         displayName: 'Score'
         cellClass: 'panel-score'
-        width: 60
+        width: 50
       )
       if $scope.mca.exec || $scope.mca.weighted
         data_cols.push(
@@ -1863,7 +1863,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
             option[ key.match(/cri_\d+/) ] = Math.round(sum/cnt*10)/10
             score += Math.round(sum/cnt*10)/10
             #console.log "sum: #{sum}, cnt: #{cnt}, avg: #{Math.round(sum/cnt)}"
-        option["score"] = score
+        option["score"] = Math.round(score*10)/10
       $scope.$$phase || $scope.$apply()
 
 
