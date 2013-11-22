@@ -775,6 +775,10 @@ class Agenda < ActiveRecord::Base
               2=>[392, 393, 394, 395]
           }
 
+      agenda_details[:mca_ids] = [17, 19]
+      agenda_details[:mca_id_plenary] = [17]
+      agenda_details[:mca_ids_coord_only] = [22]
+
     else
       agenda_details[:select_conversations] = []
       agenda_details[:allocate_conversations] = []
@@ -788,6 +792,10 @@ class Agenda < ActiveRecord::Base
               2=>[41, 42, 43, 44],
               3=>[37, 38, 39, 40, 41, 42, 43, 44]
           }
+      agenda_details[:mca_ids] = [2, 3]
+      agenda_details[:mca_id_plenary] = [2]
+      agenda_details[:mca_ids_coord_only] = [6]
+
     end
     self.update_attribute(:details, agenda_details)
   end
@@ -1031,7 +1039,6 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:lookup][link_code] = "reporter"
     end
 
-
     # link for coord-mca-table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -1040,6 +1047,7 @@ class Agenda < ActiveRecord::Base
         href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
         data_set: "coord-multi-criteria-analysis-table",
         mode: 'plenary',
+        mca_id: agenda_details[:mca_id_plenary][0],
         page_title: 'Plenary: Multi Criteria Analysis Results for Infrastructure Projects',
         disabled: false,
         role: 'coordinator',
@@ -1047,21 +1055,6 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:coordinator][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "coordinator"
 
-    # link for coord-mca-table
-    link_code = self.create_link_code( agenda_details[:links][:lookup] )
-    link = {
-        title: "Project Assessment",
-        link_code:  link_code,
-        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
-        data_set: "coord-multi-criteria-analysis-table",
-        mode: 'projects',
-        page_title: 'Multi Criteria Analysis Results for Infrastructure Projects',
-        disabled: false,
-        role: 'coordinator',
-    }
-    agenda_details[:links][:coordinator][ link_code ] = link
-    agenda_details[:links][:lookup][link_code] = "coordinator"
-
     # link for group-mca-table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -1070,6 +1063,7 @@ class Agenda < ActiveRecord::Base
         href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
         data_set: "group-multi-criteria-analysis-table",
         mode: 'plenary',
+        mca_id: agenda_details[:mca_id_plenary][0],
         page_title: 'Plenary: Group input for Multi Criteria Analysis for Infrastructure Projects',
         disabled: false,
         role: 'group',
@@ -1077,20 +1071,53 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
 
-    # link for group-mca-table
-    link_code = self.create_link_code( agenda_details[:links][:lookup] )
-    link = {
-        title: "Project Assessment",
-        link_code:  link_code,
-        href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
-        data_set: "group-multi-criteria-analysis-table",
-        mode: 'projects',
-        page_title: 'Group input for Multi Criteria Analysis for Infrastructure Projects',
-        disabled: false,
-        role: 'group',
-    }
-    agenda_details[:links][:group][ link_code ] = link
-    agenda_details[:links][:lookup][link_code] = "group"
+
+
+    # Add links for MCA
+
+    mcas = MultiCriteriaAnalysis.where(id: agenda_details[:mca_ids])
+    ordered_mcas = []
+    agenda_details[:mca_ids].each do |id|
+      ordered_mcas << mcas.detect{|c| c.id == id}
+    end
+
+    ordered_mcas.each_index do |ind|
+      mca = ordered_mcas[ind]
+
+      # link for coord-mca-table
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|MCA Evaluation results for #{mca.title}|,
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+          data_set: "coord-multi-criteria-analysis-table",
+          mode: 'projects',
+          mca_id: mca.id,
+          page_title: "Multi Criteria Analysis Results for #{mca.title}",
+          disabled: false,
+          role: 'coordinator',
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
+
+      if !agenda_details[:mca_ids_coord_only].include?( mca.id )
+        # link for group-mca-table
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Evaluate #{mca.title}|,
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+            data_set: "group-multi-criteria-analysis-table",
+            mode: 'projects',
+            mca_id: mca.id,
+            page_title: "Group input for Multi Criteria Analysis for #{mca.title}",
+            disabled: false,
+            role: 'group',
+        }
+        agenda_details[:links][:group][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "group"
+      end
+    end
 
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
@@ -1244,6 +1271,7 @@ class Agenda < ActiveRecord::Base
             data_method: "coord_evaluation_data",
             parameters: {
                 mode: '#{link_details["mode"]}',
+                mca_id: '#{link_details["mca_id"]}',
                 page_title: '#{link_details["page_title"]}'
             }
         }
@@ -1254,6 +1282,7 @@ class Agenda < ActiveRecord::Base
             data_method: "group_evaluation_data",
             parameters: {
                 mode: '#{link_details["mode"]}',
+                mca_id: '#{link_details["mca_id"]}',
                 page_title: '#{link_details["page_title"]}'
             }
         }
