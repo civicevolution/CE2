@@ -1659,8 +1659,8 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.mca =
       panel_weight: mca_data.details?.panel_weight || 50
       exec_weight: 100 - ( mca_data.details?.panel_weight || 50 )
-      exec: 0
-      weighted: 0
+      exec: 1
+      weighted: 1
       hide_avg: 0
       assign: 0
 
