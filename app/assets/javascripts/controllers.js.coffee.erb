@@ -1778,6 +1778,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
           data["score"] = sum_of_scores
           data["score_pct"] = Math.round(sum_of_scores/30 * 100 )+'%'
           data["score_wt_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight)+'%'
+          data["city_rating"] = city_rating
           data["exec_pct"] = Math.round(city_rating/25 *100)+'%'
           data["variance"] = Math.round( (sum_of_scores/30 - city_rating/25)/(city_rating/25) *100)+'%'
           data["exec_wt_pct"] = Math.round(city_rating/25 * $scope.mca.exec_weight)+'%'
@@ -1861,6 +1862,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
       else
         (option for id, option of $scope.myData_averages_map)
       for option in options
+        #console.log "%%%%%%%%%%%% calculate_average for project_id: #{option.project_id}"
         score = 0
         for key, ratings of option when key.match(/cri_\d+_values/)
           #console.log "found match with key #{key} and ratings: #{ratings}"
@@ -1874,8 +1876,18 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
           if sum > 0
             option[ key.match(/cri_\d+/) ] = Math.round(sum/cnt*10)/10
             score += Math.round(sum/cnt*10)/10
-            #console.log "sum: #{sum}, cnt: #{cnt}, avg: #{Math.round(sum/cnt)}"
-        option["score"] = Math.round(score*10)/10
+            #console.log "sum: #{sum}, cnt: #{cnt}, avg: #{Math.round(sum/cnt*10)/10}"
+
+        sum_of_scores = score
+        option["score"] = Math.round(sum_of_scores*10)/10
+
+        option["score_pct"] = Math.round(sum_of_scores/30 * 100 )+'%'
+        option["score_wt_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight)+'%'
+        #option["exec_pct"] = Math.round(city_rating/25 *100)+'%'
+        city_rating = option["city_rating"]
+        option["variance"] = Math.round( (sum_of_scores/30 - city_rating/25)/(city_rating/25) *100)+'%'
+        option["exec_wt_pct"] = Math.round(city_rating/25 * $scope.mca.exec_weight)+'%'
+        option["total_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight + city_rating/25 * $scope.mca.exec_weight )+'%'
       $scope.$$phase || $scope.$apply()
 
 
