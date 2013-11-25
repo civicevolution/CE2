@@ -173,27 +173,51 @@ class Agenda < ActiveRecord::Base
     file.write( {"Users" => user_recs}.to_yaml )
 
 
-    mca = MultiCriteriaAnalysis.find_by(agenda_id: self.id)
-    if mca
-      file.write( {"MultiCriteriaAnalysis" => mca.attributes}.to_yaml )
 
-      file.write( {"McaCriteria" => mca.criteria.map{|c| c.attributes}}.to_yaml )
+    mca_tables = MultiCriteriaAnalysis.where(agenda_id: self.id)
+    file.write( {"MultiCriteriaAnalyses" => mca_tables.map{|c| c.attributes}}.to_yaml )
 
-      file.write( {"McaOptions" => mca.options.map{|c| c.attributes}}.to_yaml )
-
-      mca_evaluations = []
-      mca.options.each do |option|
-        mca_evaluations.push option.evaluations.map{|c| c.attributes}
-      end
-      file.write( {"McaEvaluations" => mca_evaluations.flatten}.to_yaml )
-
-
-      mca_ratings = []
-      mca.criteria.each do |criteria|
-        mca_ratings.push criteria.ratings.map{|c| c.attributes}
-      end
-      file.write( {"McaRatings" => mca_ratings.flatten}.to_yaml )
+    mca_criteria = []
+    mca_options = []
+    mca_tables.each do |mca|
+      mca_criteria.concat mca.criteria
+      mca_options.concat mca.options
     end
+
+    file.write( {"McaCriteria" => mca_criteria.map{|c| c.attributes}}.to_yaml )
+    file.write( {"McaOptions" => mca_options.map{|c| c.attributes}}.to_yaml )
+
+    option_ids = mca_options.map(&:id)
+    mca_evaluations = McaOptionEvaluation.where(mca_option_id: option_ids)
+    file.write( {"McaOptionEvaluations" => mca_evaluations.map{|c| c.attributes}}.to_yaml )
+
+    evaluation_ids = mca_evaluations.map(&:id)
+    mca_ratings = McaRating.where(mca_option_evaluation_id: evaluation_ids)
+    file.write( {"McaRatings" => mca_ratings.map{|c| c.attributes}}.to_yaml )
+
+
+    #mca = MultiCriteriaAnalysis.find_by(agenda_id: self.id)
+    #if mca
+    #  file.write( {"MultiCriteriaAnalysis" => mca.attributes}.to_yaml )
+    #
+    #  file.write( {"McaCriteria" => mca.criteria.map{|c| c.attributes}}.to_yaml )
+    #
+    #  file.write( {"McaOptions" => mca.options.map{|c| c.attributes}}.to_yaml )
+    #
+    #  mca_evaluations = []
+    #  mca.options.each do |option|
+    #    mca_evaluations.push option.evaluations.map{|c| c.attributes}
+    #  end
+    #  file.write( {"McaEvaluations" => mca_evaluations.flatten}.to_yaml )
+    #
+    #
+    #  mca_ratings = []
+    #  mca.criteria.each do |criteria|
+    #    mca_ratings.push criteria.ratings.map{|c| c.attributes}
+    #  end
+    #  file.write( {"McaRatings" => mca_ratings.flatten}.to_yaml )
+    #end
+
   end
 
   def self.import(file)
@@ -763,11 +787,11 @@ class Agenda < ActiveRecord::Base
     end
 
     if Rails.env.development?
-      agenda_details[:select_conversations] = [217]
-      agenda_details[:allocate_conversations] = [217]
+      agenda_details[:select_conversations] = []
+      agenda_details[:allocate_conversations] = []
       #agenda_details[:allocate_top_themes_conversations] = [213, 214]
       agenda_details[:allocate_multiple_conversations] = []
-      agenda_details[:themes_only] = [217, 218, 219, 220]
+      agenda_details[:themes_only] = [217, 219, 220]
 
       agenda_details[:theme_map] =
           {
