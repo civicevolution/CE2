@@ -1651,6 +1651,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.page_title = mca_data.page_title
     $scope.$root.timestamp = mca_data.current_timestamp
     $scope.mca_id = mca_data.id
+    $scope.show_source_field = true if mca_data.options[0].source_key
     McaData.firebase_token($scope.mca_id).then(
       (response)->
         url = "https://civicevolution.firebaseio.com/mca/#{$scope.mca_id}/updates/"
@@ -1668,6 +1669,12 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
 
     select_columns = ->
       data_cols = []
+      if $scope.show_source_field
+        data_cols.push(
+          field: 'source_key'
+          displayName: 'Src'
+          width: 50
+        )
       data_cols.push(
         field: 'group'
         displayName: 'Grp'
@@ -1759,10 +1766,12 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
         option_id = option.id
         project_id = option.details.project_id
         city_rating = option.details.city_rating
+        source_key = option.source_key
         if option.evaluations.length == 0
           option.evaluations = [ {category: 'unassigned', last_name: 'U', ratings: [] }]
         for evaluation in option.evaluations
           data =
+            source_key: source_key
             project_id: project_id
             title: title
             option_id: option_id

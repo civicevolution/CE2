@@ -5,6 +5,8 @@ class Agenda < ActiveRecord::Base
   has_many :agenda_components
   has_many :agenda_component_threads
 
+  has_many :mca, class_name: 'MultiCriteriaAnalysis', foreign_key: :agenda_id
+
   has_many :reports, primary_key: :code, foreign_key: :agenda_code
 
   validate :code_is_unique, on: :create
@@ -221,226 +223,225 @@ class Agenda < ActiveRecord::Base
   end
 
   def self.import(file)
+    agenda = nil
+    ActiveRecord::Base.transaction do
 
-    event_doc = YAML::load_stream( file )
+      event_doc = YAML::load_stream( file )
 
-    docs = {}
-    event_doc.each do |doc|
-      docs[ doc.keys[0] ] = doc[ doc.keys[0] ]
-      puts doc.keys[0]
-    end
-    event_doc = nil
+      docs = {}
+      event_doc.each do |doc|
+        docs[ doc.keys[0] ] = doc[ doc.keys[0] ]
+        puts doc.keys[0]
+      end
+      event_doc = nil
 
-    # docs["Agenda"]
-    # {"Agenda"=>{"id"=>1, "title"=>"Bangalore Sub-urban Rail Project: Potential for innovative financing and planning strategies",
-    # "description"=>"Bangalore Sub-urban Rail Project", "code"=>"f3zp7xglzp", "access_code"=>"bingo", "template_name"=>"iap2", "list"=>nil,
-    # "status"=>nil, "created_at"=>2013-10-08 08:02:09 UTC, "updated_at"=>2013-10-08 08:02:09 UTC}}
+      # docs["Agenda"]
+      # {"Agenda"=>{"id"=>1, "title"=>"Bangalore Sub-urban Rail Project: Potential for innovative financing and planning strategies",
+      # "description"=>"Bangalore Sub-urban Rail Project", "code"=>"f3zp7xglzp", "access_code"=>"bingo", "template_name"=>"iap2", "list"=>nil,
+      # "status"=>nil, "created_at"=>2013-10-08 08:02:09 UTC, "updated_at"=>2013-10-08 08:02:09 UTC}}
 
-    agenda_details = docs["Agenda"]
+      agenda_details = docs["Agenda"]
 
-    agenda = Agenda.new
-    agenda_details.each_pair do |key,value|
-      #puts "#{key}: #{value}"
-      agenda[key] = value unless ['id','code'].include?(key)
-    end
-    #puts agenda.inspect
-    agenda.save
+      agenda = Agenda.new
+      agenda_details.each_pair do |key,value|
+        #puts "#{key}: #{value}"
+        agenda[key] = value unless ['id','code'].include?(key)
+      end
+      #puts agenda.inspect
+      agenda.save
 
-    agenda_details[:id] = agenda.id
-    agenda_details[:code] = agenda.code
-    agenda_details['details'][:code] = agenda.code
+      agenda_details[:id] = agenda.id
+      agenda_details[:code] = agenda.code
+      agenda_details['details'][:code] = agenda.code
 
-    agenda.update_attribute(:title, "IMP(#{agenda.id}) #{agenda.title}")
-    agenda.update_attribute(:list, true)
+      agenda.update_attribute(:title, "IMP(#{agenda.id}) #{agenda.title}")
+      agenda.update_attribute(:list, true)
 
-    agenda_default_user_id = 1
+      agenda_default_user_id = 1
 
-    # I need to set the agenda id in the user email to the new agenda id
-    users = docs["Users"]
-    users.each_pair do |id,details|
-      email = details[:email]
-      if email.match(/^\w+-\d+-/)
-        email = email.sub(/^(\w+)-\d+-/, "\\1-#{agenda.id}-")
-        user = User.find_by(email: email)
-        if user.nil?
-          user = Agenda.create_agenda_user( agenda, email )
+      # I need to set the agenda id in the user email to the new agenda id
+      users = docs["Users"]
+      users.each_pair do |id,details|
+        email = details[:email]
+        if email.match(/^\w+-\d+-/)
+          email = email.sub(/^(\w+)-\d+-/, "\\1-#{agenda.id}-")
+          user = User.find_by(email: email)
+          if user.nil?
+            user = Agenda.create_agenda_user( agenda, email )
+          end
+          details[:new_user_id] = user.id
+          details[:new_id] = user.id
+          agenda_default_user_id = user.id if email.match(/coordinator/)
         end
-        details[:new_user_id] = user.id
-        details[:new_id] = user.id
-        agenda_default_user_id = user.id if email.match(/coordinator/)
       end
-    end
 
 
-    # ignore AgendaComponentThreads
+      # ignore AgendaComponentThreads
 
-    docs["AgendaRoles"].each do |details|
-      agenda_role = AgendaRole.new
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        agenda_role[key] = value unless ['id'].include?(key)
-      end
-      agenda_role.agenda_id = agenda.id
-      agenda_role.save
-    end
-
-    # Do the AgendaComponents after I have the new conversation ids
-
-    conversations_details = {}
-    conversation_ids = []
-    docs["Conversations"].each do |details|
-      conversations_details[details['id']] = details
-      conversation = Conversation.new
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        conversation[key] = value unless ['id','code'].include?(key)
-      end
-      conversation.user_id =  users[details["user_id"] ][:new_user_id] || agenda_default_user_id
-      #puts conversation.inspect
-      conversation.save
-      details[:new_id] = conversation.id
-      details[:new_code] = conversation.code
-      conversation_ids.push( conversation.id )
-    end
-
-    agenda.update_attribute(:conversation_ids, conversation_ids)
-
-    agenda_details['details'][:coordinator_user_id] = agenda_default_user_id
-
-    details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only)
-    details_arrays.each do |name|
-      agenda_details['details'][name] = Agenda.update_record_ids(conversations_details, agenda_details['details'][name])
-    end
-
-
-    agenda_details['details']['theme_map'].each_pair do |key, value|
-      agenda_details['details']['theme_map'][key] = Agenda.update_record_ids(users, value)
-    end
-
-    votes = {}
-    docs["ProConVotes"].each do |v|
-      votes[v['comment_id']] = {pro: v["pro_votes"], con: v["con_votes"]}
-    end
-
-    #votes.each{|k,v| puts "#{k}: #{v.inspect}"}
-
-    comment_details = {}
-    docs["Comments"].each do |details|
-      comment_details[details['id']] = details
-      # details = comment_details[0]
-      #puts details.inspect
-      comment = if details['type'] == 'TableComment'
-                  TableComment.new
-                elsif details['type'] == 'ThemeComment'
-                  ThemeComment.new
-                elsif details['type'] == 'TitleComment'
-                  TitleComment.new
-                else
-                  Comment.new
-                end
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        comment[key] = value unless ['id','conversation_id', 'new_id'].include?(key)
-      end
-      comment.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
-      comment.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      vote = votes[ details['id']]
-      if vote
-        comment.pro_votes = vote[:pro] || 0
-        #Rails.logger.debug "vote[:pro]: #{vote[:pro]}"
-        comment.con_votes = vote[:con] || 0
-      end
-      #puts comment.inspect
-      comment.post_process_disabled = true
-      comment.save
-      details[:new_id] = comment.id
-    end
-
-
-    docs["CommentVersions"].each do |details|
-      #puts details.inspect
-      comment_version = CommentVersion.new
-      details.each_pair do |key,value|
-        comment_version[key] = value unless ['id'].include?(key)
-      end
-      comment_version.item_id = comment_details[details["item_id"] ][:new_id]  || 1
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      #puts comment_version.inspect
-      comment_version.save
-    end
-
-    docs["ThemeVotes"].each do |details|
-      #puts details.inspect
-      theme_vote = ThemeVote.new
-      details.each_pair do |key,value|
-        theme_vote[key] = value unless ['id'].include?(key)
-      end
-      theme_vote.theme_id = comment_details[details["theme_id"] ][:new_id]
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      #puts theme_vote.inspect
-      theme_vote.save
-    end
-
-    docs["ThemePoints"].each do |details|
-      #puts details.inspect
-      theme_point = ThemePoint.new
-      details.each_pair do |key,value|
-        theme_point[key] = value unless ['id'].include?(key)
-      end
-      theme_point.theme_id = comment_details[details["theme_id"] ][:new_id]
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      #puts theme_point.inspect
-      theme_point.save
-    end
-
-    # I should restore parked_comments
-
-    docs["CommentThreads"].each do |details|
-      #puts details.inspect
-      comment_thread = CommentThread.new
-      details.each_pair do |key,value|
-        comment_thread[key] = value unless ['id'].include?(key)
-      end
-      comment_thread.child_id = comment_details[details["child_id"] ][:new_id] unless !comment_details[details["child_id"] ]
-      comment_thread.parent_id = comment_details[details["parent_id"] ][:new_id] unless !comment_details[details["parent_id"] ]
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      #puts comment_thread.inspect
-      comment_thread.save
-    end
-
-    # add_roles to the conversations for AUTH
-    conversations = Conversation.where(id: conversation_ids)
-    conversations.each do |conversation|
-      agenda.participants.each do |participant|
-        role = participant.email.match(/agenda-\d+-(\w+)-/)[1]
-        if role == 'group'
-          role = :scribe
-        else
-          role = role.to_sym
+      docs["AgendaRoles"].each do |details|
+        agenda_role = AgendaRole.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          agenda_role[key] = value unless ['id'].include?(key)
         end
-        puts role
-        participant.add_role role, conversation
+        agenda_role.agenda_id = agenda.id
+        agenda_role.save
       end
-    end
 
+      # Do the AgendaComponents after I have the new conversation ids
 
-
-
-    # Import the mca stuff
-
-    mca_details = docs["MultiCriteriaAnalysis"]
-    if mca_details
-      mca = MultiCriteriaAnalysis.new
-      mca_details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        mca[key] = value unless ['id','code'].include?(key)
+      conversations_details = {}
+      conversation_ids = []
+      docs["Conversations"].each do |details|
+        conversations_details[details['id']] = details
+        conversation = Conversation.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          conversation[key] = value unless ['id','code'].include?(key)
+        end
+        conversation.user_id =  users[details["user_id"] ][:new_user_id] || agenda_default_user_id
+        #puts conversation.inspect
+        conversation.save
+        details[:new_id] = conversation.id
+        details[:new_code] = conversation.code
+        conversation_ids.push( conversation.id )
       end
-      puts mca.inspect
-      mca.save
 
-      mca_details[:id] = mca.id
-      agenda_details['details'][:multi_criteria_analysis_id] = mca.id
+      agenda.update_attribute(:conversation_ids, conversation_ids)
+
+      agenda_details['details'][:coordinator_user_id] = agenda_default_user_id
+
+      details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only)
+      details_arrays.each do |name|
+        agenda_details['details'][name] = Agenda.update_record_ids(conversations_details, agenda_details['details'][name])
+      end
+
+      agenda_details['details']['theme_map'].each_pair do |key, value|
+        agenda_details['details']['theme_map'][key] = Agenda.update_record_ids(users, value)
+      end
+
+      votes = {}
+      docs["ProConVotes"].each do |v|
+        votes[v['comment_id']] = {pro: v["pro_votes"], con: v["con_votes"]}
+      end
+
+      #votes.each{|k,v| puts "#{k}: #{v.inspect}"}
+
+      comment_details = {}
+      docs["Comments"].each do |details|
+        comment_details[details['id']] = details
+        # details = comment_details[0]
+        #puts details.inspect
+        comment = if details['type'] == 'TableComment'
+                    TableComment.new
+                  elsif details['type'] == 'ThemeComment'
+                    ThemeComment.new
+                  elsif details['type'] == 'TitleComment'
+                    TitleComment.new
+                  else
+                    Comment.new
+                  end
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          comment[key] = value unless ['id','conversation_id', 'new_id'].include?(key)
+        end
+        comment.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
+        comment.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        vote = votes[ details['id']]
+        if vote
+          comment.pro_votes = vote[:pro] || 0
+          #Rails.logger.debug "vote[:pro]: #{vote[:pro]}"
+          comment.con_votes = vote[:con] || 0
+        end
+        #puts comment.inspect
+        comment.post_process_disabled = true
+        comment.save
+        details[:new_id] = comment.id
+      end
+
+
+      docs["CommentVersions"].each do |details|
+        #puts details.inspect
+        comment_version = CommentVersion.new
+        details.each_pair do |key,value|
+          comment_version[key] = value unless ['id'].include?(key)
+        end
+        comment_version.item_id = comment_details[details["item_id"] ][:new_id]  || 1
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        #puts comment_version.inspect
+        comment_version.save
+      end
+
+      docs["ThemeVotes"].each do |details|
+        #puts details.inspect
+        theme_vote = ThemeVote.new
+        details.each_pair do |key,value|
+          theme_vote[key] = value unless ['id'].include?(key)
+        end
+        theme_vote.theme_id = comment_details[details["theme_id"] ][:new_id]
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        #puts theme_vote.inspect
+        theme_vote.save
+      end
+
+      docs["ThemePoints"].each do |details|
+        #puts details.inspect
+        theme_point = ThemePoint.new
+        details.each_pair do |key,value|
+          theme_point[key] = value unless ['id'].include?(key)
+        end
+        theme_point.theme_id = comment_details[details["theme_id"] ][:new_id]
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        #puts theme_point.inspect
+        theme_point.save
+      end
+
+      # I should restore parked_comments
+
+      docs["CommentThreads"].each do |details|
+        #puts details.inspect
+        comment_thread = CommentThread.new
+        details.each_pair do |key,value|
+          comment_thread[key] = value unless ['id'].include?(key)
+        end
+        comment_thread.child_id = comment_details[details["child_id"] ][:new_id] unless !comment_details[details["child_id"] ]
+        comment_thread.parent_id = comment_details[details["parent_id"] ][:new_id] unless !comment_details[details["parent_id"] ]
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        #puts comment_thread.inspect
+        comment_thread.save
+      end
+
+      # add_roles to the conversations for AUTH
+      conversations = Conversation.where(id: conversation_ids)
+      conversations.each do |conversation|
+        agenda.participants.each do |participant|
+          role = participant.email.match(/agenda-\d+-(\w+)-/)[1]
+          if role == 'group'
+            role = :scribe
+          else
+            role = role.to_sym
+          end
+          puts role
+          participant.add_role role, conversation
+        end
+      end
+
+      # Import the mca stuff
+
+      mca_details = {}
+      docs["MultiCriteriaAnalyses"].each do |details|
+        mca_details[details['id']] = details
+        mca = MultiCriteriaAnalysis.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          mca[key] = value unless ['id','code'].include?(key)
+        end
+        mca.agenda_id = agenda.id
+        puts mca.inspect
+        mca.save
+        details[:new_id] = mca.id
+      end
 
       criteria_details = {}
       docs["McaCriteria"].each do |details|
@@ -450,7 +451,7 @@ class Agenda < ActiveRecord::Base
           #puts "#{key}: #{value}"
           criteria[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
         end
-        criteria.multi_criteria_analysis_id = mca_details[:id]
+        criteria.multi_criteria_analysis_id = mca_details[details['multi_criteria_analysis_id']][:new_id]
         #puts criteria.inspect
         criteria.save
         details[:new_id] = criteria.id
@@ -464,14 +465,14 @@ class Agenda < ActiveRecord::Base
           #puts "#{key}: #{value}"
           option[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
         end
-        option.multi_criteria_analysis_id = mca_details[:id]
+        option.multi_criteria_analysis_id = mca_details[details['multi_criteria_analysis_id']][:new_id]
         #puts option.inspect
         option.save
         details[:new_id] = option.id
       end
 
       evaluation_details = {}
-      docs["McaEvaluations"].each do |details|
+      docs["McaOptionEvaluations"].each do |details|
         evaluation_details[details['id']] = details
         evaluation = McaOptionEvaluation.new
         details.each_pair do |key,value|
@@ -498,9 +499,15 @@ class Agenda < ActiveRecord::Base
         evaluation_rating.save
         details[:new_id] = evaluation_rating.id
       end
-    end
 
-    agenda.update_attribute(:details, agenda_details['details'])
+      details_arrays = %w(mca_ids mca_id_plenary mca_ids_coord_only)
+      details_arrays.each do |name|
+        agenda_details['details'][name] = Agenda.update_record_ids(mca_details, agenda_details['details'][name])
+      end
+
+      agenda.update_attribute(:details, agenda_details['details'])
+      #agenda.refresh_agenda_details_links_and_data_sets
+    end
     agenda.refresh_agenda_details_links_and_data_sets
     return agenda.code
   end
@@ -573,7 +580,7 @@ class Agenda < ActiveRecord::Base
   end
 
   def delete_agenda
-    raise "CivicEvolution::AgendaCannotBeDeleted in test mode" unless self.test_mode
+    raise "CivicEvolution::AgendaCannotBeDeleted UNLESS in test mode" unless self.test_mode
     raise "CivicEvolution::AgendaCannotBeDeleted in PROD" unless Rails.env.development?
     Rails.logger.debug "Delete this Agenda"
 
@@ -590,8 +597,7 @@ class Agenda < ActiveRecord::Base
     CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
 
     # destroy the mca stuff
-
-    MultiCriteriaAnalysis.delete_mca( self.details["multi_criteria_analysis_id"])
+    MultiCriteriaAnalysis.delete_mca( self.mca.map(&:id) )
 
     Conversation.where(id: conversation_ids ).destroy_all
     self.agenda_roles.destroy_all
@@ -783,7 +789,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:conversation_ids] = [217, 218, 219, 220]
     else
       # group concurrent conversations in sub arrays
-      agenda_details[:conversation_ids] = [12, 13, 14, 15]
+      agenda_details[:conversation_ids] = [14, [16, 17, 18]]
     end
 
     if Rails.env.development?
@@ -808,7 +814,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:allocate_conversations] = []
       agenda_details[:allocate_top_themes_conversations] = []
       agenda_details[:allocate_multiple_conversations] = []
-      agenda_details[:themes_only] = [12, 13, 14, 15]
+      agenda_details[:themes_only] = [14]
 
       agenda_details[:theme_map] =
           {
@@ -816,7 +822,7 @@ class Agenda < ActiveRecord::Base
               2=>[41, 42, 43, 44],
               3=>[37, 38, 39, 40, 41, 42, 43, 44]
           }
-      agenda_details[:mca_ids] = [2, 3, 4, 5]
+      agenda_details[:mca_ids] = [2, 3, 5]
       agenda_details[:mca_id_plenary] = [2]
       agenda_details[:mca_ids_coord_only] = [5]
 
