@@ -69,7 +69,7 @@ class Agenda < ActiveRecord::Base
     if role
       # use agenda_details to construct the menu_data
       agenda_details["links"][role].each_value do |link|
-        menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"]})
+        menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"], group_id: link["id"]})
       end
     end
 
@@ -786,7 +786,7 @@ class Agenda < ActiveRecord::Base
       # group concurrent conversations in sub arrays
       #agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
       #agenda_details[:conversation_ids] = [211, 212, 213, 214, 215, 216]
-      agenda_details[:conversation_ids] = [217, 218, 219, 220]
+      agenda_details[:conversation_ids] = [402, [404, 405, 406]]
     else
       # group concurrent conversations in sub arrays
       agenda_details[:conversation_ids] = [14, [16, 17, 18]]
@@ -797,17 +797,18 @@ class Agenda < ActiveRecord::Base
       agenda_details[:allocate_conversations] = []
       #agenda_details[:allocate_top_themes_conversations] = [213, 214]
       agenda_details[:allocate_multiple_conversations] = []
-      agenda_details[:themes_only] = [217, 219, 220]
+      agenda_details[:themes_only] = [402]
 
       agenda_details[:theme_map] =
           {
-              1=>[388, 389, 390, 391],
-              2=>[392, 393, 394, 395]
+              1=>[1033, 1034, 1035, 1036],
+              2=>[1037,1038, 1039, 1040],
+              3=>[1033, 1034, 1035, 1036, 1037,1038, 1039, 1040]
           }
 
-      agenda_details[:mca_ids] = [17, 19, 21, 22]
-      agenda_details[:mca_id_plenary] = [17]
-      agenda_details[:mca_ids_coord_only] = [22]
+      agenda_details[:mca_ids] = [48, 49, 51]
+      agenda_details[:mca_id_plenary] = [48]
+      agenda_details[:mca_ids_coord_only] = [51]
 
     else
       agenda_details[:select_conversations] = []
@@ -876,6 +877,7 @@ class Agenda < ActiveRecord::Base
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
             title: %Q|Theme groups for "#{conversation[:title]}"|,
+            id: conversation[:id],
             link_code:  link_code,
             href: "/#/agenda/#{self.code}-#{link_code}/sgd-theme/#{conversation[:munged_title]}",
             conversation_code: "#{conversation[:code]}",
@@ -891,6 +893,7 @@ class Agenda < ActiveRecord::Base
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
           title: %Q|Coordinator theming for "#{conversation[:title]}"|,
+          id: conversation[:id],
           link_code:  link_code,
           href: "/#/agenda/#{self.code}-#{link_code}/coord-theme/#{conversation[:munged_title]}",
           conversation_code: "#{conversation[:code]}",
@@ -905,6 +908,7 @@ class Agenda < ActiveRecord::Base
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
           title: %Q|Live editing for "#{conversation[:title]}"|,
+          id: conversation[:id],
           link_code:  link_code,
           href: "/#/agenda/#{self.code}-#{link_code}/live-edit/#{conversation[:munged_title]}",
           conversation_code: "#{conversation[:code]}",
@@ -919,6 +923,7 @@ class Agenda < ActiveRecord::Base
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
           title: %Q|Display final themes for "#{conversation[:title]}"|,
+          id: conversation[:id],
           link_code:  link_code,
           href: "/#/agenda/#{self.code}-#{link_code}/theme-results/#{conversation[:munged_title]}",
           conversation_code: "#{conversation[:code]}",
@@ -1073,6 +1078,7 @@ class Agenda < ActiveRecord::Base
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
         title: "Plenary Assessment Exercise",
+        id: 'mca',
         link_code:  link_code,
         href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
         data_set: "coord-multi-criteria-analysis-table",
@@ -1089,6 +1095,7 @@ class Agenda < ActiveRecord::Base
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
         title: "Plenary Assessment Exercise",
+        id: 'mca',
         link_code:  link_code,
         href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
         data_set: "group-multi-criteria-analysis-table",
@@ -1118,6 +1125,7 @@ class Agenda < ActiveRecord::Base
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
           title: %Q|MCA Evaluation results for #{mca.title}|,
+          id: 'mca',
           link_code:  link_code,
           href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
           data_set: "coord-multi-criteria-analysis-table",
@@ -1135,6 +1143,7 @@ class Agenda < ActiveRecord::Base
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
             title: %Q|Evaluate #{mca.title}|,
+            id: 'mca',
             link_code:  link_code,
             href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
             data_set: "group-multi-criteria-analysis-table",

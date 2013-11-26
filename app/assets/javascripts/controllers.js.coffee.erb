@@ -1443,6 +1443,17 @@ agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window", "
     #$scope.agenda_template_url = "/assets/custom/#{agenda.template_name}.html";
     $scope.agenda_template_url = "/assets/custom/#{agenda.template_name}.html";
     $scope.agenda = agenda
+
+    link_group_id = null
+    $scope.menu_groups = []
+    for link in agenda.menu_data
+      if link.group_id == link_group_id
+        group.push( link )
+      else
+        group = new Array(link)
+        $scope.menu_groups.push(group)
+        link_group_id = link.group_id
+
     if $location.$$path.match(/\/agenda\/code:.*/)
       # set the url to the actual agenda url
       new_url = "/agenda/#{agenda.code}/#{agenda.munged_title}"
