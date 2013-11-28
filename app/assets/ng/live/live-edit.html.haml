@@ -7,7 +7,7 @@
         %a.faint(ng-click="edit('new-theme-comment')") Add new theme
 
       %div.all-themes
-        %div.comment-outer(ng-repeat="comment in conversation.theme_comments")
+        %div.comment-outer(ng-repeat="comment in conversation.theme_comments | filter: {published: true }")
           %div(ce-sortable ce-comment type="live-theme")
         %div(ng-if="conversation.theme_comments.length == 0")
           %p There are no themes created by {{conversation.active_themer_name}}

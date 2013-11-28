@@ -122,6 +122,22 @@ module Api
 
       end
 
+      def hide
+        comment = Comment.find(params[:id])
+        Rails.logger.debug "Hide this comment"
+        comment.update_attribute(:published, false)
+        authorize! :hide, comment.conversation
+        render json: comment
+      end
+
+      def show
+        comment = Comment.find(params[:id])
+        Rails.logger.debug "Show this comment"
+        comment.update_attribute(:published, true)
+        authorize! :hide, comment.conversation
+        render json: comment
+      end
+
       def history
         comment = Comment.find(params[:id])
         authorize! :history, comment.conversation

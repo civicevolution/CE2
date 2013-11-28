@@ -433,6 +433,12 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
     delete: (data) ->
       $http.delete("/api/comments/#{data.id}.json")
 
+    hide: (data) ->
+      $http.post("/api/comments/#{data.id}/hide.json")
+
+    show: (data) ->
+      $http.post("/api/comments/#{data.id}/show.json")
+
     conversation_themes: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/themes.json")
 

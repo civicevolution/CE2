@@ -29,7 +29,14 @@
               -#%i.icon-pencil
               Edit
 
-            %a.edit(ng-if="comment.comments == 0" ng-click="broadcast_action('theme-comment-delete')"){title: "Delete this theme"}
+            %a.edit(ng-if="comment.editable_by_user && comment.published" ng-click="broadcast_action('theme-comment-hide')"){title: "Hide this theme"}
+              Hide
+
+            -#%a.edit(ng-if="comment.editable_by_user && comment.published==false" ng-click="toggle_visibility(this)"){title: "Show this theme"}
+            %a.edit(ng-if="comment.editable_by_user && comment.published==false" ng-click="broadcast_action('theme-comment-show')"){title: "Show this theme"}
+              Show
+
+            -#%a.edit(ng-if="comment.comments == 0" ng-click="broadcast_action('theme-comment-delete')"){title: "Delete this theme"}
               Delete
 
             %div.count

@@ -181,8 +181,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state( 'theme-small-group-deliberation-agenda',
         url: "/agenda/{agenda_code}-{link_code}/sgd-theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
-        data:
-          mode: 'sgd-theme'
         resolve:
           theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.data_set('sgd-theme', $stateParams.agenda_code, $stateParams.link_code)
@@ -203,8 +201,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
     .state( 'coordinator-theme-agenda',
         url: "/agenda/{agenda_code}-{link_code}/coord-theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
-        data:
-          mode: 'coord-theme'
         resolve:
           theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.data_set('coord-theme', $stateParams.agenda_code, $stateParams.link_code)
@@ -215,33 +211,12 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state( 'live-edit-agenda',
         url: "/agenda/{agenda_code}-{link_code}/live-edit/{munged_title}"
         templateUrl: '<%= path_to_asset "live/live-edit.html" %>'
-        data:
-          mode: 'live-edit'
         resolve:
           theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.data_set('coord-theme', $stateParams.agenda_code, $stateParams.link_code)
           ]
         controller: small_group_deliberation_theme_controller
       )
-
-      .state( 'live-small-group-deliberation-agenda',
-        url: "/agenda/{agenda_code}-{link_code}/live-sgd/{munged_title}"
-        #templateUrl: '<%= path_to_asset "live/group.html" %>'
-        templateUrl: '<%= path_to_asset "live/live-edit.html" %>'
-        data:
-          mode: 'live-deliberate'
-        resolve:
-          theming_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-            AgendaData.data_set('live-sgd', $stateParams.agenda_code, $stateParams.link_code)
-          ]
-          #small_group_deliberation_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-          #  AgendaData.data_set('sgd', $stateParams.agenda_code, $stateParams.link_code)
-          #]
-
-        controller: small_group_deliberation_theme_controller
-        #controller: conversation_group_controller
-      )
-
 
       .state('display-themes-agenda',
         url: "/agenda/{agenda_code}-{link_code}/theme-results/{munged_title}"
@@ -760,20 +735,14 @@ ce2_app.controller 'ActivityMonitorController', ($scope, User, $dialog) ->
     )
 
 
-small_group_deliberation_theme_controller = [ "$scope", "theming_data", "FirebaseService", "$timeout", "$dialog", "ThemeData", "$state",
-  ($scope, theming_data, FirebaseService, $timeout, $dialog, ThemeData, $state) ->
+small_group_deliberation_theme_controller = [ "$scope", "theming_data", "FirebaseService", "$timeout", "$dialog", "ThemeData",
+  ($scope, theming_data, FirebaseService, $timeout, $dialog, ThemeData) ->
     #console.log "In conversation state controller at bottom"
-    $scope.mode = $state.current.data.mode
-    console.log "v1 controller mode is #{$scope.mode}"
-    if $scope.mode == 'live-deliberate'
-      $scope.preview_template = "<%= path_to_asset "live/group-vote-insert.html" %>"
 
     if theming_data.data_set_state == 'sgd-theme'
       theming_data = process_team_theming_data(theming_data)
     else if theming_data.data_set_state == 'coord-theme'
       theming_data = process_coordinator_theming_data(theming_data)
-    else if theming_data.data_set_state == 'live-sgd'
-      theming_data = process_live_sgd_data(theming_data)
     $timeout ->
       $scope.$root.$broadcast 'update-user-data'
     , 1000
@@ -912,6 +881,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
 
       $scope.conversation.comments[updated_rec.id] = updated_rec unless not updated_rec
       $scope.conversation.theme_comments = (comment for comment in $scope.conversation.all_theme_comments when comment.name == $scope.conversation.active_themer_name)
+      $scope.conversation.theme_comments = add_letters($scope.conversation.theme_comments)
 
       themers = {}
       for comment in $scope.conversation.all_theme_comments
@@ -980,7 +950,6 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
         tags.push 'Parked' if comment.parked
         comment.tags = tags.join(', ') || if $scope.conversation.theme_themes_mode then 'Tag this theme' else 'Tag this comment'
 
-
     $scope.$on 'calculate-tag-counts', ->
       #console.log "calculate-tag-counts"
       counts =
@@ -1017,7 +986,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
           for id in comment.current_theme_ids
             counts[id] += 1
 
-      comments = if $scope.conversation.theme_themes_mode then $scope.conversation.team_theme_comments else $scope.conversation.table_comments
+      comments = if $scope.conversation.theme_themes_mode then $scope.conversation.team_theme_comments else []
       for comment in comments
         counts['all_themes'] += 1
         if comment.parked
@@ -1065,7 +1034,43 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
           btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
           $dialog.messageBox(title, msg, btns).open()
         )
-        
+
+    $scope.$on 'theme-comment-hide', (event,data) ->
+      theme = data.comment
+      console.log "hide this theme comment: #{theme.tag_name}"
+
+      ThemeData.hide(theme).then (response)->
+        console.log "theme was hidden successfully"
+        if response.data.type
+          $scope.$root.$broadcast "#{response.data.type}_update", {
+            action: 'hide'
+            class: response.data.type
+            data: response.data
+            updated_at: new Date().getTime()
+            source: "theme-comment-hide"
+          }
+        $timeout ->
+          $scope.conversation.filter_mode = 'themes'
+          refilter_table_comments()
+
+    $scope.$on 'theme-comment-show', (event,data) ->
+      theme = data.comment
+      console.log "show this theme comment: #{theme.tag_name}"
+
+      ThemeData.show(theme).then (response)->
+        console.log "theme was hidden successfully"
+        if response.data.type
+          $scope.$root.$broadcast "#{response.data.type}_update", {
+            action: 'show'
+            class: response.data.type
+            data: response.data
+            updated_at: new Date().getTime()
+            source: "theme-comment-show"
+          }
+        $timeout ->
+          $scope.conversation.filter_mode = 'themes'
+          refilter_table_comments()
+
     $scope.$on 'show-theme-page', (event, data) ->
       theme = data.comment
       #console.log "show theme page for theme: #{theme.tag_name}"
@@ -1078,16 +1083,8 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       user_name = "#{$scope.user.first_name} #{$scope.user.last_name}"
       if $scope.conversation.can('edit_theme_comment') && not $scope.conversation.themers[ user_name ]
         $scope.conversation.themers[ user_name ] = {cnt: 0}
-      $scope.conversation.assigned_tables = if $scope.user.first_name == "Coordinator" then [1,2,3,4,5,6,7] else if $scope.user.last_name == "1" then [1,2,3,4] else if $scope.user.last_name == "2" then [5,6,7,8] else [1,2,3,4,5,6,7,8]
+      $scope.conversation.assigned_tables = if $scope.user.first_name == "Coordinator" then [1,2,3,4,5,6,7] else if $scope.user.last_name == "1" then [1,2,3,4] else if $scope.user.last_name == "2" then [5,6,7,8] else [1,2,3,4,5,6,7]
       $scope.change_themer(user_name)
-
-    $scope.display_comments = ->
-      console.log "display_comments"
-
-    $scope.add_comment = (el_scope) ->
-      console.log "add_comment"
-      comment = el_scope.comment
-      $scope.$root.$broadcast('open-comment-form', {action: 'new-table-comment-for-theme', comment: comment})
 ]
 
 process_small_group_deliberation_data = (data) ->
@@ -1180,53 +1177,6 @@ process_coordinator_theming_data = (data) ->
   abilities: data.role.abilities
   can: (action) ->
     _.indexOf(this.abilities, action ) > -1
-
-
-process_live_sgd_data = (data) ->
-  console.log "XXX process_live_sgd_data"
-  table_comments = []
-  coordinator_theme_comments = data.coordinator_theme_comments
-  team_theme_comments = data.theme_comments
-  all_theme_comments = []
-  comments = {}
-  for comment in coordinator_theme_comments
-    comments[comment.id] = comment
-    all_theme_comments.push(comment)
-  for comment in team_theme_comments
-    comments[comment.id] = comment
-    all_theme_comments.push(comment)
-    comment.show_tag_widget = true
-
-
-  tag_hash = {}
-  themers = {}
-  for comment in all_theme_comments
-    tag_hash[comment.id] = comment.tag_name
-    if comment.text.match(/\[quote/)
-      comment.popover = comment.text.split('[quot')[0]
-    else
-      comment.popover = comment.text
-    if themers[comment.name]
-      themers[comment.name]['cnt'] += 1
-    else
-      themers[comment.name] = {cnt: 1}
-
-  comments: comments
-  table_comments: table_comments.sort((a,b)-> a.id - b.id)
-  all_theme_comments: all_theme_comments.sort((a,b)-> a.id - b.id)
-  coordinator_theme_comments: add_letters(coordinator_theme_comments.sort((a,b)-> a.order_id - b.order_id))
-  team_theme_comments: team_theme_comments.sort((a,b)-> a.id - b.id)
-  theme_tag_hash: tag_hash
-  themers: themers
-  title: data.title
-  code: data.code
-  current_timestamp: data.current_timestamp
-  privacy: data.privacy
-  abilities: data.role.abilities
-  can: (action) ->
-    _.indexOf(this.abilities, action ) > -1
-
-
 
 conversation_group_controller = [ "$scope", "small_group_deliberation_data", "FirebaseService", "$timeout", "$dialog",
   ($scope, small_group_deliberation_data, FirebaseService, $timeout, $dialog) ->
@@ -1544,8 +1494,9 @@ live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$
 add_letters = (items)->
   letter_ctr = 0;
   for item in items
-    item.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
-    letter_ctr += 1
+    if item.published != false
+      item.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
+      letter_ctr += 1
   items
 
 

@@ -14,18 +14,18 @@
   %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'all_table_comments'}" popover="Click here to view all of the comments" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
     %a(ng-click="filter_table_comments('all_table_comments')")
       All comments
-      %span.badge.badge-info {{conversation.comment_counts['all']}}
+      %span.badge.badge-info {{conversation.comment_counts['all_comments']}}
 
 
   %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'untagged_comments'}" popover="Click here to view all of the comments that need to be tagged to a theme" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
     %a(ng-click="filter_table_comments('untagged_comments')")
       Untagged
-      %span.badge.badge-important {{conversation.comment_counts['untagged']}}
+      %span.badge.badge-important {{conversation.comment_counts['untagged_comments']}}
 
   %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked_comments'}" popover="Click here to view all of the comments that have been parked" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
     %a(ng-click="filter_table_comments('parked_comments')")
       Parked
-      %span.badge.badge-info {{conversation.comment_counts['parked']}}
+      %span.badge.badge-info {{conversation.comment_counts['parked_comments']}}
 
   %li#conversation-review-link(ng-repeat="id in conversation.assigned_tables" ng-class="{active: (conversation.filter_mode == 'table' && conversation.filter_id == id)}" popover="Click to view comments from table {{id}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
     %a(ng-click="filter_table_comments('table', id)")

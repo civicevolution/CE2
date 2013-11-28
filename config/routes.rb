@@ -12,6 +12,8 @@ Ce2::Application.routes.draw do
         post 'decline', :on => :member
         post 'assign_themes', on: :member
         post 'update_comment_order', on: :member
+        post 'hide', on: :member
+        post 'show', on: :member
       end
 
     end
