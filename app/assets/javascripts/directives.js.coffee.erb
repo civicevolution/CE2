@@ -359,6 +359,9 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
 
       $scope.text_select_by_mouse = ->
         $scope.$root.$broadcast('text-select-by-mouse')
+        
+      $scope.toggle_details = ->
+        $scope.show_details = if $scope.show_details then false else true
 
   ]
 ])

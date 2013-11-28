@@ -812,10 +812,10 @@ class Agenda < ActiveRecord::Base
 
     else
       agenda_details[:select_conversations] = []
-      agenda_details[:allocate_conversations] = []
+      agenda_details[:allocate_conversations] = [14]
       agenda_details[:allocate_top_themes_conversations] = []
       agenda_details[:allocate_multiple_conversations] = []
-      agenda_details[:themes_only] = [14]
+      agenda_details[:themes_only] = []
 
       agenda_details[:theme_map] =
           {
@@ -823,9 +823,9 @@ class Agenda < ActiveRecord::Base
               2=>[41, 42, 43, 44],
               3=>[37, 38, 39, 40, 41, 42, 43, 44]
           }
-      agenda_details[:mca_ids] = [2, 3, 5]
+      agenda_details[:mca_ids] = [2, 3]
       agenda_details[:mca_id_plenary] = [2]
-      agenda_details[:mca_ids_coord_only] = [5]
+      agenda_details[:mca_ids_coord_only] = []
 
     end
     self.update_attribute(:details, agenda_details)
