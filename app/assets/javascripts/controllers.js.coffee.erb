@@ -1371,6 +1371,8 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
 live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$dialog", "$timeout",
   ($scope, allocation_data, LiveAllocateData, $dialog, $timeout) ->
     $scope.allocation_themes = allocation_data.allocation_themes
+    for theme in $scope.allocation_themes
+      theme.text = theme.text.split(/\n/)[0]
 
     $scope.name = 'live_allocate_controller'
     $scope.code = allocation_data.code

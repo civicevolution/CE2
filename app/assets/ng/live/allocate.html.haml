@@ -12,7 +12,7 @@
       %th
         -#%h3 $ Spent
         %h3 Points
-    %tr(ng-repeat="theme in allocation_themes" )
+    %tr(ng-repeat="theme in allocation_themes | filter: {published: true }" )
       %td.letter
         {{theme.letter}}
       %td.text
@@ -58,7 +58,7 @@
       %th(ng-repeat="(voter_id, vote) in participant_votes" )
         %a(ng-click="edit_vote(voter_id)") \#{{voter_id}}
 
-    %tr(ng-repeat="theme in allocation_themes" )
+    %tr(ng-repeat="theme in allocation_themes | filter: {published: true }" )
       %td.letter
         {{theme.letter}}
       %td.text

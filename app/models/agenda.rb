@@ -106,24 +106,28 @@ class Agenda < ActiveRecord::Base
         data = ThemeSelection.data_themes_select_results({"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id})
         data[:allocated_themes].each do|theme|
           theme[:count] = "(#{theme[:votes]})"
+          theme[:text] = theme[:text].split(/\n/)[0]
         end
       when 'allocation-results'
         data = ThemeAllocation.data_themes_allocation_results({"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id})
         data[:allocated_themes].each do|theme|
           theme[:count] = "#{theme[:points]}pts"
+          theme[:text] = theme[:text].split(/\n/)[0]
         end
 
       when 'select-worksheet'
         data = ThemeSmallGroupTheme.data_key_themes_with_examples( {"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id} )
         data[:themes].each do |theme|
-          theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+          #theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+          theme[:text] = theme[:text].split(/\n/)[0]
         end
         data = {title: data[:title], worksheet_themes: data[:themes]}
 
       when 'allocation-worksheet'
         data = ThemeSmallGroupTheme.data_key_themes_with_examples( {"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id} )
         data[:themes].each do |theme|
-          theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+          #theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+          theme[:text] = theme[:text].split(/\n/)[0]
         end
         data = {title: data[:title], worksheet_themes: data[:themes]}
     end
@@ -794,10 +798,10 @@ class Agenda < ActiveRecord::Base
 
     if Rails.env.development?
       agenda_details[:select_conversations] = []
-      agenda_details[:allocate_conversations] = []
+      agenda_details[:allocate_conversations] = [402]
       #agenda_details[:allocate_top_themes_conversations] = [213, 214]
       agenda_details[:allocate_multiple_conversations] = []
-      agenda_details[:themes_only] = [402]
+      agenda_details[:themes_only] = []
 
       agenda_details[:theme_map] =
           {
@@ -806,9 +810,9 @@ class Agenda < ActiveRecord::Base
               3=>[1033, 1034, 1035, 1036, 1037,1038, 1039, 1040]
           }
 
-      agenda_details[:mca_ids] = [48, 49, 51]
+      agenda_details[:mca_ids] = [48, 49]
       agenda_details[:mca_id_plenary] = [48]
-      agenda_details[:mca_ids_coord_only] = [51]
+      agenda_details[:mca_ids_coord_only] = []
 
     else
       agenda_details[:select_conversations] = []

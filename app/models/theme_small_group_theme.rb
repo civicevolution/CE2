@@ -206,13 +206,13 @@ class ThemeSmallGroupTheme < AgendaComponent
 
     else
       conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
-      themes = conversation.theme_comments.where(user_id: params["coordinator_user_id"]).order(:order_id)
+      themes = conversation.theme_comments.where(user_id: params["coordinator_user_id"], published: true).order(:order_id)
       title = conversation.title
 
       ltr = 'A'
       theme_comments = []
       themes.each do |theme|
-        theme_comments.push( {id: theme.id, order_id: theme.order_id, letter: ltr, text: theme.text} )
+        theme_comments.push( {id: theme.id, order_id: theme.order_id, letter: ltr, text: theme.text, published: theme.published } )
         ltr = ltr.succ
       end
     end
