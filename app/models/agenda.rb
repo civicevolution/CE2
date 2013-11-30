@@ -790,10 +790,10 @@ class Agenda < ActiveRecord::Base
       # group concurrent conversations in sub arrays
       #agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
       #agenda_details[:conversation_ids] = [211, 212, 213, 214, 215, 216]
-      agenda_details[:conversation_ids] = [402, [404, 405, 406]]
+      agenda_details[:conversation_ids] = [402, [404, 405, 406],407]
     else
       # group concurrent conversations in sub arrays
-      agenda_details[:conversation_ids] = [14, [16, 17, 18]]
+      agenda_details[:conversation_ids] = [14, [16, 17, 18], [19, 20, 21, 22]]
     end
 
     if Rails.env.development?
