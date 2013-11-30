@@ -783,6 +783,20 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
     , 500
 
 
+    # register a listener for theme ordered ids
+    $scope.$on 'Conversation_update', (event, data) ->
+      # make sure it is the correct conversation_id
+      if data.data.conversation_code is $scope.conversation.code
+        ordered_ids = data.data.ordered_ids
+        # reorder $scope.conversation.summary_comments according to these ids
+        if ordered_ids
+          # update the order_id for the comments
+          for comment in $scope.conversation.theme_comments
+            comment.order_id = ordered_ids[comment.id]
+          #resort the summary_comments according to order_id
+          $scope.conversation.theme_comments.sort((a, b) -> return a.order_id > b.order_id )
+        $scope.$$phase || $scope.$apply()
+
     $scope.change_themer = (name) ->
       console.log "change theme page to show themer: #{name}"
       $scope.conversation.active_themer_name = name

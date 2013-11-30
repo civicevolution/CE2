@@ -91,7 +91,8 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
 
       # return the ordered ids as a hash that allows me to look up the order_id by comment_id to resort on browser
       ids_order_id = {}
-      ordered_ids.each_index{ |i| ids_order_id[ordered_ids[i]] = i }
+      # the order_ids start from 1, not 0
+      ordered_ids.each_index{ |i| ids_order_id[ordered_ids[i]] = i+1 }
       ids_order_id
     end
   end
