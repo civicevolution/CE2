@@ -12,7 +12,7 @@ module Modules
       Rails.logger.debug "do post_process"
       record_replies
       record_mentions
-      send_to_firebase
+      realtime_notification
       check_immediate_notifications
       notify_for_prescreen
       add_to_activity_feed
@@ -174,12 +174,14 @@ module Modules
       self.mentions = mentions
     end
 
-    def send_to_firebase
+    def realtime_notification
       conversation_code ||= self.conversation.try{|con| con.code} || nil
+      Rails.logger.debug "post_process realtime_notification for conversation_code: #{conversation_code}"
       if conversation_code
         action = @_is_new_record ? "create" : destroyed? ? "delete" : "update"
-        Firebase.base_uri = "https://civicevolution.firebaseio.com/conversations/#{conversation_code}/updates/"
-        Firebase.push '', self.as_json_for_firebase( action )
+        message = self.as_json_for_notification( action )
+        channel = "/#{conversation_code}"
+        FayeRedis::publish(message,channel)
       end
     end
 
@@ -233,10 +235,10 @@ module Modules
 
 
 
-    # override as_json_for_firebase in the model as needed
-    def as_json_for_firebase( action = "create" )
+    # override as_json_for_notification in the model as needed
+    def as_json_for_notification( action = "create" )
       data = as_json root: false, except: [:user_id]
-      { class: self.class.to_s, action: action, data: data, updated_at: Time.now.getutc, source: "RoR-Firebase" }
+      { class: self.class.to_s, action: action, data: data, updated_at: Time.now.getutc, source: "RT-Notification" }
     end
 
     #def send_ratings_update_to_firebase

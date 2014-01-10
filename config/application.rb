@@ -84,8 +84,6 @@ module Ce2
 
     config.assets.paths << "#{Rails.root}/app/assets/ng"
     
-    Firebase.auth = "O9TG9qY2sWCu4FhFf8w9PxJdrb3Qaud8gOwQbBR0"
-
     config.to_prepare do
       DeviseController.respond_to :html, :json
     end

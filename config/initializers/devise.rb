@@ -258,3 +258,8 @@ module Devise
     end
   end
 end
+
+Warden::Manager.before_logout do |user,auth,opts|
+  #Rails.logger.debug "^^^^^^ Warden::Manager.before_logout, session_id: #{auth.session_serializer.env['rack.session']['session_id']}"
+  Modules::FayeRedis::delete_session_from_redis(auth.session_serializer.env['rack.session']['session_id'])
+end

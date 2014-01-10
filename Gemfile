@@ -41,8 +41,8 @@ end
 
 gem 'active_model_serializers'
 gem 'responders'
-gem 'firebase'
-gem 'firebase_token_generator'
+#gem 'firebase'
+#gem 'firebase_token_generator'
 
 gem "paper_trail", github: 'airblade/paper_trail', branch: 'rails4'
 
@@ -65,3 +65,5 @@ gem 'daemons'
 #    git: 'git://github.com/collectiveidea/delayed_job.git'
 gem 'delayed_job_active_record' #,
 #    git: 'git://github.com/collectiveidea/delayed_job_active_record.git'
+
+gem 'redis'

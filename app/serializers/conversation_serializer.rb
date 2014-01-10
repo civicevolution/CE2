@@ -1,7 +1,7 @@
 class ConversationSerializer < ActiveModel::Serializer
   #embed :ids, :include => true
-  attributes :url, :updated_at, :firebase_token, :code, :title, :munged_title, :call_to_action,
-             :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags, :notification_request, :display_mode, :role
+  attributes :url, :updated_at, :code, :title, :munged_title, :call_to_action,
+             :current_timestamp, :privacy, :published, :starts_at, :ends_at, :list, :tags, :notification_request, :display_mode, :role, :session_id
   has_many :displayed_comments
 
   def include_displayed_comments?

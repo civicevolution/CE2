@@ -207,12 +207,6 @@ module Api
         authorize! :update_comment_order, comment.conversation
 
         ids_with_order_id = Comment.update_comment_order( params[:id], params[:ordered_ids] )
-        #if !ids_with_order_id.empty?
-        #  #Firebase.base_uri = "https://civicevolution.firebaseio.com/issues/#{conversation.question.issue_id}/conversations/#{conversation.id}/updates/"
-        #  Firebase.base_uri = "https://civicevolution.firebaseio.com/conversations/#{conversation.code}/updates/"
-        #  Firebase.push '', { class: 'Conversation', action: 'update_comment_order', data: {conversation_code: params[:id], ordered_ids: ids_with_order_id }, updated_at: Time.now.getutc, source: "RoR-Firebase" }
-        #end
-
         render json: 'ok'
       end
 

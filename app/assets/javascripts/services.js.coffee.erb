@@ -60,8 +60,8 @@ services.factory "Comment", ["$resource", ($resource) ->
   $resource("/api/comments/:id", {id: "@id"}, {update: {method: "PUT"}})
 ]
 
-services.factory "ConversationData", ["$http",
-  ($http) ->
+services.factory "ConversationData", ["$http", "$rootScope",
+  ($http, $rootScope) ->
     name: "ConversationData"
 
     conversations: ->
@@ -90,6 +90,7 @@ services.factory "ConversationData", ["$http",
 
       $http.get("/api/conversations/#{conversation_code}.json").then (response) ->
         if response.status is 200
+          $rootScope.ror_session_id = response.data.session_id
           summary_comments = []
           conversation_comments = []
           authors = {}
@@ -104,7 +105,6 @@ services.factory "ConversationData", ["$http",
 
           #console.log "conversation_id: #{conversation_id}"
           # extract and setup some data for the directive controller
-          firebase_token: response.data.firebase_token
           summary_comments: summary_comments.sort((a,b)-> a.order_id - b.order_id)
           conversation_comments: conversation_comments.sort((a,b)-> a.order_id - b.order_id)
           title_comment: title_comment
@@ -290,21 +290,6 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
 
 services.factory "FirebaseService", [ "$timeout", "$rootScope", "CommentData", ($timeout, $rootScope, CommentData ) ->
   name: "FirebaseService"
-  initialize_source: (url, token) ->
-    #console.log "Firebase.initialize_source a new Firebase Update Source with"
-    #console.log "firebase url: #{url}"
-    #console.log "firebase token: #{token}"
-    conversation_updates_ref = new Firebase(url);
-    conversation_updates_ref.auth( token )
-    conversation_updates_ref.on 'child_added', (data) ->
-      data = data.val()
-      #console.log "Firebase $broadcast #{data.val().class}_update"
-      update_all = false
-      if update_all || (Date.fromISO(data.updated_at).getTime() / 1000 ) - $rootScope.timestamp > 0
-        $rootScope.$broadcast( "#{data.class}_update", data )
-      #else
-      #  console.log "Ignore this old update"
-
   process_update: (item_array, data) ->
     # Only apply updates newer than the page load time
     update_all = false
@@ -444,9 +429,6 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
 
     parked_comments: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/parked_comments.json")
-
-    firebase_token: (conversation_code) ->
-      $http.get("/api/conversations/#{conversation_code}/firebase_token.json")
 
     small_group_themes_theme_data: (component_code) ->
       $http.get("/api/components/#{component_code}/data.json").then (response) ->
@@ -644,9 +626,6 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
         if this.ratings_ack_hash["#{response.data.mca_option_evaluation_id}-#{response.data.mca_criteria_id}"].rating == response.data.rating
           delete this.ratings_ack_hash["#{response.data.mca_option_evaluation_id}-#{response.data.mca_criteria_id}"]
 
-    firebase_token: (mca_id) ->
-      $http.get("/api/mca/#{mca_id}/firebase_token.json")
-
     store_panel_weight: (mca_id, panel_weight ) ->
       $http.post("/api/mca/#{mca_id}/panel_weight.json", {panel_weight: panel_weight} )
 
@@ -658,4 +637,50 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
 
     remove_evaluation_assignment: (evaluation_id) ->
       $http.post("/api/mca_option_evaluations/#{evaluation_id}/remove_evaluation_assignment.json")
+]
+
+services.factory "FayeService", [ "$timeout", "$rootScope", "CommentData", ($timeout, $rootScope, CommentData ) ->
+  name: "FayeService"
+  client: null
+  initialize: ->
+    console.log "XXXX Initialize Faye client"
+    this.client = new Faye.Client('http://localhost:8000/faye');
+
+    clientAuth = {
+      outgoing: (message, callback) ->
+        # Again, leave non-subscribe messages alone
+        if message.channel isnt '/meta/subscribe'
+          return callback(message)
+
+        #console.log "#### clientAuth add token for message:"
+        #console.log(message)
+        # Add ext field if it's not present
+        message.ext = message.ext || {}
+
+        # Set the ror_session_id
+        message.ext.ror_session_id = $rootScope.ror_session_id
+
+        # Carry on and send the message to the server
+        callback(message)
+    }
+
+    this.client.addExtension(clientAuth);
+
+  subscribe: (channel) ->
+    this.initialize() unless this.client
+    # test by forcing incorrect channel
+    #channel = channel + 'fail'
+    console.log "^^^^ subscribe to channel #{channel}"
+    subscription = this.client.subscribe channel, (message) ->
+      #temp.faye_message = message
+      console.log "Received realtime notification on channel #{channel}, broadcast it"
+      $rootScope.$broadcast "#{message.class}_update", message
+    subscription.callback -> console.log '^^^^ Subscription successful and ready to use!'
+    subscription.errback -> 
+      console.log '^^^^ ERROR: Subscription failed!'
+      console.log "XXXXXXX Do something about the failed channel subscription"
+    #temp.faye_subscription = subscription
+    #subscription.then (a,b,c,d) ->
+    #  console.log 'Subscription is now active!'
+
 ]

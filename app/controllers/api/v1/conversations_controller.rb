@@ -17,13 +17,16 @@ module Api
 
       def show
         conversation = Conversation.find_by( code: params[:id] )
+        session_id = request.session_options[:id]
         # determine if I can :show ()all comments) or try :show_summary_only
         if can?(:show, conversation)
           authorize! :show, conversation
-          presenter = ConversationPresenter.new( conversation, current_user, :show_all )
+          presenter = ConversationPresenter.new( conversation, current_user, session_id, :show_all )
+          Modules::FayeRedis::add_session_to_redis(session_id, current_user, ["/#{params[:id]}"], [])
         else
           authorize! :show_summary_only, conversation
-          presenter = ConversationPresenter.new( conversation, current_user, :show_summary_only )
+          presenter = ConversationPresenter.new( conversation, current_user, session_id, :show_summary_only )
+          Modules::FayeRedis::add_session_to_redis(session_id, current_user, ["/#{params[:id]}"], [])
         end
 
         respond_with presenter.conversation
@@ -63,9 +66,9 @@ module Api
 
         ids_with_order_id = Conversation.update_comment_order( params[:id], params[:ordered_ids] )
         if !ids_with_order_id.empty?
-          #Firebase.base_uri = "https://civicevolution.firebaseio.com/issues/#{conversation.question.issue_id}/conversations/#{conversation.id}/updates/"
-          Firebase.base_uri = "https://civicevolution.firebaseio.com/conversations/#{conversation.code}/updates/"
-          Firebase.push '', { class: 'Conversation', action: 'update_comment_order', data: {conversation_code: params[:id], ordered_ids: ids_with_order_id }, updated_at: Time.now.getutc, source: "RoR-Firebase" }
+          message = { class: 'Conversation', action: 'update_comment_order', data: {conversation_code: params[:id], ordered_ids: ids_with_order_id }, updated_at: Time.now.getutc, source: "RT-Notification" }
+          channel = "/#{conversation.code}"
+          Modules::FayeRedis::publish(message,channel)
         end
 
         render json: 'ok'
@@ -172,13 +175,6 @@ module Api
         authorize! :view_themes, conversation
         themes = conversation.themes
         respond_with themes
-      end
-
-      def firebase_token
-        conversation = Conversation.find_by(code: params[:id])
-        authorize! :edit_theme_comment, conversation
-        firebase_auth_data = { conversations_read: { "#{conversation.code}" => true } }
-        render json: {"firebase_token" => Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data) }
       end
 
     end

@@ -27,8 +27,11 @@ ce2_directives.directive('ceUserBar', ->
           backdropClick: true
           templateUrl: '<%= path_to_asset "user/signin_form.html" %>'
           controller: ->
-            # for testing
             $scope.user = {}
+            # for testing
+            $scope.user =
+              email: 'brian@civicevolution.org'
+              password: 'evolution'
             $scope.submit_sign_in = (user) ->
               console.log "Submit by calling User.sign_in with credentials: #{user.email}/#{user.password}"
               $scope.error_message = null
