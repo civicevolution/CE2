@@ -11,6 +11,15 @@ environments:
     precomplie_assets_task: assets:precompile
     asset_roles: :all
 
+  ce2_solo_clone:
+    branch: master
+    migrate: false
+    migration_command: bundle exec rake db:migrate
+    maintenance_on_migrate: true
+    precompile_assets: true
+    precomplie_assets_task: assets:precompile
+    asset_roles: :all
+
   AUS:
     branch: master
     migrate: false
