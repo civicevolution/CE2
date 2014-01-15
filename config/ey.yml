@@ -37,3 +37,13 @@ environments:
     precompile_assets: true
     precomplie_assets_task: assets:precompile
     asset_roles: :all
+
+  ce2_p4_ng1_4:
+    branch: master
+    migrate: false
+    migration_command: bundle exec rake db:migrate
+    maintenance_on_migrate: true
+    precompile_assets: true
+    precomplie_assets_task: assets:precompile
+    asset_roles: :all
+
