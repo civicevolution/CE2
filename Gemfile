@@ -66,4 +66,4 @@ gem 'daemons'
 gem 'delayed_job_active_record' #,
 #    git: 'git://github.com/collectiveidea/delayed_job_active_record.git'
 
-gem 'execjs'
+gem 'therubyracer'
