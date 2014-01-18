@@ -1,3 +1,4 @@
+=begin
 Chef::Log.info("Running deploy/before_migrate.rb...")
 
 rails_env = new_resource.environment["RAILS_ENV"]
@@ -12,3 +13,4 @@ execute "rake assets:precompile" do
   command "bundle exec rake assets:precompile"
   environment "RAILS_ENV" => rails_env
 end
+=end
