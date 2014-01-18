@@ -1,5 +1,5 @@
 class HomeController < ApplicationController
-  skip_authorization_check :only => [:app]
+  skip_authorization_check :only => [:app, :home]
   def index
     @users = User.all
   end
