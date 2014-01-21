@@ -307,6 +307,7 @@ DEPENDENCIES
   cucumber-rails!
   daemons
   database_cleaner (>= 1.0.0.RC1)
+  delayed_job
   delayed_job_active_record
   devise
   differ
