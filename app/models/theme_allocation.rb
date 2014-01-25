@@ -45,7 +45,8 @@ class ThemeAllocation < AgendaComponent
       allocation_themes.push({
                             id: theme.id,
                             letter: ltr,
-                            text: theme.text.gsub(/\[quote.*\/quote\]/m,'')
+                            text: theme.text.gsub(/\[quote.*\/quote\]/m,''),
+                            published: theme.published
                         })
       ltr = ltr.succ
       allocation_theme_ids << theme.id

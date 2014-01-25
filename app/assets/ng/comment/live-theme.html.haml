@@ -1,0 +1,26 @@
+%div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}"){id: "com-{{comment.id}}"}
+  %div
+    %div.full-comment.row-fluid
+      .span12.body-with-arrow
+        .live-edit-theme(ng-class="{'show-details': show_details}")
+          .letter {{comment.letter}}
+          %div.theme_text(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+
+          %div.history.clear(ng-include src="history_url")
+
+          %div.footer
+            %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
+              History v{{comment.version}}
+
+            -#%a.edit(ng-if="comment.editable_by_user" ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
+            %a.edit(ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
+              -#%i.icon-pencil
+              Edit
+
+            -#%a.edit(ng-if="comment.comments == 0" ng-click="broadcast_action('theme-comment-hide')"){title: "Hide this theme"}
+            %a.edit(ng-click="broadcast_action('theme-comment-hide')"){title: "Hide this theme"}
+              Hide
+
+            %a.edit(ng-click="toggle_details()"){title: "Toggle details"}
+              Toggle details
+

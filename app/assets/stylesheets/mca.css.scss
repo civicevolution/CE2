@@ -1,0 +1,79 @@
+.gridStyle {
+  border: 1px solid rgb(212,212,212);
+  #width: 400px;
+  height: 800px;
+}
+
+.chkbx{
+  float: left;
+  margin-right: 10px;
+}
+#coord-mca-table{
+  label{
+    margin-left: 10px;
+    padding-left: 10px;
+  }
+    input.panel-weight{
+    width: 30px;
+  }
+  button {margin-left: 16px;}
+  span.pct{
+    font-weight: bold;
+    font-size: 1.4em;
+  }
+  .avg-row-green{
+    background-color: green;
+    color: #ffffff;
+  }
+  .averaged-row{
+    color: green;
+  }
+  .variance{
+    background-color: pink;
+    font-weight: bold;
+    color: black;
+  }
+  .exec-score{
+    background-color: #fbeed5;
+  }
+  .panel-score{
+    background-color: lightblue;
+  }
+  .total-score{
+    background-color: blue;
+    color: white;
+    font-weight: bold;
+  }
+  .avg-row-green{
+    .variance, .exec-score, .panel-score {
+      color: black;
+    }
+    .total-score{
+      color: white;
+    }
+  }
+}
+
+@media print{
+  .csv-data-link-span, .mca-table-column-select{
+    display: none !important
+  }
+}
+
+.assign-project-dialog {
+  padding: 16px;
+  div.assigned-to{
+    div{
+      float: left;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      &.evaluator{
+        border: 1px solid #808080;
+        padding: 2px 4px;
+        .name{
+          margin-right: 6px;
+        }
+      }
+    }
+  }
+}

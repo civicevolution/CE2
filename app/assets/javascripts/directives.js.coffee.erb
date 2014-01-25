@@ -256,6 +256,7 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
       when "call-to-action" then "<%= path_to_asset "comment/call-to-action.html" %>"
       when "table" then "<%= path_to_asset "comment/table.html" %>"
       when "theme" then "<%= path_to_asset "comment/theme.html" %>"
+      when "live-theme" then "<%= path_to_asset "comment/live-theme.html" %>"
   replace: true
   scope: true
   priority: 100
@@ -358,6 +359,9 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
 
       $scope.text_select_by_mouse = ->
         $scope.$root.$broadcast('text-select-by-mouse')
+        
+      $scope.toggle_details = ->
+        $scope.show_details = if $scope.show_details then false else true
 
   ]
 ])
@@ -723,6 +727,10 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose}
             $scope.newComment.reply_control_title = "Edit"
+
+          when 'new-theme-comment'
+            $scope.newComment.type = 'ThemeComment'
+            $scope.newComment.reply_control_title = "Add new theme comment"
 
           when 'theme-comment-edit'
             comment = data.comment
@@ -1245,10 +1253,12 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
           comments_order = (item.id for item in dom_scope_collection )
           comment_id = elm.parent().parent().attr('comment_id')
           if comment_id
-            CommentData.update_comment_order(comment_id, comments_order)
+            CommentData.update_comment_order(comment_id, comments_order).then (response) ->
+              ConversationData.add_letters(dom_scope_collection)
           else
             conversation_code = elm.scope().$parent.conversation?.code
-            ConversationData.update_comment_order(conversation_code, comments_order)
+            ConversationData.update_comment_order(conversation_code, comments_order).then (response) ->
+              ConversationData.add_letters(dom_scope_collection)
           $timeout ->
             angular.element(document.body).removeClass('drag_in_process')
           , 1000
@@ -2474,4 +2484,17 @@ ce2_directives.directive('ceLoading', ->
       body.removeClass('loading')
 
   ]
+)
+
+ce2_directives.directive('ngBlur', ->
+  ( scope, elem, attrs ) ->
+    elem.bind('blur', ->
+      scope.$$phase || scope.$apply(attrs.ngBlur)
+    )
+)
+ce2_directives.directive('ngFocus', ->
+  ( scope, elem, attrs ) ->
+    elem.bind('focus', ->
+      scope.$apply(attrs.ngFocus)
+    )
 )

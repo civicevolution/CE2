@@ -16,7 +16,7 @@ class Ability
   @@conversation_actions_by_role[:conversation_admin] = %i( edit_title privacy tags schedule publish update_role ).concat @@conversation_actions_by_role[:curator]
 
   @@conversation_actions_by_role[:scribe] = %i( view_table_comments edit_table_comment post_prescreen history vote )
-  @@conversation_actions_by_role[:themer] = %i( edit_table_comment edit_theme_comment assign_comment_theme post_prescreen history update_comment_order destroy_theme_comment)
+  @@conversation_actions_by_role[:themer] = %i( edit_table_comment edit_theme_comment assign_comment_theme post_prescreen history update_comment_order destroy_theme_comment hide).concat @@conversation_actions_by_role[:scribe]
   @@conversation_actions_by_role[:coordinator] = %i( publish_themes).concat @@conversation_actions_by_role[:themer]
 
 

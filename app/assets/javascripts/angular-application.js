@@ -11,7 +11,7 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 
-// require jquery-1.9.1
+//= require jquery-1.9.1
 //= require underscore-min.js
 //= require md5.js
 
@@ -39,6 +39,10 @@
 //= require Markdown.Editor.js
 //= require Markdown.Sanitizer.js
 //= require bbcode.js
+
+//= require ng-grid/ng-grid-2.0.7.min.js
+//= require ng-grid/ng-grid-csv-export.js
+//= require ng-grid/ng-grid-flexible-height.js
 
 
 // Don't use these for now

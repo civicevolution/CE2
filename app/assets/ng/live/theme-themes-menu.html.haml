@@ -9,23 +9,48 @@
       %span.badge.badge-info {{theme_cnt.cnt}}
 
   %li#conversation-review-link
+    %span.label.label-info Comments
+
+  %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'all_table_comments'}" popover="Click here to view all of the comments" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('all_table_comments')")
+      All comments
+      %span.badge.badge-info {{conversation.comment_counts['all_comments']}}
+
+
+  %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'untagged_comments'}" popover="Click here to view all of the comments that need to be tagged to a theme" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('untagged_comments')")
+      Untagged
+      %span.badge.badge-important {{conversation.comment_counts['untagged_comments']}}
+
+  %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked_comments'}" popover="Click here to view all of the comments that have been parked" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('parked_comments')")
+      Parked
+      %span.badge.badge-info {{conversation.comment_counts['parked_comments']}}
+
+  %li#conversation-review-link(ng-repeat="id in conversation.assigned_tables" ng-class="{active: (conversation.filter_mode == 'table' && conversation.filter_id == id)}" popover="Click to view comments from table {{id}}" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
+    %a(ng-click="filter_table_comments('table', id)")
+      Table {{id}}
+      %span.badge.badge-info {{conversation.comment_counts['table' + id]}}
+
+
+  %li#conversation-review-link
     %span.label.label-info Team themes
 
   %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'all_theme_comments'}" popover="Click here to view all of the themes" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
     %a(ng-click="filter_table_comments('all_theme_comments')")
       All themes
-      %span.badge.badge-info {{conversation.comment_counts['all']}}
+      %span.badge.badge-info {{conversation.comment_counts['all_themes']}}
 
 
   %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'untagged_themes'}" popover="Click here to view all of the themes that need to be tagged to a theme" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
     %a(ng-click="filter_table_comments('untagged_themes')")
       Untagged
-      %span.badge.badge-important {{conversation.comment_counts['untagged']}}
+      %span.badge.badge-important {{conversation.comment_counts['untagged_themes']}}
 
   %li#conversation-review-link(ng-class="{active: conversation.filter_mode == 'parked_themes'}" popover="Click here to view all of the themes that have been parked" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
     %a(ng-click="filter_table_comments('parked_themes')")
       Parked
-      %span.badge.badge-info {{conversation.comment_counts['parked']}}
+      %span.badge.badge-info {{conversation.comment_counts['parked_themes']}}
 
   %li#conversation-review-link
     %span.label.label-info My themes
@@ -39,3 +64,6 @@
     %a(ng-click="filter_table_comments('theme', theme.id)")
       {{theme.tag_name}}
       %span.badge.badge-info {{conversation.comment_counts[theme.id]}}
+
+  %p
+    %a(ng-click="edit('new-theme-comment')") Add new theme

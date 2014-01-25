@@ -201,6 +201,13 @@ services.factory "ConversationData", ["$http",
 
     load_stats: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/stats.json")
+
+    add_letters: (items) ->
+      letter_ctr = 0;
+      for item in items
+        item.letter = String.fromCharCode('A'.charCodeAt() + letter_ctr)
+        letter_ctr += 1
+      items
 ]
 
 services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
@@ -426,6 +433,12 @@ services.factory "ThemeData", ["$http", "$rootScope", "$timeout",
     delete: (data) ->
       $http.delete("/api/comments/#{data.id}.json")
 
+    hide: (data) ->
+      $http.post("/api/comments/#{data.id}/hide.json")
+
+    show: (data) ->
+      $http.post("/api/comments/#{data.id}/show.json")
+
     conversation_themes: (conversation_code) ->
       $http.get("/api/conversations/#{conversation_code}/themes.json")
 
@@ -598,4 +611,51 @@ services.factory "EventsData", ["$http",
     name: "EventsData"
     events: ->
       $http.get("/api/agendas.json")
+]
+
+services.factory "McaData", ["$http", "$timeout", "$dialog",
+  ($http, $timeout, $dialog) ->
+    ratings_ack_hash: {}
+
+    check_ratings_ack_hash: ->
+      #console.log "check_ratings_ack_hash"
+      uncleared_acks = false
+      for key, ack of this.ratings_ack_hash
+        if (new Date().getTime()/1000) - ack.timestamp > 15
+          #console.log "an old ACK hasn't been cleared"
+          title = "Sorry, your rating may not have been saved"
+          msg = "Please refresh this browser page and re-enter your rating. If this problem persists, please notify one of the facilitators."
+          btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+          $dialog.messageBox(title, msg, btns).open()
+        else
+          uncleared_acks = true
+      if uncleared_acks
+        $timeout =>
+          this.check_ratings_ack_hash()
+        , 10000
+    update_rating: (mca_option_evaluation_id, mca_criteria_id, rating) ->
+      this.ratings_ack_hash[ "#{mca_option_evaluation_id}-#{mca_criteria_id}"] =
+        timestamp: new Date().getTime()/1000,
+        rating: rating
+      $timeout =>
+        this.check_ratings_ack_hash()
+      , 10000
+      $http.post("/api/mca_eval/#{mca_option_evaluation_id}/criteria/#{mca_criteria_id}.json", {rating: rating} ).then (response) =>
+        if this.ratings_ack_hash["#{response.data.mca_option_evaluation_id}-#{response.data.mca_criteria_id}"].rating == response.data.rating
+          delete this.ratings_ack_hash["#{response.data.mca_option_evaluation_id}-#{response.data.mca_criteria_id}"]
+
+    firebase_token: (mca_id) ->
+      $http.get("/api/mca/#{mca_id}/firebase_token.json")
+
+    store_panel_weight: (mca_id, panel_weight ) ->
+      $http.post("/api/mca/#{mca_id}/panel_weight.json", {panel_weight: panel_weight} )
+
+    project_assignments: (option_id) ->
+      $http.get("/api/mca_options/#{option_id}/project_assignments.json")
+
+    assign_project_evaluation: (option_id, user_id) ->
+      $http.post("/api/mca_options/#{option_id}/assign_project.json", {user_id: user_id})
+
+    remove_evaluation_assignment: (evaluation_id) ->
+      $http.post("/api/mca_option_evaluations/#{evaluation_id}/remove_evaluation_assignment.json")
 ]

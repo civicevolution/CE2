@@ -34,7 +34,7 @@ class ThemeVote < ActiveRecord::Base
 
   def self.theme_votes(conversation_code, user_id)
     conversation = Conversation.find_by(code: conversation_code)
-    themes = ThemeComment.where(conversation_id: conversation.id, user_id: user_id)
+    themes = ThemeComment.where(conversation_id: conversation.id, user_id: user_id, published: true)
     votes = ThemeVote.where(theme_id: themes.map(&:id)).count(:group => "theme_id")
 
     results = []
@@ -44,7 +44,7 @@ class ThemeVote < ActiveRecord::Base
       num_votes = votes[theme.id] || 0
       total_votes += num_votes
       max_votes = num_votes unless max_votes > num_votes
-      result = { theme_id: theme.id, text: theme.text, votes: num_votes }
+      result = { theme_id: theme.id, text: theme.text, votes: num_votes, published: theme.published }
       results.push result
     end
     max_votes = max_votes.to_f

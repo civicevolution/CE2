@@ -171,3 +171,10 @@ body.drag_in_process{
 }
 
 .modal-form-ce form {margin: 0;}
+
+div.alert{
+  a{
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

@@ -68,8 +68,10 @@ module Api
           when "ThemeComment"
             params[:comment][:purpose] ||= 'theme'
             params[:comment][:tag_name] = params[:tag_name]
-            params[:comment][:text] ||= "<span class='warn'>Please write a description for tag: #{params[:comment][:tag_name]}</span>"
-            params[:comment][:version] = 0
+            if params[:comment][:text].nil?
+              params[:comment][:text] ||= "<span class='warn'>Please write a description for tag: #{params[:comment][:tag_name]}</span>"
+              params[:comment][:version] = 0
+            end
 
             debug_theme = false
             if !debug_theme
@@ -118,6 +120,22 @@ module Api
         comment.destroy
         respond_with comment
 
+      end
+
+      def hide
+        comment = Comment.find(params[:id])
+        Rails.logger.debug "Hide this comment"
+        comment.update_attribute(:published, false)
+        authorize! :hide, comment.conversation
+        render json: comment
+      end
+
+      def show
+        comment = Comment.find(params[:id])
+        Rails.logger.debug "Show this comment"
+        comment.update_attribute(:published, true)
+        authorize! :hide, comment.conversation
+        render json: comment
       end
 
       def history

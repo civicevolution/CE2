@@ -5,6 +5,8 @@ class Agenda < ActiveRecord::Base
   has_many :agenda_components
   has_many :agenda_component_threads
 
+  has_many :mca, class_name: 'MultiCriteriaAnalysis', foreign_key: :agenda_id
+
   has_many :reports, primary_key: :code, foreign_key: :agenda_code
 
   validate :code_is_unique, on: :create
@@ -67,7 +69,7 @@ class Agenda < ActiveRecord::Base
     if role
       # use agenda_details to construct the menu_data
       agenda_details["links"][role].each_value do |link|
-        menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"]})
+        menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"], group_id: link["id"]})
       end
     end
 
@@ -104,24 +106,28 @@ class Agenda < ActiveRecord::Base
         data = ThemeSelection.data_themes_select_results({"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id})
         data[:allocated_themes].each do|theme|
           theme[:count] = "(#{theme[:votes]})"
+          theme[:text] = theme[:text].split(/\n/)[0]
         end
       when 'allocation-results'
         data = ThemeAllocation.data_themes_allocation_results({"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id})
         data[:allocated_themes].each do|theme|
           theme[:count] = "#{theme[:points]}pts"
+          theme[:text] = theme[:text].split(/\n/)[0]
         end
 
       when 'select-worksheet'
         data = ThemeSmallGroupTheme.data_key_themes_with_examples( {"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id} )
         data[:themes].each do |theme|
-          theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+          #theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+          theme[:text] = theme[:text].split(/\n/)[0]
         end
         data = {title: data[:title], worksheet_themes: data[:themes]}
 
       when 'allocation-worksheet'
         data = ThemeSmallGroupTheme.data_key_themes_with_examples( {"conversation_code" => conversation_code, "coordinator_user_id" => coordinator_user_id} )
         data[:themes].each do |theme|
-          theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+          #theme[:text] = theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+          theme[:text] = theme[:text].split(/\n/)[0]
         end
         data = {title: data[:title], worksheet_themes: data[:themes]}
     end
@@ -133,30 +139,12 @@ class Agenda < ActiveRecord::Base
 
     file.write( {"Agenda" => self.attributes}.to_yaml )
 
-    agenda_components = self.agenda_components
-    file.write( {"AgendaComponents" => agenda_components.map{|c| c.attributes}}.to_yaml )
-
     agenda_roles = self.agenda_roles
     file.write( {"AgendaRoles" => agenda_roles.map{|c| c.attributes}}.to_yaml )
 
-    agenda_component_threads = self.agenda_component_threads
-    file.write( {"AgendaComponentThreads" => agenda_component_threads.map{|c| c.attributes}}.to_yaml )
-
-    # collect the conversation ids from the component inputs
-    conversation_ids = []
-    agenda_components.each do |c|
-      c.input.each_pair do|key,value|
-        if key.match(/conversation/)
-          conversation_ids << value
-        end
-      end
-    end
-
-    conversations = Conversation.where(id: conversation_ids.flatten.uniq)
+    conversations = Conversation.where(id: self.conversation_ids.flatten.uniq)
 
     file.write( {"Conversations" => conversations.map{|c| c.attributes}}.to_yaml )
-
-    user_ids = conversations.map(&:user_id).uniq
 
     comments = []
     conversations.each do |c|
@@ -166,18 +154,15 @@ class Agenda < ActiveRecord::Base
     file.write( {"Comments" => comments.map{|c| c.attributes}}.to_yaml )
 
     comment_ids = comments.map(&:id)
-    user_ids.concat comments.map(&:user_id).uniq
 
     comment_versions = CommentVersion.where(item_type: 'Comment', item_id: comment_ids)
     file.write( {"CommentVersions" => comment_versions.map{|c| c.attributes}}.to_yaml )
-
 
     comment_threads = CommentThread.where(parent_id: comment_ids)
     file.write( {"CommentThreads" => comment_threads.map{|c| c.attributes}}.to_yaml )
 
     pro_con_vote = ProConVote.where(comment_id: comment_ids)
     file.write( {"ProConVotes" => pro_con_vote.map{|c| c.attributes}}.to_yaml )
-
 
     theme_votes = ThemeVote.where(theme_id: comment_ids)
     file.write( {"ThemeVotes" => theme_votes.map{|c| c.attributes}}.to_yaml )
@@ -187,238 +172,360 @@ class Agenda < ActiveRecord::Base
 
     # I should get parked_comments
 
-    user_ids.concat theme_votes.map(&:group_id).uniq
-    user_ids.uniq!
-    users = User.where(id: user_ids)
     user_recs = {}
-    users.each{|u| user_recs[u.id] = {email: u.email, first_name: u.first_name, last_name: u.last_name}}
+    self.participants.sort_by{|first_name, last_name| [first_name, last_name]}.each do |u|
+      user_recs[u.id] = {email: u.email, first_name: u.first_name, last_name: u.last_name}
+    end
     file.write( {"Users" => user_recs}.to_yaml )
+
+
+
+    mca_tables = MultiCriteriaAnalysis.where(agenda_id: self.id)
+    file.write( {"MultiCriteriaAnalyses" => mca_tables.map{|c| c.attributes}}.to_yaml )
+
+    mca_criteria = []
+    mca_options = []
+    mca_tables.each do |mca|
+      mca_criteria.concat mca.criteria
+      mca_options.concat mca.options
+    end
+
+    file.write( {"McaCriteria" => mca_criteria.map{|c| c.attributes}}.to_yaml )
+    file.write( {"McaOptions" => mca_options.map{|c| c.attributes}}.to_yaml )
+
+    option_ids = mca_options.map(&:id)
+    mca_evaluations = McaOptionEvaluation.where(mca_option_id: option_ids)
+    file.write( {"McaOptionEvaluations" => mca_evaluations.map{|c| c.attributes}}.to_yaml )
+
+    evaluation_ids = mca_evaluations.map(&:id)
+    mca_ratings = McaRating.where(mca_option_evaluation_id: evaluation_ids)
+    file.write( {"McaRatings" => mca_ratings.map{|c| c.attributes}}.to_yaml )
+
+
+    #mca = MultiCriteriaAnalysis.find_by(agenda_id: self.id)
+    #if mca
+    #  file.write( {"MultiCriteriaAnalysis" => mca.attributes}.to_yaml )
+    #
+    #  file.write( {"McaCriteria" => mca.criteria.map{|c| c.attributes}}.to_yaml )
+    #
+    #  file.write( {"McaOptions" => mca.options.map{|c| c.attributes}}.to_yaml )
+    #
+    #  mca_evaluations = []
+    #  mca.options.each do |option|
+    #    mca_evaluations.push option.evaluations.map{|c| c.attributes}
+    #  end
+    #  file.write( {"McaEvaluations" => mca_evaluations.flatten}.to_yaml )
+    #
+    #
+    #  mca_ratings = []
+    #  mca.criteria.each do |criteria|
+    #    mca_ratings.push criteria.ratings.map{|c| c.attributes}
+    #  end
+    #  file.write( {"McaRatings" => mca_ratings.flatten}.to_yaml )
+    #end
 
   end
 
   def self.import(file)
+    agenda = nil
+    ActiveRecord::Base.transaction do
 
-    event_doc = YAML::load_stream( file )
+      event_doc = YAML::load_stream( file )
 
-    docs = {}
-    event_doc.each do |doc|
-      docs[ doc.keys[0] ] = doc[ doc.keys[0] ]
-      puts doc.keys[0]
-    end
-    event_doc = nil
-
-    # docs["Agenda"]
-    # {"Agenda"=>{"id"=>1, "title"=>"Bangalore Sub-urban Rail Project: Potential for innovative financing and planning strategies",
-    # "description"=>"Bangalore Sub-urban Rail Project", "code"=>"f3zp7xglzp", "access_code"=>"bingo", "template_name"=>"iap2", "list"=>nil,
-    # "status"=>nil, "created_at"=>2013-10-08 08:02:09 UTC, "updated_at"=>2013-10-08 08:02:09 UTC}}
-
-    agenda_details = docs["Agenda"]
-
-    agenda = Agenda.new
-    agenda_details.each_pair do |key,value|
-      #puts "#{key}: #{value}"
-      agenda[key] = value unless ['id','code'].include?(key)
-    end
-    #puts agenda.inspect
-    agenda.save
-
-    agenda_details[:id] = agenda.id
-    agenda_details[:code] = agenda.code
-
-
-    agenda_default_user_id = 1
-
-    # I need to set the agenda id in the user email to the new agenda id
-    users = docs["Users"]
-    users.each_pair do |id,details|
-      email = details[:email]
-      if email.match(/^\w+-\d+-/)
-        email = email.sub(/^(\w+)-\d+-/, "\\1-#{agenda.id}-")
-        user = User.find_by(email: email)
-        if user.nil?
-          user = Agenda.create_agenda_user( agenda, email )
-        end
-        details[:new_user_id] = user.id
-        agenda_default_user_id = user.id if email.match(/coordinator/)
+      docs = {}
+      event_doc.each do |doc|
+        docs[ doc.keys[0] ] = doc[ doc.keys[0] ]
+        puts doc.keys[0]
       end
-    end
+      event_doc = nil
 
+      # docs["Agenda"]
+      # {"Agenda"=>{"id"=>1, "title"=>"Bangalore Sub-urban Rail Project: Potential for innovative financing and planning strategies",
+      # "description"=>"Bangalore Sub-urban Rail Project", "code"=>"f3zp7xglzp", "access_code"=>"bingo", "template_name"=>"iap2", "list"=>nil,
+      # "status"=>nil, "created_at"=>2013-10-08 08:02:09 UTC, "updated_at"=>2013-10-08 08:02:09 UTC}}
 
-    # ignore AgendaComponentThreads
+      agenda_details = docs["Agenda"]
 
-    docs["AgendaRoles"].each do |details|
-      agenda_role = AgendaRole.new
-      details.each_pair do |key,value|
+      agenda = Agenda.new
+      agenda_details.each_pair do |key,value|
         #puts "#{key}: #{value}"
-        agenda_role[key] = value unless ['id'].include?(key)
+        agenda[key] = value unless ['id','code'].include?(key)
       end
-      agenda_role.agenda_id = agenda.id
-      agenda_role.save
-    end
+      #puts agenda.inspect
+      agenda.save
 
-    # Do the AgendaComponents after I have the new conversation ids
+      agenda_details[:id] = agenda.id
+      agenda_details[:code] = agenda.code
+      agenda_details['details'][:code] = agenda.code
 
-    conversations_details = {}
-    conversation_ids = []
-    docs["Conversations"].each do |details|
-      conversations_details[details['id']] = details
-      conversation = Conversation.new
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        conversation[key] = value unless ['id','code'].include?(key)
-      end
-      conversation.user_id =  users[details["user_id"] ][:new_user_id] || agenda_default_user_id
-      #puts conversation.inspect
-      conversation.save
-      details[:new_id] = conversation.id
-      details[:new_code] = conversation.code
-      conversation_ids.push( conversation.id )
-    end
+      agenda.update_attribute(:title, "IMP(#{agenda.id}) #{agenda.title}")
+      agenda.update_attribute(:list, true)
 
-    agenda.update_attribute(:conversation_ids, conversation_ids)
+      agenda_default_user_id = 1
 
-
-    docs["AgendaComponents"].each do |details|
-      agenda_component = AgendaComponent.new
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        agenda_component[key] = value unless ['id','code'].include?(key)
-      end
-      agenda_component.agenda_id = agenda.id
-
-      # update the input data
-      details["input"].each_pair do |key,value|
-        case key
-          when "user_ids"
-            new_values = []
-            value.each do |id|
-              new_values.push( users[id].try{|user|[:new_user_id]} || 1 )
-            end
-            details["input"]["user_ids"] = new_values
-
-          when "conversation_id"
-            details["input"]["conversation_id"] = conversations_details[ value ][:new_id]
-
-          when "conversations_list_ids"
-            new_values = []
-            value.each do |id|
-              new_values.push( conversations_details[id][:new_id] )
-            end
-            details["input"]["conversations_list_ids"] = new_values
-
-          when "coordinator_user_id"
-            details["input"]["coordinator_user_id"] = users[ value ][:new_user_id]
-
-          when "worksheet_conversation_ids"
-            new_values = []
-            value.each do |id|
-              new_values.push( conversations_details[id][:new_id] )
-            end
-            details["input"]["worksheet_conversation_ids"] = new_values
+      # I need to set the agenda id in the user email to the new agenda id
+      users = docs["Users"]
+      users.each_pair do |id,details|
+        email = details[:email]
+        if email.match(/^\w+-\d+-/)
+          email = email.sub(/^(\w+)-\d+-/, "\\1-#{agenda.id}-")
+          user = User.find_by(email: email)
+          if user.nil?
+            user = Agenda.create_agenda_user( agenda, email )
+          end
+          details[:new_user_id] = user.id
+          details[:new_id] = user.id
+          agenda_default_user_id = user.id if email.match(/coordinator/)
         end
       end
-      agenda_component.input = details["input"]
-      agenda_component.save
-    end
 
 
+      # ignore AgendaComponentThreads
 
-
-
-    votes = {}
-    docs["ProConVotes"].each do |v|
-      votes[v['comment_id']] = {pro: v["pro_votes"], con: v["con_votes"]}
-    end
-
-    #votes.each{|k,v| puts "#{k}: #{v.inspect}"}
-
-    comment_details = {}
-    docs["Comments"].each do |details|
-      comment_details[details['id']] = details
-      # details = comment_details[0]
-      #puts details.inspect
-      comment = if details['type'] == 'TableComment'
-                  TableComment.new
-                elsif details['type'] == 'ThemeComment'
-                  ThemeComment.new
-                elsif details['type'] == 'TitleComment'
-                  TitleComment.new
-                else
-                  Comment.new
-                end
-      details.each_pair do |key,value|
-        #puts "#{key}: #{value}"
-        comment[key] = value unless ['id','conversation_id', 'new_id'].include?(key)
+      docs["AgendaRoles"].each do |details|
+        agenda_role = AgendaRole.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          agenda_role[key] = value unless ['id'].include?(key)
+        end
+        agenda_role.agenda_id = agenda.id
+        agenda_role.save
       end
-      comment.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
-      comment.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      vote = votes[ details['id']]
-      if vote
-        comment.pro_votes = vote[:pro] || 0
-        #Rails.logger.debug "vote[:pro]: #{vote[:pro]}"
-        comment.con_votes = vote[:con] || 0
+
+      # Do the AgendaComponents after I have the new conversation ids
+
+      conversations_details = {}
+      conversation_ids = []
+      docs["Conversations"].each do |details|
+        conversations_details[details['id']] = details
+        conversation = Conversation.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          conversation[key] = value unless ['id','code'].include?(key)
+        end
+        conversation.user_id =  users[details["user_id"] ][:new_user_id] || agenda_default_user_id
+        #puts conversation.inspect
+        conversation.save
+        details[:new_id] = conversation.id
+        details[:new_code] = conversation.code
+        conversation_ids.push( conversation.id )
       end
-      #puts comment.inspect
-      comment.post_process_disabled = true
-      comment.save
-      details[:new_id] = comment.id
-    end
 
+      agenda.update_attribute(:conversation_ids, conversation_ids)
 
-    docs["CommentVersions"].each do |details|
-      #puts details.inspect
-      comment_version = CommentVersion.new
-      details.each_pair do |key,value|
-        comment_version[key] = value unless ['id'].include?(key)
+      agenda_details['details'][:coordinator_user_id] = agenda_default_user_id
+
+      details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only)
+      details_arrays.each do |name|
+        agenda_details['details'][name] = Agenda.update_record_ids(conversations_details, agenda_details['details'][name])
       end
-      comment_version.item_id = comment_details[details["item_id"] ][:new_id]  || 1
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      #puts comment_version.inspect
-      comment_version.save
-    end
 
-    docs["ThemeVotes"].each do |details|
-      #puts details.inspect
-      theme_vote = ThemeVote.new
-      details.each_pair do |key,value|
-        theme_vote[key] = value unless ['id'].include?(key)
+      agenda_details['details']['theme_map'].each_pair do |key, value|
+        agenda_details['details']['theme_map'][key] = Agenda.update_record_ids(users, value)
       end
-      theme_vote.theme_id = comment_details[details["theme_id"] ][:new_id]
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      #puts theme_vote.inspect
-      theme_vote.save
-    end
 
-    docs["ThemePoints"].each do |details|
-      #puts details.inspect
-      theme_point = ThemePoint.new
-      details.each_pair do |key,value|
-        theme_point[key] = value unless ['id'].include?(key)
+      votes = {}
+      docs["ProConVotes"].each do |v|
+        votes[v['comment_id']] = {pro: v["pro_votes"], con: v["con_votes"]}
       end
-      theme_point.theme_id = comment_details[details["theme_id"] ][:new_id]
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      #puts theme_point.inspect
-      theme_point.save
-    end
 
-    # I should restore parked_comments
+      #votes.each{|k,v| puts "#{k}: #{v.inspect}"}
 
-    docs["CommentThreads"].each do |details|
-      #puts details.inspect
-      comment_thread = CommentThread.new
-      details.each_pair do |key,value|
-        comment_thread[key] = value unless ['id'].include?(key)
+      comment_details = {}
+      docs["Comments"].each do |details|
+        comment_details[details['id']] = details
+        # details = comment_details[0]
+        #puts details.inspect
+        comment = if details['type'] == 'TableComment'
+                    TableComment.new
+                  elsif details['type'] == 'ThemeComment'
+                    ThemeComment.new
+                  elsif details['type'] == 'TitleComment'
+                    TitleComment.new
+                  else
+                    Comment.new
+                  end
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          comment[key] = value unless ['id','conversation_id', 'new_id'].include?(key)
+        end
+        comment.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
+        comment.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        vote = votes[ details['id']]
+        if vote
+          comment.pro_votes = vote[:pro] || 0
+          #Rails.logger.debug "vote[:pro]: #{vote[:pro]}"
+          comment.con_votes = vote[:con] || 0
+        end
+        #puts comment.inspect
+        comment.post_process_disabled = true
+        comment.save
+        details[:new_id] = comment.id
       end
-      comment_thread.child_id = comment_details[details["child_id"] ][:new_id]
-      comment_thread.parent_id = comment_details[details["parent_id"] ][:new_id]
-      #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
-      #puts comment_thread.inspect
-      comment_thread.save
+
+
+      docs["CommentVersions"].each do |details|
+        #puts details.inspect
+        comment_version = CommentVersion.new
+        details.each_pair do |key,value|
+          comment_version[key] = value unless ['id'].include?(key)
+        end
+        comment_version.item_id = comment_details[details["item_id"] ][:new_id]  || 1
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        #puts comment_version.inspect
+        comment_version.save
+      end
+
+      docs["ThemeVotes"].each do |details|
+        #puts details.inspect
+        theme_vote = ThemeVote.new
+        details.each_pair do |key,value|
+          theme_vote[key] = value unless ['id'].include?(key)
+        end
+        theme_vote.theme_id = comment_details[details["theme_id"] ][:new_id]
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        #puts theme_vote.inspect
+        theme_vote.save
+      end
+
+      docs["ThemePoints"].each do |details|
+        #puts details.inspect
+        theme_point = ThemePoint.new
+        details.each_pair do |key,value|
+          theme_point[key] = value unless ['id'].include?(key)
+        end
+        theme_point.theme_id = comment_details[details["theme_id"] ][:new_id]
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        #puts theme_point.inspect
+        theme_point.save
+      end
+
+      # I should restore parked_comments
+
+      docs["CommentThreads"].each do |details|
+        #puts details.inspect
+        comment_thread = CommentThread.new
+        details.each_pair do |key,value|
+          comment_thread[key] = value unless ['id'].include?(key)
+        end
+        comment_thread.child_id = comment_details[details["child_id"] ][:new_id] unless !comment_details[details["child_id"] ]
+        comment_thread.parent_id = comment_details[details["parent_id"] ][:new_id] unless !comment_details[details["parent_id"] ]
+        #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
+        #puts comment_thread.inspect
+        comment_thread.save
+      end
+
+      # add_roles to the conversations for AUTH
+      conversations = Conversation.where(id: conversation_ids)
+      conversations.each do |conversation|
+        agenda.participants.each do |participant|
+          role = participant.email.match(/agenda-\d+-(\w+)-/)[1]
+          if role == 'group'
+            role = :scribe
+          else
+            role = role.to_sym
+          end
+          puts role
+          participant.add_role role, conversation
+        end
+      end
+
+      # Import the mca stuff
+
+      mca_details = {}
+      docs["MultiCriteriaAnalyses"].each do |details|
+        mca_details[details['id']] = details
+        mca = MultiCriteriaAnalysis.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          mca[key] = value unless ['id','code'].include?(key)
+        end
+        mca.agenda_id = agenda.id
+        puts mca.inspect
+        mca.save
+        details[:new_id] = mca.id
+      end
+
+      criteria_details = {}
+      docs["McaCriteria"].each do |details|
+        criteria_details[details['id']] = details
+        criteria = McaCriteria.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          criteria[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
+        end
+        criteria.multi_criteria_analysis_id = mca_details[details['multi_criteria_analysis_id']][:new_id]
+        #puts criteria.inspect
+        criteria.save
+        details[:new_id] = criteria.id
+      end
+
+      options_details = {}
+      docs["McaOptions"].each do |details|
+        options_details[details['id']] = details
+        option = McaOption.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          option[key] = value unless ['id','code','multi_criteria_analysis_id'].include?(key)
+        end
+        option.multi_criteria_analysis_id = mca_details[details['multi_criteria_analysis_id']][:new_id]
+        #puts option.inspect
+        option.save
+        details[:new_id] = option.id
+      end
+
+      evaluation_details = {}
+      docs["McaOptionEvaluations"].each do |details|
+        evaluation_details[details['id']] = details
+        evaluation = McaOptionEvaluation.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          evaluation[key] = value unless ['id','new_id','mca_option_id','user_id'].include?(key)
+        end
+        evaluation.mca_option_id = options_details[details["mca_option_id"]][:new_id]
+        evaluation.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
+        evaluation.save
+        details[:new_id] = evaluation.id
+      end
+
+      evaluation_rating_details = {}
+      docs["McaRatings"].each do |details|
+        evaluation_rating_details[details['id']] = details
+        evaluation_rating = McaRating.new
+        details.each_pair do |key,value|
+          #puts "#{key}: #{value}"
+          evaluation_rating[key] = value unless ['id','new_id', 'mca_criteria_id', 'mca_option_evaluation_id'].include?(key)
+        end
+        evaluation_rating.mca_option_evaluation_id = evaluation_details[details["mca_option_evaluation_id"]][:new_id]
+        evaluation_rating.mca_criteria_id = criteria_details[details["mca_criteria_id"] ][:new_id]
+        evaluation_rating.post_process_disabled = true
+        evaluation_rating.save
+        details[:new_id] = evaluation_rating.id
+      end
+
+      details_arrays = %w(mca_ids mca_id_plenary mca_ids_coord_only)
+      details_arrays.each do |name|
+        agenda_details['details'][name] = Agenda.update_record_ids(mca_details, agenda_details['details'][name])
+      end
+
+      agenda.update_attribute(:details, agenda_details['details'])
+      #agenda.refresh_agenda_details_links_and_data_sets
     end
+    agenda.refresh_agenda_details_links_and_data_sets
+    return agenda.code
+  end
 
-    return 'Import completed'
-
+  def self.update_record_ids(translation_details, ids_array)
+    return if ids_array.nil?
+    ids_array.each_index do |ind|
+      if ids_array[ind].class == Array
+        ids_array[ind] = update_record_ids(translation_details, ids_array[ind])
+      else
+        ids_array[ind] = translation_details[ ids_array[ind] ][:new_id]
+      end
+    end
+    ids_array
   end
 
   def self.create_agenda_user(agenda, email)
@@ -476,13 +583,39 @@ class Agenda < ActiveRecord::Base
     CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
   end
 
+  def delete_agenda
+    raise "CivicEvolution::AgendaCannotBeDeleted UNLESS in test mode" unless self.test_mode
+    raise "CivicEvolution::AgendaCannotBeDeleted in PROD" unless Rails.env.development?
+    Rails.logger.debug "Delete this Agenda"
+
+    conversation_ids = self.conversation_ids.flatten.uniq
+    comments = Comment.where(type: ['TableComment','ThemeComment'], conversation_id: conversation_ids)
+    comment_ids = comments.map(&:id)
+    comments.destroy_all
+    ParkedComment.where(conversation_id: conversation_ids).destroy_all
+
+    ProConVote.where(comment_id: comment_ids).destroy_all
+    ThemeVote.where(theme_id: comment_ids).destroy_all
+    ThemePoint.where(theme_id: comment_ids).destroy_all
+    CommentThread.where(parent_id: comment_ids).destroy_all
+    CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
+
+    # destroy the mca stuff
+    MultiCriteriaAnalysis.delete_mca( self.mca.map(&:id) )
+
+    Conversation.where(id: conversation_ids ).destroy_all
+    self.agenda_roles.destroy_all
+    self.participants.destroy_all
+    self.destroy
+  end
+
 
   def self.init_new_agenda(title, description, titles)
     agenda = Agenda.create title: title, description: description
 
     coordinator = agenda.create_user('coordinator', 1)
     coordinator.add_role :coordinator, agenda
-    AgendaRole.where(agenda_id: agenda.id, name: 'coordinator', identifier: 1, access_code: 'annie7').first_or_create
+    AgendaRole.where(agenda_id: agenda.id, name: 'coordinator', identifier: 1, access_code: 'coord7').first_or_create
 
 
     # create the conversations needed for this agenda
@@ -509,7 +642,7 @@ class Agenda < ActiveRecord::Base
       themer = agenda.create_user('themer', i)
       conversations.each{|conversation| themer.add_role :themer, conversation }
       themer.add_role :themer, agenda
-      AgendaRole.where( agenda_id: agenda.id, name: 'themer', identifier: i, access_code: "pune").first_or_create
+      AgendaRole.where( agenda_id: agenda.id, name: 'themer', identifier: i, access_code: "gpb").first_or_create
     end
 
     (1..10).each do |i|
@@ -615,7 +748,7 @@ class Agenda < ActiveRecord::Base
 
   def self.agendas
     #Agenda.where(list: true).select('code, title')
-    Agenda.where(list: true).map{|a| {code: a.code, title: a.title, munged_title: a.munged_title } }
+    Agenda.where(list: true).order(:id).map{|a| {code: a.code, title: a.title, munged_title: a.munged_title } }
   end
 
   def data_set( current_user, link_code )
@@ -656,50 +789,48 @@ class Agenda < ActiveRecord::Base
     if Rails.env.development?
       # group concurrent conversations in sub arrays
       #agenda_details[:conversation_ids] = [[206,207],[208,209,210]]
-      agenda_details[:conversation_ids] = [211, 212, 213, 214, 215, 216]
+      #agenda_details[:conversation_ids] = [211, 212, 213, 214, 215, 216]
+      agenda_details[:conversation_ids] = [402, [404, 405, 406],407]
     else
       # group concurrent conversations in sub arrays
-      agenda_details[:conversation_ids] = [6, 7, 8, 9, 10, 11]
+      agenda_details[:conversation_ids] = [14, [16, 17, 18], [19, 20, 21, 22]]
     end
 
     if Rails.env.development?
-      agenda_details[:select_conversations] = [211,212]
-      agenda_details[:allocate_conversations] = []
+      agenda_details[:select_conversations] = []
+      agenda_details[:allocate_conversations] = [402]
       #agenda_details[:allocate_top_themes_conversations] = [213, 214]
-      agenda_details[:allocate_multiple_conversations] = [213, 214]
-      agenda_details[:themes_only] = [216]
+      agenda_details[:allocate_multiple_conversations] = []
+      agenda_details[:themes_only] = []
 
       agenda_details[:theme_map] =
           {
-              1=>[373, 374, 379, 382],
-              2=>[375, 376, 380     ],
-              3=>[377, 378, 381     ]
+              1=>[1033, 1034, 1035, 1036],
+              2=>[1037,1038, 1039, 1040],
+              3=>[1033, 1034, 1035, 1036, 1037,1038, 1039, 1040]
           }
 
-      #agenda_details[:select_conversations] = [208,209,210]
-      #agenda_details[:allocate_conversations] = [206, 208]
-      #agenda_details[:allocate_top_themes_conversations] = [208,209,210]
-      #agenda_details[:allocate_multiple_conversations] = [208,209]
-      #
-      #agenda_details[:theme_map] =
-      #  {
-      #    1=>[357,354,356],
-      #    2=>[355,360,363],
-      #    3=>[359,358,365]
-      #  }
+      agenda_details[:mca_ids] = [48, 49]
+      agenda_details[:mca_id_plenary] = [48]
+      agenda_details[:mca_ids_coord_only] = []
+
     else
       agenda_details[:select_conversations] = []
-      agenda_details[:allocate_conversations] = [8,9]
+      agenda_details[:allocate_conversations] = [14]
       agenda_details[:allocate_top_themes_conversations] = []
       agenda_details[:allocate_multiple_conversations] = []
-      agenda_details[:themes_only] = [11]
+      agenda_details[:themes_only] = []
 
       agenda_details[:theme_map] =
           {
-              1=>[22, 23, 24, 29],
-              2=>[25, 26, 27, 28],
-              3=>[22,23,24,25,26,27,28,29]
+              1=>[37, 38, 39, 40],
+              2=>[41, 42, 43, 44],
+              3=>[37, 38, 39, 40, 41, 42, 43, 44]
           }
+      agenda_details[:mca_ids] = [2, 3]
+      agenda_details[:mca_id_plenary] = [2]
+      agenda_details[:mca_ids_coord_only] = []
+
     end
     self.update_attribute(:details, agenda_details)
   end
@@ -750,6 +881,7 @@ class Agenda < ActiveRecord::Base
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
             title: %Q|Theme groups for "#{conversation[:title]}"|,
+            id: conversation[:id],
             link_code:  link_code,
             href: "/#/agenda/#{self.code}-#{link_code}/sgd-theme/#{conversation[:munged_title]}",
             conversation_code: "#{conversation[:code]}",
@@ -765,8 +897,24 @@ class Agenda < ActiveRecord::Base
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
           title: %Q|Coordinator theming for "#{conversation[:title]}"|,
+          id: conversation[:id],
           link_code:  link_code,
           href: "/#/agenda/#{self.code}-#{link_code}/coord-theme/#{conversation[:munged_title]}",
+          conversation_code: "#{conversation[:code]}",
+          data_set: "coordinator-theming",
+          disabled: false,
+          role: 'coordinator'
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
+
+      # link for live-editing
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Live editing for "#{conversation[:title]}"|,
+          id: conversation[:id],
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/live-edit/#{conversation[:munged_title]}",
           conversation_code: "#{conversation[:code]}",
           data_set: "coordinator-theming",
           disabled: false,
@@ -779,6 +927,7 @@ class Agenda < ActiveRecord::Base
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
           title: %Q|Display final themes for "#{conversation[:title]}"|,
+          id: conversation[:id],
           link_code:  link_code,
           href: "/#/agenda/#{self.code}-#{link_code}/theme-results/#{conversation[:munged_title]}",
           conversation_code: "#{conversation[:code]}",
@@ -929,6 +1078,90 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:lookup][link_code] = "reporter"
     end
 
+    # link for coord-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: "Plenary Assessment Exercise",
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+        data_set: "coord-multi-criteria-analysis-table",
+        mode: 'plenary',
+        mca_id: agenda_details[:mca_id_plenary][0],
+        page_title: 'Plenary: Multi Criteria Analysis Results for Infrastructure Projects',
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "coordinator"
+
+    # link for group-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: "Plenary Assessment Exercise",
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+        data_set: "group-multi-criteria-analysis-table",
+        mode: 'plenary',
+        mca_id: agenda_details[:mca_id_plenary][0],
+        page_title: 'Plenary: Group input for Multi Criteria Analysis for Infrastructure Projects',
+        disabled: false,
+        role: 'group',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+
+
+
+    # Add links for MCA
+
+    mcas = MultiCriteriaAnalysis.where(id: agenda_details[:mca_ids])
+    ordered_mcas = []
+    agenda_details[:mca_ids].each do |id|
+      ordered_mcas << mcas.detect{|c| c.id == id}
+    end
+
+    ordered_mcas.each_index do |ind|
+      mca = ordered_mcas[ind]
+
+      # link for coord-mca-table
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|MCA Evaluation results for #{mca.title}|,
+          id: 'mca',
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+          data_set: "coord-multi-criteria-analysis-table",
+          mode: 'projects',
+          mca_id: mca.id,
+          page_title: "Multi Criteria Analysis Results for #{mca.title}",
+          disabled: false,
+          role: 'coordinator',
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
+
+      if !agenda_details[:mca_ids_coord_only].include?( mca.id )
+        # link for group-mca-table
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Evaluate #{mca.title}|,
+            id: 'mca',
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+            data_set: "group-multi-criteria-analysis-table",
+            mode: 'projects',
+            mca_id: mca.id,
+            page_title: "Group input for Multi Criteria Analysis for #{mca.title}",
+            disabled: false,
+            role: 'group',
+        }
+        agenda_details[:links][:group][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "group"
+      end
+    end
+
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -948,7 +1181,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_key_themes_with_examples",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -968,7 +1201,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_coordinator_theming_page_data",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -987,7 +1220,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_themes_select_page_data",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -997,7 +1230,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_themes_select_results",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1007,7 +1240,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_themes_allocate_page_data",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1017,7 +1250,7 @@ class Agenda < ActiveRecord::Base
             data_method: "data_themes_allocation_results",
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
-                coordinator_user_id: agenda_details[:coordinator_user_id]
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
             }
         }
 
@@ -1026,9 +1259,9 @@ class Agenda < ActiveRecord::Base
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_page_data",
             parameters: {
-                conversation_ids: "#{agenda_details[:allocate_top_themes_conversations]}",
+                conversation_ids: '#{agenda_details["allocate_top_themes_conversations"]}',
                 top_themes_count: 3,
-                coordinator_user_id: agenda_details[:coordinator_user_id],
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}',
                 page_title: '#{link_details["page_title"]}'
             }
         }
@@ -1038,9 +1271,9 @@ class Agenda < ActiveRecord::Base
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_results",
             parameters: {
-                conversation_ids: "#{agenda_details[:allocate_top_themes_conversations]}",
+                conversation_ids: '#{agenda_details["allocate_top_themes_conversations"]}',
                 top_themes_count: 3,
-                coordinator_user_id: agenda_details[:coordinator_user_id],
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}',
                 page_title: '#{link_details["page_title"]}'
             },
             data_set_title: 'Top ideas',
@@ -1052,10 +1285,10 @@ class Agenda < ActiveRecord::Base
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_page_data",
             parameters: {
-                conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
-                randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",
+                conversation_ids: '#{agenda_details["allocate_multiple_conversations"]}',
+                randomized_theme_ids: '#{agenda_details["allocate_multiple_conversations_theme_ids"]}',
                 top_themes_count: 1000,
-                coordinator_user_id: agenda_details[:coordinator_user_id],
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}',
                 page_title: '#{link_details["page_title"]}'
             }
         }
@@ -1065,14 +1298,36 @@ class Agenda < ActiveRecord::Base
             data_class: "ThemeAllocation",
             data_method: "data_collected_themes_allocation_results",
             parameters: {
-                conversation_ids: "#{agenda_details[:allocate_multiple_conversations]}",
-                randomized_theme_ids: "#{agenda_details[:allocate_multiple_conversations_theme_ids]}",
+                conversation_ids: '#{agenda_details["allocate_multiple_conversations"]}',
+                randomized_theme_ids: '#{agenda_details["allocate_multiple_conversations_theme_ids"]}',
                 top_themes_count: 1000,
-                coordinator_user_id: agenda_details[:coordinator_user_id],
+                coordinator_user_id: '#{agenda_details["coordinator_user_id"]}',
                 page_title: '#{link_details["page_title"]}'
             },
             data_set_title: 'Combined ideas',
             report_generator_list: (agenda_details[:allocate_multiple_conversations] && agenda_details[:allocate_multiple_conversations].size > 0)
+        }
+
+    agenda_details[:data_sets]["coord-multi-criteria-analysis-table"] =
+        {
+            data_class: "MultiCriteriaAnalysis",
+            data_method: "coord_evaluation_data",
+            parameters: {
+                mode: '#{link_details["mode"]}',
+                mca_id: '#{link_details["mca_id"]}',
+                page_title: '#{link_details["page_title"]}'
+            }
+        }
+
+    agenda_details[:data_sets]["group-multi-criteria-analysis-table"] =
+        {
+            data_class: "MultiCriteriaAnalysis",
+            data_method: "group_evaluation_data",
+            parameters: {
+                mode: '#{link_details["mode"]}',
+                mca_id: '#{link_details["mca_id"]}',
+                page_title: '#{link_details["page_title"]}'
+            }
         }
 
     self.update_attribute(:details, agenda_details)

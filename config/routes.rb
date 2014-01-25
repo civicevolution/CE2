@@ -12,6 +12,8 @@ Ce2::Application.routes.draw do
         post 'decline', :on => :member
         post 'assign_themes', on: :member
         post 'update_comment_order', on: :member
+        post 'hide', on: :member
+        post 'show', on: :member
       end
 
     end
@@ -208,6 +210,14 @@ Ce2::Application.routes.draw do
       end
     end
   end
+
+  post "api/mca_eval/:mca_option_evaluation_id/criteria/:mca_criteria_id" => "api/v1/mca_ratings#update", format: :json
+  get "api/mca/:id/firebase_token" => "api/v1/multi_criteria_analyses#firebase_token", format: :json
+  post "api/mca/:id/panel_weight" => "api/v1/multi_criteria_analyses#save_panel_weight", format: :json
+
+  get "api/mca_options/:id/project_assignments" => "api/v1/mca_options#project_assignments", format: :json
+  post "api/mca_options/:id/assign_project" => "api/v1/mca_options#assign_project", format: :json
+  post "api/mca_option_evaluations/:id/remove_evaluation_assignment" => "api/v1/mca_option_evaluations#remove_evaluation_assignment", format: :json
 
 
   # The priority is based upon order of creation: first created -> highest priority.
