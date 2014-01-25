@@ -644,7 +644,9 @@ services.factory "FayeService", [ "$timeout", "$rootScope", "CommentData", ($tim
   client: null
   initialize: ->
     console.log "XXXX Initialize Faye client"
-    this.client = new Faye.Client('http://localhost:8000/faye');
+    this.client = new Faye.Client("http://#{document.location.hostname}:8000/faye");
+    # test to ce2
+    #this.client = new Faye.Client("http://ce2.civicevolution.org:8000/faye");
 
     clientAuth = {
       outgoing: (message, callback) ->
