@@ -5,7 +5,7 @@
 bootstrap_CE2 = ->
 	#console.log "In bootstrap_CE2"
 
-  if typeof Firebase == 'undefined' || typeof Markdown == 'undefined' || typeof Markdown.BBCode == 'undefined'
+  if typeof Markdown == 'undefined' || typeof Markdown.BBCode == 'undefined'
     setTimeout bootstrap_CE2, 50
   else
     try
@@ -59,8 +59,6 @@ canRecover = (response) ->
 
 ce2_app.config ($httpProvider) ->
   $httpProvider.responseInterceptors.push('errorHttpInterceptor')
-
-ce2_app.value('Firebase', Firebase);
 
 ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
   ($stateProvider, $urlRouterProvider) ->
@@ -588,8 +586,8 @@ initialize_markdown_converter = ($timeout, $dialog, $rootScope, options) ->
   $rootScope.editor = editor unless disable_editor
 
 
-conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeout", "ConversationData", "$dialog",
-  ($scope, conversation, FirebaseService, $timeout, ConversationData, $dialog) ->
+conversation_controller = [ "$scope", "conversation", "FayeService", "$timeout", "ConversationData", "$dialog", "FirebaseService",
+  ($scope, conversation, FayeService, $timeout, ConversationData, $dialog, FirebaseService) ->
     console.log "In conversation state controller at bottom"
     $scope.conversation = conversation
     $scope.$root.timestamp = conversation.current_timestamp
@@ -612,10 +610,7 @@ conversation_controller = [ "$scope", "conversation", "FirebaseService", "$timeo
     $scope.show_comment_form = (action) ->
       $scope.$root.$broadcast 'open-comment-form', {action: action}
 
-    # Subscribe to updates for this data
-    url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"
-    #console.log "firebase url: #{url}"
-    FirebaseService.initialize_source(url, $scope.conversation.firebase_token)
+    FayeService.subscribe( "/#{$scope.conversation.code}" )
 
     # register the listeners for the firebase updates
     $scope.$on 'ConversationComment_update', (event, data) ->
@@ -758,11 +753,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
       $scope.change_themer($scope.user.name)
     , 500
 
-    ThemeData.firebase_token($scope.conversation.code).then(
-      (response)->
-        url = "https://civicevolution.firebaseio.com/conversations/#{$scope.conversation.code}/updates/"
-        FirebaseService.initialize_source(url, response.data.firebase_token)
-    )
+    FayeService.subscribe( "/#{$scope.conversation.code}" )
 
     $scope.$on 'TableComment_update', (event, data) ->
       table_number = Number(data.data.table_number)
@@ -1742,11 +1733,9 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.$root.timestamp = mca_data.current_timestamp
     $scope.mca_id = mca_data.id
     $scope.show_source_field = true if mca_data.options[0].source_key
-    McaData.firebase_token($scope.mca_id).then(
-      (response)->
-        url = "https://civicevolution.firebaseio.com/mca/#{$scope.mca_id}/updates/"
-        FirebaseService.initialize_source(url, response.data.firebase_token)
-    )
+
+    FayeService.subscribe( "/mca/#{$scope.mca_id}/rating" )
+
     $scope.mca =
       panel_weight: mca_data.details?.panel_weight || 50
       exec_weight: 100 - ( mca_data.details?.panel_weight || 50 )
@@ -2125,11 +2114,7 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FirebaseServic
     $scope.$root.timestamp = mca_data.current_timestamp
 
     mca_id = mca_data.id
-    McaData.firebase_token(mca_id).then(
-      (response)->
-        url = "https://civicevolution.firebaseio.com/mca/#{mca_id}/assignments/"
-        FirebaseService.initialize_source(url, response.data.firebase_token)
-    )
+    FayeService.subscribe( "/mca/#{mca_id}/assignments" )
 
     $scope.$on 'McaOptionEvaluation_update', (event, data) ->
       if data.data.user_id is $scope.user.id

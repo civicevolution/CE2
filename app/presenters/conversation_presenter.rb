@@ -1,6 +1,6 @@
 class ConversationPresenter
 
-  def initialize( conversation, current_user, display_mode )
+  def initialize( conversation, current_user, session_id, display_mode )
     #Rails.logger.debug "ConversationPresenter is started"
     @conversation = conversation
     @conversation.display_mode = display_mode
@@ -17,17 +17,9 @@ class ConversationPresenter
       com.bookmark = my_bookmarks[com.id]
     end
 
-    # everyone who can access this conversation can read the updates from Firebase
-    firebase_auth_data = { conversations_read: { "#{@conversation.code}" => true } }
+    @conversation.session_id = session_id
+    Rails.logger.debug "XXXX Create a CSRF token for Faye"
 
-    # only authenticated users can read their user channel or potentially write to the conversation channel on firebase
-    if current_user_id
-      firebase_auth_data['userid'] = "#{current_user_id}"
-      firebase_auth_data['conversations_write'] = { "#{@conversation.code}" => true }
-    end
-
-    @conversation.firebase_token = Firebase::FirebaseTokenGenerator.new(Firebase.auth).create_token(firebase_auth_data)
-    #Rails.logger.debug "ConversationPresenter is initialized"
   end
 
   def conversation

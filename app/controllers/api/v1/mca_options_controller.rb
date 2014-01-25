@@ -36,7 +36,7 @@ module Api
         option = McaOption.find(params[:id])
         #authorize! :edit_theme_comment, conversation
         evaluation = option.add_evaluation( { user_id: [ params[:user_id] ], category: 'group' })
-        evaluation.send_to_firebase
+        evaluation.realtime_notification
         render json: {add_evalution: 'ok', option_id: option.id, user_id: params[:user_id] }
       end
 

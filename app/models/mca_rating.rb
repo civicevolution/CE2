@@ -6,10 +6,10 @@ class McaRating < ActiveRecord::Base
   belongs_to :mca_option_evaluation
   belongs_to :mca_criteria
 
-  after_save :send_to_firebase, unless: :post_process_disabled
+  after_save :realtime_notification, unless: :post_process_disabled
 
 
-  def send_to_firebase
+  def realtime_notification
     mca_id = self.mca_option_evaluation.mca_option.multi_criteria_analysis_id
     data = {
       mca_option_evaluation_id: self.mca_option_evaluation_id,
@@ -17,9 +17,10 @@ class McaRating < ActiveRecord::Base
       rating: self.rating,
       updated_at: self.updated_at
     }
-    Firebase.base_uri = "https://civicevolution.firebaseio.com/mca/#{mca_id}/updates/"
-    Firebase.push '', { class: self.class.to_s, action: "update", data: data, updated_at: Time.now.getutc, source: "RoR-Firebase" }
+    message = { class: self.class.to_s, action: "update", data: data, updated_at: Time.now.getutc, source: "RoR-RT-Notification" }
+    channel = "/mca/#{mca_id}/rating"
+    FayeRedis::publish(message,channel)
   end
-  handle_asynchronously :send_to_firebase
+  handle_asynchronously :realtime_notification
 
 end

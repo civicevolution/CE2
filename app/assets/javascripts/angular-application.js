@@ -21,7 +21,7 @@
 //= require angular-1.1.5/angular-resource
 //= require angular-ui-router-0.0.1/angular-ui-router.js
 //= require ui-bootstrap-tpls-0.5.0/ui-bootstrap-tpls-0.5.0.js
-//= require firebase.js
+//= require faye-browser.js
 
 //= require controllers.js
 //= require directives.js
@@ -50,5 +50,4 @@
 // require bootstrap
 // require jquery_ujs
 
-var temp = { FirebaseUpdates: [] }
 setTimeout( function(){SVCS = angular.element(document.body).injector();}, 2000)

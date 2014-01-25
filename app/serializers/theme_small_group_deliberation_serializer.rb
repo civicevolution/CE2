@@ -1,7 +1,7 @@
 class ThemeSmallGroupDeliberationSerializer < ActiveModel::Serializer
   attributes :updated_at, :code, :title,
              :current_timestamp, :privacy, :role
-              #:firebase_token,
+
   has_many :theme_comments
   has_many :table_comments
   #has_many :parked_comments

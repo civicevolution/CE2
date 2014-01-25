@@ -13,15 +13,17 @@ class McaOptionEvaluation < ActiveRecord::Base
     self.order_id = (McaOptionEvaluation.where(user_id: user_id, mca_option_id: mca_options.map(&:id)).maximum(:order_id) || 0) + 1
   end
 
-  def send_to_firebase
+  def realtime_notification
     mca_id = self.mca_option.multi_criteria_analysis_id
     data = {
         title: self.mca_option.title,
         user_id: self.user_id
     }
-    Firebase.base_uri = "https://civicevolution.firebaseio.com/mca/#{mca_id}/assignments/"
-    Firebase.push '', { class: self.class.to_s, action: "update", data: data, updated_at: Time.now.getutc, source: "RoR-Firebase" }
+    message = { class: self.class.to_s, action: "update", data: data, updated_at: Time.now.getutc, source: "RoR-RT-Notification" }
+    channel = "/mca/#{mca_id}/assignments"
+    FayeRedis::publish(message,channel)
+
   end
-  handle_asynchronously :send_to_firebase
+  handle_asynchronously :realtime_notification
 
 end
