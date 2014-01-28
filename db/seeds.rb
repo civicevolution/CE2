@@ -63,3 +63,5 @@ end
 ConversationsTags.where( conversation_id: conversation.id, tag_id: tag.id).first_or_create do |ct|
   ct.published = 1
 end
+
+user.add_role :conversation_admin, Conversation.find(conversation.id)
