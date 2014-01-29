@@ -35,7 +35,7 @@ unconfirmed_user = User.where( email: ENV['UNCONFIRMED_USER_EMAIL'].dup ).first_
 end
 
 # create a test conversation on initialization
-conversation = Conversation.where(id: 3).first_or_create do |conversation|
+conversation = Conversation.where(id: 1).first_or_create do |conversation|
   conversation.user_id = user.id
   conversation.status = "ready"
   conversation.privacy = {list: true, invite: true, summary: true, comments: true, unknown_users: true, confirmed_privacy: true, confirmed_schedule: true}
