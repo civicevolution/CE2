@@ -24,11 +24,11 @@ defaults:
   # This setting can be overridden for individual deployments using
   # the command line options --migrate or --no-migrate.
   #
-  migrate: true
+  migrate: false
 
   # Default migration command to run when migrations are enabled.
   #
-  migration_command: rake db:migrate --trace
+  migration_command: bundle exec rake db:migrate --trace
 
   # Enables rails assets precompilation always and halts when the task fails.
   #
