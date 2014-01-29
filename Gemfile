@@ -67,3 +67,8 @@ gem 'delayed_job_active_record' #,
 #    git: 'git://github.com/collectiveidea/delayed_job_active_record.git'
 
 gem 'redis'
+
+group :development do
+  gem "capistrano", '~> 3.1.0'
+  gem 'capistrano-rails', '~> 1.0.0'
+end
