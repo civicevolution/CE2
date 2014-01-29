@@ -72,4 +72,4 @@ group :development do
   gem "capistrano", '~> 3.1.0'
   gem 'capistrano-rails', '~> 1.0.0'
 end
-gem 'capistrano-bundler'
+#gem 'capistrano-bundler'
