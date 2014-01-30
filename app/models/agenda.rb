@@ -1078,40 +1078,41 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:lookup][link_code] = "reporter"
     end
 
-    # link for coord-mca-table
-    link_code = self.create_link_code( agenda_details[:links][:lookup] )
-    link = {
-        title: "Plenary Assessment Exercise",
-        id: 'mca',
-        link_code:  link_code,
-        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
-        data_set: "coord-multi-criteria-analysis-table",
-        mode: 'plenary',
-        mca_id: agenda_details[:mca_id_plenary][0],
-        page_title: 'Plenary: Multi Criteria Analysis Results for Infrastructure Projects',
-        disabled: false,
-        role: 'coordinator',
-    }
-    agenda_details[:links][:coordinator][ link_code ] = link
-    agenda_details[:links][:lookup][link_code] = "coordinator"
+    if agenda_details[:mca_id_plenary] && agenda_details[:mca_id_plenary].size > 0
+      # link for coord-mca-table
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: "Plenary Assessment Exercise",
+          id: 'mca',
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+          data_set: "coord-multi-criteria-analysis-table",
+          mode: 'plenary',
+          mca_id: agenda_details[:mca_id_plenary][0],
+          page_title: 'Plenary: Multi Criteria Analysis Results for Infrastructure Projects',
+          disabled: false,
+          role: 'coordinator',
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
 
-    # link for group-mca-table
-    link_code = self.create_link_code( agenda_details[:links][:lookup] )
-    link = {
-        title: "Plenary Assessment Exercise",
-        id: 'mca',
-        link_code:  link_code,
-        href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
-        data_set: "group-multi-criteria-analysis-table",
-        mode: 'plenary',
-        mca_id: agenda_details[:mca_id_plenary][0],
-        page_title: 'Plenary: Group input for Multi Criteria Analysis for Infrastructure Projects',
-        disabled: false,
-        role: 'group',
-    }
-    agenda_details[:links][:group][ link_code ] = link
-    agenda_details[:links][:lookup][link_code] = "group"
-
+      # link for group-mca-table
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: "Plenary Assessment Exercise",
+          id: 'mca',
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+          data_set: "group-multi-criteria-analysis-table",
+          mode: 'plenary',
+          mca_id: agenda_details[:mca_id_plenary][0],
+          page_title: 'Plenary: Group input for Multi Criteria Analysis for Infrastructure Projects',
+          disabled: false,
+          role: 'group',
+      }
+      agenda_details[:links][:group][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "group"
+    end
 
 
     # Add links for MCA
