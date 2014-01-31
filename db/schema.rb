@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140131064649) do
+ActiveRecord::Schema.define(version: 20140131223531) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -458,6 +458,15 @@ ActiveRecord::Schema.define(version: 20140131064649) do
     t.integer "version",      null: false
     t.integer "user_id",      null: false
     t.integer "rating",       null: false
+  end
+
+  create_table "recommendation_votes", force: true do |t|
+    t.integer  "group_id"
+    t.integer  "voter_id"
+    t.integer  "conversation_id"
+    t.integer  "recommendation"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "replies", force: true do |t|
