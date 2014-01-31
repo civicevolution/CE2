@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131120191708) do
+ActiveRecord::Schema.define(version: 20140131064649) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -179,6 +179,7 @@ ActiveRecord::Schema.define(version: 20131120191708) do
     t.datetime "updated_at"
     t.integer  "daily_report_hour",   default: 7
     t.datetime "last_report_sent_at"
+    t.json     "details"
   end
 
   add_index "conversations", ["code"], name: "index_conversations_on_code", unique: true, using: :btree

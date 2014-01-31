@@ -28,6 +28,18 @@
             %p.warn(ng-repeat="error in newComment.form_errors")
               {{error.message}}
 
+        %div(ng-switch-when="TableComment")
+          %h4.form_title
+            {{newComment.reply_control_title}}
+
+          %div(ng-if="newComment.purpose_options")
+            %select(ng-model="newComment.purpose" ng-options="o.value as o.key for o in newComment.purpose_options" ng-change="select_comment_purpose()")
+              %option(value="" disabled selected) Select your recommendation
+
+          %div.form_errors
+            %p.warn(ng-repeat="error in newComment.form_errors")
+              {{error.message}}
+
         %div(ng-switch-when="ThemeComment")
           %h4.form_title
             {{newComment.reply_control_title}}

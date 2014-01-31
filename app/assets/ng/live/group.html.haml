@@ -14,7 +14,7 @@
         -#%li.add_comment(popover="Click here to add a new answer to the current question" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
         %li.add_comment
           %p#add-conversation-comment
-            %input.btn-primary.btn-large.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: 'Add a new comment'}
+            %input.btn-primary.btn-large.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: "{{add_button_label}}" }
 
     .span9
       %h4#conversation-title.title {{conversation.title}}

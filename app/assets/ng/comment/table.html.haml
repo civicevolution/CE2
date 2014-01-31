@@ -41,8 +41,10 @@
 
                 %p.table_name {{comment.name}}
                 %p.time {{comment.updated_at | from_now}}
-                -#%p {{comment.purpose}}
                 %p In favor: {{comment.pro_votes}}, Opposed: {{comment.con_votes}}
+
+                %p(ng-if="conversation.show_purpose")
+                  {{comment.purpose}}
 
               %div(ng-switch="comment.body_template_url")
                 %div.comment-body(ng-switch-when="default")
