@@ -752,6 +752,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Firebas
 
     $scope.conversation = theming_data
     $scope.$root.timestamp = theming_data.current_timestamp
+    $scope.conversation.show_purpose = if $scope.conversation.details?.TableComment?.purpose_options then true else false
 
     $scope.name = 'ceConversationTheme'
 
@@ -1146,6 +1147,7 @@ process_team_theming_data = (data) ->
   code: data.code
   current_timestamp: data.current_timestamp
   privacy: data.privacy
+  details: data.details
   abilities: data.role.abilities
   can: (action) ->
     _.indexOf(this.abilities, action ) > -1
@@ -1190,6 +1192,7 @@ process_coordinator_theming_data = (data) ->
   code: data.code
   current_timestamp: data.current_timestamp
   privacy: data.privacy
+  details: data.details
   abilities: data.role.abilities
   can: (action) ->
     _.indexOf(this.abilities, action ) > -1
