@@ -1,0 +1,58 @@
+.live-allocate.live-select
+  %h3(ng-hide="edit_vote_mode") Enter recommendation for participant \#{{voter_id}} of Group {{user.last_name}}
+  %h3.warn(ng-show="edit_vote_mode")  Edit recommendation for participant \#{{voter_id}} of Group {{user.last_name}}
+
+  %h4 Service: {{conversation.title}}
+
+
+  %table(border="1")
+
+    %tr(ng-repeat="option in recommendation_options" )
+      %td.text
+        {{option.value}}
+
+      %td.select
+        %label{for: "rad-{{option.key}}"}
+          %input.selection(id="rad-{{option.key}}" type="radio" ng-model="recommendation.option" ng-value="option.key" name="recommendation")
+
+    %tr
+      %td(colspan="3")
+        %button.btn.btn-success.btn-large.right(ng-click="save()" ng-hide="show_next" ng-disabled="!recommendation.option") Submit
+        %button.btn.btn-link.btn-large.right(ng-click="start_new_vote()" ng-show="edit_vote_mode") Start new vote
+
+  -#%p recommendation.option: {{recommendation.option}}
+
+  %h3.selection_review_title Your group members' recommendations
+
+
+  %table.selection_review(border="1")
+    %tr
+      %th(colspan="1" rowspan="2")
+        %h4 Recommendations
+      %th(colspan="{{number_of_voters}}" )
+        Voters
+
+      %th(rowspan="2")
+        %b
+          Total
+          %br
+          votes
+      %th(rowspan="2")
+        %b %
+    %tr
+      %th(ng-repeat="(voter_id, vote) in participant_votes" )
+        %a(ng-click="edit_vote(voter_id)") \#{{voter_id}}
+
+    %tr(ng-repeat="option in recommendation_options" )
+      %td.text
+        {{option.value}}
+
+      %td(ng-repeat="vote in conversation_combined_votes.combined_votes[option.key]")
+        {{vote[0]}}
+
+    %tr
+      %td(colspan="1")
+        %b Totals
+      %td(ng-repeat="vote in conversation_combined_votes.combined_votes['totals']")
+        {{vote[0]}}
+        -#{{ vote[0] == 1 ? '' : vote[0] }}

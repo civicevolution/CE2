@@ -939,6 +939,40 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "reporter"
 
+      if agenda_details[:make_recommendation].include?( conversation[:id] )
+        # link for group scribe select
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Make recommendation for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/recommend/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "conversation-recommend",
+            disabled: false,
+            role: 'group',
+            type: 'select'
+        }
+        agenda_details[:links][:group][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "group"
+
+        # link for select results
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Display recommendation results for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/recommendation-results/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "conversation-recommendation-results",
+            disabled: false,
+            role: 'reporter',
+            type: 'select-results'
+        }
+        agenda_details[:links][:reporter][ link_code ] = link
+        agenda_details[:links][:coordinator][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "reporter"
+      end
 
       if agenda_details[:select_conversations].include?( conversation[:id] )
         # link for group scribe select
@@ -1232,6 +1266,24 @@ class Agenda < ActiveRecord::Base
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
                 coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
+            }
+        }
+
+    agenda_details[:data_sets]["conversation-recommend"] =
+        {
+            data_class: "ConversationRecommendation",
+            data_method: "data_recommend_page_data",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}'
+            }
+        }
+
+    agenda_details[:data_sets]["conversation-recommendation-results"] =
+        {
+            data_class: "ConversationRecommendation",
+            data_method: "data_recommendation_results",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}'
             }
         }
 

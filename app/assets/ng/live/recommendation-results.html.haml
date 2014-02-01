@@ -1,0 +1,10 @@
+.live-allocate-results
+  %h3 Service: Arts & Culture
+
+  %div.graph.row-fluid(ng-repeat="theme in selection_votes")
+    .span10.theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)"){style: "background-size: {{theme.graph_percentage}}% 100%;"}
+    .span1.percent {{theme.percentage}}%
+    .span1.count ({{theme.votes | number:0}})
+
+  %div(ce-size-adjuster)
+

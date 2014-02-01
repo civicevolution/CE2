@@ -372,7 +372,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
     .state( 'select-themes-agenda',
         url: "/agenda/{agenda_code}-{link_code}/select/{munged_title}"
         templateUrl: '<%= path_to_asset "live/select.html" %>'
-        #templateUrl: '<%= path_to_asset "live/record_recommendations.html" %>'
         resolve:
           selection_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.data_set('select', $stateParams.agenda_code, $stateParams.link_code)
@@ -383,7 +382,35 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       .state( 'select-themes-results-agenda',
         url: "/agenda/{agenda_code}-{link_code}/select-results/{munged_title}"
         templateUrl: '<%= path_to_asset "live/select-results.html" %>'
-        #templateUrl: '<%= path_to_asset "live/recommendation-results.html" %>'
+        resolve:
+          selection_votes: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.data_set('themes-select-results', $stateParams.agenda_code, $stateParams.link_code)
+          ]
+        onEnter: ->
+          angular.element(document.body).addClass('display-page')
+        onExit: ->
+          angular.element(document.body).removeClass('display-page')
+        controller: [ "$scope", "selection_votes",
+          ($scope, selection_votes) ->
+            $scope.selection_votes = selection_votes.allocated_themes
+            $scope.title = selection_votes.title
+            $scope.$root.initialize_markdown_system( {disable_editor: true} )
+        ]
+      )
+
+      .state( 'make-recommendation',
+        url: "/agenda/{agenda_code}-{link_code}/recommend/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/record_recommendations.html" %>'
+        resolve:
+          recommendation_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.data_set('select', $stateParams.agenda_code, $stateParams.link_code)
+          ]
+        controller: live_recommend_controller
+      )
+
+      .state( 'recommendation-results',
+        url: "/agenda/{agenda_code}-{link_code}/recommendation-results/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/recommendation-results.html" %>'
         resolve:
           selection_votes: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.data_set('themes-select-results', $stateParams.agenda_code, $stateParams.link_code)
@@ -1387,6 +1414,115 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
 
 ]
 
+live_recommend_controller = [ "$scope", "recommendation_data", "LiveRecommendData", "$timeout", "$dialog",
+  ($scope, recommendation_data, LiveRecommendData, $timeout, $dialog) ->
+
+    $scope.agenda_code = recommendation_data.agenda_code
+    $scope.conversation = recommendation_data
+    $scope.all_selection_themes = []
+
+    $scope.recommendation = {}
+
+    $scope.recommendation_options = [
+      {key: 1, value: 'Big decrease'},
+      {key: 2, value: 'Little decrease'},
+      {key: 3, value: 'Stay the same'},
+      {key: 4, value: 'Little increase'},
+      {key: 5, value: 'Big increase'}
+    ]
+
+
+    $scope.participant_votes = recommendation_data.votes
+    $scope.number_of_voters = (k for own k of $scope.participant_votes).length
+    $scope.voter_id = Number($scope.number_of_voters) + 1
+    for at in $scope.all_selection_themes
+      at.value = false
+    $scope.combined_votes = {}
+    $timeout ->
+      update_combined_votes()
+
+
+    $scope.save = (confirmed_edit=false) ->
+      if !confirmed_edit && $scope.edit_vote_mode
+        msg = "Are you sure you want to update this voter's selection?"
+        btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
+        $dialog.messageBox("Confirm", msg, btns).open().then (result) ->
+          if result is "yes"
+            $scope.edit_confirmed = true
+            $scope.save(true)
+        return false
+
+      data =
+        voter_id: $scope.voter_id
+        recommendation: $scope.recommendation.option
+      console.log "Save data: #{data} for conversation code: #{$scope.conversation.code}"
+      LiveRecommendData.record_recommendation($scope.conversation.code, data).then(
+        (response)->
+          $scope.participant_votes[$scope.voter_id] = [ {recommendation: $scope.recommendation.option} ]
+          $scope.recommendation = {}
+          update_combined_votes()
+          $scope.voter_id = Number($scope.number_of_voters) + 1
+          $scope.edit_vote_mode = false
+      )
+
+    $scope.edit_vote = (voter_id) ->
+      $scope.voter_id = voter_id
+      votes = {}
+      for vote in $scope.participant_votes[voter_id]
+        votes[vote.theme_id] = true
+      for at in $scope.all_selection_themes
+        at.selected = votes[at.id] || false
+      $scope.edit_vote_mode = true
+
+    $scope.start_new_vote = ->
+      $scope.voter_id = Number((k for own k of $scope.participant_votes).length) + 1
+      for at in $scope.all_selection_themes
+        at.selected = false
+      $scope.edit_vote_mode = false
+
+    update_combined_votes = ->
+      $scope.number_of_voters = (k for own k of $scope.participant_votes).length
+      conversation = $scope.conversation
+      combined_votes = {}
+      total_votes = 0
+      totals_array = []
+
+      for option in $scope.recommendation_options
+        #combined_votes[theme.id] = [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+        combined_votes[option.key] = new Array( $scope.number_of_voters + 1).join("x").split("x").map(-> return ' ' )
+
+
+      for voter of $scope.participant_votes
+        voter_total = 0
+        votes = $scope.participant_votes[voter]  #  [ { recommendation: 1 } ]
+        #console.log "votes: #{votes}"
+        for vote in votes  # {recommendation: 1},
+          if combined_votes[vote.recommendation]     # vote.recommendation = 2
+            combined_votes[vote.recommendation][ voter ] = 1  # combined_votes[1][ 1 ] = 1
+            voter_total += Number(1)
+            total_votes += Number(1)
+        totals_array.push( [voter_total] )
+      totals_array.push( [total_votes] )
+
+      pcent_total = 0
+      for theme_id of combined_votes
+        #console.log "theme_id: #{theme_id}"
+        rec = combined_votes[theme_id]
+        #rec.splice(0,1)
+        sum = _.reduce(rec, ( (memo, num) -> Number(memo) + num;), 0)
+        rec.splice(0,1)
+        rec.push(sum)
+        pcent = if sum > 0 then Math.round(sum/total_votes*100) else ' '
+        pcent_total += Number(pcent)
+        rec.push(pcent)
+        #combined_votes[theme_id] = ([val] for val in rec)
+        combined_votes[theme_id] = ([val] for val in rec)
+      totals_array.push( [pcent_total] )
+
+      combined_votes['totals'] = totals_array
+      #console.log "total_votes: #{total_votes}"
+      $scope.conversation_combined_votes = { title: conversation.title, combined_votes: combined_votes}
+]
 
 
 live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$dialog", "$timeout",
