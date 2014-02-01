@@ -130,6 +130,15 @@ class Agenda < ActiveRecord::Base
           theme[:text] = theme[:text].split(/\n/)[0]
         end
         data = {title: data[:title], worksheet_themes: data[:themes]}
+
+      when 'recommendation-results'
+        data = ConversationRecommendation.data_recommendation_results({"conversation_code" => conversation_code})
+        data[:allocated_themes] = data[:recommendation_options]
+        data[:allocated_themes].each do|theme|
+          theme[:count] = "(#{theme[:votes]})"
+          theme[:text] = theme[:text].split(/\n/)[0]
+        end
+
     end
     data
   end
