@@ -403,7 +403,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         templateUrl: '<%= path_to_asset "live/record_recommendations.html" %>'
         resolve:
           recommendation_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-            AgendaData.data_set('select', $stateParams.agenda_code, $stateParams.link_code)
+            AgendaData.data_set('make-recommendation', $stateParams.agenda_code, $stateParams.link_code)
           ]
         controller: live_recommend_controller
       )
@@ -412,17 +412,17 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         url: "/agenda/{agenda_code}-{link_code}/recommendation-results/{munged_title}"
         templateUrl: '<%= path_to_asset "live/recommendation-results.html" %>'
         resolve:
-          selection_votes: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
-            AgendaData.data_set('themes-select-results', $stateParams.agenda_code, $stateParams.link_code)
+          options: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.data_set('recommendation-results', $stateParams.agenda_code, $stateParams.link_code)
           ]
         onEnter: ->
           angular.element(document.body).addClass('display-page')
         onExit: ->
           angular.element(document.body).removeClass('display-page')
-        controller: [ "$scope", "selection_votes",
-          ($scope, selection_votes) ->
-            $scope.selection_votes = selection_votes.allocated_themes
-            $scope.title = selection_votes.title
+        controller: [ "$scope", "options",
+          ($scope, options) ->
+            $scope.recommendation_votes = options.recommendation_options
+            $scope.title = options.title
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
         ]
       )

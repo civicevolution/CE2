@@ -29,38 +29,35 @@ class ConversationRecommendation < AgendaComponent
   end
 
   def self.data_recommendation_results(params)
-    conversation_code = params["conversation_code"]
-    coordinator_user_id = params["coordinator_user_id"].to_i
+    conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
 
+    recommendation_options = [
+      {recommendation: 1, text: 'Big decrease'},
+      {recommendation: 2, text: 'Little decrease'},
+      {recommendation: 3, text: 'Stay the same'},
+      {recommendation: 4, text: 'Little increase'},
+      {recommendation: 5, text: 'Big increase'}
+    ]
 
-    if conversation_code.match(/-/)
-      agenda_code, data_set_code = conversation_code.match(/^(\w+)-(.*)$/).captures
-      agenda = Agenda.find_by(code: agenda_code)
-      data_set_details = agenda.details["data_sets"][data_set_code]
-      title = data_set_details["data_set_title"]
-      agenda_details = agenda.details
-      link_details = {}
+    recommendation_votes = {}
+    total_votes = 0
+    max_votes = 0
+    RecommendationVote.select('recommendation, count(*)').where(conversation_id: conversation.id).group(:recommendation).each do |rv|
+      recommendation_votes[rv.recommendation] = rv.count
+      total_votes += rv.count
+      max_votes = rv.count unless max_votes > rv.count
+    end
+    max_votes = max_votes.to_f
+    total_votes = total_votes.to_f
 
-      # check if there are any parameters that need to be evaluated for their interpolated variables
-      data_set_details["parameters"].each_pair do |key,value|
-        Rails.logger.debug "value for eval: #{value}"
-        data_set_details["parameters"][key] = eval( '"' + value + '"') if value.class.to_s == 'String' && value.match(/#/)
-      end
-      coord_user_id = data_set_details["parameters"]["coordinator_user_id"].to_i
-      conversation_ids = data_set_details["parameters"]["conversation_ids"].scan(/\d+/).map(&:to_i)
-      top_themes_count = data_set_details["parameters"]["top_themes_count"]
-
-      themes = ThemeAllocation.collect_top_themes_from_conversations(coord_user_id, conversation_ids, top_themes_count)
-      themes = ThemeComment.where(id: themes.map{|t| t[:theme_id]})
-
-    else
-      conversation = Conversation.find_by(code: conversation_code)
-      themes = ThemeComment.where(conversation_id: conversation.id, user_id: coordinator_user_id)
-      title = conversation.title
+    recommendation_options.each do |ro|
+      votes = recommendation_votes[ro[:recommendation]] || 0
+      ro[:votes] = votes
+      ro[:percentage] = total_votes > 0 ? (votes/total_votes*100).round : 0
+      ro[:graph_percentage] = max_votes > 0 ? (votes/max_votes*100).round : 0
     end
 
-    allocated_themes = ThemeVote.themes_votes(themes)
-    {title: title, allocated_themes: allocated_themes}
+    {title: conversation.title, recommendation_options: recommendation_options}
   end
 
 end
