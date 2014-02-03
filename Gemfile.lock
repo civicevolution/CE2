@@ -111,6 +111,8 @@ GEM
       sshkit (~> 1.3)
     capistrano-rails (1.0.0)
       capistrano
+    capistrano-unicorn (0.1.10)
+      capistrano
     capybara (2.1.0)
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -306,6 +308,7 @@ DEPENDENCIES
   cancan (>= 1.6.9)
   capistrano (~> 3.1.0)
   capistrano-rails (~> 1.0.0)
+  capistrano-unicorn
   capybara (>= 2.0.3)
   coffee-rails (~> 4.0.0)
   cucumber-rails!
