@@ -179,6 +179,9 @@ class Agenda < ActiveRecord::Base
     theme_points = ThemePoint.where(theme_id: comment_ids)
     file.write( {"ThemePoints" => theme_points.map{|c| c.attributes}}.to_yaml )
 
+    recommendation_votes = RecommendationVote.where(conversation_id: conversations.map(&:id))
+    file.write( {"RecommendationVotes" => recommendation_votes.map{|rv| rv.attributes}}.to_yaml )
+
     # I should get parked_comments
 
     user_recs = {}
