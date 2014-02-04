@@ -13,9 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20140204175931) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-  enable_extension "hstore"
+#  # These are extensions that must be enabled in order to support this database
+#  enable_extension "plpgsql"
+#  enable_extension "hstore"
 
   create_table "activity_reports", force: true do |t|
     t.string   "action"
