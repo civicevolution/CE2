@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131120191708) do
+ActiveRecord::Schema.define(version: 20140204180733) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -179,6 +179,7 @@ ActiveRecord::Schema.define(version: 20131120191708) do
     t.datetime "updated_at"
     t.integer  "daily_report_hour",   default: 7
     t.datetime "last_report_sent_at"
+    t.json     "details"
   end
 
   add_index "conversations", ["code"], name: "index_conversations_on_code", unique: true, using: :btree
@@ -459,6 +460,15 @@ ActiveRecord::Schema.define(version: 20131120191708) do
     t.integer "rating",       null: false
   end
 
+  create_table "recommendation_votes", force: true do |t|
+    t.integer  "group_id"
+    t.integer  "voter_id"
+    t.integer  "conversation_id"
+    t.integer  "recommendation"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "replies", force: true do |t|
     t.integer  "comment_id",  null: false
     t.integer  "reply_to_id", null: false
@@ -513,6 +523,10 @@ ActiveRecord::Schema.define(version: 20131120191708) do
     t.integer  "admin_user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "test_tables", force: true do |t|
+    t.integer "id_957"
   end
 
   create_table "theme_points", force: true do |t|
