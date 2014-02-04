@@ -69,6 +69,6 @@ gem 'delayed_job_active_record' #,
 gem 'redis'
 
 group :development do
-  gem "capistrano", '~> 3.1.0'
-  gem 'capistrano-rails', '~> 1.0.0'
+  gem 'capistrano', '~> 3.1'
+  gem 'capistrano-rails', '~> 1.1'
 end
