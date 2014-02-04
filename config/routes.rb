@@ -168,6 +168,14 @@ Ce2::Application.routes.draw do
     end
   end
 
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :recommendation_votes, only: [ ] do
+        post 'save', on: :member
+      end
+    end
+  end
+
   get 'api/agendas', to: 'api/v1/agendas#agendas'
 
   namespace :api, defaults: {format: 'json'} do

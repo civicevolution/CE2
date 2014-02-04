@@ -130,6 +130,15 @@ class Agenda < ActiveRecord::Base
           theme[:text] = theme[:text].split(/\n/)[0]
         end
         data = {title: data[:title], worksheet_themes: data[:themes]}
+
+      when 'recommendation-results'
+        data = ConversationRecommendation.data_recommendation_results({"conversation_code" => conversation_code})
+        data[:allocated_themes] = data[:recommendation_options]
+        data[:allocated_themes].each do|theme|
+          theme[:count] = "(#{theme[:votes]})"
+          theme[:text] = theme[:text].split(/\n/)[0]
+        end
+
     end
     data
   end
@@ -939,6 +948,40 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "reporter"
 
+      if agenda_details[:make_recommendation].include?( conversation[:id] )
+        # link for group scribe select
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Make recommendation for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/recommend/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "conversation-recommend",
+            disabled: false,
+            role: 'group',
+            type: 'select'
+        }
+        agenda_details[:links][:group][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "group"
+
+        # link for select results
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Display recommendation results for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/recommendation-results/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "conversation-recommendation-results",
+            disabled: false,
+            role: 'reporter',
+            type: 'select-results'
+        }
+        agenda_details[:links][:reporter][ link_code ] = link
+        agenda_details[:links][:coordinator][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "reporter"
+      end
 
       if agenda_details[:select_conversations].include?( conversation[:id] )
         # link for group scribe select
@@ -1078,40 +1121,41 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:lookup][link_code] = "reporter"
     end
 
-    # link for coord-mca-table
-    link_code = self.create_link_code( agenda_details[:links][:lookup] )
-    link = {
-        title: "Plenary Assessment Exercise",
-        id: 'mca',
-        link_code:  link_code,
-        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
-        data_set: "coord-multi-criteria-analysis-table",
-        mode: 'plenary',
-        mca_id: agenda_details[:mca_id_plenary][0],
-        page_title: 'Plenary: Multi Criteria Analysis Results for Infrastructure Projects',
-        disabled: false,
-        role: 'coordinator',
-    }
-    agenda_details[:links][:coordinator][ link_code ] = link
-    agenda_details[:links][:lookup][link_code] = "coordinator"
+    if agenda_details[:mca_id_plenary] && agenda_details[:mca_id_plenary].size > 0
+      # link for coord-mca-table
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: "Plenary Assessment Exercise",
+          id: 'mca',
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+          data_set: "coord-multi-criteria-analysis-table",
+          mode: 'plenary',
+          mca_id: agenda_details[:mca_id_plenary][0],
+          page_title: 'Plenary: Multi Criteria Analysis Results for Infrastructure Projects',
+          disabled: false,
+          role: 'coordinator',
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
 
-    # link for group-mca-table
-    link_code = self.create_link_code( agenda_details[:links][:lookup] )
-    link = {
-        title: "Plenary Assessment Exercise",
-        id: 'mca',
-        link_code:  link_code,
-        href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
-        data_set: "group-multi-criteria-analysis-table",
-        mode: 'plenary',
-        mca_id: agenda_details[:mca_id_plenary][0],
-        page_title: 'Plenary: Group input for Multi Criteria Analysis for Infrastructure Projects',
-        disabled: false,
-        role: 'group',
-    }
-    agenda_details[:links][:group][ link_code ] = link
-    agenda_details[:links][:lookup][link_code] = "group"
-
+      # link for group-mca-table
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: "Plenary Assessment Exercise",
+          id: 'mca',
+          link_code:  link_code,
+          href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+          data_set: "group-multi-criteria-analysis-table",
+          mode: 'plenary',
+          mca_id: agenda_details[:mca_id_plenary][0],
+          page_title: 'Plenary: Group input for Multi Criteria Analysis for Infrastructure Projects',
+          disabled: false,
+          role: 'group',
+      }
+      agenda_details[:links][:group][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "group"
+    end
 
 
     # Add links for MCA
@@ -1231,6 +1275,24 @@ class Agenda < ActiveRecord::Base
             parameters: {
                 conversation_code: '#{link_details["conversation_code"]}',
                 coordinator_user_id: '#{agenda_details["coordinator_user_id"]}'
+            }
+        }
+
+    agenda_details[:data_sets]["conversation-recommend"] =
+        {
+            data_class: "ConversationRecommendation",
+            data_method: "data_recommend_page_data",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}'
+            }
+        }
+
+    agenda_details[:data_sets]["conversation-recommendation-results"] =
+        {
+            data_class: "ConversationRecommendation",
+            data_method: "data_recommendation_results",
+            parameters: {
+                conversation_code: '#{link_details["conversation_code"]}'
             }
         }
 

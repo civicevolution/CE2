@@ -523,6 +523,15 @@ services.factory "LiveSelectData", ["$http",
           response.data
 ]
 
+services.factory "LiveRecommendData", ["$http",
+  ($http) ->
+    name: "LiveRecommendData"
+
+    record_recommendation: (code, data) ->
+      $http.post("/api/recommendation_votes/#{code}/save.json", {data: data})
+
+]
+
 services.factory "AgendaData", ["$http",
   ($http) ->
     name: "AgendaData"

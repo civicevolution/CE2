@@ -709,8 +709,17 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
           when 'new-table-comment'
             $scope.newComment.type = 'TableComment'
-            $scope.newComment.purpose = 'table'
-            $scope.newComment.reply_control_title = "Enter a new comment"
+            $scope.newComment.reply_control_title =
+              $scope.conversation.details?.TableComment?.reply_control_title ||
+              "Enter a new comment"
+            $scope.newComment.purpose_options =
+              $scope.conversation.details?.TableComment?.purpose_options ||
+              null
+            $scope.newComment.purpose =
+              if $scope.newComment.purpose_options
+                ""
+              else
+                "table"
 
           when 'call-to-action-comment-edit'
             if data.comment.id is 0
@@ -745,7 +754,12 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           when 'table-comment-edit'
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name, pro_votes: comment.pro_votes, con_votes: comment.con_votes}
-            $scope.newComment.reply_control_title = "Edit Comment"
+            $scope.newComment.reply_control_title =
+              $scope.conversation.details?.TableComment?.edit_reply_control_title ||
+              "Edit Comment"
+            $scope.newComment.purpose_options =
+              $scope.conversation.details?.TableComment?.purpose_options ||
+              null
 
           when 'call-to-action-comment-reply'
             $scope.newComment.type = 'ConversationComment'

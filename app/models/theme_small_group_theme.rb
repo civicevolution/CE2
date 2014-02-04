@@ -46,6 +46,7 @@ class ThemeSmallGroupTheme < AgendaComponent
       comment_json[:id] = comment.id
       comment_json[:type] = comment.type
       comment_json[:order_id] = comment.order_id
+      comment_json[:purpose] = comment.purpose
       comment_json[:published] = comment.published
       comment_json[:updated_at] = comment.updated_at
 
@@ -70,6 +71,7 @@ class ThemeSmallGroupTheme < AgendaComponent
       comment_json[:id] = comment.id
       comment_json[:type] = comment.type
       comment_json[:order_id] = comment.order_id
+      comment_json[:purpose] = comment.purpose
       comment_json[:updated_at] = comment.updated_at
       table_comments.push(comment_json)
     end
@@ -82,6 +84,7 @@ class ThemeSmallGroupTheme < AgendaComponent
         coordinator_theme_comments: coordinator_theme_comments,
         theme_comments: theme_comments,
         role: Ability.abilities(params["current_user"], 'Conversation', conversation.id),
+        details: conversation.details,
         current_timestamp: Time.new.to_i
     }
   end
