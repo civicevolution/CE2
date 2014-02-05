@@ -22,11 +22,11 @@ module Api
         if can?(:show, conversation)
           authorize! :show, conversation
           presenter = ConversationPresenter.new( conversation, current_user, session_id, :show_all )
-          Modules::FayeRedis::add_session_to_redis(session_id, current_user, ["/#{params[:id]}"], [])
+          #Modules::FayeRedis::add_session_to_redis(session_id, current_user, ["/#{params[:id]}"], [])
         else
           authorize! :show_summary_only, conversation
           presenter = ConversationPresenter.new( conversation, current_user, session_id, :show_summary_only )
-          Modules::FayeRedis::add_session_to_redis(session_id, current_user, ["/#{params[:id]}"], [])
+          #Modules::FayeRedis::add_session_to_redis(session_id, current_user, ["/#{params[:id]}"], [])
         end
 
         respond_with presenter.conversation

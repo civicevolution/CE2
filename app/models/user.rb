@@ -1,6 +1,8 @@
 class User < ActiveRecord::Base
   rolify
 
+  attr_accessor :session_id
+
   has_one :profile
   has_many :notification_requests
 

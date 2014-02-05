@@ -225,6 +225,8 @@ Ce2::Application.routes.draw do
   post "api/mca_options/:id/assign_project" => "api/v1/mca_options#assign_project", format: :json
   post "api/mca_option_evaluations/:id/remove_evaluation_assignment" => "api/v1/mca_option_evaluations#remove_evaluation_assignment", format: :json
 
+  post "api/authorize_realtime_channel" => "api/v1/realtime_authorize#authorize_realtime_channel", format: :json
+
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

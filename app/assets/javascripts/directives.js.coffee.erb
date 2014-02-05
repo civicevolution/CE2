@@ -17,6 +17,7 @@ ce2_directives.directive('ceUserBar', ->
         (response)->
           #console.log "ceUserBar.User.get() received response"
           $scope.user = response
+          $scope.$root.ror_session_id = response.session_id
           $scope.$root.$broadcast 'update-user-data'
       )
       $scope.sign_in = ->

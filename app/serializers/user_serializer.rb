@@ -1,7 +1,7 @@
 class UserSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :id, :first_name, :last_name, :name, :email, :confirmed, :code, :photo_code
+  attributes :id, :first_name, :last_name, :name, :email, :confirmed, :code, :photo_code, :session_id
 
   #def last_name
   #  if object.name_count.nil? || object.name_count  == 1

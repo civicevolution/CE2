@@ -648,7 +648,7 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
       $http.post("/api/mca_option_evaluations/#{evaluation_id}/remove_evaluation_assignment.json")
 ]
 
-services.factory "FayeService", [ "$timeout", "$rootScope", "CommentData", ($timeout, $rootScope, CommentData ) ->
+services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, $rootScope, $http) ->
   name: "FayeService"
   client: null
   initialize: ->
@@ -679,6 +679,14 @@ services.factory "FayeService", [ "$timeout", "$rootScope", "CommentData", ($tim
     this.client.addExtension(clientAuth);
 
   subscribe: (channel) ->
+    _this = this
+    $http.post("/api/authorize_realtime_channel.json", {channel: channel}).then (response) ->
+      if response.status is 200
+        _this.subscribe_to_channel(channel)
+        
+
+
+  subscribe_to_channel: (channel) ->
     this.initialize() unless this.client
     # test by forcing incorrect channel
     #channel = channel + 'fail'
