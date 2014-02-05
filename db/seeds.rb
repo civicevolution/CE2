@@ -35,33 +35,37 @@ unconfirmed_user = User.where( email: ENV['UNCONFIRMED_USER_EMAIL'].dup ).first_
 end
 
 # create a test conversation on initialization
-conversation = Conversation.where(id: 1).first_or_create do |conversation|
-  conversation.user_id = user.id
-  conversation.status = "ready"
-  conversation.privacy = {list: true, invite: true, summary: true, comments: true, unknown_users: true, confirmed_privacy: true, confirmed_schedule: true}
-  conversation.published = true
+if Conversation.exists?(1).nil?
+  conversation = Conversation.create do |conversation|
+    conversation.user_id = user.id
+    conversation.status = "ready"
+    conversation.privacy = {list: true, invite: true, summary: true, comments: true, unknown_users: true, confirmed_privacy: true, confirmed_schedule: true}
+    conversation.published = true
+  end
+
+  TitleComment.where( user_id: conversation.user_id, conversation_id: conversation.id ).first_or_create do |title_comment|
+    title_comment.text = "Test conversation: #{Time.now.localtime("-08:00").strftime("%m/%d/%Y at %I:%M%p")}"
+  end
+
+  CallToActionComment.where( user_id: conversation.user_id, conversation_id: conversation.id).first_or_create do |cta|
+    cta.text = "My first Call-to-action"
+  end
+
+  ConversationComment.where( user_id: conversation.user_id, conversation_id: conversation.id).first_or_create do |comment|
+    comment.text = "My first comment, v1"
+    comment.purpose = "experience"
+  end
+
+  tag = Tag.where(name: "Testing").first_or_create do |tag|
+    tag.user_id = conversation.user_id
+    tag.published = true
+  end
+
+  ConversationsTags.where( conversation_id: conversation.id, tag_id: tag.id).first_or_create do |ct|
+    ct.published = 1
+  end
+
+  user.add_role :conversation_admin, Conversation.find(conversation.id)
+
 end
 
-TitleComment.where( user_id: conversation.user_id, conversation_id: conversation.id ).first_or_create do |title_comment|
-  title_comment.text = "Test conversation: #{Time.now.localtime("-08:00").strftime("%m/%d/%Y at %I:%M%p")}"
-end
-
-CallToActionComment.where( user_id: conversation.user_id, conversation_id: conversation.id).first_or_create do |cta|
-  cta.text = "My first Call-to-action"
-end
-
-ConversationComment.where( user_id: conversation.user_id, conversation_id: conversation.id).first_or_create do |comment|
-  comment.text = "My first comment, v1"
-  comment.purpose = "experience"
-end
-
-tag = Tag.where(name: "Testing").first_or_create do |tag|
-  tag.user_id = conversation.user_id
-  tag.published = true
-end
-
-ConversationsTags.where( conversation_id: conversation.id, tag_id: tag.id).first_or_create do |ct|
-  ct.published = 1
-end
-
-user.add_role :conversation_admin, Conversation.find(conversation.id)
