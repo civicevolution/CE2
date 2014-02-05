@@ -19,7 +19,7 @@ class McaRating < ActiveRecord::Base
     }
     message = { class: self.class.to_s, action: "update", data: data, updated_at: Time.now.getutc, source: "RoR-RT-Notification" }
     channel = "/mca/#{mca_id}/rating"
-    FayeRedis::publish(message,channel)
+    Modules::FayeRedis::publish(message,channel)
   end
   handle_asynchronously :realtime_notification
 
