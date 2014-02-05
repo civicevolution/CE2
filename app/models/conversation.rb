@@ -301,4 +301,26 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     self.theme_comments
   end
 
+  def self.display_details(id)
+    conversation = Conversation.find(id)
+    puts "Conversation details:"
+    puts "Title: #{conversation.title}"
+    puts "id: #{conversation.id}"
+    puts "code: #{conversation.code}"
+    conversation_details = conversation.details.try{|details| details.symbolize_keys} || {}
+    puts "details:\n#{JSON.pretty_generate(conversation_details)}"
+  end
+
+  def self.adjust_details(id, key, value)
+    conversation = Conversation.find(id)
+
+    conversation_details = conversation.details.try{|details| details.symbolize_keys} || {}
+    conversation_details[key.to_sym] = value
+
+    conversation.update_attribute(:details, conversation_details)
+
+    "updated conversation.details[#{key.to_sym}] = #{value}\n"
+    Conversation.display_details(id)
+  end
+
 end

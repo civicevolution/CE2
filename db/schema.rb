@@ -11,11 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140131223531) do
+ActiveRecord::Schema.define(version: 20140206215813) do
 
-#  # These are extensions that must be enabled in order to support this database
-#  enable_extension "plpgsql"
-#  enable_extension "hstore"
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+  enable_extension "hstore"
 
   create_table "activity_reports", force: true do |t|
     t.string   "action"
@@ -148,6 +148,7 @@ ActiveRecord::Schema.define(version: 20140131223531) do
     t.integer  "ratings_cache",                                array: true
     t.boolean  "published",       default: false
     t.string   "tag_name"
+    t.json     "elements"
   end
 
   add_index "comments", ["conversation_id"], name: "index_comments_on_conversation_id", using: :btree

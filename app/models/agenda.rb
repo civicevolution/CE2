@@ -712,6 +712,7 @@ class Agenda < ActiveRecord::Base
 
     conversation_ids = agenda.conversation_ids << conversations.map(&:id)
     agenda.update_attribute(:conversation_ids, conversation_ids.flatten )
+    agenda.refresh_agenda_details_links_and_data_sets
   end
 
 
@@ -1440,15 +1441,30 @@ class Agenda < ActiveRecord::Base
   end
 
 
-  def display_details
+  def self.display_details(code)
+    agenda = Agenda.find_by(code: code)
     details = %w(coordinator_user_id conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only make_recommendation mca_ids mca_id_plenary mca_ids_coord_only theme_map)
     puts "Agenda details:"
-    puts "Title: #{self.title}"
-    puts "code: #{self.code}"
+    puts "Title: #{agenda.title}"
+    puts "code: #{agenda.code}"
+    puts "raw conversation_ids: #{agenda.conversation_ids}"
     details.each do |name|
-      puts "#{name}: #{self.details[name]}"
+      puts "#{name}: #{agenda.details[name]}"
     end
-    nil
+    ""
+  end
+
+  def self.adjust_details(code, key, value, rebuild_flag = false)
+    agenda = Agenda.find_by(code: code)
+
+    agenda_details = agenda.details.symbolize_keys
+    agenda_details[key.to_sym] = value
+
+    agenda.update_attribute(:details, agenda_details)
+
+    agenda.refresh_agenda_details_links_and_data_sets if rebuild_flag
+    "updated agenda.details[#{key.to_sym}] = #{value}\n"
+    Agenda.display_details(code)
   end
 
 end
