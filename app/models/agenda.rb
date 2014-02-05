@@ -327,7 +327,7 @@ class Agenda < ActiveRecord::Base
 
       agenda_details['details'][:coordinator_user_id] = agenda_default_user_id
 
-      details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only)
+      details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations make_recommendation allocate_multiple_conversations themes_only)
       details_arrays.each do |name|
         agenda_details['details'][name] = Agenda.update_record_ids(conversations_details, agenda_details['details'][name])
       end
