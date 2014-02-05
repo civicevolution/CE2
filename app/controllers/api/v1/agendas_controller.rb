@@ -66,7 +66,10 @@ module Api
 
           code = Agenda.import(file)
         ensure
-          file.close
+          begin
+            file.close
+          rescue
+          end
         end
 
         #render :file => "#{Rails.root}/#{params[:filename]}"

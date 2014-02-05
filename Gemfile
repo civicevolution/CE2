@@ -41,8 +41,6 @@ end
 
 gem 'active_model_serializers'
 gem 'responders'
-#gem 'firebase'
-#gem 'firebase_token_generator'
 
 gem "paper_trail", github: 'airblade/paper_trail', branch: 'rails4'
 
