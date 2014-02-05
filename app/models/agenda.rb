@@ -413,15 +413,17 @@ class Agenda < ActiveRecord::Base
         theme_point.save
       end
 
-      docs["RecommendationVotes"].each do |details|
-        #puts details.inspect
-        recommendation_vote = RecommendationVote.new
-        details.each_pair do |key,value|
-          recommendation_vote[key] = value unless ['id'].include?(key)
+      if docs["RecommendationVotes"]
+        docs["RecommendationVotes"].each do |details|
+          #puts details.inspect
+          recommendation_vote = RecommendationVote.new
+          details.each_pair do |key,value|
+            recommendation_vote[key] = value unless ['id'].include?(key)
+          end
+          recommendation_vote.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
+          #puts recommendation_vote.inspect
+          recommendation_vote.save
         end
-        recommendation_vote.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
-        #puts recommendation_vote.inspect
-        recommendation_vote.save
       end
 
       # I should restore parked_comments
@@ -962,7 +964,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "reporter"
 
-      if agenda_details[:make_recommendation].include?( conversation[:id] )
+      if agenda_details[:make_recommendation] && agenda_details[:make_recommendation].include?( conversation[:id] )
         # link for group scribe select
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
