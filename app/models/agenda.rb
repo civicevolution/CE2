@@ -413,6 +413,17 @@ class Agenda < ActiveRecord::Base
         theme_point.save
       end
 
+      docs["RecommendationVotes"].each do |details|
+        #puts details.inspect
+        recommendation_vote = RecommendationVote.new
+        details.each_pair do |key,value|
+          recommendation_vote[key] = value unless ['id'].include?(key)
+        end
+        recommendation_vote.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
+        #puts recommendation_vote.inspect
+        recommendation_vote.save
+      end
+
       # I should restore parked_comments
 
       docs["CommentThreads"].each do |details|
