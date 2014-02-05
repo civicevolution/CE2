@@ -1437,4 +1437,16 @@ class Agenda < ActiveRecord::Base
     data_sets
   end
 
+
+  def display_details
+    details = %w(coordinator_user_id conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only make_recommendation mca_ids mca_id_plenary mca_ids_coord_only theme_map)
+    puts "Agenda details:"
+    puts "Title: #{self.title}"
+    puts "code: #{self.code}"
+    details.each do |name|
+      puts "#{name}: #{self.details[name]}"
+    end
+    nil
+  end
+
 end
