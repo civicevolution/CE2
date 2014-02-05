@@ -179,6 +179,9 @@ class Agenda < ActiveRecord::Base
     theme_points = ThemePoint.where(theme_id: comment_ids)
     file.write( {"ThemePoints" => theme_points.map{|c| c.attributes}}.to_yaml )
 
+    recommendation_votes = RecommendationVote.where(conversation_id: conversations.map(&:id))
+    file.write( {"RecommendationVotes" => recommendation_votes.map{|rv| rv.attributes}}.to_yaml )
+
     # I should get parked_comments
 
     user_recs = {}
@@ -324,7 +327,7 @@ class Agenda < ActiveRecord::Base
 
       agenda_details['details'][:coordinator_user_id] = agenda_default_user_id
 
-      details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only)
+      details_arrays = %w(conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations make_recommendation allocate_multiple_conversations themes_only)
       details_arrays.each do |name|
         agenda_details['details'][name] = Agenda.update_record_ids(conversations_details, agenda_details['details'][name])
       end
@@ -408,6 +411,17 @@ class Agenda < ActiveRecord::Base
         #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
         #puts theme_point.inspect
         theme_point.save
+      end
+
+      docs["RecommendationVotes"].each do |details|
+        #puts details.inspect
+        recommendation_vote = RecommendationVote.new
+        details.each_pair do |key,value|
+          recommendation_vote[key] = value unless ['id'].include?(key)
+        end
+        recommendation_vote.conversation_id = conversations_details[details["conversation_id"] ][:new_id]
+        #puts recommendation_vote.inspect
+        recommendation_vote.save
       end
 
       # I should restore parked_comments
