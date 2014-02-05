@@ -2547,7 +2547,7 @@ Faye.logger = {}
 Faye.logger['fatal'] = logger;
 Faye.logger['error'] = logger;
 Faye.logger['warn'] = logger;
-Faye.logger['info'] = logger;
+//Faye.logger['info'] = logger;
 //Faye.logger['debug'] = logger;
 
 })();

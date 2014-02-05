@@ -1722,7 +1722,7 @@ agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window", "
         #$window.location.reload()
 
     $scope.$on 'update-user-data', () ->
-      if $scope.user.email
+      if $scope.user.email && $scope.menu_groups.length > 0
         pcs = $scope.user.email.match(/-\d+-(\w+)-(\d+)/)
         $scope.agenda.active_role.role = pcs[1]
         $scope.agenda.active_role.identifier = pcs[2]

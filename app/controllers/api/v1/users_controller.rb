@@ -5,7 +5,7 @@ module Api
 
       def user
         current_user
-        current_user.session_id = request.session_options[:id]
+        current_user.session_id = request.session_options[:id] unless current_user.nil?
         respond_with current_user
       end
 

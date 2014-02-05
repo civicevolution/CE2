@@ -5,8 +5,8 @@
   %div.warn(ng-if="agenda.test_mode")
     %h2 This agenda is in test mode
 
-  %div(ng-switch="user.first_name")
-    %div(ng-switch-when="undefined" )
+  %div
+    %div(ng-if="menu_groups.length == 0")
       %p
         Select your role:
         %select(ng-model="agenda.active_role.role" ng-options="o.value as o.key for o in agenda.roles" ng-change="update_role()")

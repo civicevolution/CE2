@@ -678,29 +678,51 @@ services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, 
 
     this.client.addExtension(clientAuth);
 
-  subscribe: (channel) ->
+  subscribe: (channel, cb) ->
     _this = this
+    # call to RoR server to authorize this channel, do subscribe on success callback
     $http.post("/api/authorize_realtime_channel.json", {channel: channel}).then (response) ->
       if response.status is 200
-        _this.subscribe_to_channel(channel)
-        
+        _this.subscribe_to_channel(channel,cb)
 
 
-  subscribe_to_channel: (channel) ->
+  subscribe_to_channel: (channel,cb) ->
     this.initialize() unless this.client
     # test by forcing incorrect channel
     #channel = channel + 'fail'
     console.log "^^^^ subscribe to channel #{channel}"
-    subscription = this.client.subscribe channel, (message) ->
-      #temp.faye_message = message
+    # set a default callback function
+    cb = cb || (message)->
       console.log "Received realtime notification on channel #{channel}, broadcast it"
       $rootScope.$broadcast "#{message.class}_update", message
+
+    # subscribe with callback
+    subscription = this.client.subscribe channel, cb
+
     subscription.callback -> console.log '^^^^ Subscription successful and ready to use!'
     subscription.errback -> 
       console.log '^^^^ ERROR: Subscription failed!'
       console.log "XXXXXXX Do something about the failed channel subscription"
-    #temp.faye_subscription = subscription
-    #subscription.then (a,b,c,d) ->
-    #  console.log 'Subscription is now active!'
 
+  publish_to_channel: (channel, data) ->
+    this.client.publish(channel, data).then(
+      ->
+        #console.log "Message received by server!"
+      (error) ->
+        console.log "There was a problem: #{error.message}"
+    )
+
+  status_timeout: null
+  status_interval: 40*1000
+
+  send_status: ->
+    _this = this
+    clearTimeout(this.status_timeout)
+    if this.client
+      this.publish_to_channel('/monitor', {
+        url_hash: document.location.hash
+        time: new Date().getTime()/1000
+        client_id: this.client._clientId
+      })
+    this.status_timeout = setTimeout( angular.bind(this, this.send_status), this.status_interval)
 ]

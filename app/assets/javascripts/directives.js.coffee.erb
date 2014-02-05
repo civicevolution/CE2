@@ -9,8 +9,8 @@ ce2_directives.directive('ceUserBar', ->
   templateUrl: '<%= path_to_asset "user/user-bar.html" %>'
   replace: true
   scope: false
-  controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state", "$window", "$location",
-    ($scope, User, $dialog, $http, $timeout, $state, $window, $location) ->
+  controller: [ "$scope", "User", "$dialog", "$http", "$timeout", "$state", "$window", "$location", "FayeService",
+    ($scope, User, $dialog, $http, $timeout, $state, $window, $location, FayeService) ->
       #$scope.user = User.get()
       $scope.user = {}
       User.get().then(
@@ -19,6 +19,11 @@ ce2_directives.directive('ceUserBar', ->
           $scope.user = response
           $scope.$root.ror_session_id = response.session_id
           $scope.$root.$broadcast 'update-user-data'
+          FayeService.subscribe( "/monitor", (message)->
+            console.log "Received realtime notification on monitor: #{JSON.stringify(message, null, 4)}"
+          )
+          FayeService.send_status()
+
       )
       $scope.sign_in = ->
         $scope.dialog?.close()
