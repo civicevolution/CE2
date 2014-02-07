@@ -828,7 +828,7 @@ class Agenda < ActiveRecord::Base
       #agenda_details[:allocate_top_themes_conversations] = [213, 214]
       agenda_details[:allocate_multiple_conversations] = []
       agenda_details[:themes_only] = []
-
+      agenda_details[:make_recommendation] = []
       agenda_details[:theme_map] =
           {
               1=>[1033, 1034, 1035, 1036],
@@ -846,7 +846,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:allocate_top_themes_conversations] = []
       agenda_details[:allocate_multiple_conversations] = []
       agenda_details[:themes_only] = []
-
+      agenda_details[:make_recommendation] = []
       agenda_details[:theme_map] =
           {
               1=>[37, 38, 39, 40],
@@ -885,6 +885,46 @@ class Agenda < ActiveRecord::Base
 
     conversations.each_index do |conv_index|
       conversation = conversations[conv_index]
+
+
+
+      if agenda_details[:make_recommendation] && agenda_details[:make_recommendation].include?( conversation[:id] )
+        # link for group scribe select
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Make recommendation for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/recommend-count/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "conversation-recommend",
+            disabled: false,
+            role: 'group',
+            type: 'select'
+        }
+        agenda_details[:links][:group][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "group"
+
+        # link for select results
+        link_code = self.create_link_code( agenda_details[:links][:lookup] )
+        link = {
+            title: %Q|Display recommendation results for "#{conversation[:title]}"|,
+            id: conversation[:id],
+            link_code:  link_code,
+            href: "/#/agenda/#{self.code}-#{link_code}/recommendation-results/#{conversation[:munged_title]}",
+            conversation_code: "#{conversation[:code]}",
+            data_set: "conversation-recommendation-results",
+            disabled: false,
+            role: 'reporter',
+            type: 'select-results'
+        }
+        agenda_details[:links][:reporter][ link_code ] = link
+        agenda_details[:links][:coordinator][ link_code ] = link
+        agenda_details[:links][:lookup][link_code] = "reporter"
+      end
+
+
+
 
       if !agenda_details[:themes_only].include?( conversation[:id] )
         # link for group scribe
@@ -964,41 +1004,6 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:reporter][ link_code ] = link
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "reporter"
-
-      if agenda_details[:make_recommendation] && agenda_details[:make_recommendation].include?( conversation[:id] )
-        # link for group scribe select
-        link_code = self.create_link_code( agenda_details[:links][:lookup] )
-        link = {
-            title: %Q|Make recommendation for "#{conversation[:title]}"|,
-            id: conversation[:id],
-            link_code:  link_code,
-            href: "/#/agenda/#{self.code}-#{link_code}/recommend-count/#{conversation[:munged_title]}",
-            conversation_code: "#{conversation[:code]}",
-            data_set: "conversation-recommend",
-            disabled: false,
-            role: 'group',
-            type: 'select'
-        }
-        agenda_details[:links][:group][ link_code ] = link
-        agenda_details[:links][:lookup][link_code] = "group"
-
-        # link for select results
-        link_code = self.create_link_code( agenda_details[:links][:lookup] )
-        link = {
-            title: %Q|Display recommendation results for "#{conversation[:title]}"|,
-            id: conversation[:id],
-            link_code:  link_code,
-            href: "/#/agenda/#{self.code}-#{link_code}/recommendation-results/#{conversation[:munged_title]}",
-            conversation_code: "#{conversation[:code]}",
-            data_set: "conversation-recommendation-results",
-            disabled: false,
-            role: 'reporter',
-            type: 'select-results'
-        }
-        agenda_details[:links][:reporter][ link_code ] = link
-        agenda_details[:links][:coordinator][ link_code ] = link
-        agenda_details[:links][:lookup][link_code] = "reporter"
-      end
 
       if agenda_details[:select_conversations].include?( conversation[:id] )
         # link for group scribe select
