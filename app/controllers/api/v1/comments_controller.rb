@@ -92,7 +92,7 @@ module Api
 
             # I should have all the data in place
 
-            if conversation.details['TableComment'].try{|details| details['use_element']}
+            if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element']
               params[:comment][:elements] = {
                   recommendation_type: params[:purpose],
                   suggestion: params[:comment][:text],
