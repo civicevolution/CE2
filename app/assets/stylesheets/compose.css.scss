@@ -390,7 +390,7 @@ div.ac-wrap {
       min-height: 100%;
       box-sizing: border-box;
       border: 0;
-      border-top: 36px solid transparent;
+      //border-top: 36px solid transparent;
       @include border-radius-all(0);
       transition: none;
     }

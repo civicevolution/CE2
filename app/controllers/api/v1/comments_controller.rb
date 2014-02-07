@@ -73,6 +73,16 @@ module Api
               params[:comment][:version] = 0
             end
 
+            if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element']
+              params[:comment][:elements] = {
+                  recommendation_type: params[:purpose],
+                  suggestion: params[:comment][:text],
+                  text: params[:comment][:text],
+                  reasons: params[:reasons]
+              }
+              params[:comment][:text] = generate_text_from_element(conversation.details, params[:comment][:elements])
+            end
+
             debug_theme = false
             if !debug_theme
               comment = conversation.theme_comments.create params[:comment]
