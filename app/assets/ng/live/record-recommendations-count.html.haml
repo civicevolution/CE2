@@ -1,0 +1,21 @@
+.live-allocate.live-select
+  %h3(ng-hide="edit_vote_mode") Enter recommendation for participant \#{{voter_id}} of Group {{user.last_name}}
+  %h3.warn(ng-show="edit_vote_mode")  Edit recommendation for participant \#{{voter_id}} of Group {{user.last_name}}
+
+  %h4 Service: {{conversation.title}}
+
+
+  %table(border="1")
+
+    %tr(ng-repeat="option in recommendation_options" )
+      %td.text
+        {{option.value}}
+
+      %td.select
+        %input.vote-count(type="number" ng-model="option.vote_count" )
+
+    %tr
+      %td(colspan="3")
+        %button.btn.btn-success.btn-large.right(ng-click="save()" ng-hide="show_next" Xng-disabled="!recommendation.option") Submit
+        %button.btn.btn-link.btn-large.right(ng-click="start_new_vote()" ng-show="edit_vote_mode") Start new vote
+

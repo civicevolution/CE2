@@ -89,10 +89,47 @@ module Api
           when "TableComment"
             params[:comment][:pro_votes] = params[:pro_votes]
             params[:comment][:con_votes] = params[:con_votes]
+
+            params[:comment][:elements] = {
+              recommendation_type: params[:purpose],
+              suggestion: params[:comment][:text],
+              text: params[:comment][:text],
+              reasons: params[:reasons]
+            }
+
+            # I should have all the data in place
+
+            if conversation.details['TableComment']['use_element']
+              params[:comment][:text] = generate_text_from_element(conversation.details, params[:comment][:elements])
+            end
+
             comment = conversation.table_comments.create params[:comment]
         end
 
         respond_with comment
+      end
+
+      def generate_text_from_element(details, elements)
+        strs = []
+        elements.each_pair do |key,value|
+          #puts "pairs #{key}: #{value}, type: #{value.class.to_s}"
+          case key
+            when 'recommendation_type'
+              #puts "lookup #{value} in recommendation_types"
+              value_string = details['TableComment']['recommendation_types'][value]
+              strs.push( "**_#{value_string}_**\n\n" )
+            when 'suggestion'
+              strs.push( "**_Suggested change_**  \n" )
+              strs.push( "#{value}\n\n" )
+            when 'reasons'
+              strs.push( "**_Reasons_**\n\n" )
+              value.each do |reason|
+                #puts "reason: #{reason}"
+                strs.push( "* **_#{details['TableComment']['reason_types'][ reason['type'] ]}:_** #{reason[ 'text']}\n" )
+              end
+          end
+        end
+        strs.join('')
       end
 
       def update

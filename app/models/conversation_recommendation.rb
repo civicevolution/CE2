@@ -31,12 +31,18 @@ class ConversationRecommendation < AgendaComponent
   def self.data_recommendation_results(params)
     conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
 
+    #recommendation_options = [
+    #  {recommendation: 1, text: 'Big decrease'},
+    #  {recommendation: 2, text: 'Little decrease'},
+    #  {recommendation: 3, text: 'Stay the same'},
+    #  {recommendation: 4, text: 'Little increase'},
+    #  {recommendation: 5, text: 'Big increase'}
+    #]
+
     recommendation_options = [
-      {recommendation: 1, text: 'Big decrease'},
-      {recommendation: 2, text: 'Little decrease'},
-      {recommendation: 3, text: 'Stay the same'},
-      {recommendation: 4, text: 'Little increase'},
-      {recommendation: 5, text: 'Big increase'}
+        {recommendation: 1, text: 'Pay more for more/better'},
+        {recommendation: 2, text: 'Pay the same for the same'},
+        {recommendation: 3, text: 'Pay less for less'}
     ]
 
     recommendation_votes = {}

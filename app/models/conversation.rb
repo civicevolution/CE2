@@ -308,7 +308,8 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     puts "id: #{conversation.id}"
     puts "code: #{conversation.code}"
     conversation_details = conversation.details.try{|details| details.symbolize_keys} || {}
-    puts "details:\n#{JSON.pretty_generate(conversation_details)}"
+    #puts "details:\n#{JSON.pretty_generate(conversation_details)}"
+    puts "details:\n#{pp(conversation_details)}"
   end
 
   def self.adjust_details(id, key, value)

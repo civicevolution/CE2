@@ -577,3 +577,34 @@ input.tag_name{
   margin-left: 16px;
   color: black;
 }
+
+.comment-form.short-form{
+  height: 100px;
+}
+.table-comment-reason{
+  //margin-top: 90px;
+  margin-left: 0;
+}
+
+.vote-count{
+  width: 50px;
+}
+
+.table-comment-controls{
+  select{ width: auto;}
+}
+#reply-control .reasons{
+  h4.form_title {
+    float:none;
+    margin-top: 90px;
+    margin-left: 0;
+  }
+  select{
+    margin-left:0;
+  }
+  textarea{
+    height: 60px;
+    width: 296px;
+  }
+
+}

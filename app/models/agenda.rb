@@ -972,7 +972,7 @@ class Agenda < ActiveRecord::Base
             title: %Q|Make recommendation for "#{conversation[:title]}"|,
             id: conversation[:id],
             link_code:  link_code,
-            href: "/#/agenda/#{self.code}-#{link_code}/recommend/#{conversation[:munged_title]}",
+            href: "/#/agenda/#{self.code}-#{link_code}/recommend-count/#{conversation[:munged_title]}",
             conversation_code: "#{conversation[:code]}",
             data_set: "conversation-recommend",
             disabled: false,

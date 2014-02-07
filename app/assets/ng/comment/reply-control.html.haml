@@ -28,13 +28,13 @@
             %p.warn(ng-repeat="error in newComment.form_errors")
               {{error.message}}
 
-        %div(ng-switch-when="TableComment")
+        %div.table-comment-controls(ng-switch-when="TableComment")
           %h4.form_title
             {{newComment.reply_control_title}}
 
           %div(ng-if="newComment.purpose_options")
-            %select(ng-model="newComment.purpose" ng-options="o.value as o.key for o in newComment.purpose_options" ng-change="select_comment_purpose()")
-              %option(value="" disabled selected) Select your recommendation
+            %select(ng-model="newComment.purpose" ng-options="k as v for (k,v) in conversation.details.TableComment.recommendation_types" ng-change="select_comment_purpose()")
+              %option(value="" disabled selected) {{conversation.details.TableComment.recommendation_types_placeholder}}
 
           %div.form_errors
             %p.warn(ng-repeat="error in newComment.form_errors")
@@ -67,7 +67,7 @@
             %a{:href => "/t/this-site-is-a-sandbox-it-is-reset-every-day/57"} THIS SITE IS A SANDBOX -- it is reset every day
             = succeed ":" do
 
-          %div.comment-form.wmd-controls
+          %div.comment-form.wmd-controls(ng-class="{'short-form': conversation.details.TableComment.reason_types}")
             -#%p
               %i comment form from directive scope id: {{$id}}
             .textarea-wrapper
@@ -105,12 +105,19 @@
                       %button#wmd-redo-button.wmd-button{:disabled => "", :title => "Redo - Ctrl+Shift+Z"}
 
                   %div(ng-switch="disable_monitor")
-                    %textarea#wmd-input.noscrollbars(ng-switch-when="true" ng-model="newComment.text"){placeholder: "Enter your comment..."}
-                    %textarea#wmd-input.noscrollbars(ng-switch-default ng-model="newComment.text" ng-keydown="monitor_keydown()"){placeholder: "Enter your comment..."}
+                    %textarea#wmd-input.noscrollbars(ng-switch-when="true" ng-model="newComment.text"){placeholder: "{{ conversation.details.TableComment.placeholder || 'Enter your comment...'}}"}
+                    %textarea#wmd-input.noscrollbars(ng-switch-default ng-model="newComment.text" ng-keydown="monitor_keydown()"){placeholder: "{{ conversation.details.TableComment.placeholder || 'Enter your comment...'}}"}
 
                   %input(ng-model="newComment.id"){type: 'hidden' }
                   %input(ng-model="newComment.conversation_code"){type: 'hidden' }
                   %input(ng-model="newComment.type"){type: 'hidden' }
+
+                  %div.reasons(ng-if="newComment.reasons")
+                    %h4.form_title Your reasons
+                    %div.table-comment-reason(ng-repeat="reason in newComment.reasons")
+                      %select(ng-model="reason.type" ng-options=" k as v for (k,v) in conversation.details.TableComment.reason_types" ng-change="select_comment_purpose()")
+                        %option(value="" disabled selected) Select a reason...
+                      %textarea.noscrollbars(ng-model="reason.text"){placeholder: "Explain your reason..."}
 
             .preview-wrapper
               .preview#wmd-preview(ng-include="preview_template")

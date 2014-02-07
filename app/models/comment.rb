@@ -11,7 +11,7 @@ class Comment < ActiveRecord::Base
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
                   :conversation_code, :in_reply_to_id, :in_reply_to_version, :published, :auth_type, :tag_name,
-                  :pro_votes, :con_votes
+                  :pro_votes, :con_votes, :elements
 
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]

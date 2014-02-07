@@ -19,9 +19,10 @@ ce2_directives.directive('ceUserBar', ->
           $scope.user = response
           $scope.$root.ror_session_id = response.session_id
           $scope.$root.$broadcast 'update-user-data'
-          FayeService.subscribe( "/monitor", (message)->
-            console.log "Received realtime notification on monitor: #{JSON.stringify(message, null, 4)}"
-          )
+          FayeService.subscribe( "/monitor", (message)-> )
+          #FayeService.subscribe( "/monitor", (message)->
+          #  console.log "Received realtime notification on monitor: #{JSON.stringify(message, null, 4)}"
+          #)
           FayeService.send_status()
 
       )
@@ -726,6 +727,15 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
                 ""
               else
                 "table"
+            if $scope.conversation.details?.TableComment?.reason_types
+              $scope.newComment.reasons = [{type: '', text: ''}]
+              #$scope.newComment.reasons = [{type: 'benefit-vs-cost', text: 'The benefit outweighs the cost'}]
+            #$scope.newComment.purpose = ''
+            #$scope.newComment.text = 'My new suggestion v1'
+            #$scope.newComment.pro_votes = 2
+            #$scope.newComment.con_votes = 1
+
+
 
           when 'call-to-action-comment-edit'
             if data.comment.id is 0
