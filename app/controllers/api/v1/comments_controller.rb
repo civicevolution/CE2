@@ -90,16 +90,16 @@ module Api
             params[:comment][:pro_votes] = params[:pro_votes]
             params[:comment][:con_votes] = params[:con_votes]
 
-            params[:comment][:elements] = {
-              recommendation_type: params[:purpose],
-              suggestion: params[:comment][:text],
-              text: params[:comment][:text],
-              reasons: params[:reasons]
-            }
-
             # I should have all the data in place
 
-            if conversation.details['TableComment']['use_element']
+            if conversation.details['TableComment'].try{|details| details['use_element']}
+              params[:comment][:elements] = {
+                  recommendation_type: params[:purpose],
+                  suggestion: params[:comment][:text],
+                  text: params[:comment][:text],
+                  reasons: params[:reasons]
+              }
+
               params[:comment][:text] = generate_text_from_element(conversation.details, params[:comment][:elements])
             end
 
