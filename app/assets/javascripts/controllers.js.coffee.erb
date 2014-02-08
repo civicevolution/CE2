@@ -397,7 +397,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       )
 
       .state( 'make-recommendation',
-        url: "/agenda/{agenda_code}-{link_code}/recommend/{munged_title}"
+        url: "/agenda/{agenda_code}-{link_code}/recommend-count/{munged_title}"
         templateUrl: '<%= path_to_asset "live/record_recommendations.html" %>'
         resolve:
           recommendation_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
@@ -407,7 +407,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       )
 
     .state( 'make-recommendation-count',
-        url: "/agenda/{agenda_code}-{link_code}/recommend-count/{munged_title}"
+        url: "/agenda/{agenda_code}-{link_code}/recommend-count-XX/{munged_title}"
         templateUrl: '<%= path_to_asset "live/record-recommendations-count.html" %>'
         resolve:
           recommendation_data: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
@@ -1538,14 +1538,19 @@ live_recommend_controller = [ "$scope", "recommendation_data", "LiveRecommendDat
 
     $scope.recommendation = {}
 
-    $scope.recommendation_options = [
-      {key: 1, value: 'Big decrease'},
-      {key: 2, value: 'Little decrease'},
-      {key: 3, value: 'Stay the same'},
-      {key: 4, value: 'Little increase'},
-      {key: 5, value: 'Big increase'}
-    ]
+    #$scope.recommendation_options = [
+    #  {key: 1, value: 'Big decrease'},
+    #  {key: 2, value: 'Little decrease'},
+    #  {key: 3, value: 'Stay the same'},
+    #  {key: 4, value: 'Little increase'},
+    #  {key: 5, value: 'Big increase'}
+    #]
 
+    $scope.recommendation_options = [
+      {key: 1, value: 'Pay more for more/better'},
+      {key: 2, value: 'Pay the same for the same'},
+      {key: 3, value: 'Pay less for less'}
+    ]
 
     $scope.participant_votes = recommendation_data.votes
     $scope.number_of_voters = (k for own k of $scope.participant_votes).length
