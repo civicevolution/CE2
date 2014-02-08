@@ -133,9 +133,11 @@ module Api
               strs.push( "#{value}\n\n" )
             when 'reasons'
               strs.push( "**_Reasons_**\n\n" )
-              value.each do |reason|
-                #puts "reason: #{reason}"
-                strs.push( "* **_#{details['TableComment']['reason_types'][ reason['type'] ]}:_** #{reason[ 'text']}\n" )
+              if !value.nil?
+                value.each do |reason|
+                  #puts "reason: #{reason}"
+                  strs.push( "* **_#{details['TableComment']['reason_types'][ reason['type'] ]}:_** #{reason[ 'text']}\n" )
+                end
               end
           end
         end
