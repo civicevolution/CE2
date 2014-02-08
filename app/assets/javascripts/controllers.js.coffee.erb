@@ -617,7 +617,7 @@ initialize_markdown_converter = ($timeout, $dialog, $rootScope, options) ->
     )
     dialog.open()
     $rootScope.$$phase || $rootScope.$apply()
-  unless true #disable_editor
+  unless disable_editor
     $timeout ->
       $rootScope.$broadcast 'initialize-markdown-editor', {editor: editor}
     , 1000

@@ -154,6 +154,16 @@ module Api
         params[:comment][:published] = published
         params[:comment][:status] = status
 
+        if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element']
+          params[:comment][:elements] = {
+              recommendation_type: params[:purpose],
+              suggestion: params[:comment][:text],
+              text: params[:comment][:text],
+              reasons: params[:reasons]
+          }
+          params[:comment][:text] = generate_text_from_element(conversation.details, params[:comment][:elements])
+        end
+
         comment.update(params[:comment])
         respond_with comment
       end
