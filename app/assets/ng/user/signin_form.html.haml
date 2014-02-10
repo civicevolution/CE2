@@ -5,7 +5,7 @@
     %h3 Sign in to CivicEvolution
   .modal-body
     %div.alert.alert-error(ng-show="error_message")
-      %p.message(ng-bind-html-unsafe="error_message")
+      %p.message(ng-bind-html="error_message")
       %p.message(ng-if="show_confirm")
         %a(ng-click="request_confirmation()")
           Request confirmation email

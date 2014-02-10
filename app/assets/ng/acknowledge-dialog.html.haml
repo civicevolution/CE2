@@ -4,7 +4,7 @@
     %button.close(type="button" aria-hidden="true" ng-click="cancel(result)") &times;
     %h3 {{title}}
   .modal-body
-    %div(ng-bind-html-unsafe="converter.makeHtml(message)")
+    %div(ng-bind-html="converter.makeHtml(message)")
   .modal-footer
     %button.btn.btn-primary(ng-click="cancel(result)") Close
 

@@ -1,7 +1,7 @@
 %div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}"){id: "com-{{comment.id}}"}
   %div
-    %div.full-comment.row-fluid
-      .span10.body-with-arrow
+    %div.full-comment.row
+      .col-md-10.body-with-arrow
         .comment-body-container
 
           %div.header
@@ -10,7 +10,7 @@
             %p {{comment.name}}
 
           %p Tag name: {{comment.tag_name}}
-          %div.theme_text(ng-bind-html-unsafe="converter.makeHtml(comment.text)")
+          %div.theme_text(ng-bind-html="converter.makeHtml(comment.text)")
 
           %div.history.clear(ng-include src="history_url")
 

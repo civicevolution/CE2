@@ -2,10 +2,10 @@
   %h2 {{title}}
   %h4 Your prioritised key themes
 
-  %div.graph.row-fluid(ng-repeat="theme in selection_votes")
-    .span10.theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)"){style: "background-size: {{theme.graph_percentage}}% 100%;"}
-    .span1.percent {{theme.percentage}}%
-    .span1.count ({{theme.votes | number:0}})
+  %div.graph.row(ng-repeat="theme in selection_votes")
+    .col-md-10.theme(ng-bind-html="converter.makeHtml(theme.text)"){style: "background-size: {{theme.graph_percentage}}% 100%;"}
+    .col-md-1.percent {{theme.percentage}}%
+    .col-md-1.count ({{theme.votes | number:0}})
 
   %div(ce-size-adjuster)
 

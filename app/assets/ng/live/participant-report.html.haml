@@ -13,7 +13,7 @@
           %table
             %tr(ng-repeat="theme in report.theme_comments")
               %td.letter {{theme.letter}}
-              %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+              %td.live-theme(ng-bind-html="converter.makeHtml(theme.text)")
 
       %div.live-allocate-results(ng-switch-when="ThemeAllocation" )
         %p.section-title {{report.title}}
@@ -22,7 +22,7 @@
 
         %table.graph
           %tr(ng-repeat="theme in report.allocated_points")
-            %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+            %td.live-theme(ng-bind-html="converter.makeHtml(theme.text)")
             %td.percent {{theme.percentage}}%
             %td.count ({{theme.points*10 | number:0}})
 

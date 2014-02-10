@@ -7,7 +7,7 @@
             Hide
           this comment
         %hr
-        %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
+        %div(ng-bind-html="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
       %p(ng-switch-default)
         This comment is not displayed because the curator has deemed it inappropriate.
         %a(ng-click="toggle_comment()")

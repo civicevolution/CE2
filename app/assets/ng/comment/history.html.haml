@@ -6,5 +6,5 @@
   %div(ng-repeat="diff in history" )
     %p
       Version {{diff.version}}:
-      %span(ng-bind-html-unsafe="diff.html_diff")
+      %span(ng-bind-html="diff.html_diff")
     %p Created: {{diff.created_at}}

@@ -1,10 +1,10 @@
 .live-allocate-results
   %h3 Service: {{title}}
 
-  %div.graph.row-fluid(ng-repeat="recommendation in recommendation_votes")
-    .span10.theme(ng-bind-html-unsafe="converter.makeHtml(recommendation.text)"){style: "background-size: {{recommendation.graph_percentage}}% 100%;"}
-    .span1.percent {{recommendation.percentage}}%
-    .span1.count ({{recommendation.votes | number:0}})
+  %div.graph.row(ng-repeat="recommendation in recommendation_votes")
+    .col-md-10.theme(ng-bind-html="converter.makeHtml(recommendation.text)"){style: "background-size: {{recommendation.graph_percentage}}% 100%;"}
+    .col-md-1.percent {{recommendation.percentage}}%
+    .col-md-1.count ({{recommendation.votes | number:0}})
 
   %div(ce-size-adjuster)
 

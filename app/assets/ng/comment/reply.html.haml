@@ -1,10 +1,10 @@
 %div.comment-reply
   %div.reply-outer
-    .span2.author
+    .col-md-2.author
       %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{reply.photo_code}}/sm5/p.jpg")
       %p.name {{reply.first_name}} {{reply.last_name}}
 
-    .span10.body-with-arrow
+    .col-md-10.body-with-arrow
       .arrow
       .comment-body-container
 
@@ -12,6 +12,6 @@
           %p.time {{reply.updated_at | from_now}}
           %p {{reply.purpose}}
 
-        %div.comment-body(ng-bind-html-unsafe="reply.text")
+        %div.comment-body(ng-bind-html="reply.text")
         %p.footer
           %i.icon-arrow-down(ng-click="goto_comment(reply.id)")

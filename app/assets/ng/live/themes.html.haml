@@ -7,6 +7,6 @@
   %table
     %tr(ng-repeat="theme in conversation_themes | filter: {published: true }")
       %td.letter {{theme.letter}}
-      %td.live-theme(ng-bind-html-unsafe="converter.makeHtml(theme.text)")
+      %td.live-theme(ng-bind-html="converter.makeHtml(theme.text)")
 
   %div(ce-size-adjuster)

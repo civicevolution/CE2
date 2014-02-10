@@ -84,7 +84,7 @@
               .form
                 %div.edit-menu
                   %div.attachment_form
-                  %div.progress-bar(ng-bind-html-unsafe="progress_bar_message")
+                  %div.progress-bar(ng-bind-html="progress_bar_message")
 
                 %form.convo.clear(ng-submit="addComment()"){name: 'comment_form'}
 
@@ -182,4 +182,4 @@
 
               %div.status {{newComment.status_message}}
 
-            -#%span.char-ctr(ng-if="comment_length > 0" ng-bind-html-unsafe="(comment_length - newComment.text.length) | characters_remaining")
+            -#%span.char-ctr(ng-if="comment_length > 0" ng-bind-html="(comment_length - newComment.text.length) | characters_remaining")

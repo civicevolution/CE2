@@ -19,6 +19,8 @@
 
 //= require angular-1.2.12/angular.js
 //= require angular-1.2.12/angular-resource.js
+//= require angular-1.2.12/angular-sanitize.js
+
 //= require angular-ui-router-0.2.8/angular-ui-router.js
 //= require ui-bootstrap-0.10.0/ui-bootstrap-tpls-0.10.0.js
 

@@ -19,13 +19,13 @@
         .container.user-bar
           %div(ce-user-bar)
     #main{:role => "main"}
-      .container-fluid
+      .container
         .content
           %div(ng-controller="AlertCtrl")
             %alert(ng-cloak ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)")
-              %div(ng-bind-html-unsafe="alert.msg" )
-          .row-fluid
-            .span12
+              %div(ng-bind-html="alert.msg" )
+          .row
+            .col-md-12
               %div(ui-view)
           %footer(ng-controller="ActivityMonitorController")
       / ! end of .container

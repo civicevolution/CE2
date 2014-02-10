@@ -2,7 +2,7 @@
   %div.rating-slider
     %canvas(width="300" height="40")
     %div.handle
-  %div.vote_count(ng-bind-html-unsafe="comment.number_of_votes | vote_count")
+  %div.vote_count(ng-bind-html="comment.number_of_votes | vote_count")
   %p.clear
 
 

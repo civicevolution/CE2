@@ -2,7 +2,7 @@
 
   %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
     %li.disabled
-      %div.schedule(ng-bind-html-unsafe="conversation.schedule_announcement")
+      %div.schedule(ng-bind-html="conversation.schedule_announcement")
     %li#conversation-stats-link(ng-class="{active: active_link == 'contact'}")
       %a(ng-click="open_panel('contact')") Contact us
     %li#conversation-stats-link(ng-class="{active: active_link == 'stats'}")
@@ -35,4 +35,4 @@
   %div#right-bar-panel(ng-show="active_link" ng-animate="'slide-to-left'" ng-class="{active: active_link, inactive: !active_link}")
     %button.close(ng-click="close_panel()") &times;
     %div.right-panel-inner
-      %div(ng-bind-html-unsafe="right_bar_panel_directive")
+      %div(ng-bind-html="right_bar_panel_directive")

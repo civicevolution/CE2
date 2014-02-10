@@ -6,7 +6,7 @@
   %form(ng-submit="submit_request_confirmation(user)"){name: 'requestConfirmation'}
     .modal-body
       %div.alert.alert-error(ng-show="conf_error_message")
-        %p.message(ng-bind-html-unsafe="conf_error_message")
+        %p.message(ng-bind-html="conf_error_message")
       %p
         Email:
         %input(ng-model='user.email' required ce-focus){type: 'text', placeholder: 'Enter email...'}

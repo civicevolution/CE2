@@ -21,12 +21,12 @@
 
   .body-with-arrow
     .arrow
-    %div.comment-body(ng-bind-html-unsafe="converter.makeHtml(post.comment_text)")
+    %div.comment-body(ng-bind-html="converter.makeHtml(post.comment_text)")
 
   -#%a(ng-click="optional_message()")
     Add optional message for {{post.first_name}}
 
   %div.buttons
-    %button.btn-primary.btn-small(ng-click="mark_as('declined')") Decline comment
-    %button.btn-primary.btn-small(ng-click="mark_as('redacted')") Redact comment
-    %button.btn-primary.btn-small(ng-click="mark_as('do_nothing')") Do nothing
+    %button.btn-primary.btn-sm(ng-click="mark_as('declined')") Decline comment
+    %button.btn-primary.btn-sm(ng-click="mark_as('redacted')") Redact comment
+    %button.btn-primary.btn-sm(ng-click="mark_as('do_nothing')") Do nothing

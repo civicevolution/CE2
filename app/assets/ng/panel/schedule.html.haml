@@ -29,5 +29,5 @@
       %div(datepicker ng-model="end_date" show-weeks="showWeeks" starting-day="0" date-disabled="disabled(date, mode)" min="minDate" max="'2015-06-22'")
 
   %fieldset
-    %button.btn-primary.btn(ng-click="updateSchedule()" ng-bind-html-unsafe="form_submit_status"){type: 'submit'}
+    %button.btn-primary.btn(ng-click="updateSchedule()" ng-bind-html="form_submit_status"){type: 'submit'}
     %button.btn.btn-link(ng-click="close_panel()") Cancel

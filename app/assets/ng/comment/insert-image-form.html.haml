@@ -26,10 +26,10 @@
           %br/
           %div.iframe_placeholder
           %iframe(id="attachment_upload_iframe" name="attachment_upload_iframe" onload='angular.element(this).scope().iframe_loaded(this)')
-          %div.progress-bar(ng-bind-html-unsafe="progress_bar_message")
+          %div.progress-bar(ng-bind-html="progress_bar_message")
 
       .modal-footer
-        %button.btn.btn-large.btn-primary(ng-click="upload()")
+        %button.btn.btn-lg.btn-primary(ng-click="upload()")
           %span.add-picture
             %i.icon-picture
             %i.icon-plus
@@ -43,7 +43,7 @@
           %span.description enter address of an image in the form http://example.com/image.jpg
           %br/
       .modal-footer
-        %button.btn.btn-large.btn-primary(ng-click="submit()")
+        %button.btn.btn-lg.btn-primary(ng-click="submit()")
           %span.add-picture
             %i.icon-picture
             %i.icon-plus

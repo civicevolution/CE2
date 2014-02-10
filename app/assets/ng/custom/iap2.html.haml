@@ -1,6 +1,6 @@
 .iap2.agenda-home.custom
   %h4 {{agenda.title}}
-  %div(ng-bind-html-unsafe="converter.makeHtml(agenda.description)")
+  %div(ng-bind-html="converter.makeHtml(agenda.description)")
 
   %div.warn(ng-if="agenda.test_mode")
     %h2 This agenda is in test mode

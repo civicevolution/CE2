@@ -15,6 +15,6 @@
         %input.tag(ng-keydown="keydown(this)")
 
     %fieldset
-      %button.btn-primary.btn(ng-click="updateTags()" ng-bind-html-unsafe="form_submit_status"){type: 'submit'}
+      %button.btn-primary.btn(ng-click="updateTags()" ng-bind-html="form_submit_status"){type: 'submit'}
       %button.btn.btn-link(ng-click="close_panel()") Cancel
 

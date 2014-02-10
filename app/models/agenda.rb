@@ -547,7 +547,7 @@ class Agenda < ActiveRecord::Base
       if ids_array[ind].class == Array
         ids_array[ind] = update_record_ids(translation_details, ids_array[ind])
       else
-        ids_array[ind] = translation_details[ ids_array[ind] ][:new_id]
+        ids_array[ind] = translation_details[ ids_array[ind] ].try{|details| details[:new_id] } || 0
       end
     end
     ids_array

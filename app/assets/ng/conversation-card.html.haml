@@ -5,4 +5,4 @@
     %a(ng-click="$state.transitionTo('conversation', {code: conversation.code, munged_title: conversation.munged_title||'new'})")
       {{conversation.title || 'New conversation'}}
 
-  %div(ng-bind-html-unsafe="converter.makeHtml(conversation.call_to_action || 'New conversation')")
+  %div(ng-bind-html="converter.makeHtml(conversation.call_to_action || 'New conversation')")

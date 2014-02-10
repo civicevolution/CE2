@@ -1,13 +1,13 @@
 %div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}"){id: "com-{{comment.id}}"}
   %div
     %div(ng-switch="comment.text.length")
-      %div.row-fluid(ng-switch-when="0")
+      %div.row(ng-switch-when="0")
         Comment deleted
-        -#.span2.author.deleted-comment-author
+        -#.col-md-10.author.deleted-comment-author
           %div.com-num
             {{comment.order_id}}
 
-        -#.span8.deleted-comment-body
+        -#.col-md-10.deleted-comment-body
           %p
             This comment has been deleted
             %a(ng-click="view_history({{comment.id}})")
@@ -16,17 +16,17 @@
 
       %div(ng-switch-default)
 
-        %div.full-comment.row-fluid(ng-if="comment.reply_target_expanded")
-          .span10.offset2.comment-target{'ng-include' => "'#{ path_to_asset("comment/reply-to-target.html") }'"}
+        %div.full-comment.row(ng-if="comment.reply_target_expanded")
+          .col-md-10.col-md-offset-2.comment-target{'ng-include' => "'#{ path_to_asset("comment/reply-to-target.html") }'"}
 
-        %div.full-comment.row-fluid
-          -#.span2.author
+        %div.full-comment.row
+          -#.col-md-10.author
             %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{comment.photo_code}}/sm5/p.jpg")
             %p.name {{comment.first_name}} {{comment.last_name}}
             %div.com-num
               {{comment.order_id}}
 
-          .span10.body-with-arrow
+          .col-md-10.body-with-arrow
             -#.arrow
             .comment-body-container
 
@@ -48,7 +48,7 @@
 
               %div(ng-switch="comment.body_template_url")
                 %div.comment-body(ng-switch-when="default")
-                  %div(ng-bind-html-unsafe="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
+                  %div(ng-bind-html="converter.makeHtml(comment.text)" ng-mouseup="text_select_by_mouse()")
 
                   %div.history.clear(ng-include src="history_url")
 

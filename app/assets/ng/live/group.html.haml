@@ -1,6 +1,6 @@
 %div#conversation.live-group
-  .row-fluid.conversation#conversation(ng-style="conversation.style")
-    .span3
+  .row.conversation#conversation(ng-style="conversation.style")
+    .col-md-3
       %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
 
         -#%li
@@ -14,9 +14,9 @@
         -#%li.add_comment(popover="Click here to add a new answer to the current question" popover-trigger="mouseenter" popover-placement="right" popover-animation="true")
         %li.add_comment
           %p#add-conversation-comment
-            %input.btn-primary.btn-large.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: "{{add_button_label}}" }
+            %input.btn-primary.btn-lg.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: "{{add_button_label}}" }
 
-    .span9
+    .col-md-9
       %h4#conversation-title.title {{conversation.title}}
 
       %div(ng-switch="conversation.filter_mode")
@@ -80,8 +80,8 @@
           %div(ng-if="conversation.filtered_comments.length == 0")
             %p Your group hasn't posted any comments yet
 
-  -#.row-fluid(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
-    .span8
+  -#.row(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
+    .col-md-8
       %p#add-conversation-comment
         %input.btn-primary.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: 'Add a new comment'}
 
