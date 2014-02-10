@@ -11,16 +11,17 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 
-//= require jquery-1.9.1
+// require jquery-1.9.1
 //= require underscore-min.js
 //= require md5.js
 
 //= require polyfills
 
-//= require angular-1.1.5/angular
-//= require angular-1.1.5/angular-resource
-//= require angular-ui-router-0.0.1/angular-ui-router.js
-//= require ui-bootstrap-tpls-0.5.0/ui-bootstrap-tpls-0.5.0.js
+//= require angular-1.2.12/angular.js
+//= require angular-1.2.12/angular-resource.js
+//= require angular-ui-router-0.2.8/angular-ui-router.js
+//= require ui-bootstrap-0.10.0/ui-bootstrap-tpls-0.10.0.js
+
 //= require faye-browser.js
 
 //= require controllers.js
@@ -40,9 +41,9 @@
 //= require Markdown.Sanitizer.js
 //= require bbcode.js
 
-//= require ng-grid/ng-grid-2.0.7.min.js
-//= require ng-grid/ng-grid-csv-export.js
-//= require ng-grid/ng-grid-flexible-height.js
+// require ng-grid/ng-grid-2.0.7.min.js
+// require ng-grid/ng-grid-csv-export.js
+// require ng-grid/ng-grid-flexible-height.js
 
 
 // Don't use these for now

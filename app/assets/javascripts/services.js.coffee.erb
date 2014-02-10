@@ -604,8 +604,8 @@ services.factory "EventsData", ["$http",
       $http.get("/api/agendas.json")
 ]
 
-services.factory "McaData", ["$http", "$timeout", "$dialog",
-  ($http, $timeout, $dialog) ->
+services.factory "McaData", ["$http", "$timeout", "$modal",
+  ($http, $timeout, $modal) ->
     ratings_ack_hash: {}
 
     check_ratings_ack_hash: ->
@@ -617,7 +617,7 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
           title = "Sorry, your rating may not have been saved"
           msg = "Please refresh this browser page and re-enter your rating. If this problem persists, please notify one of the facilitators."
           btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-          $dialog.messageBox(title, msg, btns).open()
+          $modal.messageBox(title, msg, btns).open()
         else
           uncleared_acks = true
       if uncleared_acks

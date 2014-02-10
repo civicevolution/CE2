@@ -8,10 +8,14 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
+ * create customized bootstrap at http://getbootstrap.com/customize/
+ *
  *= require_self
  *= require_tree .
  *= require pagedown
  *= require ng-grid.min.css
+ *= require bootstrap-3.1.0/css/bootstrap.min.css
+ *= require font-awesome-4.0.3/css/font-awesome.min.css
 */
 
 .content {
