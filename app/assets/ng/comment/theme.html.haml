@@ -18,7 +18,7 @@
             %div.replies(ng-if="comment.replies.length>0" ng-click="show_replies()")
               {{comment.replies.length}} replies
               %span(ng-if="comment.replies_expanded")
-                %i.icon-chevron-up
+                %i.fa.fa-chevron-up
 
             %div(ng-if="comment.show_tag_widget == true" ce-tag-comment)
 
@@ -26,7 +26,7 @@
               History v{{comment.version}}
 
             %a.edit(ng-if="comment.editable_by_user" ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
-              -#%i.icon-pencil
+              -#%i.fa.fa-pencil
               Edit
 
             %a.edit(ng-if="comment.editable_by_user && comment.published" ng-click="broadcast_action('theme-comment-hide')"){title: "Hide this theme"}

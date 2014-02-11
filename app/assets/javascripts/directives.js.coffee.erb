@@ -1224,7 +1224,7 @@ ce2_directives.directive('ceProfilePhotoForm', ->
         if element.files.length > 0
           file_name = element.files[0].name
           console.log "ceProfilePhotoForm loading file: #{file_name}" if debug
-          $scope.progress_bar_message = "<i class='icon-spinner icon-spin'></i><span>Loading #{file_name}</span>"
+          $scope.progress_bar_message = "<i class='fa fa-spinner fa-spin'></i><span>Loading #{file_name}</span>"
 
           console.log "ceProfilePhotoForm: a file is selected, add iframe" if debug
           $scope.$root.attachment_frame_id = 1 if not $scope.$root.attachment_frame_id
@@ -1297,7 +1297,7 @@ ce2_directives.directive('ceSortable', [ "$document", "$timeout", "ConversationD
         item_carrier.wrap('<div class="ce-sortable-item-pair"></div>')
         item_pair = item_carrier.parent()
 
-      handle = angular.element('<div class="ce-sortable-handle"><i class="icon-sort icon-2x"></i></div>')
+      handle = angular.element('<div class="ce-sortable-handle"><i class="fa fa-sort fa-2x"></i></div>')
       elm.append(handle)
 
       item_carrier.after(angular.element('<div class="ce-sortable-placeholder ce-sortable-item"></div>'))
@@ -1654,7 +1654,7 @@ ce2_directives.directive('ceNotificationPanel', ->
       $scope.form_submit_status = if $scope.conversation.notification_request.default then 'Confirm settings' else "Update settings"
       $scope.updateNotifications = ->
         #console.log "Update the privacy settings to RoR"
-        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
+        $scope.form_submit_status = '<i class="fa-spinner fa fa-spin">Updating</i>'
         NotificationRequest.save_settings($scope.conversation.code, $scope.conversation.notification_request).then (response)->
           console.log "NotificationRequest.save_settings received response"
           $scope.form_submit_status = 'Updated'
@@ -1794,7 +1794,7 @@ ce2_directives.directive('cePrivacyPanel', ->
       $scope.privacy = $scope.conversation.privacy
       $scope.updatePrivacy = ->
         #console.log "Update the privacy settings to RoR"
-        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
+        $scope.form_submit_status = '<i class="fa.fa-spinner.fa-spin">Updating</i>'
         ConversationData.persist_privacy_to_ror($scope.conversation.code, $scope.privacy).then (response)->
           #console.log "ConversationData.persist_privacy_to_ror received response"
           $scope.form_submit_status = 'Updated'
@@ -1903,7 +1903,7 @@ ce2_directives.directive('ceSchedulePanel', ->
         ends_at.setMinutes( $scope.end_time.getMinutes() )
         ends_at.setSeconds( 0 )
 
-        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
+        $scope.form_submit_status = '<i class="fa.fa-spinner.fa-spin">Updating</i>'
         ConversationData.persist_schedule_to_ror($scope.conversation.code, starts_at, ends_at).then (response)->
           #console.log "ConversationData.persist_schedule_to_ror received response"
           $scope.conversation.starts_at = starts_at
@@ -1963,7 +1963,7 @@ ce2_directives.directive('ceTagsPanel', ->
 
       $scope.updateTags = ->
         #console.log "Update the tags to RoR"
-        $scope.form_submit_status = '<i class="icon-spinner.icon-spin">Updating</i>'
+        $scope.form_submit_status = '<i class="fa.fa-spinner.fa-spin">Updating</i>'
         ConversationData.persist_tags_to_ror($scope.conversation.code, $scope.conversation.tags).then (response)->
           #console.log "ConversationData.persist_tags_to_ror received response"
           $scope.form_submit_status = 'Updated'

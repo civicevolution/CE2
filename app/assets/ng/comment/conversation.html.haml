@@ -35,7 +35,7 @@
                   %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{comment.in_reply_tag.code}}/sm1/p.jpg")
                   {{comment.in_reply_tag.author}}
                   %span(ng-if="comment.reply_target_expanded")
-                    %i.icon-chevron-down
+                    %i.fa.fa-chevron-down
 
 
                 %p.time {{comment.updated_at | from_now}}
@@ -58,30 +58,30 @@
                 %div.replies(ng-if="comment.replies.length>0" ng-click="show_replies()")
                   {{comment.replies.length}} replies
                   %span(ng-if="comment.replies_expanded")
-                    %i.icon-chevron-up
+                    %i.fa.fa-chevron-up
 
 
                 %a(ng-click="reply('conversation-comment-reply')")
-                  %i.icon-reply
+                  %i.fa.fa-reply
                   %span Reply
                 %a(ng-click="share(comment.id)")
-                  %i.icon-share-alt
+                  %i.fa.fa-share
                   %span Share
                 %a(ng-click="bookmark()" ng-switch="comment.bookmark")
                   %span(ng-switch-when="true")
-                    %i.icon-bookmark
+                    %i.fa.fa-bookmark
                   %span(ng-switch-default)
-                    %i.icon-bookmark-empty
+                    %i.fa.fa-bookmark-o
                   %span Bookmark
 
                 %a(ng-click="flag()")
-                  %i.icon-flag
+                  %i.fa.fa-flag
                   %span Flag
                 %a(ng-show="comment.version>1" ng-click="view_history(comment.id)")
                   History v{{comment.version}}
 
                 %a(ng-if="comment.editable_by_user" ng-click="edit('conversation-comment-edit')"){title: "Edit this comment"}
-                  -#%i.icon-pencil
+                  -#%i.fa.fa-pencil
                   Edit
 
               %div.comment-replies(ng-if="comment.replies_expanded")

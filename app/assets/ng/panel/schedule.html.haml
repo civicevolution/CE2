@@ -8,7 +8,7 @@
     %div.start
       %div.date(ng-click="toggle_start_calendar()"){title: "Click to change the date" }
         %em {{start_date | date:'fullDate' }}
-        %i.icon-calendar.icon-1x
+        %i.fa.fa-calendar.fa-1x
 
       %div.time(timepicker ng-model="start_time" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian")
 
@@ -21,7 +21,7 @@
     %div.end
       %div.date(ng-click="toggle_end_calendar()"){title: "Click to change the date" }
         %em {{end_date | date:'fullDate' }}
-        %i.icon-calendar.icon-1x
+        %i.fa.fa-calendar.fa-1x
 
       %div.time(timepicker ng-model="end_time" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian")
 

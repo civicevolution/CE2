@@ -128,6 +128,6 @@
     -#%div.wizard-navigation
       %button.btn-primary.btn(ng-click="wizard_navigation('next')" ng-hide="conversation_wizard_step == 7") Next
       -#%div
-        %i.icon-angle-left(ng-hide="conversation_wizard_step==1" ng-click="wizard_navigation('previous')")
+        %i.fa.fa-angle-left(ng-hide="conversation_wizard_step==1" ng-click="wizard_navigation('previous')")
         %span Step {{conversation_wizard_step}} of {{conversation_wizard_num_steps}}
-        %i.icon-angle-right(ng-hide="conversation_wizard_step==conversation_wizard_num_steps" ng-click="wizard_navigation('next')")
+        %i.fa.fa-angle-right(ng-hide="conversation_wizard_step==conversation_wizard_num_steps" ng-click="wizard_navigation('next')")

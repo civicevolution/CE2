@@ -9,10 +9,10 @@
       -#.composer-popup-container
         #new-user-education.composer-popup{:style => "display: none; bottom: 288px;"}
           %a.close{"data-ember-action" => "109", :href => "#"}
-            %i.icon.icon-remove-sign
+            %i.fa.fa-remove-sign
         #similar-topics.composer-popup{:style => "display: none; bottom: 288px;"}
           %a.close{"data-ember-action" => "110", :href => "#"}
-            %i.icon.icon-remove-sign
+            %i.fa.fa-remove-sign
           %h3 Your topic is similar to...
           %h3
           %ul.topics
@@ -168,7 +168,7 @@
                   %span.def-msg Add
                   %span.busy-msg
                     Adding
-                    %i.icon-spinner.icon-spin
+                    %i.fa.fa-spinner.fa-spin
 
                 %button.btn.btn-link(ng-click="clear_edit()") Cancel
 
@@ -177,7 +177,7 @@
                   %span.def-msg Update
                   %span.busy-msg
                     Updating
-                    %i.icon-spinner.icon-spin
+                    %i.fa.fa-spinner.fa-spin
                 %button.btn.btn-link(ng-click="clear_edit()") Cancel
 
               %div.status {{newComment.status_message}}

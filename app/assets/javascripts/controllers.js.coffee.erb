@@ -595,7 +595,7 @@ initialize_markdown_converter = ($timeout, $modal, $rootScope, options) ->
           if file_input.files.length > 0
             file_name = file_input.files[0].name
             console.log "loading file: #{file_name}" if debug
-            $scope.progress_bar_message = "<i class='icon-spinner icon-spin'></i><span>Loading #{file_name}</span>"
+            $scope.progress_bar_message = "<i class='fa fa-spinner fa-spin'></i><span>Loading #{file_name}</span>"
             image_upload_form.submit()
 
         $scope.iframe_loaded = (el) ->
@@ -737,7 +737,7 @@ conversation_controller = [ "$scope", "conversation", "FayeService", "$timeout",
     $scope.$on 'Publish conversation', (event, data) ->
       #console.log "publishConversation with code: #{data.conversation_code}"
       button_scope = data.button_scope
-      button_scope.form_submit_status = 'Publishing <i class="icon-spinner icon-spin"></i>'
+      button_scope.form_submit_status = 'Publishing <i class="fa fa-spinner fa-spin"></i>'
       ConversationData.publish_conversation(data.conversation_code).then (response)->
         #console.log "ConversationData.publish_conversation received response"
         button_scope.form_submit_status = 'Published'
