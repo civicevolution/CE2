@@ -1501,8 +1501,8 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
           directive = angular.element(document.getElementById('right-panel-directive'))
           $compile(directive)(scope);
 
-    controller: [ "$scope", "$templateCache",
-      ($scope, $templateCache) ->
+    controller: [ "$scope", "$templateCache", "$sce",
+      ($scope, $templateCache, $sce) ->
         $scope.name = "ceConversationRightBar"
         $scope.open_panel = (link) ->
           if $scope.active_link == link
@@ -1536,7 +1536,7 @@ ce2_directives.directive('ceConversationRightBar', [ "$compile",
           panel.css( {top: "#{top}px", right: "#{right}px", width: "#{width}px", 'max-height': "#{max_height}px" })
 
           #console.log "open_panel for #{link}"
-          $scope.right_bar_panel_directive = "<div id='right-panel-directive' ce-#{link}-panel dev='#{dev}'>Compile directive ce-#{link}-panel</div>"
+          $scope.right_bar_panel_directive = $sce.trustAsHtml("<div id='right-panel-directive' ce-#{link}-panel dev='#{dev}'>Compile directive ce-#{link}-panel</div>")
           $scope.active_link = link
           $scope.$root.$broadcast "user-event-notification", { action: "open panel #{link}"}
         $scope.close_panel = ->
