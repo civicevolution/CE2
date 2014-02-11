@@ -27,8 +27,8 @@ ce2_directives.directive('ceUserBar', ->
 
       )
       $scope.sign_in = ->
-        $scope.dialog?.close()
-        $scope.dialog = $modal.dialog(
+        $scope.modal?.close()
+        $scope.modal = $modal.open(
           backdrop: true
           keyboard: true
           backdropClick: true
@@ -45,7 +45,7 @@ ce2_directives.directive('ceUserBar', ->
               User.sign_in(user).then(
                 (response)->
                   #console.log "signin received response"
-                  $scope.dialog.close()
+                  $scope.modal.close()
                   $window.location.reload()
                 ,
                 (reason) ->
@@ -56,9 +56,9 @@ ce2_directives.directive('ceUserBar', ->
             $scope.cancel = ->
               $scope.error_message = null
               $scope.show_confirm = false
-              $scope.dialog.close()
+              $scope.modal.close()
         )
-        $scope.dialog.open()
+        $scope.modal.open()
 
       $scope.sign_out = ->
         $scope.$root.$broadcast 'user-sign-out'
@@ -76,8 +76,8 @@ ce2_directives.directive('ceUserBar', ->
         )
 
       $scope.sign_up = ->
-        $scope.dialog?.close()
-        $scope.dialog = $modal.dialog(
+        $scope.modal?.close()
+        $scope.modal = $modal.open(
           backdrop: true
           keyboard: false
           backdropClick: false
@@ -96,7 +96,7 @@ ce2_directives.directive('ceUserBar', ->
               User.sign_up(user).then(
                 (response)->
                   #console.log 'signup received response'
-                  $scope.dialog.close()
+                  $scope.modal.close()
                   $window.location.reload()
                 ,
                 (reason) ->
@@ -107,13 +107,13 @@ ce2_directives.directive('ceUserBar', ->
                     console.log "a bigger error in sign up"
               )
             $scope.cancel = ->
-              $scope.dialog.close()
+              $scope.modal.close()
         )
-        $scope.dialog.open()
+        $scope.modal.open()
 
       $scope.forgot_password = ->
-        $scope.dialog?.close()
-        $scope.dialog = $modal.dialog(
+        $scope.modal?.close()
+        $scope.modal = $modal.open(
           backdrop: true
           keyboard: true
           backdropClick: true
@@ -127,8 +127,8 @@ ce2_directives.directive('ceUserBar', ->
               User.forgot_password(user).then(
                 (response)->
                   #console.log 'forgot_password received response'
-                  $scope.dialog.close()
-                  $scope.acknowledge_dialog("Thank you", "An email has been sent to #{user.email}")
+                  $scope.modal.close()
+                  $scope.acknowledge_modal("Thank you", "An email has been sent to #{user.email}")
                 ,
                 (reason) ->
                   #console.log 'signup received reason'
@@ -139,13 +139,13 @@ ce2_directives.directive('ceUserBar', ->
                     console.log "a bigger error in forgot_password"
               )
             $scope.cancel = ->
-              $scope.dialog.close()
+              $scope.modal.close()
         )
-        $scope.dialog.open()
+        $scope.modal.open()
 
       $scope.request_confirmation = ->
-        $scope.dialog?.close()
-        $scope.dialog = $modal.dialog(
+        $scope.modal?.close()
+        $scope.modal = $modal.open(
           backdrop: true
           keyboard: true
           backdropClick: true
@@ -157,11 +157,11 @@ ce2_directives.directive('ceUserBar', ->
               User.request_confirmation(user).then(
                 (response)->
                   #console.log 'request_confirmation received response'
-                  $scope.dialog.close()
+                  $scope.modal.close()
                   message = "An email has been sent to #{user.email}\n\n" +
                   "If you do not receive a confirmation email from CivicEvolution, please check your spam folder.\n\n" +
                   "If you do not find the email or the email address above is incorrect, email us: support@civicevolution.org"
-                  $scope.acknowledge_dialog("Confirmation email sent", message)
+                  $scope.acknowledge_modal("Confirmation email sent", message)
                 ,
                 (reason) ->
                   #console.log 'request_confirmation received reason'
@@ -172,13 +172,13 @@ ce2_directives.directive('ceUserBar', ->
                     console.log "a bigger error in request_confirmation"
               )
             $scope.cancel = ->
-              $scope.dialog.close()
+              $scope.modal.close()
         )
-        $scope.dialog.open()
+        $scope.modal.open()
 
       $scope.change_password = ->
-        $scope.dialog?.close()
-        $scope.dialog = $modal.dialog(
+        $scope.modal?.close()
+        $scope.modal = $modal.open(
           backdrop: true
           keyboard: true
           backdropClick: true
@@ -190,8 +190,8 @@ ce2_directives.directive('ceUserBar', ->
               User.change_password(update_pw).then(
                 (response)->
                   console.log 'submit_change_password received response'
-                  $scope.dialog.close()
-                  $scope.acknowledge_dialog("Your password has been updated")
+                  $scope.modal.close()
+                  $scope.acknowledge_modal("Your password has been updated")
               ,
               (reason) ->
                 #console.log 'request_confirmation received reason'
@@ -202,9 +202,9 @@ ce2_directives.directive('ceUserBar', ->
                   console.log "a bigger error in change_password"
               )
             $scope.cancel = ->
-              $scope.dialog.close()
+              $scope.modal.close()
         )
-        $scope.dialog.open()
+        $scope.modal.open()
 
 
       $scope.edit_profile = ->
@@ -213,19 +213,19 @@ ce2_directives.directive('ceUserBar', ->
         console.log "CeUserBar test"
         User.test()
 
-      $scope.acknowledge_dialog = (title,message) ->
-        $scope.dialog = $modal.dialog(
+      $scope.acknowledge_modal = (title,message) ->
+        $scope.modal = $modal.open(
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '<%= path_to_asset "acknowledge-dialog.html" %>'
+          templateUrl: '<%= path_to_asset "acknowledge-modal.html" %>'
           controller: ->
             $scope.title = title
             $scope.message = message
             $scope.cancel = ->
-              $scope.dialog.close()
+              $scope.modal.close()
         )
-        $scope.dialog.open()
+        $scope.modal.open()
 
       $scope.go_home = ->
         switch
@@ -649,15 +649,15 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         )
 
       $scope.acknowledge_guest_comment = (data) ->
-        data.dialog = $modal.dialog(
+        data.modal = $modal.open(
           templateUrl: '<%= path_to_asset "comment/guest-post-acknowledge.html" %>'
           resolve: {guest_post: -> data }
           controller: ($scope, guest_post) ->
             $scope.guest_post = guest_post
             $scope.close = ->
-              $scope.guest_post.dialog.close()
+              $scope.guest_post.modal.close()
         )
-        data.dialog.open()
+        data.modal.open()
 
       $scope.$on 'open-comment-form', (event, data) ->
         #console.log "$scope.$on 'open-comment-form' event: #{event}, action: #{data.action}"

@@ -565,7 +565,7 @@ initialize_markdown_converter = ($timeout, $modal, $rootScope, options) ->
   Markdown.upload_dialog = (linkEnteredCallback) ->
     console.log "call the upload dialog"
 
-    dialog = $modal.dialog(
+    dialog = $modal.modal(
       backdrop: true
       keyboard: true
       backdropClick: true
@@ -575,7 +575,7 @@ initialize_markdown_converter = ($timeout, $modal, $rootScope, options) ->
         $scope.type = 'local'
         $scope.image = {conversation_code: angular.element(document.getElementById('wmd-input')).scope().conversation.code }
 
-        console.log "in dialog, $scope.image.conversation_id: #{$scope.image.conversation_id} "
+        console.log "in modal, $scope.image.conversation_id: #{$scope.image.conversation_id} "
 
         $scope.show_tab = (str) ->
           if str is 'web'
@@ -587,7 +587,7 @@ initialize_markdown_converter = ($timeout, $modal, $rootScope, options) ->
         $scope.submit = ->
           console.log "submit url: #{$scope.image.url}"
           linkEnteredCallback($scope.image.url)
-          dialog.close()
+          modal.close()
 
         $scope.upload = ->
           console.log "upload file"
@@ -608,14 +608,14 @@ initialize_markdown_converter = ($timeout, $modal, $rootScope, options) ->
             console.log "in_page_url is #{attachment.in_page_url}"
             $timeout ->
               linkEnteredCallback(attachment.in_page_url, {width: attachment.image_width, height: attachment.image_height});
-              dialog.close()
+              modal.close()
               $scope.$root.$broadcast('update-new-comment-text')
 
         $scope.cancel = ->
-          dialog.close()
+          modal.close()
       ]
     )
-    dialog.open()
+    #dialog.open()
     $rootScope.$$phase || $rootScope.$apply()
   unless disable_editor
     $timeout ->
@@ -2342,11 +2342,11 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
 
     $scope.option_assignment = (row) ->
       McaData.project_assignments(row.entity.option_id).then (response) ->
-        dialog = $modal.dialog(
+        modal = $modal.modal(
           backdrop: true
           keyboard: true
           backdropClick: true
-          templateUrl: '<%= path_to_asset "live/assign-project-dialog.html" %>'
+          templateUrl: '<%= path_to_asset "live/assign-project-modal.html" %>'
           controller: ["$scope",
             ($scope) ->
               $scope.button_text = "Select Group"
@@ -2356,7 +2356,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
               $scope.evaluators = response.data.evaluators
               $scope.evaluator_ids = (evaluator.user_id for evaluator in response.data.evaluators)
               $scope.cancel = ->
-                dialog.close()
+                modal.close()
               $scope.check_if_disabled = (user_id) ->
                 if _.contains($scope.evaluator_ids, user_id)
                   'disabled'
@@ -2368,14 +2368,14 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
               $scope.assign_now = ->
                 #console.log "assign this project id: #{response.data.id} to user_id: #{$scope.group_user_id}"
                 McaData.assign_project_evaluation(response.data.id, $scope.group_user_id).then (response) ->
-                  dialog.close()
+                  modal.close()
               $scope.remove_assignment = (evaluation_id,user_id) ->
                 #console.log "remove_assigment for evaluation_id: #{evaluation_id}, user_id: #{user_id}"
                 McaData.remove_evaluation_assignment(evaluation_id).then (response) ->
-                  dialog.close()
+                  modal.close()
           ]
         )
-        dialog.open()
+        #modal.open()
 ]
 
 group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService",
