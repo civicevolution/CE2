@@ -1794,7 +1794,7 @@ ce2_directives.directive('cePrivacyPanel', ->
       $scope.privacy = $scope.conversation.privacy
       $scope.updatePrivacy = ->
         #console.log "Update the privacy settings to RoR"
-        $scope.form_submit_status = '<i class="fa.fa-spinner.fa-spin">Updating</i>'
+        $scope.form_submit_status = '<i class="fa fa-spinner fa-spin">Updating</i>'
         ConversationData.persist_privacy_to_ror($scope.conversation.code, $scope.privacy).then (response)->
           #console.log "ConversationData.persist_privacy_to_ror received response"
           $scope.form_submit_status = 'Updated'
@@ -1903,7 +1903,7 @@ ce2_directives.directive('ceSchedulePanel', ->
         ends_at.setMinutes( $scope.end_time.getMinutes() )
         ends_at.setSeconds( 0 )
 
-        $scope.form_submit_status = '<i class="fa.fa-spinner.fa-spin">Updating</i>'
+        $scope.form_submit_status = '<i class="fa fa-spinner fa-spin">Updating</i>'
         ConversationData.persist_schedule_to_ror($scope.conversation.code, starts_at, ends_at).then (response)->
           #console.log "ConversationData.persist_schedule_to_ror received response"
           $scope.conversation.starts_at = starts_at
@@ -1963,7 +1963,7 @@ ce2_directives.directive('ceTagsPanel', ->
 
       $scope.updateTags = ->
         #console.log "Update the tags to RoR"
-        $scope.form_submit_status = '<i class="fa.fa-spinner.fa-spin">Updating</i>'
+        $scope.form_submit_status = '<i class="fa fa-spinner fa-spin">Updating</i>'
         ConversationData.persist_tags_to_ror($scope.conversation.code, $scope.conversation.tags).then (response)->
           #console.log "ConversationData.persist_tags_to_ror received response"
           $scope.form_submit_status = 'Updated'
