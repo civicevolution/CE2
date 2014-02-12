@@ -1,10 +1,10 @@
 %div#conversation.conversation-theming
   .row.conversation#conversation(ng-style="conversation.style")
-    .col-lg-3
+    .col-sm-3
       %div(ng-if="conversation.theme_themes_mode" ng-include="'#{ path_to_asset("live/theme-themes-menu.html") }'")
       %div(ng-if="!conversation.theme_themes_mode" ng-include="'#{ path_to_asset("live/theme-comments-menu.html") }'")
 
-    .col-lg-9
+    .col-sm-9
       %h4#conversation-title.title {{conversation.title}}
 
       %div(ng-if="conversation.theme_themes_mode" ng-include="'#{ path_to_asset("live/theme-themes-body.html") }'")
