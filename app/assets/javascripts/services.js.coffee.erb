@@ -1,6 +1,6 @@
 #console.log("loading services.js.coffee");
 
-services = angular.module("CE2.services", ["ngResource"])
+services = angular.module("CE2.services", ["ngResource", "ngSanitize"])
 
 services.factory 'User', [ "$http", "$window", ($http, $window) ->
   # a static method to retrieve current User
@@ -215,9 +215,7 @@ services.factory "CommentData", ["$log", "$http", "Comment", "$rootScope",
     name: "CommentData"
 
     history: (comment_id) ->
-      console.log "Retrieve history for comment #{comment_id}"
-      $http.get("/api/comments/#{comment_id}/history").then (response) ->
-        response.data
+      $http.get("/api/comments/#{comment_id}/history")
 
     create_in_ror: (action, data) ->
       if action == 'update'
@@ -604,8 +602,8 @@ services.factory "EventsData", ["$http",
       $http.get("/api/agendas.json")
 ]
 
-services.factory "McaData", ["$http", "$timeout", "$modal",
-  ($http, $timeout, $modal) ->
+services.factory "McaData", ["$http", "$timeout", "$dialog",
+  ($http, $timeout, $dialog) ->
     ratings_ack_hash: {}
 
     check_ratings_ack_hash: ->
@@ -617,7 +615,7 @@ services.factory "McaData", ["$http", "$timeout", "$modal",
           title = "Sorry, your rating may not have been saved"
           msg = "Please refresh this browser page and re-enter your rating. If this problem persists, please notify one of the facilitators."
           btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-          $modal.messageBox(title, msg, btns).open()
+          $dialog.messageBox(title, msg, btns)
         else
           uncleared_acks = true
       if uncleared_acks
@@ -726,3 +724,38 @@ services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, 
       })
     this.status_timeout = setTimeout( angular.bind(this, this.send_status), this.status_interval)
 ]
+
+services.factory '$dialog', ['$rootScope', '$modal',
+  ($rootScope, $modal) ->
+    # Opens simple generic dialog presenting title, message (any html) and provided buttons.
+    messageBox: (title, message, buttons, resultFn) ->
+      scope = angular.extend($rootScope.$new(false), { title: title, message: message, buttons: buttons })
+      modalOptions =
+        templateUrl:  "template/messageBox/message.html"
+        controller: 'MessageBoxController'
+        scope: scope
+      callback = (result) ->
+        value = if resultFn then resultFn(result) else undefined
+        scope.$destroy()
+        return value
+
+      dialog = $modal.open(modalOptions)
+      if callback
+        dialog.result.then(callback)
+      dialog.values = modalOptions
+      dialog
+]
+
+services.run(["$templateCache", ($templateCache) ->
+  $templateCache.put("template/messageBox/message.html",
+    '<div class="modal-header"><h3>{{ title }}</h3></div>\n' +
+    '<div class="modal-body"><p ng-bind-html="message"></p></div>\n' +
+    '<div class="modal-footer"><button ng-repeat="btn in buttons" ng-click="close(btn.result)" class="btn" ng-class="btn.cssClass">{{ btn.label }}</button></div>\n');
+])
+
+
+services.controller('MessageBoxController', ['$scope', '$modalInstance',
+  ($scope, $modalInstance) ->
+    $scope.close = (result) ->
+      $modalInstance.close(result)
+])

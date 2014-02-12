@@ -287,8 +287,8 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
           $timeout ->
             $compile(iElement.find('blockquote'))(scope)
 
-  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll", "$timeout", "$modal",
-    ($scope, CommentData, $compile, $location, $anchorScroll, $timeout, $modal) ->
+  controller: [ "$scope", "CommentData", "$compile", "$location", "$anchorScroll", "$timeout", "$modal", "$dialog",
+    ($scope, CommentData, $compile, $location, $anchorScroll, $timeout, $modal, $dialog) ->
       $scope.name = 'ceComment'
 
       if $scope.comment
@@ -310,8 +310,11 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
         $scope.$root.$broadcast cmd, {comment: $scope.comment}
 
       $scope.view_history = (comment_id) ->
-        $scope.history = CommentData.history(comment_id)
-        $scope.history_url = "<%= path_to_asset "comment/history.html" %>"
+        $scope.history = CommentData.history(comment_id).then(
+          (response) ->
+            $scope.history = response.data
+            $scope.history_url = "<%= path_to_asset "comment/history.html" %>"
+        )
 
       $scope.hide_history = ->
         $scope.history_url = null
@@ -337,7 +340,7 @@ ce2_directives.directive('ceComment',[ "$compile", "$timeout", ($compile, $timeo
             title = 'Thank you'
             msg = "Thank you for reporting this content to us."
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
         )
 
       $scope.show_reply_target = (id) ->
@@ -429,13 +432,15 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
     #scope.newComment.type = attrs.type
     scope.disable_monitor = true if typeof attrs.noMonitor isnt 'undefined'
 
-    #if typeof attrs.noFormat isnt 'undefined'
-    #  scope.disable_formatting = true
-    #  scope.$root.initialize_markdown_system( {disable_editor: true} )
-    #else
-    #  scope.$root.initialize_markdown_system()
-    scope.disable_formatting = true
-    scope.$root.initialize_markdown_system( {disable_editor: true} )
+    if scope.conversation.details?.TableComment?.use_element == true
+      scope.disable_formatting = true
+      scope.$root.initialize_markdown_system( {disable_editor: true} )
+    else if typeof attrs.noFormat is 'undefined'
+      scope.disable_formatting = false
+      scope.$root.initialize_markdown_system()
+    else
+      scope.disable_formatting = true
+      scope.$root.initialize_markdown_system( {disable_editor: true} )
 
     scope.$watch 'newComment.text', (oldValue, newValue) ->
       #console.log "#{Math.round(new Date().getTime()/1000)}: [#{scope.newComment.text}] comment form watch comment.text is triggered, scope.do_auto_save: #{scope.do_auto_save}"
@@ -449,8 +454,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
       #else
         #console.log "#{Math.round(new Date().getTime()/1000)}: [#{scope.newComment.text}] ignore newComment.text change"
 
-  controller: [ "$scope", "CommentData", "$modal", "$timeout",
-    ($scope, CommentData, $modal, $timeout) ->
+  controller: [ "$scope", "CommentData", "$modal", "$timeout", "$dialog",
+    ($scope, CommentData, $modal, $timeout, $dialog) ->
       $scope.name = 'ceCommentForm'
       debug = false
 
@@ -678,7 +683,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           title = 'Sorry'
           msg = "Only invited conversation participants are allowed to post comments"
           btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-          $modal.messageBox(title, msg, btns).open()
+          $dialog.messageBox(title, msg, btns)
           return false
         else
           return true
@@ -694,11 +699,12 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             title = 'Warning'
             msg = "Are you sure you want to discard your current post?"
             btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
-            $modal.messageBox(title, msg, btns).open().then (result) ->
+            cb = (result) ->
               console.log "messageBox callback with result: #{result}"
               if result is "yes"
                 data.ok_to_modify = true
                 open_comment_form(data)
+            $dialog.messageBox(title, msg, btns, cb)
             return false
 
         clear_newComment_fields()
@@ -947,11 +953,14 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           clear_edit_now()
         else
           title = 'Warning'
-          msg = "Are you sure you want to discard your current post?"
+          msg = "Are you sure you want to discard your current post? AA"
           btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
-          $modal.messageBox(title, msg, btns).open().then (result) ->
+          cb = (result) ->
+            console.log "discard callback"
             if result is "yes"
               clear_edit_now()
+          $dialog.messageBox(title, msg, btns, cb)
+
         return false
 
       clear_edit_now = ->
@@ -1105,7 +1114,7 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
   replace: true
   scope: false
   templateUrl: "<%= path_to_asset "comment/rating-slider.html" %>"
-  controller: [ "$scope", "CommentData", "$modal", ($scope, CommentData, $modal) ->
+  controller: [ "$scope", "CommentData", "$dialog", ($scope, CommentData, $dialog) ->
     $scope.persist_rating = ->
       #console.log "scope.persist_rating call on CommentData id: #{$scope.comment.id} with rating: #{$scope.rating}"
       CommentData.persist_rating_to_ror($scope.comment.id, $scope.comment.my_rating).then (response) ->
@@ -1126,7 +1135,7 @@ ce2_directives.directive('ceRatingSlider', [ "$document", ($document) ->
       title = 'Sorry'
       msg = "Only invited conversation participants are allowed to rate comments"
       btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-      $modal.messageBox(title, msg, btns).open()
+      $dialog.messageBox(title, msg, btns)
       $scope.$root.$$phase || $scope.$root.$apply()
 
   ]
@@ -1584,8 +1593,8 @@ ce2_directives.directive('ceContactPanel', ->
     "<%= path_to_asset "panel/contact_us.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope", "User", "$modal",
-    ($scope, User, $modal) ->
+  controller: [ "$scope", "User", "$dialog",
+    ($scope, User, $dialog) ->
       $scope.name = 'ceContactPanel'
       $scope.message =
         email: $scope.$root.user.email
@@ -1604,7 +1613,7 @@ ce2_directives.directive('ceContactPanel', ->
             title = 'Thank you for contacting us'
             msg = "We will review your message to us soon."
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
             $scope.close_panel()
           ,
           (reason) ->
@@ -1613,14 +1622,14 @@ ce2_directives.directive('ceContactPanel', ->
               title = 'Invite was not sent'
               msg = reason.data.error
               btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-              $modal.messageBox(title, msg, btns).open()
+              $dialog.messageBox(title, msg, btns)
             else
               for key of reason.data.errors
                 errors = (msg for msg in reason.data.errors[key])
               title = 'Invite was not sent'
               msg = errors.join(' & ')
               btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-              $modal.messageBox(title, msg, btns).open()
+              $dialog.messageBox(title, msg, btns)
 
               $scope.error_message = reason.data.error
           )
@@ -1673,8 +1682,8 @@ ce2_directives.directive('ceInvitePanel', ->
     "<%= path_to_asset "panel/invite.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope", "ConversationData", "$modal",
-    ($scope, ConversationData, $modal) ->
+  controller: [ "$scope", "ConversationData", "$dialog",
+    ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceInvitePanel'
       $scope.invite =
         href: location.href.replace(/#\/conversation\/[^\/]*/, 'invites/secret-code')
@@ -1711,14 +1720,14 @@ ce2_directives.directive('ceInvitePanel', ->
             title = 'Invite was not sent'
             msg = reason.data.error
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
           else
             for key of reason.data.errors
               errors = (msg for msg in reason.data.errors[key])
             title = 'Invite was not sent'
             msg = errors.join(' & ')
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
 
             $scope.error_message = reason.data.error
         )
@@ -1982,8 +1991,8 @@ ce2_directives.directive('ceParticipantsPanel', ->
     "<%= path_to_asset "panel/participants.html" %>#{prefix}"
   replace: true
   scope: true
-  controller: [ "$scope", "ConversationData", "$modal",
-    ($scope, ConversationData, $modal) ->
+  controller: [ "$scope", "ConversationData", "$dialog",
+    ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceParticipantsPanel'
 
       $scope.conversation.roles = [
@@ -2009,7 +2018,7 @@ ce2_directives.directive('ceParticipantsPanel', ->
             title = 'Server error'
             msg = reason.data.error
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
         )
   ]
 )
@@ -2275,8 +2284,8 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
   replace: true
   scope: true
   priority: 100
-  controller: [ "$scope", "ConversationData", "$modal",
-    ($scope, ConversationData, $modal) ->
+  controller: [ "$scope", "ConversationData", "$dialog",
+    ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceReviewComment'
 
       $scope.approve_guest_post = ->
@@ -2299,7 +2308,7 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
               title = 'No action taken'
               msg = "This guest post has already been processed"
               btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-              $modal.messageBox(title, msg, btns).open()
+              $dialog.messageBox(title, msg, btns)
             else
               $scope.error_message = reason.data.error
         )
@@ -2324,7 +2333,7 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
             title = 'No action taken'
             msg = "This guest post has already been processed"
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
           else
             $scope.error_message = reason.data.error
         )
@@ -2344,7 +2353,7 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
             title = 'No action taken'
             msg = "This comment has already been processed"
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
           else
             $scope.error_message = reason.data.error
         )
@@ -2363,7 +2372,7 @@ ce2_directives.directive('ceReviewComment',[ "$compile", "$timeout", ($compile, 
             title = 'No action taken'
             msg = "This comment has already been processed"
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
           else
             $scope.error_message = reason.data.error
         )
@@ -2386,8 +2395,8 @@ ce2_directives.directive('ceReviewFlaggedComment',[ "$compile", "$timeout", ($co
   replace: true
   scope: true
   priority: 100
-  controller: [ "$scope", "ConversationData", "$modal",
-    ($scope, ConversationData, $modal) ->
+  controller: [ "$scope", "ConversationData", "$dialog",
+    ($scope, ConversationData, $dialog) ->
       $scope.name = 'ceReviewFlaggedComment'
 
       $scope.mark_as = (action) ->
@@ -2404,7 +2413,7 @@ ce2_directives.directive('ceReviewFlaggedComment',[ "$compile", "$timeout", ($co
             title = 'No action taken'
             msg = "This guest post has already been processed"
             btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-            $modal.messageBox(title, msg, btns).open()
+            $dialog.messageBox(title, msg, btns)
           else
             $scope.error_message = reason.data.error
         )
@@ -2427,8 +2436,8 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
       "<%= path_to_asset "tag-comment.html" %>#{prefix}"
     replace: true
     scope: true
-    controller: [ "$scope", "$timeout", "$modal",
-      ($scope, $timeout, $modal) ->
+    controller: [ "$scope", "$timeout", "$dialog",
+      ($scope, $timeout, $dialog) ->
         $scope.name = 'ceTagComment'
 
         $scope.menu_click = ->
@@ -2521,7 +2530,7 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
                   title = "Sorry, your tag was too long"
                   msg = "#{reason.data.errors['tag_name']} - The tag is just shorthand to help you track your themes. Click the theme tags on the left to view and edit the themes."
                   btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-                  $modal.messageBox(title, msg, btns).open()
+                  $dialog.messageBox(title, msg, btns)
 
             )
 

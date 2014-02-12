@@ -23,6 +23,8 @@ ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] =
 		document.querySelectorAll('meta[name="csrf-token"]')[0].getAttribute('content')
 
+ce2_app.config ($httpProvider,$parseProvider) ->
+  $parseProvider.unwrapPromises(true)
 
 ce2_app.factory 'errorHttpInterceptor', ($q, $injector) ->
   (promise) ->
@@ -34,7 +36,7 @@ ce2_app.factory 'errorHttpInterceptor', ($q, $injector) ->
       # do something on error
       if (canRecover(response))
         return promise # let the response promise continue and be dealt with
-      $modal = $modal || $injector.get("$modal")
+      $dialog = $dialog || $injector.get("$dialog")
       switch response.data.class
         when "CanCan::AccessDenied"
           title = 'Access denied'
@@ -43,7 +45,7 @@ ce2_app.factory 'errorHttpInterceptor', ($q, $injector) ->
           title = 'Server error'
           msg = "#{response.data.error} [URL: #{response.config.url}, Controller: #{response.data.controller}, Action: #{response.data.action}]"
       btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-      $modal.messageBox(title, msg, btns).open()
+      $dialog.messageBox(title, msg, btns)
       #console.log "XXX $httpProvider.responseInterceptors Error\n#{response.data.error}"
       return $q.reject(response)
 canRecover = (response) ->
@@ -565,7 +567,7 @@ initialize_markdown_converter = ($timeout, $modal, $rootScope, options) ->
   Markdown.upload_dialog = (linkEnteredCallback) ->
     console.log "call the upload dialog"
 
-    dialog = $modal.modal(
+    modal = $modal.open(
       backdrop: true
       keyboard: true
       backdropClick: true
@@ -574,7 +576,6 @@ initialize_markdown_converter = ($timeout, $modal, $rootScope, options) ->
         debug = false
         $scope.type = 'local'
         $scope.image = {conversation_code: angular.element(document.getElementById('wmd-input')).scope().conversation.code }
-
         console.log "in modal, $scope.image.conversation_id: #{$scope.image.conversation_id} "
 
         $scope.show_tab = (str) ->
@@ -615,7 +616,6 @@ initialize_markdown_converter = ($timeout, $modal, $rootScope, options) ->
           modal.close()
       ]
     )
-    #dialog.open()
     $rootScope.$$phase || $rootScope.$apply()
   unless disable_editor
     $timeout ->
@@ -749,7 +749,7 @@ conversation_controller = [ "$scope", "conversation", "FayeService", "$timeout",
 
 ]
 
-ce2_app.controller 'ActivityMonitorController', ($scope, User, $modal) ->
+ce2_app.controller 'ActivityMonitorController', ($scope, User, $dialog) ->
   $scope.name = 'ActivityMonitor'
   $scope.$on 'user-clicked-dead-link', (event, data) ->
     console.log "'user-clicked-dead-link' for action: #{data.action}"
@@ -758,7 +758,7 @@ ce2_app.controller 'ActivityMonitorController', ($scope, User, $modal) ->
     title = "Sorry, this feature isn't quite ready yet"
     msg = "We are working on this feature now. Please click the \"Contact Us\" link on the right side of the page to share your ideas about how to make CivicEvolution better!"
     btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-    $modal.messageBox(title, msg, btns).open()
+    $dialog.messageBox(title, msg, btns)
 
     User.send_activity_report(data).then(
       (response)->
@@ -769,8 +769,8 @@ ce2_app.controller 'ActivityMonitorController', ($scope, User, $modal) ->
     )
 
 
-small_group_deliberation_theme_controller = [ "$scope", "theming_data", "RealtimeService", "$timeout", "$modal", "ThemeData", "FayeService",
-  ($scope, theming_data, RealtimeService, $timeout, $modal, ThemeData, FayeService) ->
+small_group_deliberation_theme_controller = [ "$scope", "theming_data", "RealtimeService", "$timeout", "$dialog", "ThemeData", "FayeService",
+  ($scope, theming_data, RealtimeService, $timeout, $dialog, ThemeData, FayeService) ->
     #console.log "In conversation state controller at bottom"
 
     if theming_data.data_set_state == 'sgd-theme'
@@ -1052,7 +1052,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       console.log "delete this theme comment: #{theme.tag_name}"
       if theme.comments > 0
         btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-        $modal.messageBox('Sorry', "Theme can only be deleted if it has no comments", btns).open()
+        $dialog.messageBox('Sorry', "Theme can only be deleted if it has no comments", btns)
         $scope.$root.$$phase || $scope.$root.$apply()
       else
         console.log "Delete this theme"
@@ -1077,7 +1077,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
           title = 'Sorry'
           msg = "This theme was not deleted: #{reason.data.error}"
           btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-          $modal.messageBox(title, msg, btns).open()
+          $dialog.messageBox(title, msg, btns)
         )
 
     $scope.$on 'theme-comment-hide', (event,data) ->
@@ -1268,8 +1268,8 @@ conversation_group_controller = [ "$scope", "small_group_deliberation_data", "Re
         refilter_table_comments()
 ]
 
-live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeout", "$modal",
-  ($scope, selection_data, LiveSelectData, $timeout, $modal) ->
+live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeout", "$dialog",
+  ($scope, selection_data, LiveSelectData, $timeout, $dialog) ->
 
     $scope.conversations_list = selection_data.conversations_list
     $scope.agenda_code = selection_data.agenda_code
@@ -1326,16 +1326,17 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
       if !confirmed_edit && $scope.edit_vote_mode
         msg = "Are you sure you want to update this voter's selection?"
         btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
-        $modal.messageBox("Confirm", msg, btns).open().then (result) ->
+        cb = (result) ->
           if result is "yes"
             $scope.edit_confirmed = true
             $scope.save(true)
+        $dialog.messageBox("Confirm", msg, btns, cb)
         return false
       if $scope.count_selected() == 0 && !$scope.edit_vote_mode
         title = "Warning"
         msg = "You must enter points before submitting"
         btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-        $modal.messageBox(title, msg, btns).open()
+        $dialog.messageBox(title, msg, btns)
         return
 
       selected_ids = ( {theme_id: at.id} for at in $scope.all_selection_themes when at.selected)
@@ -1415,8 +1416,8 @@ live_select_controller = [ "$scope", "selection_data", "LiveSelectData", "$timeo
 
 ]
 
-live_recommend_controller_count = [ "$scope", "recommendation_data", "LiveRecommendData", "$timeout", "$modal",
-  ($scope, recommendation_data, LiveRecommendData, $timeout, $modal) ->
+live_recommend_controller_count = [ "$scope", "recommendation_data", "LiveRecommendData", "$timeout", "$dialog",
+  ($scope, recommendation_data, LiveRecommendData, $timeout, $dialog) ->
 
     $scope.agenda_code = recommendation_data.agenda_code
     $scope.conversation = recommendation_data
@@ -1451,10 +1452,11 @@ live_recommend_controller_count = [ "$scope", "recommendation_data", "LiveRecomm
       #if !confirmed_edit && $scope.edit_vote_mode
       #  msg = "Are you sure you want to update this voter's selection?"
       #  btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
-      #  $modal.messageBox("Confirm", msg, btns).open().then (result) ->
+      # cb = (result) ->
       #    if result is "yes"
       #      $scope.edit_confirmed = true
       #      $scope.save(true)
+      #  $dialog.messageBox("Confirm", msg, btns,cb)
       #  return false
 
       data =
@@ -1529,8 +1531,8 @@ live_recommend_controller_count = [ "$scope", "recommendation_data", "LiveRecomm
     #  $scope.conversation_combined_votes = { title: conversation.title, combined_votes: combined_votes}
 ]
 
-live_recommend_controller = [ "$scope", "recommendation_data", "LiveRecommendData", "$timeout", "$modal",
-  ($scope, recommendation_data, LiveRecommendData, $timeout, $modal) ->
+live_recommend_controller = [ "$scope", "recommendation_data", "LiveRecommendData", "$timeout", "$dialog",
+  ($scope, recommendation_data, LiveRecommendData, $timeout, $dialog) ->
 
     $scope.agenda_code = recommendation_data.agenda_code
     $scope.conversation = recommendation_data
@@ -1566,10 +1568,11 @@ live_recommend_controller = [ "$scope", "recommendation_data", "LiveRecommendDat
       if !confirmed_edit && $scope.edit_vote_mode
         msg = "Are you sure you want to update this voter's selection?"
         btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
-        $modal.messageBox("Confirm", msg, btns).open().then (result) ->
+        cb = (result) ->
           if result is "yes"
             $scope.edit_confirmed = true
             $scope.save(true)
+        $dialog.messageBox("Confirm", msg, btns, cb)
         return false
 
       data =
@@ -1645,8 +1648,8 @@ live_recommend_controller = [ "$scope", "recommendation_data", "LiveRecommendDat
 ]
 
 
-live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$modal", "$timeout",
-  ($scope, allocation_data, LiveAllocateData, $modal, $timeout) ->
+live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$dialog", "$timeout",
+  ($scope, allocation_data, LiveAllocateData, $dialog, $timeout) ->
     $scope.allocation_themes = allocation_data.allocation_themes
     for theme in $scope.allocation_themes
       theme.text = theme.text.split(/\n/)[0]
@@ -1689,16 +1692,17 @@ live_allocate_controller = [ "$scope", "allocation_data", "LiveAllocateData", "$
       if !confirmed_edit && $scope.edit_vote_mode
         msg = "Are you sure you want to update this voter's allocation?"
         btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
-        $modal.messageBox("Confirm", msg, btns).open().then (result) ->
+        cb = (result) ->
           if result is "yes"
             $scope.edit_confirmed = true
             $scope.save(true)
+        $dialog.messageBox("Confirm", msg, btns, cb)
         return false
       if $scope.total() == 0 && !$scope.edit_vote_mode
         title = "Warning"
         msg = "You must enter points before submitting"
         btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-        $modal.messageBox(title, msg, btns).open()
+        $dialog.messageBox(title, msg, btns)
         return
 
       vote_points = ( {theme_id: at.id, points: at.value} for at in $scope.allocation_themes)
@@ -2342,7 +2346,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
 
     $scope.option_assignment = (row) ->
       McaData.project_assignments(row.entity.option_id).then (response) ->
-        modal = $modal.modal(
+        modal = $modal.open(
           backdrop: true
           keyboard: true
           backdropClick: true

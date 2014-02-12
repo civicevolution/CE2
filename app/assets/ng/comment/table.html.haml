@@ -10,7 +10,7 @@
         -#.col-md-10.deleted-comment-body
           %p
             This comment has been deleted
-            %a(ng-click="view_history({{comment.id}})")
+            %a(ng-click="view_history(comment.id)")
               View history
           %div.history.clear(ng-include src="history_url")
 
@@ -31,7 +31,7 @@
             .comment-body-container
 
               %div.header
-                %div.in-reply(ng-if="comment.in_reply_tag" ng-click="show_reply_target({{comment.in_reply_tag.id}})")
+                %div.in-reply(ng-if="comment.in_reply_tag" ng-click="show_reply_target(comment.in_reply_tag.id)")
                   In reply to
                   %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{comment.in_reply_tag.code}}/sm1/p.jpg")
                   {{comment.in_reply_tag.author}}

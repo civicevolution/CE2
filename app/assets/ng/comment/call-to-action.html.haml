@@ -33,7 +33,7 @@
           %i.fa.fa-flag
           %span Flag
 
-        %a(ng-show="comment.version>1" ng-click="view_history({{comment.id}})")
+        %a(ng-show="comment.version>1" ng-click="view_history(comment.id)")
           History v{{comment.version}}
 
         %a#edit-cta-link(ng-if="comment.editable_by_user" ng-click="edit('call-to-action-comment-edit')"){title: "Edit this comment"}

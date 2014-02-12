@@ -575,7 +575,6 @@ div.ac-wrap {
       min-height: 100%;
       box-sizing: border-box;
       border: 0;
-      //border-top: 36px solid transparent;
       @include border-radius-all(0);
       transition: none;
     }
@@ -793,3 +792,5 @@ input.tag_name{
   }
 
 }
+
+#reply-control .show_toolbar textarea{ padding-top: 36px !important; }

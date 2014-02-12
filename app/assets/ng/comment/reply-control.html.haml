@@ -108,7 +108,7 @@
                       %button#wmd-undo-button.wmd-button{:disabled => "", :title => "Undo - Ctrl+Z"}
                       %button#wmd-redo-button.wmd-button{:disabled => "", :title => "Redo - Ctrl+Shift+Z"}
 
-                  %div(ng-switch="disable_monitor")
+                  %div(ng-switch="disable_monitor" ng-class="{show_toolbar: disable_formatting==false}" )
                     %textarea#wmd-input.noscrollbars(ng-switch-when="true" ng-model="newComment.text"){placeholder: "{{ conversation.details.TableComment.placeholder || 'Enter your comment...'}}"}
                     %textarea#wmd-input.noscrollbars(ng-switch-default ng-model="newComment.text" ng-keydown="monitor_keydown()"){placeholder: "{{ conversation.details.TableComment.placeholder || 'Enter your comment...'}}"}
 

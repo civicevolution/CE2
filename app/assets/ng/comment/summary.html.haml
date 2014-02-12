@@ -4,7 +4,7 @@
       .col-md-8.deleted-comment-body
         %p
           This summary item has been deleted
-          %a(ng-click="view_history({{comment.id}})")
+          %a(ng-click="view_history(comment.id)")
             View history
         %div.history.clear(ng-include src="history_url")
 
@@ -30,7 +30,7 @@
             %a(ng-click="reply('summary-comment-reply')")
               %i.fa.fa-reply
               %span Reply
-            %a(ng-click="share({{comment.id}})")
+            %a(ng-click="share(comment.id)")
               %i.fa.fa-share
               %span Share
             %a(ng-click="bookmark()" ng-switch="comment.bookmark")
@@ -44,7 +44,7 @@
               %i.fa.fa-flag
               %span Flag
 
-            %a(ng-show="comment.version>1" ng-click="view_history({{comment.id}})")
+            %a(ng-show="comment.version>1" ng-click="view_history(comment.id)")
               History v{{comment.version}}
 
             %a(ng-if="comment.editable_by_user" ng-click="edit('summary-comment-edit')"){title: "Edit this comment"}
