@@ -6,11 +6,17 @@ module Api
 
       def save
         conversation_id = Conversation.find_by(code: params[:id]).id
-        voter_id = params[:data][:voter_id]
         group_id = current_user.last_name.to_i
-        recommendation = RecommendationVote.where(conversation_id: conversation_id, voter_id: voter_id, group_id: group_id).first_or_create
-        recommendation.update_attribute(:recommendation, params[:data][:recommendation])
-        render json: recommendation
+        Rails.logger.info "Save this vote conversation_id: #{conversation_id}, group_id: #{group_id}: data: #{params[:data].as_json}"
+        # destroy any votes they have set already
+        #RecommendationVote.where(conversation_id: conversation_id, group_id: group_id).destroy_all
+        RecommendationVote.destroy_all(conversation_id: conversation_id, group_id: group_id)
+        votes = []
+        params[:data].each do |vote|
+          rec_vote = RecommendationVote.create(conversation_id: conversation_id, group_id: group_id, recommendation: vote[:vote_key].to_i, num_of_votes: vote[:num_votes].to_i)
+          votes.push({group_id: rec_vote.group_id, conversation_id: rec_vote.conversation_id, recommendation: rec_vote.recommendation, num_of_votes: rec_vote.num_of_votes})
+        end
+        render json: votes
       end
 
 

@@ -1,10 +1,32 @@
-.live-allocate-results
+.live-allocate-results.recommendation_votes
   %h3 Service: {{title}}
 
   %div.graph.row(ng-repeat="recommendation in recommendation_votes")
-    .col-md-10.theme(ng-bind-html="converter.makeHtml(recommendation.text)"){style: "background-size: {{recommendation.graph_percentage}}% 100%;"}
-    .col-md-1.percent {{recommendation.percentage}}%
-    .col-md-1.count ({{recommendation.votes | number:0}})
+    .col-sm-10.theme(ng-bind-html="converter.makeHtml(recommendation.text)"){style: "background-size: {{recommendation.graph_percentage}}% 100%;"}
+    .col-sm-1.percent {{recommendation.percentage}}%
+    .col-sm-1.count ({{recommendation.votes | number:0}})
 
   %div(ce-size-adjuster)
 
+
+  %h4 All table votes
+
+  %table
+    %tbody
+      %tr
+        %th Table
+        %th More/more
+        %th Same/same
+        %th Less/less
+        %th Split-same
+        %th Total
+        %th Members
+        %th Check
+
+
+      %tr(ng-repeat="table_num in tables")
+        %td Table {{table_num}}
+        %td {{ table_votes["g" + table_num + "-r1"] || 0 }}
+        %td {{ table_votes["g" + table_num + "-r2"] || 0 }}
+        %td {{ table_votes["g" + table_num + "-r3"] || 0 }}
+        %td {{ table_votes["g" + table_num + "-r4"] || 0 }}

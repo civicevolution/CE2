@@ -11,8 +11,7 @@ class ConversationRecommendation < AgendaComponent
     all_votes = RecommendationVote.where(group_id: current_user.last_name.to_i, conversation_id: conversation.id )
     votes = {}
     all_votes.each do |vote|
-      votes[ vote.voter_id ] = [] unless votes[ vote.voter_id ]
-      votes[ vote.voter_id ].push( {recommendation: vote.recommendation} )
+      votes[ vote.recommendation ] = vote.num_of_votes
     end
 
     # :votes, :conversations_list, :agenda_code, :title
@@ -31,27 +30,20 @@ class ConversationRecommendation < AgendaComponent
   def self.data_recommendation_results(params)
     conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
 
-    #recommendation_options = [
-    #  {recommendation: 1, text: 'Big decrease'},
-    #  {recommendation: 2, text: 'Little decrease'},
-    #  {recommendation: 3, text: 'Stay the same'},
-    #  {recommendation: 4, text: 'Little increase'},
-    #  {recommendation: 5, text: 'Big increase'}
-    #]
-
     recommendation_options = [
         {recommendation: 1, text: 'Pay more for more/better'},
         {recommendation: 2, text: 'Pay the same for the same'},
-        {recommendation: 3, text: 'Pay less for less'}
+        {recommendation: 3, text: 'Pay less for less'},
+        {recommendation: 4, text: 'Split service-same'}
     ]
 
     recommendation_votes = {}
     total_votes = 0
     max_votes = 0
-    RecommendationVote.select('recommendation, count(*)').where(conversation_id: conversation.id).group(:recommendation).each do |rv|
-      recommendation_votes[rv.recommendation] = rv.count
-      total_votes += rv.count
-      max_votes = rv.count unless max_votes > rv.count
+    RecommendationVote.select('recommendation, sum(num_of_votes)').where(conversation_id: conversation.id).group(:recommendation).each do |rv|
+      recommendation_votes[rv.recommendation] = rv.sum
+      total_votes += rv.sum
+      max_votes = rv.sum unless max_votes > rv.sum
     end
     max_votes = max_votes.to_f
     total_votes = total_votes.to_f
@@ -63,7 +55,14 @@ class ConversationRecommendation < AgendaComponent
       ro[:graph_percentage] = max_votes > 0 ? (votes/max_votes*100).round : 0
     end
 
-    {title: conversation.title, recommendation_options: recommendation_options}
+    table_votes = {}
+    RecommendationVote.where(conversation_id: conversation.id).each do |vote|
+      table_votes["g#{vote.group_id}-r#{vote.recommendation}"] = vote.num_of_votes
+    end
+
+
+
+    {title: conversation.title, recommendation_options: recommendation_options, table_votes: table_votes}
   end
 
 end
