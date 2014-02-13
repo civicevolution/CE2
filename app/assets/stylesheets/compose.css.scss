@@ -15,7 +15,7 @@ $composer_background: #dcdfe0;
 
 // Media queries
 // --------------------------------------------------
-
+/*
 @mixin small-height {
   @media screen and (max-height: 444px) {
     @content;
@@ -182,7 +182,7 @@ $composer_background: #dcdfe0;
   -moz-user-select: none;
   -ms-user-select: none;
 }
-
+*/
 
 
 
@@ -246,8 +246,8 @@ div.attachment_form{
       color: lighten($red, 20);
     }
   }
-  @include transition(height 0.4s ease);
-  width: 100%;
+  //@include transition(height 0.4s ease);
+  //width: 100%;
   z-index: 1039;
   height: 0px;
   background-color: rgba($composer_background, 0.96);
@@ -258,7 +258,7 @@ div.attachment_form{
     display: block;
     width: 13px;
     height: 13px;
-    right: 13px;
+    right: 30px;
     position: absolute;
     font-size: 15px;
     color: $darkish_gray;
@@ -286,7 +286,7 @@ div.attachment_form{
   }
   // The various states
   &.open {
-    height: 300px;
+    height: auto;
     .grippie {
       display: block;
     }
@@ -327,8 +327,8 @@ div.attachment_form{
   }
   .spinner {
     position: absolute;
-    @include fades-in(0.25s);
-    @include border-radius-all(10px);
+    //@include fades-in(0.25s);
+    //@include border-radius-all(10px);
     left: 250px;
     top: 95px;
     height: 100px;
@@ -346,7 +346,7 @@ div.attachment_form{
   &.loading {
     .spinner {
       z-index: 1000;
-      @include visible;
+      //@include visible;
     }
   }
   .reply-area {
@@ -359,7 +359,7 @@ div.attachment_form{
   // When the post is new (new topic) the sizings are different
   &.edit-title {
     &.open {
-      height: 400px;
+      height: auto;
     }
     .contents {
       input#reply-title {
@@ -367,14 +367,15 @@ div.attachment_form{
         margin: 6px 10px 3px 0;
       }
       .wmd-controls {
-        @include transition(top 0.3s ease);
+        //@include transition(top 0.3s ease);
         top: 100px;
       }
     }
   }
   .contents {
     padding: 10px;
-    min-width: 1280px;
+    //min-width: 1280px;
+    /*
     .form-element {
       .chzn-container {
         width: 400px;
@@ -405,6 +406,7 @@ div.attachment_form{
         }
       }
     }
+    */
     #reply-title {
       margin-right: 10px;
       float: left;
@@ -445,13 +447,13 @@ div.attachment_form{
     #wmd-input {
       bottom: 35px;
     }
-    .submit-panel {
-      position: absolute;
-      top: 260px;
-      left: 30px;
-      right: 30px;
-      bottom: 8px;
-    }
+    //.submit-panel {
+    //  position: absolute;
+    //  top: 260px;
+    //  left: 30px;
+    //  right: 30px;
+    //  bottom: 8px;
+    //}
   }
   .title-input, .category-input {
     position: relative;
@@ -478,7 +480,7 @@ div.ac-wrap {
   background-color: $white;
   border: 1px solid #cccccc;
   padding: 4px 10px;
-  @include border-radius-all(3px);
+  //@include border-radius-all(3px);
   div.item {
     float: left;
     margin-right: 10px;
@@ -519,7 +521,7 @@ div.ac-wrap {
 
 #reply-control.edit-title.private-message {
   .wmd-controls {
-    @include transition(top 0.3s ease);
+    //include transition(top 0.3s ease);
     top: 140px;
   }
 }
@@ -539,11 +541,11 @@ div.ac-wrap {
     }
   }
   .wmd-controls {
-    left: 30px;
-    right: 30px;
-    position: absolute;
-    top: 50px;
-    bottom: 48px;
+    //left: 30px;
+    //right: 30px;
+    //position: absolute;
+    //top: 50px;
+    //bottom: 48px;
 
     // this removes the topmost margin;
     // if we don't have this, all posts would have extra space at the top
@@ -575,7 +577,7 @@ div.ac-wrap {
       min-height: 100%;
       box-sizing: border-box;
       border: 0;
-      @include border-radius-all(0);
+      //include border-radius-all(0);
       transition: none;
     }
     .textarea-wrapper, .preview-wrapper {
@@ -614,7 +616,7 @@ div.ac-wrap {
 // Custom adjustments
 
 #reply-control{
-  margin-left: -40px;
+  //margin-left: -40px;
   &.add-an-issue-description{
     position: static;
     height: 240px;
@@ -640,21 +642,21 @@ div.ac-wrap {
 
 #reply-control{
   &.unknown-user.open{
-    height: 380px;
+    height: auto;
     .comment-form{
       height: 200px;
     }
     div.not-signed-in{ display: block;}
   }
   &.non-participant-user.open{
-    height: 350px;
+    height: auto;
     .comment-form{
       height: 200px;
     }
     div.not-a-participant{ display: block;}
   }
   &.non-confirmed-user.open{
-    height: 350px;
+    height: auto;
     .comment-form{
       height: 200px;
     }
@@ -761,7 +763,9 @@ input.tag_name{
   margin-left: 16px;
   color: black;
 }
-
+.comment-form{
+  height: 140px;
+}
 .comment-form.short-form{
   height: 100px;
 }
@@ -778,19 +782,41 @@ input.tag_name{
   select{ width: auto;}
 }
 #reply-control .reasons{
-  h4.form_title {
-    float:none;
-    margin-top: 90px;
-    margin-left: 0;
-  }
+  font-size: 1.4em;
   select{
     margin-left:0;
+    line-height: 1.4em;
   }
   textarea{
     height: 60px;
-    width: 296px;
+    width: 600px;
+    line-height: 1.4em;
   }
 
 }
 
 #reply-control .show_toolbar textarea{ padding-top: 36px !important; }
+
+
+#reply-control{
+  min-width: 800px  ;
+  .comment-form.wmd-controls {
+    //border: 1px solid red;
+    clear: both;
+    margin-bottom: 12px;
+  }
+  .extras-form {
+    //border: 1px solid green;
+    clear: both;
+  }
+  .submit-panel {
+    //border: 1px solid blue;
+  }
+  .control {
+    //border: 1px solid orange;
+  }
+  div.spinner{
+    display: none;
+  }
+}
+

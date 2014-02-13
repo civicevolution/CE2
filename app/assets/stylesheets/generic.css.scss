@@ -178,3 +178,9 @@ div.alert{
     cursor: pointer;
   }
 }
+
+@media (min-width: 950px) {
+  .container {
+    width: 950px !important;
+  }
+}
