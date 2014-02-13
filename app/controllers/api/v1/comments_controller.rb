@@ -66,7 +66,7 @@ module Api
           when "TitleComment"
             comment = conversation.create_title_comment params[:comment]
           when "ThemeComment"
-            params[:comment][:purpose] ||= 'theme'
+            params[:comment][:purpose] = params[:purpose] ||= 'new tag'
             params[:comment][:tag_name] = params[:tag_name]
             if params[:comment][:text].nil?
               params[:comment][:text] ||= "<span class='warn'>Please write a description for tag: #{params[:comment][:tag_name]}</span>"

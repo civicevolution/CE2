@@ -3,16 +3,16 @@
     {{comment.tags}}
     %b.caret
   %ul.dropdown-menu(ng-click="menu_click()")
-    %li(ng-repeat="theme in conversation.theme_comments" ng-class="{active: comment.tag_bools[theme.id] }" popover="{{theme.popover}}" popover-trigger="mouseenter" popover-placement="left" popover-animation="true")
+    %li(ng-repeat="theme in conversation.theme_comments" ng-class="{active: comment.tag_bools[theme.id] }" Xpopover="{{theme.Xpopover}}" Xpopover-trigger="mouseenter" Xpopover-placement="left" Xpopover-animation="true")
       %a
         %label.checkbox
           %input(type='checkbox' value="{{theme.id}}" ng-checked="comment.tag_bools[theme.id]")
             {{theme.tag_name}}
-    %li.no-wrap(popover="Create a new theme by entering a new tag here" popover-trigger="mouseenter" popover-placement="left" popover-animation="true")
+    %li.no-wrap(Xpopover="Create a new theme by entering a new tag here" Xpopover-trigger="mouseenter" Xpopover-placement="left" Xpopover-animation="true")
       %form(ng-submit="input_submitted()")
         %input{type: 'text', placeholder: 'Add new tag...'}
         %button.btn.btn-primary.btn-sm{type: 'submit'} Ok
-    %li(ng-class="{active: comment.parked }" popover="This is a place to store ideas that don't seem to fit anywhere else" popover-trigger="mouseenter" popover-placement="left" popover-animation="true")
+    %li(ng-class="{active: comment.parked }" Xpopover="This is a place to store ideas that don't seem to fit anywhere else" Xpopover-trigger="mouseenter" Xpopover-placement="left" Xpopover-animation="true")
       %a
         %label.checkbox
           %input(type='checkbox' value="-1" ng-checked="comment.parked")

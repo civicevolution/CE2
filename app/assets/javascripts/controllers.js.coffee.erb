@@ -783,12 +783,17 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       $scope.$root.$broadcast 'update-user-data'
     , 1000
 
-
     $scope.conversation = theming_data
     $scope.$root.timestamp = theming_data.current_timestamp
     $scope.conversation.show_purpose = if $scope.conversation.details?.TableComment?.purpose_options then true else false
+    $scope.purpose_filter = null
 
     $scope.name = 'ceConversationTheme'
+
+    filters = $scope.conversation.details?.TableComment?.recommendation_types
+    if filters
+      types = $scope.conversation.details?.TableComment?.recommendation_types
+      $scope.conversation.filters = ( { code: type, text: types[type]} for type of types)
 
     $timeout ->
       $scope.conversation.filter_mode = 'themes'
@@ -830,6 +835,11 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
           $scope.conversation.theme_comments.sort((a, b) -> return a.order_id > b.order_id )
         $scope.$$phase || $scope.$apply()
 
+    $scope.change_filter = (filter) ->
+      console.log "filter on #{filter}"
+      $scope.conversation.purpose_filter = filter
+      refilter_table_comments()
+
     $scope.change_themer = (name) ->
       console.log "change theme page to show themer: #{name}"
       $scope.conversation.active_themer_name = name
@@ -863,6 +873,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
           $scope.$root.$broadcast 'calculate-tag-counts'
       )
       $scope.conversation.filter_mode = "themes"
+      $scope.conversation.purpose_filter = null
       refilter_table_comments()
 
 
@@ -870,6 +881,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       #console.log "filter_table_comments mode: #{mode}, id: #{id}"
       $scope.conversation.filter_mode = mode
       $scope.conversation.filter_id = id
+      $scope.conversation.purpose_filter = null
       refilter_table_comments()
 
     refilter_table_comments = () ->
@@ -911,6 +923,12 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
 
         when mode is 'table'
           $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is id)
+
+      if $scope.conversation.purpose_filter
+        console.log "apply purpose filter #{$scope.conversation.purpose_filter}"
+        $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.filtered_comments when comment.purpose == $scope.conversation.purpose_filter )
+
+
 
     $scope.$on 'ThemeComment_update', (event, data) ->
       #console.log "received broadcast ThemeComment_update"

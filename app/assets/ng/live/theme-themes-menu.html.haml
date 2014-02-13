@@ -1,5 +1,13 @@
 %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
 
+
+  %li#conversation-review-link(ng-if="conversation.filters")
+    %span.label.label-info Filters
+    %li#conversation-review-link(ng-repeat="filter in conversation.filters" ng-class="{active: (conversation.purpose_filter == filter.code)}" )
+      %a(ng-click="change_filter(filter.code)")
+        {{filter.text}}
+        %span.badge.badge-info {{theme_cnt.cnt}}
+
   -#%li#conversation-review-link
     %span.label.label-info Themers
 
