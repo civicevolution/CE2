@@ -69,9 +69,8 @@ class Comment < ActiveRecord::Base
 
   def check_the_reasons
     # make sure there are no empty reasons
-    Rails.logger.debug "make sure there are no empty reasons"
     reasons = []
-    if self.elements['reasons']
+    if self.elements && self.elements['reasons']
       self.elements['reasons'].each do |reason|
         if reason['type'] == ""
           if reason['text'] != ""
