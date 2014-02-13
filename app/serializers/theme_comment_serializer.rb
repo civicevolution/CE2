@@ -4,7 +4,7 @@ class ThemeCommentSerializer < ActiveModel::Serializer
   attributes :type, :id, :order_id, :text, :updated_at, :purpose,
              :version, :tag_name,
              :editable_by_user, :name, :code, :published, :status,
-             :bookmark, :parent_theme_ids, :ordered_child_ids
+             :bookmark, :parent_theme_ids, :ordered_child_ids, :elements
 
   def name
     "#{object.author.first_name} #{object.author.last_name}"

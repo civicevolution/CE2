@@ -693,19 +693,19 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         # confirm if data at risk and return true to continue or false to abort
         if data.append_to_existing
           return true
-        else if !data.ok_to_modify
-          if $scope.newComment.type && $scope.newComment.text?.match(/\w{2,}/)
-            show_form(data)
-            title = 'Warning'
-            msg = "Are you sure you want to discard your current post?"
-            btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
-            cb = (result) ->
-              console.log "messageBox callback with result: #{result}"
-              if result is "yes"
-                data.ok_to_modify = true
-                open_comment_form(data)
-            $dialog.messageBox(title, msg, btns, cb)
-            return false
+        #else if !data.ok_to_modify
+          #if $scope.newComment.type && $scope.newComment.text?.match(/\w{2,}/)
+          #  show_form(data)
+          #  title = 'Warning'
+          #  msg = "Are you sure you want to discard your current post?"
+          #  btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
+          #  cb = (result) ->
+          #    console.log "messageBox callback with result: #{result}"
+          #    if result is "yes"
+          #      data.ok_to_modify = true
+          #      open_comment_form(data)
+          #  $dialog.messageBox(title, msg, btns, cb)
+          #  return false
 
         clear_newComment_fields()
         return true
@@ -737,7 +737,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
                 "table"
             if $scope.conversation.details?.TableComment?.reason_types
               $scope.newComment.reasons = [{type: '', text: ''}]
-              #$scope.newComment.reasons = [{type: 'benefit-vs-cost', text: 'The benefit outweighs the cost'}]
+            #$scope.newComment.reasons = [{type: 'benefit-vs-cost', text: 'The benefit outweighs the cost'}]
             #$scope.newComment.purpose = ''
             #$scope.newComment.text = 'My new suggestion v1'
             #$scope.newComment.pro_votes = 2
@@ -831,9 +831,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             #$scope.newComment.reply_control_title =
             #  $scope.conversation.details?.TableComment?.reply_control_title ||
             #  "Add new theme comment"
-            $scope.newComment.purpose_options =
-              $scope.conversation.details?.TableComment?.purpose_options ||
-              null
             $scope.newComment.purpose =
               if $scope.newComment.purpose_options
                 ""
@@ -949,6 +946,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         newComment.text = textarea.value
 
       $scope.clear_edit = (event) ->
+        return clear_edit_now()
         if not $scope.newComment.text || $scope.newComment.text.length < 6
           clear_edit_now()
         else
@@ -992,7 +990,15 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         console.log "selected comment purpose: #{$scope.newComment.purpose}"
         console.log "Change the guidance!!!"
 
-
+      $scope.select_reason_type = ->
+        #console.log "selected reason type: #{$scope.newComment.purpose}"
+        # check if $scope.newComment.reasons has an unassigned reason, if not push a new one onto the stack
+        add_reason = true
+        for reason in $scope.newComment.reasons
+          if reason.type == ""
+            add_reason = false
+        if add_reason
+          $scope.newComment.reasons.push( {type: '', text: ''} )
   ]
 ])
 

@@ -65,6 +65,66 @@ class Comment < ActiveRecord::Base
   validates :user_id, :presence => true, unless: Proc.new { |c| c.auth_type == :post_unknown }
   validate :do_not_save_comment_for_post_unknown, on: :create
 
+  validate :check_the_reasons
+
+  def check_the_reasons
+    # make sure there are no empty reasons
+    Rails.logger.debug "make sure there are no empty reasons"
+    reasons = []
+    if self.elements['reasons']
+      self.elements['reasons'].each do |reason|
+        if reason['type'] == ""
+          if reason['text'] != ""
+            errors.add(:auth_type, "You must select a reason")
+            return false
+          end
+          # I'm ignoring this reason as it has no type and no text
+        else
+          reasons.push reason
+        end
+        if reasons.length > 0
+          self.elements['reasons'] = reasons
+        else
+          self.elements['reasons'] = nil
+        end
+      end
+    end
+    conversation = self.conversation
+    if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element']
+      self.text = generate_text_from_element(conversation.details, self.elements)
+    end
+
+  end
+
+  def generate_text_from_element(details, elements)
+    # ignore reasons that are not filled in
+    strs = []
+    elements.each_pair do |key,value|
+      #puts "pairs #{key}: #{value}, type: #{value.class.to_s}"
+      case key
+        when 'recommendation_type'
+          #puts "lookup #{value} in recommendation_types"
+          value_string = details['TableComment']['recommendation_types'][value]
+          strs.push( "**_#{value_string}_**\n\n" )
+        when 'suggestion'
+          strs.push( "**_Suggested change_**  \n" )
+          strs.push( "#{value}\n\n" )
+        when 'reasons'
+          if !value.nil?
+            strs.push( "**_Reasons_**\n\n" )
+            value.each do |reason|
+              #puts "reason: #{reason}"
+              strs.push( "* **_#{details['TableComment']['reason_types'][ reason['type'] ]}:_** #{reason[ 'text']}\n" )
+            end
+          else
+            strs.push( "**_No reasons given_**\n\n" )
+          end
+      end
+    end
+    strs.join('')
+  end
+
+
   def do_not_save_comment_for_post_unknown
     if auth_type == :post_unknown
       errors.add(:auth_type, "Cannot save comment with auth_type :post_unknown")

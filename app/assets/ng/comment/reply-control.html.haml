@@ -121,7 +121,7 @@
         %div.extras-form.clearfix
           %div.reasons(ng-if="newComment.reasons")
             %div.table-comment-reason(ng-repeat="reason in newComment.reasons")
-              %select(ng-model="reason.type" ng-options=" k as v for (k,v) in conversation.details.TableComment.reason_types" ng-change="select_comment_purpose()")
+              %select(ng-model="reason.type" ng-options=" k as v for (k,v) in conversation.details.TableComment.reason_types" ng-change="select_reason_type()")
                 %option(value="" disabled selected) Select a reason...
               %textarea.noscrollbars(ng-model="reason.text"){placeholder: "Explain your reason..."}
 
