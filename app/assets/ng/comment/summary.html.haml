@@ -1,7 +1,7 @@
 %div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}"){id: "com-{{comment.id}}"}
   %div(ng-switch="comment.text.length")
     %div.row(ng-switch-when="0")
-      .col-md-8.deleted-comment-body
+      .col-sm-8.deleted-comment-body
         %p
           This summary item has been deleted
           %a(ng-click="view_history(comment.id)")
@@ -9,7 +9,7 @@
         %div.history.clear(ng-include src="history_url")
 
     %div.row(ng-switch-default)
-      .col-md-12.summary-comment-body
+      .col-sm-12.summary-comment-body
         .comment-body-container
           %div.header
             %p.time {{comment.updated_at | from_now}}

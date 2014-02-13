@@ -1,6 +1,6 @@
 %div
   .row.conversation#conversation(ng-style="conversation.style")
-    .col-md-9
+    .col-sm-9
       %h3#conversation-title.title
         %span.actual-title(ng-click="edit_title()" ng-if="conversation.title && !conversation.edit_title")
           {{conversation.title}}
@@ -16,13 +16,13 @@
 
 
       .row
-        .col-md-12.summary
+        .col-sm-12.summary
           %div#call-to-action.call-to-action
             %div.comment-outer(ng-repeat="comment in [conversation.call_to_action_comment]")
               %div(ce-comment type="call-to-action")
 
       .row
-        .col-md-12.summary
+        .col-sm-12.summary
           %h4 Conversation Summary
           %div
             %div.comment-outer(ng-repeat="comment in conversation.summary_comments" )
@@ -33,17 +33,17 @@
 
       %div(ng-switch="add_summary_comment" ng-if="conversation.can('edit_summary')")
         .row(ng-switch-default )
-          .col-md-8
+          .col-sm-8
             %p
               %input.btn-primary.btn(ng-click="show_comment_form('new-summary-comment')"){type: 'button', value: 'Add summary comment'}
 
         .row(ng-switch-when="true")
-          .col-md-8
+          .col-sm-8
             %h4 Add a summary comment to help capture this conversation
             %div(ce-comment-form max="SummaryCommentLength" type="SummaryComment")
 
       .row(ng-if="conversation.privacy.comments=='true' || conversation.can('show')")
-        .col-md-12.conversation
+        .col-sm-12.conversation
           %h4 Conversation
           %div.comment-outer(ng-repeat="comment in conversation.conversation_comments" )
             %div(ce-comment type="conversation")
@@ -52,13 +52,13 @@
             %p Conversation placeholder
 
       .row(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
-        .col-md-8
+        .col-sm-8
           %p#add-conversation-comment
             %input.btn-primary.btn(ng-click="show_comment_form('new-conversation-comment')"){type: 'button', value: 'Add conversation comment'}
 
       %div(ce-comment-form max="ConversationCommentLength" type="ConversationComment")
 
-    .col-md-3.right-bar
+    .col-sm-3.right-bar
       %div(ce-conversation-right-bar)
 
   %div(ng-if="conversation.wizard_mode")

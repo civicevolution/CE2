@@ -24,7 +24,7 @@
             %alert(ng-cloak ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)")
               %div(ng-bind-html="alert.msg" )
           .row
-            .col-md-12
+            .col-sm-12
               %div(ui-view)
           %footer(ng-controller="ActivityMonitorController")
       / ! end of .container

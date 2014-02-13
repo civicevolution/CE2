@@ -1,13 +1,13 @@
 %div#conversation.live-group
   .row.conversation#conversation(ng-style="conversation.style")
-    .col-md-3
+    .col-sm-3
       %ul.nav.nav-pills.nav-stacked.nav-fixed#right-menu
 
         -#%li
           %a{href: "/#/cmp/{{conv.component_code}}/sgd/{{conv.code}}/{{conv.munged_title}}"}
             Home
 
-        %li(ng-repeat="conv in conversations" ng-class="{active: conversation.code == conv.code}")
+        -#%li(ng-repeat="conv in conversations" ng-class="{active: conversation.code == conv.code}")
           %a{href: "/#/agenda/{{conv.agenda_code}}-{{conv.link_code}}/sgd/{{conv.munged_title}}"}
             {{conv.title}}
 
@@ -16,7 +16,7 @@
           %p#add-conversation-comment
             %input.btn-primary.btn-lg.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: "{{add_button_label}}" }
 
-    .col-md-9
+    .col-sm-9
       %h4#conversation-title.title {{conversation.title}}
 
       %div(ng-switch="conversation.filter_mode")
@@ -81,7 +81,7 @@
             %p Your group hasn't posted any comments yet
 
   -#.row(ng-if="conversation.privacy.unknown_users=='true' || conversation.can('post_prescreen')")
-    .col-md-8
+    .col-sm-8
       %p#add-conversation-comment
         %input.btn-primary.btn(ng-click="$root.$broadcast('open-comment-form', {action: 'new-table-comment'})"){type: 'button', value: 'Add a new comment'}
 

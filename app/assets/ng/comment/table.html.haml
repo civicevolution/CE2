@@ -3,11 +3,11 @@
     %div(ng-switch="comment.text.length")
       %div.row(ng-switch-when="0")
         Comment deleted
-        -#.col-md-10.author.deleted-comment-author
+        -#.col-sm-10.author.deleted-comment-author
           %div.com-num
             {{comment.order_id}}
 
-        -#.col-md-10.deleted-comment-body
+        -#.col-sm-10.deleted-comment-body
           %p
             This comment has been deleted
             %a(ng-click="view_history(comment.id)")
@@ -17,16 +17,16 @@
       %div(ng-switch-default)
 
         %div.full-comment.row(ng-if="comment.reply_target_expanded")
-          .col-md-10.col-md-offset-2.comment-target{'ng-include' => "'#{ path_to_asset("comment/reply-to-target.html") }'"}
+          .col-sm-10.col-sm-offset-2.comment-target{'ng-include' => "'#{ path_to_asset("comment/reply-to-target.html") }'"}
 
         %div.full-comment.row
-          -#.col-md-10.author
+          -#.col-sm-10.author
             %img(ng-src="http://assets.civicevolution.org/users/civic_dev/{{comment.photo_code}}/sm5/p.jpg")
             %p.name {{comment.first_name}} {{comment.last_name}}
             %div.com-num
               {{comment.order_id}}
 
-          .col-md-10.body-with-arrow
+          .col-sm-10.body-with-arrow
             -#.arrow
             .comment-body-container
 

@@ -1,7 +1,7 @@
 %div.comment(ng-switch="comment.type" ng-class="comment.type" select_reference="comment-{{comment.id}}"){id: "com-{{comment.id}}"}
   %div
     %div.full-comment.row
-      .col-md-12.body-with-arrow
+      .col-sm-12.body-with-arrow
         .live-edit-theme(ng-class="{'show-details': show_details}")
           .letter {{comment.letter}}
           %div.theme_text(ng-bind-html="converter.makeHtml(comment.text)")
