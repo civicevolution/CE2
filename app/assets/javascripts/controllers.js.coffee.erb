@@ -973,6 +973,13 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       #console.log "Add this example to textarea: #{example_insert}"
       $scope.$root.$broadcast 'open-comment-form', {action: 'add-example-from-selected-text', quote_insert: example_insert, comment: $scope.conversation.current_theme, append_to_existing: true}
 
+    $scope.$on 'text-select-add-theme', (event, sel) ->
+      #console.log "received broadcast message text-select-add-example"
+      if sel.quote_data
+        sel.text = sel.text.replace(/^Table \d+:\s*/,'')
+      #console.log "Add this example to textarea: #{example_insert}"
+      $scope.$root.$broadcast 'open-comment-form', {action: 'add-example-from-selected-text', quote_insert: sel.text, comment: $scope.conversation.current_theme, append_to_existing: true}
+
     $scope.$on 'update-comment-tags', (event,comment) ->
       comments = if comment then [comment] else if $scope.conversation.theme_themes_mode then $scope.conversation.team_theme_comments else $scope.conversation.table_comments
       for comment in comments
@@ -1949,7 +1956,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
       hide_avg: false
       assign: false
 
-    $scope.assignInPopup = '<button id="editBtn" type="button" class="btn btn-primary btn-mini" ng-click="option_assignment(row)" >Assign</button>'
+    $scope.assignInPopup = '<button id="editBtn" type="button" class="btn btn-primary btn-xs" ng-click="option_assignment(row)" >Assign</button>'
 
     select_columns = ->
       data_cols = []

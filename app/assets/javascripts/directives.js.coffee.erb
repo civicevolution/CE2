@@ -805,7 +805,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             if comment.elements?.reasons
               $scope.newComment.reasons = comment.elements.reasons
 
-            $scope.newComment.reasons.push( {type: '', text: ''} )
+            if $scope.newComment.reasons
+              $scope.newComment.reasons.push( {type: '', text: ''} )
 
             if comment.elements?.text
               $scope.newComment.text = comment.elements.text
@@ -837,7 +838,8 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             if comment.elements?.reasons
               $scope.newComment.reasons = comment.elements.reasons
 
-            $scope.newComment.reasons.push( {type: '', text: ''} )
+            if $scope.newComment.reasons
+              $scope.newComment.reasons.push( {type: '', text: ''} )
 
             if comment.elements?.text
               $scope.newComment.text = comment.elements.text
@@ -997,15 +999,14 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 ce2_directives.directive('ceTextSelect', ->
   restrict: 'A'
   replace: true
-  template: '<div class="ce-text-select" ng-style="ce_text_select_style"><input class="btn-primary btn btn-mini" ng-click="button_click()" type="button" value="{{ button_text}}"></div>'
+  templateUrl: "<%= path_to_asset "live/select-popup.html" %>"
   link: (scope, element, attrs) ->
-    scope.button_text = attrs.label
-    scope.event_name_str = attrs.eventNameStr
+    scope.buttons = eval(attrs.buttons)
   controller: [ "$scope", "$timeout", ($scope, $timeout) ->
     selection = {}
 
-    $scope.button_click = ->
-      $scope.$root.$broadcast $scope.event_name_str, selection
+    $scope.button_click = (event) ->
+      $scope.$root.$broadcast event, selection
 
     $scope.$on 'text-select-by-mouse', ->
       debug_mode = false
@@ -1022,10 +1023,11 @@ ce2_directives.directive('ceTextSelect', ->
           body = document.documentElement || document.body
           scrollX = window.pageXOffset || body.scrollLeft
           scrollY = window.pageYOffset || body.scrollTop
+          #console.log "coords.top: #{coords.top}, scrollY: #{scrollY}, coords.left: #{coords.left}, scrollX: #{scrollX}"
           $scope.ce_text_select_style =
             display: 'block'
             position: 'absolute'
-            top: "#{coords.top + scrollY - 20}px"
+            top: "#{coords.top + scrollY - 40}px"
             left: "#{coords.left + scrollX}px"
 
           $timeout ->
@@ -2531,13 +2533,6 @@ ce2_directives.directive('ceTagComment',[ "$compile", "$timeout", "ThemeData",
                   $dialog.messageBox(title, msg, btns)
 
             )
-
-          # close the popup (remove .open from div.tags)
-          while(el && el.prop('nodeName')!= 'DIV')
-            el = el.parent()
-          el?.removeClass('open')
-
-
     ]
 ])
 

@@ -99,9 +99,11 @@ module Modules
         comments = Comment.includes(:author).where( id: reply_to_records.map(&:reply_to_id) )
         reply_to_records.each do |reply|
           com = comments.detect{|c| c.id == reply.reply_to_id}
-          reply.author = "#{com.author.first_name} #{com.author.last_name}"
-          reply.code = com.author.code
-          reply.user_id = com.user_id
+          if com
+            reply.author = "#{com.author.first_name} #{com.author.last_name}"
+            reply.code = com.author.code
+            reply.user_id = com.user_id
+          end
         end
       end
 
