@@ -781,11 +781,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             if $scope.conversation.details?.TableComment?.reason_types
               $scope.newComment.reasons = [{type: '', text: ''}]
 
-
-
-
-
-
           when 'theme-comment-edit'
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name}
@@ -805,18 +800,18 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               else
                 "theme"
             if $scope.conversation.details?.TableComment?.reason_types
-              $scope.newComment.reasons = [{type: '', text: ''}]
+              $scope.newComment.reasons = []
 
             if comment.elements?.reasons
               $scope.newComment.reasons = comment.elements.reasons
+
+            $scope.newComment.reasons.push( {type: '', text: ''} )
 
             if comment.elements?.text
               $scope.newComment.text = comment.elements.text
 
             if comment.elements?.recommendation_type
               $scope.newComment.purpose = comment.elements.recommendation_type
-
-
 
           when 'table-comment-edit'
             comment = data.comment
@@ -837,21 +832,18 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
               else
                 "table"
             if $scope.conversation.details?.TableComment?.reason_types
-              $scope.newComment.reasons = [{type: '', text: ''}]
+              $scope.newComment.reasons = []
 
             if comment.elements?.reasons
               $scope.newComment.reasons = comment.elements.reasons
+
+            $scope.newComment.reasons.push( {type: '', text: ''} )
 
             if comment.elements?.text
               $scope.newComment.text = comment.elements.text
 
             if comment.elements?.recommendation_type
               $scope.newComment.purpose = comment.elements.recommendation_type
-
-
-
-
-
 
           when 'call-to-action-comment-reply'
             $scope.newComment.type = 'ConversationComment'
