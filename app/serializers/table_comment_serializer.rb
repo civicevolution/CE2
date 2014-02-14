@@ -3,8 +3,7 @@ class TableCommentSerializer < ActiveModel::Serializer
 
   attributes :type, :id, :order_id, :text, :updated_at, :purpose, :version, :published, :status,
              :pro_votes, :con_votes,
-             :table_number, :parent_theme_ids, :editable_by_user, :name, :elements,
-             :new_theme_id, :old_theme_id
+             :table_number, :parent_theme_ids, :editable_by_user, :name, :elements
 
 
   def table_number
