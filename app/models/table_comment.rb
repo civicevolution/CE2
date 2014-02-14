@@ -4,6 +4,8 @@ class TableComment < Comment
     TableCommentSerializer
   end
 
+  attr_accessor :new_theme_id, :old_theme_id
+
   belongs_to :conversation
 
   before_validation :set_order_id_for_new_table_comment
@@ -35,15 +37,9 @@ class TableComment < Comment
       old_theme = ThemeComment.where(purpose: @old_purpose, conversation_id: self.conversation_id, user_id: coordinator_user_id ).try{|coms| coms[0]}
       old_theme_id = old_theme ? old_theme.id : 0
       old_theme.child_comments.delete(self) unless old_theme.nil?
-    else
-      return
     end
-    theme_com.child_comments << self
-    message = {action: "update", class: "AutoTaggedTableComment", updated_at: Time.now, source: "TC-RT-Notification",
-      data: { table_comment_id: self.id, old_theme_id: old_theme_id, new_theme_id: new_theme_id }
-    }
-    channel = "/#{self.conversation.code}"
-    Modules::FayeRedis::publish(message,channel)
+    self.new_theme_id = new_theme_id
+    self.old_theme_id = old_theme_id
   end
 
   def record_pro_con_votes

@@ -808,7 +808,10 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
           $scope.$root.$broadcast 'calculate-tag-counts'
           $scope.$root.$broadcast 'update-comment-tags', updated_rec
           refilter_table_comments()
-    , 500
+        , 500
+      $timeout ->
+        update_table_comment_parents(updated_rec.id, data.data.old_theme_id, data.data.new_theme_id)
+      , 1000
 
     # register a listener for theme ordered ids
     $scope.$on 'Conversation_update', (event, data) ->
@@ -865,12 +868,9 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       $scope.conversation.purpose_filter = null
       refilter_table_comments()
 
-    update_table_comment_parents = (event, data) ->
+    update_table_comment_parents = (table_comment_id, old_theme_id, new_theme_id) ->
       #data.data {table_comment_id: 8906, old_theme_id: 1234, new_theme_id: 8904, id: "8"}
       # get the table comment by id
-      table_comment_id = data.data.table_comment_id
-      old_theme_id = data.data.old_theme_id
-      new_theme_id = data.data.new_theme_id
       #console.log "update_table_comment_parents table_comment_id: #{table_comment_id}, old_theme_id: #{old_theme_id}, new_theme_id: #{new_theme_id}"
       table_comment = $scope.conversation.comments[table_comment_id]
       if old_theme_id
