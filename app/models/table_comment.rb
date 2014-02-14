@@ -14,6 +14,37 @@ class TableComment < Comment
   after_create  :record_pro_con_votes
   after_update  :update_pro_con_votes
 
+  before_save :record_the_old_purpose
+  after_save :tag_to_purpose_theme
+  
+  def record_the_old_purpose
+    @old_purpose = self.purpose_was
+  end
+
+  def tag_to_purpose_theme
+    coordinator_user_id = Agenda.find_by("conversation_ids @> ARRAY[?]", self.conversation_id).details['coordinator_user_id']
+    theme_com = ThemeComment.where(purpose: self.purpose, conversation_id: self.conversation_id, user_id: coordinator_user_id ).first_or_create do |theme|
+      theme.text = "Auto-generated theme for tag: #{self.purpose}"
+      theme.tag_name = self.purpose
+    end
+    if @old_purpose.nil?
+      new_theme_id = theme_com.id
+      old_theme_id = 0
+    elsif @old_purpose != self.purpose
+      new_theme_id = theme_com.id
+      old_theme = ThemeComment.where(purpose: @old_purpose, conversation_id: self.conversation_id, user_id: coordinator_user_id ).try{|coms| coms[0]}
+      old_theme_id = old_theme ? old_theme.id : 0
+      old_theme.child_comments.delete(self) unless old_theme.nil?
+    else
+      return
+    end
+    theme_com.child_comments << self
+    message = {action: "update", class: "AutoTaggedTableComment", updated_at: Time.now, source: "TC-RT-Notification",
+      data: { table_comment_id: self.id, old_theme_id: old_theme_id, new_theme_id: new_theme_id }
+    }
+    channel = "/#{self.conversation.code}"
+    Modules::FayeRedis::publish(message,channel)
+  end
 
   def record_pro_con_votes
     self.create_pro_con_vote pro_votes: self.pro_votes, con_votes: self.con_votes

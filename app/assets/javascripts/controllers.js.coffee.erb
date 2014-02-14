@@ -769,6 +769,9 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       theming_data = process_team_theming_data(theming_data)
     else if theming_data.data_set_state == 'coord-theme'
       theming_data = process_coordinator_theming_data(theming_data)
+      $scope.$on 'AutoTaggedTableComment_update', (event, data) ->
+        update_table_comment_parents(event,data)
+        
     $timeout ->
       $scope.$root.$broadcast 'update-user-data'
     , 1000
@@ -806,7 +809,6 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
           $scope.$root.$broadcast 'update-comment-tags', updated_rec
           refilter_table_comments()
     , 500
-
 
     # register a listener for theme ordered ids
     $scope.$on 'Conversation_update', (event, data) ->
@@ -863,6 +865,30 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       $scope.conversation.purpose_filter = null
       refilter_table_comments()
 
+    update_table_comment_parents = (event, data) ->
+      #data.data {table_comment_id: 8906, old_theme_id: 1234, new_theme_id: 8904, id: "8"}
+      # get the table comment by id
+      table_comment_id = data.data.table_comment_id
+      old_theme_id = data.data.old_theme_id
+      new_theme_id = data.data.new_theme_id
+      #console.log "update_table_comment_parents table_comment_id: #{table_comment_id}, old_theme_id: #{old_theme_id}, new_theme_id: #{new_theme_id}"
+      table_comment = $scope.conversation.comments[table_comment_id]
+      if old_theme_id
+        #remove from a theme
+        theme = $scope.conversation.comments[old_theme_id]
+        table_comment.parent_theme_ids = _.without(table_comment.parent_theme_ids, old_theme_id)
+        table_comment.current_theme_ids = _.without(table_comment.current_theme_ids, old_theme_id)
+        theme.ordered_child_ids = _.without(theme.ordered_child_ids, table_comment.id)
+      if new_theme_id
+        #Add to a theme
+        theme = $scope.conversation.comments[new_theme_id]
+        table_comment.parent_theme_ids.push new_theme_id
+        table_comment.current_theme_ids.push new_theme_id
+        theme.ordered_child_ids.push table_comment.id
+      $timeout ->
+        refilter_table_comments()
+        $scope.$root.$broadcast 'calculate-tag-counts'
+        $scope.$root.$broadcast 'update-comment-tags', table_comment
 
     $scope.filter_table_comments = (mode, id=null) ->
       #console.log "filter_table_comments mode: #{mode}, id: #{id}"

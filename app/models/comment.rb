@@ -89,7 +89,7 @@ class Comment < ActiveRecord::Base
       end
     end
     conversation = self.conversation
-    if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element']
+    if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element'] && self.elements
       self.text = generate_text_from_element(conversation.details, self.elements)
     end
 
