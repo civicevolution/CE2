@@ -1,6 +1,8 @@
 .live-allocate.live-select.live-recommend-vote
+  %p
+    %a.homepage(ng-click="go_home()") Home page
+
   %h3(ng-hide="edit_vote_mode") Enter recommendation for Group {{user.last_name}}
-  %h3.warn(ng-show="edit_vote_mode")  Edit recommendation for participant \#{{voter_id}} of Group {{user.last_name}}
 
   %h4 Service: {{conversation.title}}
 
