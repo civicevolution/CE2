@@ -102,8 +102,7 @@ class Comment < ActiveRecord::Base
       #puts "pairs #{key}: #{value}, type: #{value.class.to_s}"
       case key
         when 'recommendation_type'
-          #puts "lookup #{value} in recommendation_types"
-          value_string = details['TableComment']['recommendation_types'][value]
+          value_string = details['comment_types'].detect{|com_type| com_type['key'] == value}.try{|com_type| com_type['text']} || 'unknown comment type'
           strs.push( "**_#{value_string}_**\n\n" )
         when 'suggestion'
           strs.push( "**_Suggested change_**  \n" )

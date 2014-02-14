@@ -3,8 +3,8 @@
 
   %li#conversation-review-link(ng-if="conversation.filters")
     %span.label.label-info Filters
-    %li#conversation-review-link(ng-repeat="filter in conversation.filters" ng-class="{active: (conversation.purpose_filter == filter.code)}" )
-      %a(ng-click="change_filter(filter.code)")
+    %li#conversation-review-link(ng-repeat="filter in conversation.filters" ng-class="{active: (conversation.purpose_filter == filter.key)}" )
+      %a(ng-click="change_filter(filter.key)")
         {{filter.text}}
         %span.badge.badge-info {{theme_cnt.cnt}}
 

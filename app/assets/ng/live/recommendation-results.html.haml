@@ -1,10 +1,10 @@
 .live-allocate-results.recommendation_votes
   %h3 Service: {{title}}
 
-  %div.graph.row(ng-repeat="recommendation in recommendation_votes")
-    .col-sm-10.theme(ng-bind-html="converter.makeHtml(recommendation.text)"){style: "background-size: {{recommendation.graph_percentage}}% 100%;"}
-    .col-sm-1.percent {{recommendation.percentage}}%
-    .col-sm-1.count ({{recommendation.votes | number:0}})
+  %div.graph.row(ng-repeat="option in option_votes")
+    .col-sm-10.theme(ng-bind-html="converter.makeHtml(option.text)"){style: "background-size: {{option.graph_percentage}}% 100%;"}
+    .col-sm-1.percent {{option.percentage}}%
+    .col-sm-1.count ({{option.votes | number:0}})
 
   %div(ce-size-adjuster)
 
@@ -15,10 +15,7 @@
     %tbody
       %tr
         %th Table
-        %th More/more
-        %th Same/same
-        %th Less/less
-        %th Split-same
+        %th(ng-repeat="option in option_votes") {{option.text}}
         %th Total
         %th Members
         %th Check

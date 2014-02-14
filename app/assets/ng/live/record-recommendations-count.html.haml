@@ -7,9 +7,9 @@
 
   %table(border="1")
 
-    %tr(ng-repeat="option in recommendation_options" )
+    %tr(ng-repeat="option in vote_options" )
       %td.text
-        {{option.value}}
+        {{option.text}}
 
       %td.select
         %input.vote-count(type="number" ng-model="option.vote_count" )

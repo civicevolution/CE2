@@ -34,8 +34,8 @@
               {{newComment.reply_control_title}}
 
             %div(ng-if="newComment.purpose_options")
-              %select(ng-model="newComment.purpose" ng-options="k as v for (k,v) in conversation.details.TableComment.recommendation_types" ng-change="select_comment_purpose()")
-                %option(value="" disabled selected) {{conversation.details.TableComment.recommendation_types_placeholder}}
+              %select(ng-model="newComment.purpose" ng-options="o.key as o.text for o in conversation.details.comment_types" ng-change="select_comment_purpose()")
+                %option(value="" disabled selected) {{conversation.details.comment_types_placeholder}}
 
             %div.form_errors
               %p.warn(ng-repeat="error in newComment.form_errors")
@@ -46,8 +46,8 @@
               {{newComment.reply_control_title}}
 
             %div(ng-if="newComment.purpose_options")
-              %select(ng-model="newComment.purpose" ng-options="k as v for (k,v) in conversation.details.TableComment.recommendation_types" ng-change="select_comment_purpose()")
-                %option(value="" disabled selected) {{conversation.details.TableComment.recommendation_types_placeholder}}
+              %select(ng-model="newComment.purpose" ng-options="o.key as o.text for o in conversation.details.comment_types" ng-change="select_comment_purpose()")
+                %option(value="" disabled selected) {{conversation.details.comment_types_placeholder}}
 
             %input.tag_name(type="text" ng-model="newComment.tag_name" )
 
