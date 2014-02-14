@@ -909,21 +909,27 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       switch
         when mode is 'all_table_comments'
           $scope.conversation.filtered_comments = $scope.conversation.table_comments
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
         when mode is 'untagged_comments'
           $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.tag_bools && comment.tag_bools[0] && !comment.parked )
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
         when mode is 'parked_comments'
           $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.table_comments when comment.parked)
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
         when mode is 'all_theme_comments'
           $scope.conversation.filtered_comments = $scope.conversation.team_theme_comments
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
         when mode is 'untagged_themes'
           $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.team_theme_comments when comment.tag_bools && comment.tag_bools[0] && !comment.parked )
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
         when mode is 'parked_themes'
           $scope.conversation.filtered_comments = (comment for comment in $scope.conversation.team_theme_comments when comment.parked)
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
         when mode is 'themes'
           if $scope.conversation.theme_comments?.length > 0
@@ -931,6 +937,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
             add_letters($scope.conversation.theme_comments)
           else
             $scope.conversation.filtered_comments = []
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
         when mode is 'theme'
           $scope.conversation.current_theme = _.findWhere($scope.conversation.theme_comments, {id: id})
@@ -938,15 +945,21 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
           for id in $scope.conversation.current_theme.ordered_child_ids
             comment = $scope.conversation.comments[id]
             $scope.conversation.filtered_comments.push comment unless not comment
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
         when mode is 'table'
           $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.table_comments when Number(comment.table_number) is id)
+          $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
       if $scope.conversation.purpose_filter
         console.log "apply purpose filter #{$scope.conversation.purpose_filter}"
         $scope.conversation.filtered_comments = ( comment for comment in $scope.conversation.filtered_comments when comment.purpose == $scope.conversation.purpose_filter )
+        $scope.conversation.filtered_comments = make_unique($scope.conversation.filtered_comments)
 
-
+    make_unique = (myArray) ->
+      _.uniq(myArray, (item) ->
+        return item.id;
+        )
 
     $scope.$on 'ThemeComment_update', (event, data) ->
       #console.log "received broadcast ThemeComment_update"
