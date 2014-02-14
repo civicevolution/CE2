@@ -805,7 +805,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             if comment.elements?.reasons
               $scope.newComment.reasons = comment.elements.reasons
 
-            if $scope.newComment.reasons
+            if $scope.newComment.reasons && $scope.newComment.reasons.length == 0
               $scope.newComment.reasons.push( {type: '', text: ''} )
 
             if comment.elements?.text
@@ -838,7 +838,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             if comment.elements?.reasons
               $scope.newComment.reasons = comment.elements.reasons
 
-            if $scope.newComment.reasons
+            if $scope.newComment.reasons && $scope.newComment.reasons.length == 0
               $scope.newComment.reasons.push( {type: '', text: ''} )
 
             if comment.elements?.text
@@ -985,8 +985,18 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
         console.log "Change the guidance!!!"
 
       $scope.select_reason_type = ->
-        #console.log "selected reason type: #{$scope.newComment.purpose}"
+        this.reason.highlight = false
+      $scope.add_reason = ->
         # check if $scope.newComment.reasons has an unassigned reason, if not push a new one onto the stack
+        add_reason = true
+        for reason in $scope.newComment.reasons
+          if reason.type == ""
+            reason.highlight = true
+            add_reason = false
+        if add_reason
+          $scope.newComment.reasons.push( {type: '', text: ''} )
+      $scope.delete_reason = ->
+        this.newComment.reasons.splice( this.newComment.reasons.indexOf(this.reason), 1 );
         add_reason = true
         for reason in $scope.newComment.reasons
           if reason.type == ""

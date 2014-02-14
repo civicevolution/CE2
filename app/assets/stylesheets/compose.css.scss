@@ -808,6 +808,13 @@ input.tag_name{
   .extras-form {
     //border: 1px solid green;
     clear: both;
+    p.add_reason{
+      margin: -40px 0 16px 0px;
+    }
+    .highlight{
+      background-color: #FDA0A3;
+    }
+    .delete{ color: red; font-size: 1.2em;}
   }
   .submit-panel {
     //border: 1px solid blue;
