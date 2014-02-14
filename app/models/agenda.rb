@@ -606,6 +606,7 @@ class Agenda < ActiveRecord::Base
     ThemePoint.where(theme_id: comment_ids).destroy_all
     CommentThread.where(parent_id: comment_ids).destroy_all
     CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
+    RecommendationVote.where(conversation_id: conversation_ids).destroy_all
   end
 
   def delete_agenda
