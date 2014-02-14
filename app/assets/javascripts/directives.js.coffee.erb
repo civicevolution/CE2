@@ -785,7 +785,6 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name}
             if comment.version == 0 then $scope.newComment.text = ''
-            $scope.newComment.text = $scope.newComment.text.replace(/<span.*\/span>/,'')
             $scope.newComment.reply_control_title = "Edit theme"
             # add elements bit
             #$scope.newComment.reply_control_title =
@@ -813,6 +812,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
             if comment.elements?.recommendation_type
               $scope.newComment.purpose = comment.elements.recommendation_type
+            $scope.newComment.text = $scope.newComment.text.replace(/<span.*\/span>/,'')
 
           when 'table-comment-edit'
             comment = data.comment

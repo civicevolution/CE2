@@ -7,7 +7,7 @@
           %a{href: "/#/cmp/{{conv.component_code}}/sgd/{{conv.code}}/{{conv.munged_title}}"}
             Home
 
-        -#%li(ng-repeat="conv in conversations" ng-class="{active: conversation.code == conv.code}")
+        %li(ng-repeat="conv in conversations" ng-class="{active: conversation.code == conv.code}")
           %a{href: "/#/agenda/{{conv.agenda_code}}-{{conv.link_code}}/sgd/{{conv.munged_title}}"}
             {{conv.title}}
 
