@@ -702,6 +702,10 @@ services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, 
       console.log '^^^^ ERROR: Subscription failed!'
       console.log "XXXXXXX Do something about the failed channel subscription"
 
+  unsubscribe: (channel) ->
+    console.log "FayeService.unsubscribe channel: #{channel}"
+    this.client.unsubscribe(channel) unless !this.client
+
   publish_to_channel: (channel, data) ->
     this.client.publish(channel, data).then(
       ->

@@ -426,7 +426,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
             $scope.tables = _.range(1, 9)
             $scope.table_votes = options.table_votes
-            $scope.table_size = [ 4, 5, 4, 4, 4, 4, 4, 4]
+            $scope.table_size = [ 3, 5, 4, 3, 4, 5, 4, 4]
             sums = [0,0,0,0,0,0,0,0]
             diffs = []
             for key, value of $scope.table_votes
@@ -807,7 +807,12 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
       $scope.change_themer($scope.user.name)
     , 500
 
+    if FayeService.conversation_code
+      FayeService.unsubscribe( "/#{FayeService.conversation_code}" )
+
+    FayeService.conversation_code = $scope.conversation.code
     FayeService.subscribe( "/#{$scope.conversation.code}" )
+
 
     $scope.$on 'TableComment_update', (event, data) ->
       table_number = Number(data.data.table_number)
