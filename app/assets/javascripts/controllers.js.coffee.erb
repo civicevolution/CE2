@@ -426,6 +426,23 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             $scope.$root.initialize_markdown_system( {disable_editor: true} )
             $scope.tables = _.range(1, 9)
             $scope.table_votes = options.table_votes
+            $scope.table_size = [ 4, 5, 4, 4, 4, 4, 4, 4]
+            sums = [0,0,0,0,0,0,0,0]
+            diffs = []
+            for key, value of $scope.table_votes
+              #console.log "#{key}: #{value}"
+              group = Number(key.match(/g(\d)/)[1])
+              #console.log "group: #{group}"
+              sums[ group - 1 ] += value
+            #console.log "sums: #{sums}"
+            for sum, index in sums
+              #console.log "index: #{index} is #{sum}"
+              diffs[index] = sum - $scope.table_size[index]
+              #console.log "diffs[index]: #{diffs[index]}"
+            $scope.sums = sums
+            $scope.diffs = diffs
+            $scope.comp = (index) ->
+              if $scope.diffs[index] > 0 then 1 else if $scope.diffs[index] < 0 then -1 else 0
         ]
       )
 
