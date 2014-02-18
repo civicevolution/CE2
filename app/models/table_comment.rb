@@ -4,6 +4,8 @@ class TableComment < Comment
     TableCommentSerializer
   end
 
+  attr_accessor :auto_tag_disabled
+
   belongs_to :conversation
 
   before_validation :set_order_id_for_new_table_comment
@@ -14,7 +16,7 @@ class TableComment < Comment
   after_create  :record_pro_con_votes
   after_update  :update_pro_con_votes
 
-  after_save :tag_to_purpose_theme
+  after_save :tag_to_purpose_theme, unless: :auto_tag_disabled
 
   def tag_to_purpose_theme
     @old_purpose = self.purpose_was

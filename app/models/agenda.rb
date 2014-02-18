@@ -372,6 +372,10 @@ class Agenda < ActiveRecord::Base
         end
         #puts comment.inspect
         comment.post_process_disabled = true
+        if comment.type == 'TableComment'
+          comment.auto_tag_disabled = true
+        end
+
         comment.save
         details[:new_id] = comment.id
       end
