@@ -227,6 +227,9 @@ Ce2::Application.routes.draw do
 
   post "api/authorize_realtime_channel" => "api/v1/realtime_authorize#authorize_realtime_channel", format: :json
 
+  get "api/reports/:agenda_code/comments/:conversation_code" => "api/v1/reports#show_comments"
+  get "api/reports/:agenda_code/criteria_stats" => "api/v1/reports#criteria_stats"
+
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

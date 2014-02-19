@@ -1476,5 +1476,36 @@ class Agenda < ActiveRecord::Base
     "updated agenda.details[#{key.to_sym}] = #{value}\n"
     Agenda.display_details(code)
   end
+  
+  
+  def criteria_stats
+    conversation_stats = []
+    totals = nil
+    self.details['conversation_ids'].flatten.each do |conversation_id|
+      conversation = Conversation.find(conversation_id)
+      reason_stats = {}
+      if conversation.details
+        conversation.details['TableComment']['reason_types'].each_pair do |key, value|
+          reason_stats[key] = 0
+        end
+        totals = reason_stats.clone if totals.nil?
+        # I have initialized the reasons hash for each conversation that has reasons
+        conversation.table_comments.each do |tc|
+          elements = tc.elements
+          if elements
+            reasons = elements['reasons']
+            if reasons
+              reasons.each do |reason|
+                reason_stats[reason['type']] += 1
+                totals[reason['type']] += 1
+              end
+            end
+          end
+        end
+        conversation_stats.push( {code: conversation.code, title: conversation.title, reasons: reason_stats} )
+      end
+    end
+    return totals, conversation_stats
+  end
 
 end

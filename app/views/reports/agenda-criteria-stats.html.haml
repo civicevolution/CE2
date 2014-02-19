@@ -1,0 +1,25 @@
+
+%h3 agenda-criteria-stats
+
+%h3 Total usage of reasons/criteria
+
+%table
+  - @totals.each_pair do |key, count|
+    %tr{:class=>cycle('','stripe')}
+      %td= key
+      %td= count
+
+%h3 Usage by deliberation
+%table
+  - @conversation_stats.each do |stats|
+    %tr
+      %td{colspan:2}
+        %b= stats[:title]
+    - stats[:reasons].each_pair do |key, count|
+      - if count > 0
+        %tr{:class=>cycle('','stripe')}
+          %td= key
+          %td= count
+    %tr
+      %td{colspan:2} &nbsp;
+
