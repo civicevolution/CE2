@@ -1496,8 +1496,10 @@ class Agenda < ActiveRecord::Base
             reasons = elements['reasons']
             if reasons
               reasons.each do |reason|
-                reason_stats[reason['type']] += 1
-                totals[reason['type']] += 1
+                if !reason['type'].nil? && reason['type'] != ""
+                  reason_stats[reason['type']] += 1
+                  totals[reason['type']] += 1
+                end
               end
             end
           end
