@@ -29,7 +29,19 @@ module Api
 
         @conversation =Conversation.find_by(code: params[:conversation_code] )
 
-        render template: 'reports/show-comments', layout: 'pdf-report'
+        #render template: 'reports/show-comments', layout: 'pdf-report'
+
+        respond_to do |format|
+          format.html {render template: 'reports/show-comments', layout: 'pdf-report'}
+          format.pdf do
+            render :pdf => "show-comments.pdf",
+            template: 'reports/show-comments.html.haml',
+            layout: 'pdf-report',
+            wkhtmltopdf: '/usr/local/bin/wkhtmltopdf'
+          end
+        end
+
+
       end
 
       def criteria_stats

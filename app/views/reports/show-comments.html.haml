@@ -1,0 +1,5 @@
+%h3 Comments for #{@conversation.title}
+
+- @conversation.comments.each do |comment|
+  = render :partial => 'reports/comment', :locals => {comment: comment}
+
