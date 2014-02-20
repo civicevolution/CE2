@@ -1,0 +1,18 @@
+.table_comment
+  -#.header Suggested change
+  .body
+    #{comment.elements['text']}
+    .arrow
+  .reasons
+    - if comment.elements['reasons']
+      - if comment.elements['reasons'].size == 0
+        No reasons were given
+      - else
+        -#%p.hdr Reasons
+        %ul
+          - comment.elements['reasons'].each do |reason|
+            %li.reason
+              %span.type #{reason['type']}:
+              %span.text= reason['text']
+  .footer
+    #{comment.pro_con_vote.pro_votes} votes in favor

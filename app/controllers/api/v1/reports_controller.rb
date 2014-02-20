@@ -27,15 +27,18 @@ module Api
       def show_comments
         Rails.logger.debug "show_comments agenda_code: #{params[:agenda_code]}, conversation_code: #{params[:conversation_code]}"
 
-        @conversation =Conversation.find_by(code: params[:conversation_code] )
+        @conversation = Conversation.find_by(code: params[:conversation_code] )
 
         respond_to do |format|
           format.html {render template: 'reports/show-comments', layout: 'pdf-report'}
           format.pdf do
-            render :pdf => "show-comments.pdf",
-            template: 'reports/show-comments.html.haml',
-            layout: 'pdf-report',
-            wkhtmltopdf: '/usr/local/bin/wkhtmltopdf'
+            render  pdf:"show-comments.pdf",
+                    template: 'reports/show-comments.html.haml',
+                    layout: 'pdf-report',
+                    wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
+                    show_as_html: params[:debug].present?,
+                    dpi: 300,
+                    page_size: 'A4'
           end
         end
       end
@@ -66,10 +69,13 @@ module Api
         respond_to do |format|
           format.html {render template: 'reports/show-results', layout: 'pdf-report'}
           format.pdf do
-            render :pdf => "show-comments.pdf",
+            render :pdf => "show-results.pdf",
                    template: 'reports/show-results.html.haml',
                    layout: 'pdf-report',
-                   wkhtmltopdf: '/usr/local/bin/wkhtmltopdf'
+                   wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
+                   show_as_html: params[:debug].present?,
+                   dpi: 300,
+                   page_size: 'A4'
           end
         end
       end

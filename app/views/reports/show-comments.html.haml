@@ -1,5 +1,8 @@
 %h3 Comments for #{@conversation.title}
 
-- @conversation.comments.each do |comment|
-  = render :partial => 'reports/comment', :locals => {comment: comment}
+- @conversation.table_comments.each do |comment|
+  - if comment.elements.nil?
+    = render :partial => 'reports/comment_simple', :locals => {comment: comment}
+  - else
+    = render :partial => 'reports/comment_elements', :locals => {comment: comment}
 

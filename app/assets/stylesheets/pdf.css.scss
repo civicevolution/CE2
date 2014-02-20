@@ -13,3 +13,41 @@
 
 }
 
+.table_comment{
+  page-break-inside: avoid;
+  .body {
+    font-size: 1.2em;
+    margin: 8px 0;
+    padding: 8px;
+    background-color: lightcyan;
+    -moz-border-radius: 15px;
+    border-radius: 6px;
+    position: relative;
+  }
+  .arrow {
+    position: absolute;
+    bottom: -24px;
+    left: 4px;
+    width: 0;
+    height: 0;
+    border: 12px solid transparent;
+    border-top-color: lightcyan;
+  }
+
+  .reasons{
+    .hdr{ font-weight: normal; margin: 4px 0; font-style: italic;}
+    ul{
+      margin: 0;
+      li{margin-left: 20px;}
+    }
+    .reason{
+      margin: 4px 0;
+      .type{ font-style: italic; font-weight: bold;}
+    }
+  }
+
+  .footer{
+    margin-left: 20px;
+  }
+  margin-bottom: 20px;
+}
