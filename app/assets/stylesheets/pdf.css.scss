@@ -13,6 +13,15 @@
 
 }
 
+.delib-title{
+  color: #1057AA;
+}
+.type-section{
+  margin-bottom: 40px;
+  .comment-type-title{
+    page-break-after: avoid;
+  }
+}
 .table_comment{
   page-break-inside: avoid;
   .body {

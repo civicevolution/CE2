@@ -1,8 +1,19 @@
-%h3 Comments for #{@conversation.title}
+%h3.delib-title Comments for #{@conversation.title}
 
-- @conversation.table_comments.each do |comment|
-  - if comment.elements.nil?
-    = render :partial => 'reports/comment_simple', :locals => {comment: comment}
-  - else
-    = render :partial => 'reports/comment_elements', :locals => {comment: comment}
+- @conversation.details['comment_types'].each do |type|
+  .type-section
+    %h3.comment-type-title= type['text']
+    - theme = @conversation.theme_comments.detect{|t| t.purpose == type['key'] && t.status == 'auto-tag-theme'}
+    - child_comment_ids = theme.child_targets.map(&:child_id).uniq
+    -#%p theme_id: #{theme.id} has type: #{type['key']} has ids: #{child_comment_ids}
+    - if child_comment_ids.size > 0
+      %ol
+        - child_comment_ids.each do |com_id|
+          - comment = @conversation.table_comments.detect{|c| c.id == com_id }
+          - if comment.elements.nil?
+            %li= render :partial => 'reports/comment_simple', :locals => {comment: comment}
+          - elsif comment
+            %li= render :partial => 'reports/comment_elements', :locals => {comment: comment}
 
+    - else
+      %p No suggestions

@@ -238,7 +238,7 @@ module Api
         authorize! :update_comment_order, comment.conversation
 
         ids_with_order_id = Comment.update_comment_order( params[:id], params[:ordered_ids] )
-        render json: 'ok'
+        render json: {ordered_ids:  params[:ordered_ids]}
       end
 
 
