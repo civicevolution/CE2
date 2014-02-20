@@ -1,0 +1,42 @@
+.live-allocate-results.recommendation_votes
+
+  %h3 Service: #{@title}
+
+  %table.graph{border: 0, width: '100%'}
+    - @vote_options.each do |option|
+      %tr
+        %td.option
+          .theme{style: "width: #{option[:graph_percentage]}%"}
+          .text= option['text']
+        %td #{option[:percentage]}%
+        %td   #{ option[:votes] || 0 }
+
+  %h4 All table votes
+
+  %table
+    %tbody
+      %tr
+        %th Table
+        - @vote_options.each do |option|
+          %th= option['text']
+        %th Total
+        %th Members
+        %th Check
+
+
+      - @tables.each do |table_num|
+        %tr{:class=>cycle('stripe','')}
+          %td Table #{table_num}
+          %td #{ @table_votes["g" + table_num + "-r1"] || 0 }
+          %td #{ @table_votes["g" + table_num + "-r2"] || 0 }
+          %td #{ @table_votes["g" + table_num + "-r3"] || 0 }
+          %td #{ @table_votes["g" + table_num + "-r4"] || 0 }
+          %td #{ @sums[table_num.to_i - 1] }
+          %td #{ @table_size[table_num.to_i - 1] }
+          %td
+            - if @sums[table_num.to_i - 1] == @table_size[table_num.to_i - 1]
+              %i.green.fa.fa-check
+            - elsif @sums[table_num.to_i - 1] > @table_size[table_num.to_i - 1]
+              %i.red.fa.fa-warning
+            - else
+              %i.red.fa.fa-question

@@ -1,6 +1,15 @@
 .stripe{
   background-color: lightblue;
 }
-body{
-  color: red;
+.live-allocate-results{
+  .graph{
+    .theme{ height: 1.4em; background-color: #D0DBFF;}
+    .text {margin: -1.4em 0 0 .2em;}
+    td.option{text-align: left;}
+  }
 }
+.row{
+  width: 100%;
+
+}
+

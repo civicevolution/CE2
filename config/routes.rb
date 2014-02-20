@@ -228,6 +228,8 @@ Ce2::Application.routes.draw do
   post "api/authorize_realtime_channel" => "api/v1/realtime_authorize#authorize_realtime_channel", format: :json
 
   get "api/reports/:agenda_code/comments/:conversation_code" => "api/v1/reports#show_comments"
+  get "api/reports/:agenda_code/results-graph/:conversation_code" => "api/v1/reports#results_graph"
+
   get "api/reports/:agenda_code/criteria_stats" => "api/v1/reports#criteria_stats"
 
 
