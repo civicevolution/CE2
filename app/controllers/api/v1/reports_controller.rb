@@ -29,6 +29,16 @@ module Api
 
         @conversation = Conversation.find_by(code: params[:conversation_code] )
 
+        @additional_suggestions = nil
+        Agenda.find_by(code: params[:agenda_code]).details['conversation_ids'].each do |ids|
+          if ids.is_a?(Array) && ids.include?(@conversation.id)
+            ids.delete(@conversation.id)
+            if ids.length > 0
+              @additional_suggestions = Conversation.find(ids[0])
+            end
+          end
+        end
+
         respond_to do |format|
           format.html {render template: 'reports/show-comments', layout: 'pdf-report'}
           format.pdf do

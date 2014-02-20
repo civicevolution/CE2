@@ -1,7 +1,7 @@
-.comment
-  .header
-    Table #{comment.author.last_name}
-    In favor: #{comment.pro_votes}
-    Opposed: #{comment.con_votes}
-    (id: #{comment.id})
-  .body #{comment.text}
+.table_comment
+  -#.header Suggested change
+  .body
+    #{comment.text}
+    .arrow
+  .footer
+    #{comment.pro_con_vote.pro_votes} votes in favor
