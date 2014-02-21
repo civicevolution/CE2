@@ -694,7 +694,8 @@ services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, 
     console.log "^^^^ subscribe to channel #{channel}"
     # set a default callback function
     cb = cb || (message)->
-      console.log "Received realtime notification on channel #{channel}, broadcast it"
+      console.log "Received realtime notification on channel #{channel}, broadcast it as #{message.class}_update with data:"
+      #console.log "#{JSON.stringify(message.data)}"
       $rootScope.$broadcast "#{message.class}_update", message
 
     # subscribe with callback

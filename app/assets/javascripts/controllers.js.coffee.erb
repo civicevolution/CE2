@@ -833,12 +833,11 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
         updated_rec.editable_by_user = original_rec.editable_by_user || updated_rec.editable_by_user
       # Does this id exist in $scope.conversation.comments?
       $scope.conversation.comments[updated_rec.id] = updated_rec
-      if not $scope.conversation.comments[updated_rec.id]
-        $timeout ->
-          $scope.$root.$broadcast 'calculate-tag-counts'
-          $scope.$root.$broadcast 'update-comment-tags', updated_rec
-          refilter_table_comments()
-        , 500
+      $timeout ->
+        $scope.$root.$broadcast 'calculate-tag-counts'
+        $scope.$root.$broadcast 'update-comment-tags', updated_rec
+        refilter_table_comments()
+      , 500
 
     # register a listener for theme ordered ids
     $scope.$on 'Conversation_update', (event, data) ->
