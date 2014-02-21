@@ -20,8 +20,8 @@
         - @vote_options.each do |option|
           %th= option['text']
         %th Total
-        %th Members
-        %th Check
+        -#%th Members
+        -#%th Check
 
 
       - @tables.each do |table_num|
@@ -32,8 +32,8 @@
           %td #{ @table_votes["g" + table_num + "-r3"] || 0 }
           %td #{ @table_votes["g" + table_num + "-r4"] || 0 }
           %td #{ @sums[table_num.to_i - 1] }
-          %td #{ @table_size[table_num.to_i - 1] }
-          %td
+          -#%td #{ @table_size[table_num.to_i - 1] }
+          -#%td
             - if @sums[table_num.to_i - 1] == @table_size[table_num.to_i - 1]
               %i.green.fa.fa-check
             - elsif @sums[table_num.to_i - 1] > @table_size[table_num.to_i - 1]
