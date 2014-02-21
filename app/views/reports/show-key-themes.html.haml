@@ -1,0 +1,13 @@
+.live-themes
+  - headers = @conversation.details.try{|details| details['report_headers']} || [ @theme_data[:title] ]
+  - headers.each do |header|
+    %h3.delib-title= header
+
+  %table
+    - @theme_data[:themes].each do |theme|
+      - if theme[:published]
+        %tr
+          %td.letter= theme[:letter]
+          %td.live-theme
+            %p= theme[:text].gsub(/\[quote.*\/quote\]/m,'')
+
