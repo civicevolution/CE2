@@ -12,7 +12,7 @@
       %ol
         - child_comment_ids.each do |com_id|
           - comment = @conversation.table_comments.detect{|c| c.id == com_id }
-          - if comment.elements.nil?
+          - if comment && comment.elements.nil?
             %li= render :partial => 'reports/comment_simple', :locals => {comment: comment}
           - elsif comment
             %li= render :partial => 'reports/comment_elements', :locals => {comment: comment}
@@ -29,7 +29,7 @@
       %ol
         - child_comment_ids.each do |com_id|
           - comment = @additional_suggestions.table_comments.detect{|c| c.id == com_id }
-          - if comment.elements.nil?
+          - if comment && comment.elements.nil?
             %li= render :partial => 'reports/comment_simple', :locals => {comment: comment}
           - elsif comment
             %li= render :partial => 'reports/comment_elements', :locals => {comment: comment}

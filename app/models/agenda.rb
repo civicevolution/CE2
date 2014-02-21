@@ -910,7 +910,7 @@ class Agenda < ActiveRecord::Base
         agenda_details[:links][:group][ link_code ] = link
         agenda_details[:links][:lookup][link_code] = "group"
 
-        # link for select results
+        # link for recommendation results
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
             title: %Q|Display recommendation results for "#{conversation[:title]}"|,
@@ -1232,6 +1232,48 @@ class Agenda < ActiveRecord::Base
         agenda_details[:links][:lookup][link_code] = "group"
       end
     end
+
+
+    # Add links for PDF reports
+
+    conversations = Conversation.where(id: agenda_details[:make_recommendation])
+    #ordered_conversations = []
+    #agenda_details[:make_recommendation].each do |id|
+    #  ordered_conversations << conversations.detect{|c| c.id == id}
+    #end
+
+    agenda_details[:make_recommendation].each do |conversation_id|
+      conversation  = conversations.detect{|c| c.id == conversation_id}
+
+      # link for recommendation results
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Display recommendation results for #{conversation.title}|,
+          link_code:  link_code,
+          href: "/api/reports/#{self.code}/results-graph/#{conversation.code}.pdf",
+          disabled: false,
+          role: 'coordinator',
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:reporter][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
+
+      # link for deliberation comments
+      link_code = self.create_link_code( agenda_details[:links][:lookup] )
+      link = {
+          title: %Q|Display suggestions for #{conversation.title}|,
+          link_code:  link_code,
+          href: "/api/reports/#{self.code}/comments/#{conversation.code}.pdf",
+          disabled: false,
+          role: 'coordinator',
+      }
+      agenda_details[:links][:coordinator][ link_code ] = link
+      agenda_details[:links][:reporter][ link_code ] = link
+      agenda_details[:links][:lookup][link_code] = "coordinator"
+
+
+    end
+
 
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
