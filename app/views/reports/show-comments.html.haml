@@ -1,10 +1,12 @@
-%h3.delib-title #{@conversation.title}
+- headers = @conversation.details['report_headers'] ||[ @conversation.title ]
+- headers.each do |header|
+  %h3.delib-title= header
 
 - @conversation.details['comment_types'].each do |type|
   .type-section
     %h3.comment-type-title= type['text']
     - theme = @conversation.theme_comments.detect{|t| t.purpose == type['key'] && t.status == 'auto-tag-theme'}
-    - child_comment_ids = theme.child_targets.map(&:child_id).uniq
+    - child_comment_ids = theme.try{|theme| theme.child_targets.map(&:child_id).uniq} || []
     -#%p theme_id: #{theme.id} has type: #{type['key']} has ids: #{child_comment_ids}
     - if child_comment_ids.size > 0
       %ol
@@ -21,7 +23,7 @@
   .additional-suggestions
     %h3.comment-type-title Additional Suggestions
     - theme = @additional_suggestions.theme_comments.detect{|t| t.status == 'auto-tag-theme'}
-    - child_comment_ids = theme.child_targets.map(&:child_id).uniq
+    - child_comment_ids = theme.try{|theme| theme.child_targets.map(&:child_id).uniq} || []
     -#%p theme_id: #{theme.id} has type: #{type['key']} has ids: #{child_comment_ids}
     - if child_comment_ids.size > 0
       %ol
