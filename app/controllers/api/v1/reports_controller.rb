@@ -48,7 +48,12 @@ module Api
                     wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
                     show_as_html: params[:debug].present?,
                     dpi: 300,
-                    page_size: 'A4'
+                    page_size: 'A4',
+                    margin: { top: 0,
+                              bottom: 0,
+                              left:0,
+                              right: 0
+                            }
           end
         end
       end
@@ -85,7 +90,12 @@ module Api
                    wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
                    show_as_html: params[:debug].present?,
                    dpi: 300,
-                   page_size: 'A4'
+                   page_size: 'A4',
+                    margin: { top: 0,
+                              bottom: 0,
+                              left:0,
+                              right: 0
+                            }
           end
         end
       end
