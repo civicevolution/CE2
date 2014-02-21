@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ReportsController < Api::BaseController
-      skip_authorization_check :only => [:upload_report, :destroy, :show, :show_comments, :criteria_stats, :results_graph]
+      skip_authorization_check :only => [:upload_report, :destroy, :show, :show_comments, :criteria_stats, :results_graph, :show_key_themes]
 
       def upload_report
         logger.debug "upload_report user_id: #{current_user.id}"
@@ -54,6 +54,33 @@ module Api
                               left:0,
                               right: 0
                             }
+          end
+        end
+      end
+
+
+      def show_key_themes
+        Rails.logger.debug "show_key_themes agenda_code: #{params[:agenda_code]}, conversation_code: #{params[:conversation_code]}"
+
+        @theme_data = ThemeSmallGroupTheme.data_key_themes_with_examples( {"conversation_code" => params[:conversation_code],
+           "coordinator_user_id" => Agenda.find_by(code: params[:agenda_code]).details['coordinator_user_id']} )
+        @conversation = Conversation.find_by(code: params[:conversation_code] )
+
+        respond_to do |format|
+          format.html {render template: 'reports/show-comments', layout: 'pdf-report'}
+          format.pdf do
+            render  pdf:"show-comments.pdf",
+                    template: 'reports/show-key-themes.html.haml',
+                    layout: 'pdf-report',
+                    wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
+                    show_as_html: params[:debug].present?,
+                    dpi: 300,
+                    page_size: 'A4',
+                    margin: { top: 0,
+                              bottom: 0,
+                              left:0,
+                              right: 0
+                    }
           end
         end
       end

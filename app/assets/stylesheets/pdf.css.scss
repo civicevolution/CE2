@@ -66,3 +66,18 @@
   }
   margin-bottom: 20px;
 }
+
+.live-themes td {
+  vertical-align: top;
+  padding-bottom: 12px; }
+.live-themes td.letter {
+  font-weight: bold;
+  font-size: 2em;
+  line-height: 1em;
+  padding-right: 16px; }
+.live-themes td.live-theme p:first-child {
+  font-weight: bold;
+  font-size: 1.4em;
+  line-height: 1.2em;
+  margin-top: 0;
+}
