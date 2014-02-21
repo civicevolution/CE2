@@ -479,7 +479,15 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
-
+      .state('report-pdf',
+        url: "/agenda/{agenda_code}/report-pdf/{munged_title}"
+        templateUrl: '<%= path_to_asset "live/reports/report-pdf.html" %>'
+        resolve:
+          conversations: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.conversations($stateParams.agenda_code)
+          ]
+        controller: pdf_report_controller
+      )
 
       .state('report-generator',
         url: "/agenda/{agenda_code}/report-generator/{munged_title}"
@@ -1748,6 +1756,55 @@ agenda_controller = [ "$scope", "agenda", "AgendaData", "$timeout", "$window", "
         , 20
 
 
+]
+
+pdf_report_controller = [ "$scope", "$timeout", "$state", "AgendaData", "conversations", "$dialog",
+  ($scope, $timeout, $state, AgendaData, conversations, $dialog) ->
+    $scope.$root.initialize_markdown_system( {disable_editor: true} )
+
+    $scope.report = {}
+    $scope.report.options = []
+    for conversation in conversations.data
+      if conversation.links
+        for link in conversation.links
+          $scope.report.options.push {value: "#{conversation.code}-#{link}", key: "#{link} for #{conversation.title.substring(0,50)}" }
+          
+    $scope.build_report = ->
+      btn = angular.element(event.currentTarget)
+      return if btn.hasClass('busy')
+      #console.log "build_report #{$scope.report.selected}"
+      if !$scope.report.selected
+        title = "Select a report"
+        msg = "You must select a report to continue"
+        btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+        $dialog.messageBox(title, msg, btns)
+        return
+      else
+        #console.log "construct the url and send to server $state.params.agenda_code: #{$state.params.agenda_code}"
+        conversation_code = $scope.report.selected.match(/^([^-]*)-/)[1]
+        report_type = if $scope.report.selected.match(/Key themes/)
+                        'key_themes'
+                      else if $scope.report.selected.match(/Recommendation graph/)
+                        'results-graph'
+                      else if $scope.report.selected.match(/Suggestions report/)
+                        'comments'
+                      else
+                        null
+        if report_type
+          btn.addClass('busy')
+          AgendaData.build_reports($state.params.agenda_code, conversation_code, report_type).then (response) ->
+            #console.log "build_reports was successful"
+            #console.log "response:\n#{JSON.stringify(response.data)}"
+            $scope.report.report_images = []
+            $scope.report.pdf = ''
+            for file in response.data
+              if file.match(/pdf$/)
+                $scope.report.pdf = file
+              else if file.match(/jpg$/)
+                #console.log "push file: #{file}"
+                $scope.report.report_images.push(file)
+            #console.log "reports have been recorded"
+            btn.removeClass('busy')
 ]
 
 report_generator_controller = [ "$scope", "$timeout", "$state", "AgendaData", "conversations", "reports", "report_data_sets",

@@ -235,6 +235,7 @@ GEM
     right_aws (3.1.0)
       right_http_connection (>= 1.2.5)
     right_http_connection (1.4.0)
+    rmagick (2.13.2)
     rolify (3.2.0)
     rspec-core (2.14.4)
     rspec-expectations (2.14.0)
@@ -336,6 +337,7 @@ DEPENDENCIES
   redis
   responders
   right_aws
+  rmagick (= 2.13.2)
   rolify (>= 3.2.0)
   rspec-rails (>= 2.12.2)
   sass-rails (~> 4.0.0.rc2)

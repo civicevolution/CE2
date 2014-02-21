@@ -575,6 +575,9 @@ services.factory "AgendaData", ["$http",
 
     read_report_setup: (id) ->
       $http.get("/api/reports/#{id}.json")
+
+    build_reports: (agenda_code, conversation_code, report_type) ->
+      $http.get("/api/reports/#{agenda_code}/#{report_type}/#{conversation_code}.json")
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->

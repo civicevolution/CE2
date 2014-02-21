@@ -1,0 +1,33 @@
+.report-canvas
+  %h3 PDF & JPEG reports
+
+  %table
+    %tr
+      %td
+        Deliberation to report:
+      %td
+        %select(ng-model="report.selected" ng-options="o.value as o.key for o in report.options")
+          %option(value="" disabled selected) Select a report
+
+      %td
+        -#%button.btn-primary.btn(ng-click="build_report()") Build report
+        %button.btn-primary.btn(ng-click="build_report()"){type: 'submit'}
+          %span.def-msg Build report
+          %span.busy-msg
+            Building
+            %i.fa.fa-spinner.fa-spin
+
+
+
+  %hr
+
+  #report-images
+    %p(ng-if="report.report_images")
+      %b Right click on each report image below to copy it and then paste it into a Word document
+    %div.report-images(ng-repeat="report in report.report_images")
+      %p Report section {{$index + 1}}
+      %img(ng-src="{{report}}")
+
+  #report-pdf
+    %h4(ng-if="report.pdf") PDF version of report
+    %iframe(ng-if="report.pdf" ng-src="{{report.pdf}}")

@@ -774,7 +774,12 @@ class Agenda < ActiveRecord::Base
     self.details["conversation_ids"].flatten.each do |id|
       ordered_conversations << conversations.detect{|c| c.id == id}
     end
-    ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
+    ordered_conversations = ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
+    self.details["make_recommendation"].each do |rec_id|
+      ordered_conversations.detect{|c| c[:id] == rec_id}[:links] = ['Recommendation graph','Suggestions report']
+    end
+    ordered_conversations[0][:links] = ['Key themes']
+    return ordered_conversations
   end
 
   def self.agendas
@@ -1233,47 +1238,18 @@ class Agenda < ActiveRecord::Base
       end
     end
 
+    # link for PDF/JPEG reports
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: "PDF & JPEG reports",
+        href: "/#/agenda/#{agenda_details[:code]}/report-pdf/#{self.munged_title}",
 
-    # Add links for PDF reports
-
-    conversations = Conversation.where(id: agenda_details[:make_recommendation])
-    #ordered_conversations = []
-    #agenda_details[:make_recommendation].each do |id|
-    #  ordered_conversations << conversations.detect{|c| c.id == id}
-    #end
-
-    agenda_details[:make_recommendation].each do |conversation_id|
-      conversation  = conversations.detect{|c| c.id == conversation_id}
-
-      # link for recommendation results
-      link_code = self.create_link_code( agenda_details[:links][:lookup] )
-      link = {
-          title: %Q|Display recommendation results for #{conversation.title}|,
-          link_code:  link_code,
-          href: "/api/reports/#{self.code}/results-graph/#{conversation.code}.pdf",
-          disabled: false,
-          role: 'coordinator',
-      }
-      agenda_details[:links][:coordinator][ link_code ] = link
-      agenda_details[:links][:reporter][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "coordinator"
-
-      # link for deliberation comments
-      link_code = self.create_link_code( agenda_details[:links][:lookup] )
-      link = {
-          title: %Q|Display suggestions for #{conversation.title}|,
-          link_code:  link_code,
-          href: "/api/reports/#{self.code}/comments/#{conversation.code}.pdf",
-          disabled: false,
-          role: 'coordinator',
-      }
-      agenda_details[:links][:coordinator][ link_code ] = link
-      agenda_details[:links][:reporter][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "coordinator"
-
-
-    end
-
+        disabled: false,
+        role: 'reporter',
+    }
+    agenda_details[:links][:reporter][ link_code ] = link
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "reporter"
 
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )

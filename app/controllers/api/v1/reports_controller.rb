@@ -1,7 +1,9 @@
+require 'RMagick'
 module Api
   module V1
-
     class ReportsController < Api::BaseController
+      include Magick
+
       skip_authorization_check :only => [:upload_report, :destroy, :show, :show_comments, :criteria_stats, :results_graph, :show_key_themes]
 
       def upload_report
@@ -39,24 +41,51 @@ module Api
           end
         end
 
-        respond_to do |format|
-          format.html {render template: 'reports/show-comments', layout: 'pdf-report'}
-          format.pdf do
-            render  pdf:"show-comments.pdf",
-                    template: 'reports/show-comments.html.haml',
-                    layout: 'pdf-report',
-                    disposition: 'attachment',
-                    wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
-                    show_as_html: params[:debug].present?,
-                    dpi: 300,
-                    page_size: 'A4',
-                    margin: { top: 0,
-                              bottom: 0,
-                              left:0,
-                              right: 0
-                            }
-          end
+        # or from your controller, using views & templates and all wicked_pdf options as normal
+        pdf_save_name = "#{@conversation.munged_title}-suggestions.pdf"
+        pdf = render_to_string pdf:"#{pdf_save_name}",
+                               template: 'reports/show-comments.html.haml',
+                               layout: 'pdf-report',
+                               disposition: 'attachment',
+                               wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
+                               show_as_html: params[:debug].present?,
+                               dpi: 300,
+                               page_size: 'letter',
+                               margin: { top: 0,
+                                         bottom: 0,
+                                         left:0,
+                                         right: 0
+                               }
+
+        files = []
+        pdf_save_path = "./public/#{pdf_save_name}"
+        File.open(pdf_save_path, 'wb') do |file|
+          file << pdf
         end
+        files.push( pdf_save_name )
+
+        begin
+          cmd = "identify #{pdf_save_path}"
+          num_pages = `#{cmd}`.split(/\n/).size
+
+          Rails.logger.debug "Create num_pages: #{num_pages} jpgs from this pdf: #{pdf_save_path}"
+
+          (0...num_pages).each do |page_num|
+            jpg_save_name = pdf_save_name.sub(/pdf$/,"#{page_num}.jpg")
+            jpg_save_path = "./public/#{jpg_save_name}"
+            Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
+            #pdf[page_num].write(jpg_save_path)
+            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
+            Rails.logger.debug "cmd: #{cmd}"
+            `#{cmd}`
+            files.push( jpg_save_name )
+          end
+        rescue Exception => e
+          Rails.logger.warn "^^^^^^^ XXXXXX  show_comments convert pdf to jpg error: #{e}"
+        end
+
+        render json: files
+
       end
 
 
@@ -67,29 +96,55 @@ module Api
            "coordinator_user_id" => Agenda.find_by(code: params[:agenda_code]).details['coordinator_user_id']} )
         @conversation = Conversation.find_by(code: params[:conversation_code] )
 
-        respond_to do |format|
-          format.html {render template: 'reports/show-comments', layout: 'pdf-report'}
-          format.pdf do
-            render  pdf:"show-comments.pdf",
-                    template: 'reports/show-key-themes.html.haml',
-                    layout: 'pdf-report',
-                    disposition: 'attachment',
-                    wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
-                    show_as_html: params[:debug].present?,
-                    dpi: 300,
-                    page_size: 'A4',
-                    margin: { top: 0,
-                              bottom: 0,
-                              left:0,
-                              right: 0
-                    }
-          end
+        pdf_save_name = "#{@conversation.munged_title}-key-themes.pdf"
+
+        pdf = render_to_string  pdf:"#{pdf_save_name}",
+                                template: 'reports/show-key-themes.html.haml',
+                                layout: 'pdf-report',
+                                disposition: 'attachment',
+                                wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
+                                show_as_html: params[:debug].present?,
+                                dpi: 300,
+                                page_size: 'A4',
+                                margin: { top: 0,
+                                          bottom: 0,
+                                          left:0,
+                                          right: 0
+                                }
+        files = []
+        pdf_save_path = "./public/#{pdf_save_name}"
+        File.open(pdf_save_path, 'wb') do |file|
+          file << pdf
         end
+        files.push( pdf_save_name )
+
+        begin
+          cmd = "identify #{pdf_save_path}"
+          num_pages = `#{cmd}`.split(/\n/).size
+
+          Rails.logger.debug "Create num_pages: #{num_pages} jpgs from this pdf: #{pdf_save_path}"
+
+          (0...num_pages).each do |page_num|
+            jpg_save_name = pdf_save_name.sub(/pdf$/,"#{page_num}.jpg")
+            jpg_save_path = "./public/#{jpg_save_name}"
+            Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
+            #pdf[page_num].write(jpg_save_path)
+            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
+            Rails.logger.debug "cmd: #{cmd}"
+            `#{cmd}`
+            files.push( jpg_save_name )
+          end
+        rescue Exception => e
+          Rails.logger.warn "^^^^^^^ XXXXXX  key_themes convert pdf to jpg error: #{e}"
+        end
+        render json: files
       end
 
 
       def results_graph
         Rails.logger.debug "results_graph agenda_code: #{params[:agenda_code]}, conversation_code: #{params[:conversation_code]}"
+
+        @conversation = Conversation.find_by(code: params[:conversation_code] )
 
         results = ConversationRecommendation.data_recommendation_results({'conversation_code'=> params[:conversation_code] })
         @title = results[:title]
@@ -110,24 +165,49 @@ module Api
           @sums[ group - 1 ] += value
         end
 
-        respond_to do |format|
-          format.html {render template: 'reports/show-results', layout: 'pdf-report'}
-          format.pdf do
-            render :pdf => "show-results.pdf",
-                   template: 'reports/show-results.html.haml',
-                   layout: 'pdf-report',
-                   disposition: 'attachment',
-                   wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
-                   show_as_html: params[:debug].present?,
-                   dpi: 300,
-                   page_size: 'A4',
-                    margin: { top: 0,
-                              bottom: 0,
-                              left:0,
-                              right: 0
-                            }
-          end
+        pdf_save_name = "#{@conversation.munged_title}-results-graph.pdf"
+        pdf = render_to_string  pdf:"#{pdf_save_name}",
+                                template: 'reports/show-results.html.haml',
+                                layout: 'pdf-report',
+                                disposition: 'attachment',
+                                wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
+                                show_as_html: params[:debug].present?,
+                                dpi: 300,
+                                page_size: 'A4',
+                                margin: { top: 0,
+                                          bottom: 0,
+                                          left:0,
+                                          right: 0
+                                }
+
+        files = []
+        pdf_save_path = "./public/#{pdf_save_name}"
+        File.open(pdf_save_path, 'wb') do |file|
+          file << pdf
         end
+        files.push( pdf_save_name )
+
+        begin
+          cmd = "identify #{pdf_save_path}"
+          num_pages = `#{cmd}`.split(/\n/).size
+
+          Rails.logger.debug "Create num_pages: #{num_pages} jpgs from this pdf: #{pdf_save_path}"
+
+          (0...num_pages).each do |page_num|
+            jpg_save_name = pdf_save_name.sub(/pdf$/,"#{page_num}.jpg")
+            jpg_save_path = "./public/#{jpg_save_name}"
+            Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
+            #pdf[page_num].write(jpg_save_path)
+            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
+            Rails.logger.debug "cmd: #{cmd}"
+            `#{cmd}`
+            files.push( jpg_save_name )
+          end
+        rescue Exception => e
+          Rails.logger.warn "^^^^^^^ XXXXXX  show_comments convert pdf to jpg error: #{e}"
+        end
+
+        render json: files
       end
 
       def criteria_stats
