@@ -17,8 +17,8 @@
         %th Table
         %th(ng-repeat="option in option_votes") {{option.text}}
         %th Total
-        %th Members
-        %th Check
+        -#%th Members
+        -#%th Check
 
 
       %tr(ng-repeat="table_num in tables")
@@ -28,8 +28,8 @@
         %td {{ table_votes["g" + table_num + "-r3"] || 0 }}
         %td {{ table_votes["g" + table_num + "-r4"] || 0 }}
         %td {{ sums[$index] }}
-        %td {{ table_size[$index] }}
-        %td(ng-switch="comp($index)")
+        -#%td {{ table_size[$index] }}
+        -#%td(ng-switch="comp($index)")
           %i.red.fa.fa-warning(ng-switch-when="1")
           %i.green.fa.fa-check(ng-switch-when="0")
           %i.red.fa.fa-question(ng-switch-when="-1")

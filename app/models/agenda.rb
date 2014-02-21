@@ -1251,6 +1251,19 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:coordinator][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "reporter"
 
+    # link for Reason/criteria stats
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: "Reason/criteria stats",
+        href: "/api/reports/#{agenda_details[:code]}/criteria_stats",
+        disabled: false,
+        role: 'reporter',
+    }
+    agenda_details[:links][:reporter][ link_code ] = link
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "reporter"
+
+
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -1502,7 +1515,7 @@ class Agenda < ActiveRecord::Base
     self.details['conversation_ids'].flatten.each do |conversation_id|
       conversation = Conversation.find(conversation_id)
       reason_stats = {}
-      if conversation.details
+      if conversation.details && conversation.details['TableComment']
         conversation.details['TableComment']['reason_types'].each_pair do |key, value|
           reason_stats[key] = 0
         end

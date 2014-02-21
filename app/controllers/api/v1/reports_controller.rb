@@ -1,8 +1,6 @@
-require 'RMagick'
 module Api
   module V1
     class ReportsController < Api::BaseController
-      include Magick
 
       skip_authorization_check :only => [:upload_report, :destroy, :show, :show_comments, :criteria_stats, :results_graph, :show_key_themes]
 
