@@ -1,6 +1,10 @@
 .live-allocate-results.recommendation_votes
 
-  %h3 Service: #{@title}
+  - headers = @conversation.details['report_headers'] ||[ @conversation.title ]
+  - headers.each do |header|
+    - if header == "Suggestions"
+      - header = "Recommendations (votes chart)"
+    %h3.delib-title= header
 
   %table.graph{border: 0, width: '100%'}
     - @vote_options.each do |option|
