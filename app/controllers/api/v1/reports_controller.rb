@@ -40,14 +40,14 @@ module Api
         end
 
         # or from your controller, using views & templates and all wicked_pdf options as normal
-        pdf_save_name = "#{@conversation.munged_title}-suggestions.pdf"
+        pdf_save_name = "#{@conversation.munged_title.gsub('&','')}-suggestions.pdf"
         pdf = render_to_string pdf:"#{pdf_save_name}",
                                template: 'reports/show-comments.html.haml',
                                layout: 'pdf-report',
                                disposition: 'attachment',
                                wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
                                show_as_html: params[:debug].present?,
-                               dpi: 300,
+                               dpi: 144,
                                page_size: 'letter',
                                margin: { top: 0,
                                          bottom: 0,
@@ -73,7 +73,7 @@ module Api
             jpg_save_path = "./public/#{jpg_save_name}"
             Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
             #pdf[page_num].write(jpg_save_path)
-            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
+            cmd = "convert #{pdf_save_path}[#{page_num}] -density 144 -quality 96 -trim #{jpg_save_path}"
             Rails.logger.debug "cmd: #{cmd}"
             `#{cmd}`
             files.push( jpg_save_name )
@@ -94,7 +94,7 @@ module Api
            "coordinator_user_id" => Agenda.find_by(code: params[:agenda_code]).details['coordinator_user_id']} )
         @conversation = Conversation.find_by(code: params[:conversation_code] )
 
-        pdf_save_name = "#{@conversation.munged_title}-key-themes.pdf"
+        pdf_save_name = "#{@conversation.munged_title.gsub('&','')}-key-themes.pdf"
 
         pdf = render_to_string  pdf:"#{pdf_save_name}",
                                 template: 'reports/show-key-themes.html.haml',
@@ -102,7 +102,7 @@ module Api
                                 disposition: 'attachment',
                                 wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
                                 show_as_html: params[:debug].present?,
-                                dpi: 300,
+                                dpi: 144,
                                 page_size: 'A4',
                                 margin: { top: 0,
                                           bottom: 0,
@@ -127,7 +127,7 @@ module Api
             jpg_save_path = "./public/#{jpg_save_name}"
             Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
             #pdf[page_num].write(jpg_save_path)
-            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
+            cmd = "convert #{pdf_save_path}[#{page_num}] -density 144 -quality 96 -trim #{jpg_save_path}"
             Rails.logger.debug "cmd: #{cmd}"
             `#{cmd}`
             files.push( jpg_save_name )
@@ -163,14 +163,14 @@ module Api
           @sums[ group - 1 ] += value
         end
 
-        pdf_save_name = "#{@conversation.munged_title}-results-graph.pdf"
+        pdf_save_name = "#{@conversation.munged_title.gsub('&','')}-results-graph.pdf"
         pdf = render_to_string  pdf:"#{pdf_save_name}",
                                 template: 'reports/show-results.html.haml',
                                 layout: 'pdf-report',
                                 disposition: 'attachment',
                                 wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
                                 show_as_html: params[:debug].present?,
-                                dpi: 300,
+                                dpi: 144,
                                 page_size: 'A4',
                                 margin: { top: 0,
                                           bottom: 0,
@@ -196,7 +196,7 @@ module Api
             jpg_save_path = "./public/#{jpg_save_name}"
             Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
             #pdf[page_num].write(jpg_save_path)
-            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
+            cmd = "convert #{pdf_save_path}[#{page_num}] -density 144 -quality 96 -trim #{jpg_save_path}"
             Rails.logger.debug "cmd: #{cmd}"
             `#{cmd}`
             files.push( jpg_save_name )
