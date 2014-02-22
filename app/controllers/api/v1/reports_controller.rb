@@ -47,7 +47,7 @@ module Api
                                disposition: 'attachment',
                                wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
                                show_as_html: params[:debug].present?,
-                               dpi: 144,
+                               dpi: 300,
                                page_size: 'letter',
                                margin: { top: 0,
                                          bottom: 0,
@@ -73,7 +73,7 @@ module Api
             jpg_save_path = "./public/#{jpg_save_name}"
             Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
             #pdf[page_num].write(jpg_save_path)
-            cmd = "convert #{pdf_save_path}[#{page_num}] -density 144 -quality 96 -trim #{jpg_save_path}"
+            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
             Rails.logger.debug "cmd: #{cmd}"
             `#{cmd}`
             files.push( jpg_save_name )
@@ -102,7 +102,7 @@ module Api
                                 disposition: 'attachment',
                                 wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
                                 show_as_html: params[:debug].present?,
-                                dpi: 144,
+                                dpi: 300,
                                 page_size: 'A4',
                                 margin: { top: 0,
                                           bottom: 0,
@@ -127,7 +127,7 @@ module Api
             jpg_save_path = "./public/#{jpg_save_name}"
             Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
             #pdf[page_num].write(jpg_save_path)
-            cmd = "convert #{pdf_save_path}[#{page_num}] -density 144 -quality 96 -trim #{jpg_save_path}"
+            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
             Rails.logger.debug "cmd: #{cmd}"
             `#{cmd}`
             files.push( jpg_save_name )
@@ -170,7 +170,7 @@ module Api
                                 disposition: 'attachment',
                                 wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
                                 show_as_html: params[:debug].present?,
-                                dpi: 144,
+                                dpi: 300,
                                 page_size: 'A4',
                                 margin: { top: 0,
                                           bottom: 0,
@@ -196,7 +196,7 @@ module Api
             jpg_save_path = "./public/#{jpg_save_name}"
             Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
             #pdf[page_num].write(jpg_save_path)
-            cmd = "convert #{pdf_save_path}[#{page_num}] -density 144 -quality 96 -trim #{jpg_save_path}"
+            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
             Rails.logger.debug "cmd: #{cmd}"
             `#{cmd}`
             files.push( jpg_save_name )
