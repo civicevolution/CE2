@@ -66,7 +66,8 @@ class ThemeSmallGroupTheme < AgendaComponent
       comment_json[:parent_theme_ids] = comment.parent_targets.map(&:parent_id)
       comment_json[:pro_votes] = comment.pro_con_vote.try{|v| v.pro_votes} || 0
       comment_json[:con_votes] = comment.pro_con_vote.try{|v| v.con_votes} || 0
-      comment_json[:editable_by_user] = (defined?(current_user).nil? || current_user.nil?) ? false : comment.editable_by_user?(current_user)
+      #comment_json[:editable_by_user] = (defined?(current_user).nil? || current_user.nil?) ? false : comment.editable_by_user?(current_user)
+      comment_json[:editable_by_user] = true
       comment_json[:text] = comment.text
       comment_json[:elements] = comment.elements
       comment_json[:version] = comment.version
