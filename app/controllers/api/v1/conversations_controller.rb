@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      skip_authorization_check only: [:group_data]
+      skip_authorization_check only: [:group_data, :parked_comments]
       #def default_serializer_options
       #  {
       #      root: false
@@ -160,7 +160,7 @@ module Api
 
       def parked_comments
         conversation = Conversation.find_by(code: params[:id])
-        authorize! :edit_theme_comment, conversation
+        #authorize! :edit_theme_comment, conversation
         respond_with conversation.parked_comments
       end
 

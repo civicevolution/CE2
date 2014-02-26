@@ -442,7 +442,7 @@ class Agenda < ActiveRecord::Base
         comment_thread.parent_id = comment_details[details["parent_id"] ][:new_id] unless !comment_details[details["parent_id"] ]
         #Rails.logger.debug "get votes for details['id']: #{details['id']}, votes[ details['id']]: #{votes[ details['id']]}"
         #puts comment_thread.inspect
-        comment_thread.save
+        comment_thread.save unless comment_thread.parent_id.nil?
       end
 
       # add_roles to the conversations for AUTH
