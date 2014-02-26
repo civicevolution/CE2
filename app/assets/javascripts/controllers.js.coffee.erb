@@ -803,7 +803,7 @@ small_group_deliberation_theme_controller = [ "$scope", "theming_data", "Realtim
 
     $scope.conversation = theming_data
     $scope.$root.timestamp = theming_data.current_timestamp
-    $scope.conversation.show_purpose = if $scope.conversation.details?.TableComment?.purpose_options then true else false
+    $scope.conversation.show_comment_type = if $scope.conversation.details?.comment_types then true else false
     $scope.purpose_filter = null
 
     $scope.name = 'ceConversationTheme'
@@ -1324,8 +1324,8 @@ conversation_group_controller = [ "$scope", "small_group_deliberation_data", "Re
     $scope.conversation = small_group_deliberation_data
     $scope.conversations = small_group_deliberation_data.conversations_list
     $scope.$root.timestamp = small_group_deliberation_data.current_timestamp
-    $scope.add_button_label = $scope.conversation.details?.TableComment?.add_button_label || 'Add a new comment'
-    $scope.conversation.show_purpose = if $scope.conversation.details?.TableComment?.purpose_options then true else false
+    $scope.add_button_label = $scope.conversation.details?.add_button_label || 'Add a new comment'
+    $scope.conversation.show_comment_type = if $scope.conversation.details?.comment_types then true else false
 
     $scope.name = 'ceConversationGroup'
 

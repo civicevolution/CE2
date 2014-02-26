@@ -1515,8 +1515,8 @@ class Agenda < ActiveRecord::Base
     self.details['conversation_ids'].flatten.each do |conversation_id|
       conversation = Conversation.find(conversation_id)
       reason_stats = {}
-      if conversation.details && conversation.details['TableComment']
-        conversation.details['TableComment']['reason_types'].each_pair do |key, value|
+      if conversation.details
+        conversation.details['reason_types'].each_pair do |key, value|
           reason_stats[key] = 0
         end
         totals = reason_stats.clone if totals.nil?

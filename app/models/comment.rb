@@ -89,7 +89,7 @@ class Comment < ActiveRecord::Base
       end
     end
     conversation = self.conversation
-    if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element'] && self.elements
+    if conversation.details && conversation.details['use_element'] && self.elements
       self.text = generate_text_from_element(conversation.details, self.elements)
     end
 
@@ -112,7 +112,7 @@ class Comment < ActiveRecord::Base
             strs.push( "**_Reasons_**\n\n" )
             value.each do |reason|
               #puts "reason: #{reason}"
-              strs.push( "* **_#{details['TableComment']['reason_types'][ reason['type'] ]}:_** #{reason[ 'text']}\n" )
+              strs.push( "* **_#{details['reason_types'][ reason['type'] ]}:_** #{reason[ 'text']}\n" )
             end
           else
             strs.push( "**_No reasons given_**\n\n" )

@@ -432,7 +432,7 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
     #scope.newComment.type = attrs.type
     scope.disable_monitor = true if typeof attrs.noMonitor isnt 'undefined'
 
-    if scope.conversation.details?.TableComment?.use_element == true
+    if scope.conversation.details?.use_element == true
       scope.disable_formatting = true
       scope.$root.initialize_markdown_system( {disable_editor: true} )
     else if typeof attrs.noFormat is 'undefined'
@@ -725,17 +725,17 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
           when 'new-table-comment'
             $scope.newComment.type = 'TableComment'
             $scope.newComment.reply_control_title =
-              $scope.conversation.details?.TableComment?.reply_control_title ||
+              $scope.conversation.details?.reply_control_title ||
               "Enter a new comment"
-            $scope.newComment.purpose_options =
-              $scope.conversation.details?.TableComment?.purpose_options ||
+            $scope.newComment.comment_types =
+              $scope.conversation.details?.comment_types ||
               null
             $scope.newComment.purpose =
-              if $scope.newComment.purpose_options
+              if $scope.newComment.comment_types
                 ""
               else
                 "table"
-            if $scope.conversation.details?.TableComment?.reason_types
+            if $scope.conversation.details?.reason_types
               $scope.newComment.reasons = [{type: '', text: ''}]
             #$scope.newComment.reasons = [{type: 'benefit-vs-cost', text: 'The benefit outweighs the cost'}]
             #$scope.newComment.purpose = ''
@@ -768,17 +768,17 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             $scope.newComment.type = 'ThemeComment'
             #$scope.newComment.reply_control_title = "Add new theme comment"
             $scope.newComment.reply_control_title =
-              $scope.conversation.details?.TableComment?.reply_control_title ||
+              $scope.conversation.details?.reply_control_title ||
               "Add new theme comment"
-            $scope.newComment.purpose_options =
-              $scope.conversation.details?.TableComment?.purpose_options ||
+            $scope.newComment.comment_types =
+              $scope.conversation.details?.comment_types ||
               null
             $scope.newComment.purpose =
-              if $scope.newComment.purpose_options
+              if $scope.newComment.comment_types
                 ""
               else
                 "table"
-            if $scope.conversation.details?.TableComment?.reason_types
+            if $scope.conversation.details?.reason_types
               $scope.newComment.reasons = [{type: '', text: ''}]
 
           when 'theme-comment-edit'
@@ -788,17 +788,17 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             $scope.newComment.reply_control_title = "Edit theme"
             # add elements bit
             #$scope.newComment.reply_control_title =
-            #  $scope.conversation.details?.TableComment?.reply_control_title ||
+            #  $scope.conversation.details?.reply_control_title ||
             #  "Add new theme comment"
-            $scope.newComment.purpose_options =
-              $scope.conversation.details?.TableComment?.purpose_options ||
+            $scope.newComment.comment_types =
+              $scope.conversation.details?.comment_types ||
               null
             $scope.newComment.purpose =
-              if $scope.newComment.purpose_options
+              if $scope.newComment.comment_types
                 ""
               else
                 "theme"
-            if $scope.conversation.details?.TableComment?.reason_types
+            if $scope.conversation.details?.reason_types
               $scope.newComment.reasons = []
 
             if comment.elements?.reasons
@@ -818,21 +818,21 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
             comment = data.comment
             $scope.newComment = {id: comment.id, text: comment.text, type: comment.type, purpose: comment.purpose, tag_name: comment.tag_name, pro_votes: comment.pro_votes, con_votes: comment.con_votes}
             $scope.newComment.reply_control_title =
-              $scope.conversation.details?.TableComment?.edit_reply_control_title ||
+              $scope.conversation.details?.edit_reply_control_title ||
               "Edit Comment"
-            $scope.newComment.purpose_options =
-              $scope.conversation.details?.TableComment?.purpose_options ||
+            $scope.newComment.comment_types =
+              $scope.conversation.details?.comment_types ||
               null
             # add elements bit
             #$scope.newComment.reply_control_title =
-            #  $scope.conversation.details?.TableComment?.reply_control_title ||
+            #  $scope.conversation.details?.reply_control_title ||
             #  "Add new theme comment"
             $scope.newComment.purpose =
-              if $scope.newComment.purpose_options
+              if $scope.newComment.comment_types
                 ""
               else
                 "table"
-            if $scope.conversation.details?.TableComment?.reason_types
+            if $scope.conversation.details?.reason_types
               $scope.newComment.reasons = []
 
             if comment.elements?.reasons
@@ -883,15 +883,15 @@ ce2_directives.directive('ceCommentForm', [ "$timeout", ($timeout) ->
 
 
             #  "Add new theme comment"
-            $scope.newComment.purpose_options =
-              $scope.conversation.details?.TableComment?.purpose_options ||
+            $scope.newComment.comment_types =
+              $scope.conversation.details?.comment_types ||
               null
             $scope.newComment.purpose =
-              if $scope.newComment.purpose_options
+              if $scope.newComment.comment_types
                 ""
               else
                 "theme"
-            if $scope.conversation.details?.TableComment?.reason_types
+            if $scope.conversation.details?.reason_types
               $scope.newComment.reasons = []
 
             if comment.elements?.reasons

@@ -73,7 +73,7 @@ module Api
               params[:comment][:version] = 0
             end
 
-            if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element']
+            if conversation.details && conversation.details['use_element']
               params[:comment][:elements] = {
                   recommendation_type: params[:purpose],
                   suggestion: params[:comment][:text],
@@ -101,7 +101,7 @@ module Api
 
             # I should have all the data in place
 
-            if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element']
+            if conversation.details && conversation.details['use_element']
               params[:comment][:elements] = {
                   recommendation_type: params[:purpose],
                   suggestion: params[:comment][:text],
@@ -129,7 +129,7 @@ module Api
         params[:comment][:published] = published
         params[:comment][:status] = status
 
-        if conversation.details && conversation.details['TableComment'] && conversation.details['TableComment']['use_element']
+        if conversation.details && conversation.details['use_element']
           params[:comment][:elements] = {
               recommendation_type: params[:purpose],
               suggestion: params[:comment][:text],
