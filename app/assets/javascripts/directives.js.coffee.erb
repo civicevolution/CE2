@@ -2643,3 +2643,48 @@ ce2_directives.directive('ngFocus', ->
       scope.$apply(attrs.ngFocus)
     )
 )
+
+ce2_directives.directive('btnSwitch', ->
+  restrict: 'A',
+  require:  'ngModel',
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "misc/switcher.html" %>#{prefix}"
+  replace: true,
+  link: (scope, element, attrs, ngModel) ->
+    # Specify how UI should be updated
+    ngModel.$render = ->
+      render()
+
+    onchange_func = attrs.onchange
+
+    render = ->
+      val = ngModel.$viewValue
+
+      open = angular.element(element.children()[0])
+      open.removeClass( if val then 'hide' else 'show')
+      open.addClass( if val then 'show' else 'hide')
+
+      closed = angular.element(element.children()[1])
+      closed.removeClass( if val then 'show' else 'hide')
+      closed.addClass(if val then 'hide' else 'show')
+
+    # Listen for the button click event to enable binding
+    element.bind('click', ->
+      scope.$apply(toggle)
+      scope[onchange_func]()
+    )
+
+    # Toggle the model value
+    toggle = ->
+      val = ngModel.$viewValue
+      ngModel.$setViewValue(!val)
+      render();
+
+    if(!ngModel)
+      #TODO: Indicate that something is missing!
+      return
+
+    # Initial render
+    render()
+)

@@ -114,6 +114,18 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       })
 
+      .state( 'agenda-admin',
+        url: "/agenda-admin"
+        templateUrl: '<%= path_to_asset "admin/agenda.html" %>'
+        resolve:
+          agendas: ["AgendaData", (AgendaData) ->
+            AgendaData.list_agendas().then(
+              (response)->
+                response.data
+            )
+          ]
+        controller: agenda_admin_controller
+      )
       .state( 'agenda',
         url: "/agenda/{code}/{munged_title}"
         #template: '<div ng-include="agenda_template_url"></div>'
@@ -146,7 +158,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_controller
       )
 
-    .state( 'small-group-deliberation',
+      .state( 'small-group-deliberation',
         url: "/cmp/{component_code}/sgd/{conversation_code}/{munged_title}"
         templateUrl: '<%= path_to_asset "live/group.html" %>'
         resolve:
@@ -157,7 +169,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_group_controller
       )
 
-    .state( 'small-group-deliberation-agenda',
+      .state( 'small-group-deliberation-agenda',
         url: "/agenda/{agenda_code}-{link_code}/sgd/{munged_title}"
         templateUrl: '<%= path_to_asset "live/group.html" %>'
         resolve:
@@ -167,7 +179,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: conversation_group_controller
       )
 
-    .state( 'theme-small-group-deliberation',
+      .state( 'theme-small-group-deliberation',
         url: "/cmp/{component_code}/sgd_theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
@@ -198,7 +210,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: small_group_deliberation_theme_controller
       )
 
-    .state( 'coordinator-theme-agenda',
+      .state( 'coordinator-theme-agenda',
         url: "/agenda/{agenda_code}-{link_code}/coord-theme/{munged_title}"
         templateUrl: '<%= path_to_asset "live/theme.html" %>'
         resolve:
@@ -290,7 +302,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: live_allocate_controller
       )
 
-    .state( 'allocate-to-themes-agenda',
+      .state( 'allocate-to-themes-agenda',
         url: "/agenda/{agenda_code}-{link_code}/allocate/{munged_title}"
         templateUrl: '<%= path_to_asset "live/allocate.html" %>'
         resolve:
@@ -359,7 +371,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
-    .state( 'select-themes',
+      .state( 'select-themes',
         url: "/cmp/{component_code}/select/{munged_title}"
         templateUrl: '<%= path_to_asset "live/select.html" %>'
         resolve:
@@ -369,7 +381,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         controller: live_select_controller
       )
 
-    .state( 'select-themes-agenda',
+      .state( 'select-themes-agenda',
         url: "/agenda/{agenda_code}-{link_code}/select/{munged_title}"
         templateUrl: '<%= path_to_asset "live/select.html" %>'
         resolve:
@@ -2434,3 +2446,85 @@ ce2_app.controller('AlertCtrl', ['$scope',
     $scope.closeAlert = (index) ->
       $scope.alerts.splice(index, 1);
 ] )
+
+agenda_admin_controller = ["$scope", "agendas", "AgendaData", "$dialog",
+  ($scope, agendas, AgendaData, $dialog) ->
+    $scope.agendas = agendas
+    $scope.admin= {}
+    $scope.agenda = null
+    $scope.create_agenda = () ->
+      console.log "create_agenda"
+    $scope.edit_agenda = () ->
+      if $scope.select_agenda
+        console.log "edit_agenda: #{$scope.select_agenda.title}"
+        AgendaData.get_agenda_admin_details($scope.select_agenda.code).then (response) ->
+          agenda_data = response.data
+          $scope.agenda =
+            title: agenda_data.title
+            description: agenda_data.description
+            url: "#{document.location.origin}/#/agenda/#{agenda_data.code}/#{agenda_data.munged_title}"
+            test_mode: agenda_data.test_mode
+            list: agenda_data.list
+            code: agenda_data.code
+      else
+        $dialog.messageBoxOk('Warning','You must select an agenda from the drop down list')
+
+
+    $scope.update_test = ->
+      console.log "update_test"
+      AgendaData.update_details($scope.agenda.code, 'test_mode', $scope.agenda.test_mode)
+
+    $scope.update_list = ->
+      console.log "update_list"
+      AgendaData.update_details($scope.agenda.code, 'list', $scope.agenda.list)
+
+    $scope.refresh_agenda = ->
+      console.log "refresh_agenda"
+      btn = angular.element(event.currentTarget)
+      btn.addClass('busy')
+      AgendaData.refresh_agenda($scope.agenda.code).then(
+        (response)->
+          btn.removeClass('busy')
+      )
+
+    $scope.reset_agenda = ->
+      console.log "reset_agenda"
+      btn = angular.element(event.currentTarget)
+      btn.addClass('busy')
+      msg = "Are you sure you want to RESET this agenda?"
+      btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
+      cb = (result) ->
+        if result is "yes"
+          AgendaData.reset_agenda($scope.agenda.code).then(
+            (response)->
+              btn.removeClass('busy')
+              btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+              cb = (result) ->
+                document.location.reload()
+              $dialog.messageBox("Agenda has been reset - all data has been cleared", response.data.ack, btns, cb)
+          )
+        else
+          btn.removeClass('busy')
+      $dialog.messageBox("Confirm", msg, btns, cb)
+
+    $scope.delete_agenda = ->
+      console.log "delete_agenda"
+      btn = angular.element(event.currentTarget)
+      btn.addClass('busy')
+      msg = "Are you sure you want to DELETE this agenda?"
+      btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
+      cb = (result) ->
+        if result is "yes"
+          AgendaData.delete_agenda($scope.agenda.code).then(
+            (response)->
+              btn.removeClass('busy')
+              btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+              cb = (result) ->
+                document.location.reload()
+              $dialog.messageBox("Agenda deleted", response.data.ack, btns, cb)
+          )
+        else
+          btn.removeClass('busy')
+      $dialog.messageBox("Confirm", msg, btns, cb)
+
+]

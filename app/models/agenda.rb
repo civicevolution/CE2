@@ -784,7 +784,7 @@ class Agenda < ActiveRecord::Base
 
   def self.agendas
     #Agenda.where(list: true).select('code, title')
-    Agenda.where(list: true).order(:id).map{|a| {code: a.code, title: a.title, munged_title: a.munged_title } }
+    Agenda.all.order(:id).map{|a| {code: a.code, title: a.title, munged_title: a.munged_title, list: a.list } }
   end
 
   def data_set( current_user, link_code )
@@ -1539,6 +1539,33 @@ class Agenda < ActiveRecord::Base
       end
     end
     return totals, conversation_stats
+  end
+
+  def agenda_admin_details
+    agenda_details = self.details
+    menu_data = []
+
+    details = {
+        title: self.title,
+        munged_title: self.munged_title,
+        description: self.description,
+        test_mode: self.test_mode,
+        list: self.list,
+        code: self.code
+    }
+  end
+
+  def update_details(key,value)
+
+    case key
+      when 'test_mode'
+        self.update_attribute(:test_mode, value)
+      when 'list'
+        self.update_attribute(:list, value)
+      else
+        Rails.logger.debug "Save to agenda details"
+    end
+    { key: key, value: value}
   end
 
 end

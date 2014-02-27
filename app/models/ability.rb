@@ -19,6 +19,9 @@ class Ability
   @@conversation_actions_by_role[:themer] = %i( edit_table_comment edit_theme_comment assign_comment_theme post_prescreen history update_comment_order destroy_theme_comment hide).concat @@conversation_actions_by_role[:scribe]
   @@conversation_actions_by_role[:coordinator] = %i( publish_themes).concat @@conversation_actions_by_role[:themer]
 
+  @@agenda_actions_by_role = {}
+  @@agenda_actions_by_role[:admin] = %i( agenda_admin_details export_agenda delete_agenda refresh_agenda reset_agenda )
+
 
   def initialize(user)
     user ||= User.new # guest user (not logged in)
@@ -33,6 +36,20 @@ class Ability
 
         role = Role.joins(:users).find_by(users: {id: user.id}, resource_type: subject_class, resource_id: subject.id).try{|r| r.name}
         auth = true if role && @@conversation_actions_by_role[ role.to_sym ].include?( action )
+      end
+
+      if [Agenda].include? subject.class
+        # get all the roles I have for this class/instance and see if it has the action
+        instance_roles = Role.joins(:users).where(users: {id: user.id}, resource_type: subject_class, resource_id: subject.id).pluck(:name)
+        class_roles = Role.joins(:users).where(users: {id: user.id}, resource_type: subject_class, resource_id: nil).pluck(:name)
+
+        roles = instance_roles.concat(class_roles).uniq
+        roles.each do |role|
+          if @@agenda_actions_by_role[ role.to_sym ].try{|actions| actions.include?( action )}
+            auth = true
+            break
+          end
+        end
       end
       auth
     end

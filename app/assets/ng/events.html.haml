@@ -2,7 +2,7 @@
   %h3 Current in-person events
 
 
-  %h4(ng-repeat="event in events")
+  %h4(ng-repeat="event in events | filter:{list: true}")
     %a{href: "/#/agenda/{{event.code}}/{{event.munged_title}}"}
       {{event.title}}
 

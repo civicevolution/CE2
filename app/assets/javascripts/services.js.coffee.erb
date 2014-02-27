@@ -578,6 +578,25 @@ services.factory "AgendaData", ["$http",
 
     build_reports: (agenda_code, conversation_code, report_type) ->
       $http.get("/api/reports/#{agenda_code}/#{report_type}/#{conversation_code}.json")
+
+    list_agendas: ->
+      $http.get("/api/agendas.json")
+
+    get_agenda_admin_details: (agenda_code) ->
+      $http.get("/api/agendas/#{agenda_code}/agenda_admin_details.json")
+
+    update_details: (agenda_code, key, value) ->
+      $http.post("/api/agendas/#{agenda_code}/update_details.json", {key: key, value: value})
+
+    reset_agenda: (agenda_code) ->
+      $http.post("/api/agendas/#{agenda_code}/reset_agenda.json")
+
+    refresh_agenda: (agenda_code) ->
+      $http.post("/api/agendas/#{agenda_code}/refresh_agenda.json")
+
+    delete_agenda: (agenda_code) ->
+      $http.delete("/api/agendas/#{agenda_code}/delete_agenda.json")
+
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->
@@ -752,6 +771,10 @@ services.factory '$dialog', ['$rootScope', '$modal',
         dialog.result.then(callback)
       dialog.values = modalOptions
       dialog
+    messageBoxOk: (title, message) ->
+      btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
+      this.messageBox(title, message, btns)
+
 ]
 
 services.run(["$templateCache", ($templateCache) ->

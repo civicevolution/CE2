@@ -44,14 +44,14 @@ module Api
       end
 
       def export
-        #authorize! :export, Agenda
         agenda = Agenda.find_by(code: params[:id])
+        authorize! :export_agenda, agenda
         begin
           filename = "agenda-export-#{agenda.munged_title}.yaml"
           file = Tempfile.new(filename, 'tmp')
           # file.unlink   # removes the filesystem entry without closing the file
           agenda.export_to_file(file)
-          send_file file.path, :filename => filename, :type => "x-yaml"
+          send_file file.path, :filename => filename, :type => "text/yaml", disposition: 'attachment'
         ensure
           file.close
         end
@@ -76,11 +76,11 @@ module Api
         render text: "Import complete, code: #{code} for #{filename}"
       end
 
-      def reset
-        authorize! :reset, Agenda
+      def reset_agenda
         agenda = Agenda.find_by(code: params[:id])
+        authorize! :reset_agenda, agenda
         agenda.reset
-        render text: "Agenda \"#{agenda.title}\" has been reset"
+        render json: {Acknowledge: "Agenda \"#{agenda.title}\" has been reset"}
       end
 
       def agendas
@@ -110,6 +110,33 @@ module Api
         #authorize! :reports, agenda
         render json: agenda.report_data_sets
       end
+
+      def agenda_admin_details
+        agenda = Agenda.find_by(code: params[:id])
+        authorize! :agenda_admin_details, agenda
+        render json: agenda.agenda_admin_details
+      end
+
+      def update_details
+        agenda = Agenda.find_by(code: params[:id])
+        authorize! :agenda_admin_details, agenda
+        render json: agenda.update_details(params[:key], params[:value])
+      end
+
+      def refresh_agenda
+        agenda = Agenda.find_by(code: params[:id])
+        authorize! :refresh_agenda, agenda
+        agenda.refresh_agenda_details_links_and_data_sets
+        render json: {ack: "Agenda \"#{agenda.title}\" has been refreshed"}
+      end
+
+      def delete_agenda
+        agenda = Agenda.find_by(code: params[:id])
+        authorize! :delete_agenda, agenda
+        agenda.delete_agenda
+        render json: {ack: "Agenda \"#{agenda.title}\" has been deleted", action: 'reload'}
+      end
+
 
     end
   end

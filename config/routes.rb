@@ -188,11 +188,15 @@ Ce2::Application.routes.draw do
         get 'participant_report', on: :member
         get 'export', on: :member
         get 'import', on: :member
-        post 'reset', on: :member
+        post 'reset_agenda', on: :member
         get 'participant_report_data', on: :member
         get 'conversations', on: :member
         get 'reports', on: :member
         get 'report_data_sets', on: :member
+        get 'agenda_admin_details', on: :member
+        post 'update_details', on: :member
+        post 'refresh_agenda', on: :member
+        delete 'delete_agenda', on: :member
       end
       get 'agendas/:id/link/:link_code/data_set(.:format)', to: 'agendas#data_set'
     end
