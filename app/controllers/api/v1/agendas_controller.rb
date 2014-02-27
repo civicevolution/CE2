@@ -137,6 +137,10 @@ module Api
         render json: {ack: "Agenda \"#{agenda.title}\" has been deleted", action: 'reload'}
       end
 
+      def create
+        authorize! :create_agenda, Agenda
+        render json: Agenda.create_agenda(params[:title])
+      end
 
     end
   end

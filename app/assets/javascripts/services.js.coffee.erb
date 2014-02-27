@@ -597,6 +597,9 @@ services.factory "AgendaData", ["$http",
     delete_agenda: (agenda_code) ->
       $http.delete("/api/agendas/#{agenda_code}/delete_agenda.json")
 
+    create_new_agenda: (title) ->
+      $http.post("/api/agendas.json", {title: title})
+
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->

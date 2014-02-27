@@ -1568,4 +1568,15 @@ class Agenda < ActiveRecord::Base
     { key: key, value: value}
   end
 
+  def self.create_agenda(title)
+    agenda = Agenda.create title: title
+
+    coordinator = agenda.create_user('coordinator', 1)
+    coordinator.add_role :coordinator, agenda
+    AgendaRole.where(agenda_id: agenda.id, name: 'coordinator', identifier: 1, access_code: 'coord').first_or_create
+
+    {code: agenda.code, title: agenda.title, munged_title: agenda.munged_title, list: agenda.list }
+  end
+
+
 end

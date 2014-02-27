@@ -5,9 +5,9 @@
     %tr
       %td Create a new agenda
       %td
-        %input.title(ng-model="new_agenda"){placeholder: 'Enter title for new agenda'}
+        %input.title(ng-model="new_agenda.title"){placeholder: 'Enter title for new agenda (min 10 characters)'}
       %td
-        %button.btn-primary.btn(ng-click="create_agenda()"){type: 'submit'}
+        %button.btn-primary.btn(ng-click="create_agenda()" ng-disabled="!new_agenda.title || new_agenda.title.length<10"){type: 'button'}
           %span.def-msg Create a new agenda
           %span.busy-msg
             Building

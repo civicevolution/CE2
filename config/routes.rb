@@ -180,7 +180,7 @@ Ce2::Application.routes.draw do
 
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-      resources :agendas, only: [ ] do
+      resources :agendas, only: [:create ] do
         get 'agenda', on: :member
         get 'agenda_for_component', on: :member
         post 'accept_role', on: :member

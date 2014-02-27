@@ -2451,9 +2451,17 @@ agenda_admin_controller = ["$scope", "agendas", "AgendaData", "$dialog",
   ($scope, agendas, AgendaData, $dialog) ->
     $scope.agendas = agendas
     $scope.admin= {}
+    $scope.new_agenda = {title: null}
     $scope.agenda = null
     $scope.create_agenda = () ->
-      console.log "create_agenda"
+      console.log "create_agenda with title: #{$scope.new_agenda.title}"
+      AgendaData.create_new_agenda($scope.new_agenda.title).then(
+        (response)->
+          # add the new agenda to the select set and activate it
+          $scope.agendas.push(response.data)
+          $scope.select_agenda = response.data
+          $scope.edit_agenda()
+      )
     $scope.edit_agenda = () ->
       if $scope.select_agenda
         console.log "edit_agenda: #{$scope.select_agenda.title}"

@@ -20,7 +20,7 @@ class Ability
   @@conversation_actions_by_role[:coordinator] = %i( publish_themes).concat @@conversation_actions_by_role[:themer]
 
   @@agenda_actions_by_role = {}
-  @@agenda_actions_by_role[:admin] = %i( agenda_admin_details export_agenda delete_agenda refresh_agenda reset_agenda )
+  @@agenda_actions_by_role[:admin] = %i( agenda_admin_details export_agenda delete_agenda refresh_agenda reset_agenda create_agenda)
 
 
   def initialize(user)
@@ -38,9 +38,14 @@ class Ability
         auth = true if role && @@conversation_actions_by_role[ role.to_sym ].include?( action )
       end
 
-      if [Agenda].include? subject.class
+      if [Agenda].include?(subject.class) || [Agenda].include?(subject_class)
         # get all the roles I have for this class/instance and see if it has the action
-        instance_roles = Role.joins(:users).where(users: {id: user.id}, resource_type: subject_class, resource_id: subject.id).pluck(:name)
+        instance_roles = if subject.nil?
+                          []
+                        else
+                          Role.joins(:users).where(users: {id: user.id}, resource_type: subject_class, resource_id: subject.id).pluck(:name)
+                        end
+
         class_roles = Role.joins(:users).where(users: {id: user.id}, resource_type: subject_class, resource_id: nil).pluck(:name)
 
         roles = instance_roles.concat(class_roles).uniq
