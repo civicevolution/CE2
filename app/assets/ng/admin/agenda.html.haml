@@ -25,61 +25,94 @@
             Building
             %i.fa.fa-spinner.fa-spin
 
+  %div(ng-if="agenda")
+    %h3 Agenda details and actions
+    %table(border="1")
+      %tr
+        %td Title
+        %td
+          %p(click-to-edit="agenda.title" code="agenda.code" inp-type="'text'" func="update_agenda_title(code, str)") {{agenda.title}}
+      %tr
+        %td Description
+        %td
+          %p(click-to-edit="agenda.description" code="agenda.code" inp-type="'textarea'" func="update_agenda_description(code, str)") {{agenda.description}}
 
-  %table(ng-if="agenda" border="1")
-    %tr
-      %td Title
-      %td {{agenda.title}}
-    %tr
-      %td Description
-      %td {{agenda.description}}
+      %tr
+        %td URL
+        %td
+          %a(href="{{agenda.url}}" target="_blank") {{agenda.url}}
 
-    %tr
-      %td URL
-      %td
-        %a(href="{{agenda.url}}" target="_blank") {{agenda.url}}
+      %tr
+        %td Test mode
+        %td
+          <div btn-switch ng-model="agenda.test_mode" onchange="update_test"></div>
+      %tr
+        %td List publicly
+        %td
+          <div btn-switch ng-model="agenda.list" onchange="update_list"></div>
+      %tr
+        %td
+          Actions
+        %td
+          %a(href="/api/agendas/{{agenda.code}}/export.yaml")
+            %button.btn-primary.btn.btn-sm{type: 'button'}
+              %span.def-msg Export
+              %span.busy-msg
+                Exporting
+                %i.fa.fa-spinner.fa-spin
 
-    %tr
-      %td Test mode
-      %td
-        <div btn-switch ng-model="agenda.test_mode" onchange="update_test"></div>
-    %tr
-      %td List publicly
-      %td
-        <div btn-switch ng-model="agenda.list" onchange="update_list"></div>
-    %tr
-      %td
-        Actions
-      %td
-        %a(href="/api/agendas/{{agenda.code}}/export.yaml")
-          %button.btn-primary.btn.btn-sm{type: 'button'}
-            %span.def-msg Export
+          %button.btn-primary.btn.btn-sm(ng-click="refresh_agenda()"){type: 'submit'}
+            %span.def-msg Refresh menus
             %span.busy-msg
-              Exporting
+              Refreshing
+              %i.fa.fa-spinner.fa-spin
+      %tr
+        %td.warn
+          Destructive action!
+        %td
+          %button.btn-primary.btn.btn-sm(ng-click="reset_agenda()" ng-disabled="agenda.test_mode==false"){type: 'submit'}
+            %span.def-msg Reset agenda
+            %span.busy-msg
+              Resetting
+              %i.fa.fa-spinner.fa-spin
+          %span(ng-if="agenda.test_mode==false") Agenda cannot be reset unless agenda is in test mode
+      %tr
+        %td.warn
+          Destructive action!
+        %td
+          %button.btn-primary.btn.btn-sm(ng-click="delete_agenda()" ng-disabled="agenda.test_mode==false"){type: 'submit'}
+            %span.def-msg Delete agenda
+            %span.busy-msg
+              Deleting
+              %i.fa.fa-spinner.fa-spin
+          %span(ng-if="agenda.test_mode==false") Agenda cannot be deleted unless agenda is in test mode
+
+    %h3 Agenda's deliberations
+    %table(border="1")
+      %tr(ng-repeat="conversation in agenda.conversations")
+        %td(colspan="2")
+          %p(click-to-edit="conversation.title" code="conversation.code" inp-type="'text'" func="update_conversation_title(code, str)") {{conversation.title}}
+
+        %td
+      %tr
+        %td Add a new conversation
+        %td
+          %input.title(ng-model="new_conversation.title"){placeholder: 'Enter title for new conversation (min 10 characters)'}
+        %td
+          %button.btn-primary.btn(ng-click="add_conversation()" ng-disabled="!new_conversation.title || new_conversation.title.length<10"){type: 'button'}
+            %span.def-msg Add conversation
+            %span.busy-msg
+              Adding
               %i.fa.fa-spinner.fa-spin
 
-        %button.btn-primary.btn.btn-sm(ng-click="refresh_agenda()"){type: 'submit'}
-          %span.def-msg Refresh menus
-          %span.busy-msg
-            Refreshing
-            %i.fa.fa-spinner.fa-spin
-    %tr
-      %td.warn
-        Destructive action!
-      %td
-        %button.btn-primary.btn.btn-sm(ng-click="reset_agenda()" ng-disabled="agenda.test_mode==false"){type: 'submit'}
-          %span.def-msg Reset agenda
-          %span.busy-msg
-            Resetting
-            %i.fa.fa-spinner.fa-spin
-        %span(ng-if="agenda.test_mode==false") Agenda cannot be reset unless agenda is in test mode
-    %tr
-      %td.warn
-        Destructive action!
-      %td
-        %button.btn-primary.btn.btn-sm(ng-click="delete_agenda()" ng-disabled="agenda.test_mode==false"){type: 'submit'}
-          %span.def-msg Delete agenda
-          %span.busy-msg
-            Deleting
-            %i.fa.fa-spinner.fa-spin
-        %span(ng-if="agenda.test_mode==false") Agenda cannot be deleted unless agenda is in test mode
+    %h3 Agenda MCA
+    %table(border="1")
+      %tr
+        %td Title
+        %td {{agenda.title}}
+
+    %h3 Agenda participants
+    %table(border="1")
+      %tr
+        %td Title
+        %td {{agenda.title}}

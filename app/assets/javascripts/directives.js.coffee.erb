@@ -2688,3 +2688,33 @@ ce2_directives.directive('btnSwitch', ->
     # Initial render
     render()
 )
+
+
+ce2_directives.directive("clickToEdit", ->
+  restrict: "A"
+  replace: true
+  templateUrl: (tElement, tAttrs) ->
+    prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+    "<%= path_to_asset "misc/edit-in-place.html" %>#{prefix}"
+  scope:
+    value: "=clickToEdit"
+    code: '='
+    save_func: '&func'
+    inp_type: "=inpType"
+  controller: [ "$scope", ($scope) ->
+    $scope.view =
+      editableValue: $scope.value
+      editorEnabled: false
+
+    $scope.enableEditor = ->
+      $scope.view.editorEnabled = true
+      $scope.view.editableValue = $scope.value
+
+    $scope.disableEditor = ->
+      $scope.view.editorEnabled = false
+
+    $scope.save = ->
+      $scope.value = $scope.save_func({code: $scope.code, str: $scope.view.editableValue})
+      $scope.disableEditor()
+  ]
+)

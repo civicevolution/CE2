@@ -177,6 +177,12 @@ module Api
         respond_with themes
       end
 
+      def update_conversation
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :update_conversation, conversation.agenda
+        render json: conversation.update_conversation(params[:data])
+      end
+
     end
   end
 end

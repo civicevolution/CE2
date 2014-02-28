@@ -142,6 +142,18 @@ module Api
         render json: Agenda.create_agenda(params[:title])
       end
 
+      def add_conversation
+        agenda = Agenda.find_by(code: params[:id])
+        authorize! :add_conversation, agenda
+        render json: agenda.add_conversation(params[:title])
+      end
+
+      def update_agenda
+        agenda = Agenda.find_by(code: params[:id])
+        authorize! :update_agenda, agenda
+        render json: agenda.update_agenda(params[:data])
+      end
+
     end
   end
 end

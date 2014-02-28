@@ -600,6 +600,15 @@ services.factory "AgendaData", ["$http",
     create_new_agenda: (title) ->
       $http.post("/api/agendas.json", {title: title})
 
+    add_conversation: (agenda_code, title) ->
+      $http.post("/api/agendas/#{agenda_code}/add_conversation.json", {title: title})
+
+    update_agenda: (agenda_code, data) ->
+      $http.post("/api/agendas/#{agenda_code}/update_agenda.json", {data: data})
+
+    update_conversation: (conversation_code, data) ->
+      $http.post("/api/conversations/#{conversation_code}/update_conversation.json", {data: data})
+
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->

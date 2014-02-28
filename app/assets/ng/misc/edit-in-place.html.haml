@@ -1,0 +1,10 @@
+.click-to-edit
+  %div(ng-hide="view.editorEnabled")
+    {{value}}
+    %a(ng-click="enableEditor()") Edit
+  %div(ng-show="view.editorEnabled")
+    %input.title(ng-if="inp_type=='text'" ng-model="view.editableValue")
+    %textarea.edit(ng-if="inp_type=='textarea'" ng-model="view.editableValue")
+    %a(ng-click="save()") Save
+    or
+    %a(ng-click="disableEditor()") cancel

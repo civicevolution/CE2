@@ -4,8 +4,10 @@ class Conversation < ActiveRecord::Base
     ConversationSerializer
   end
 
-  attr_accessible :user_id, :status, :starts_at, :privacy
+  attr_accessible :user_id, :status, :starts_at, :privacy, :agenda_id
   attr_accessor :display_mode, :final_themes, :session_id
+
+  belongs_to :agenda
 
   has_one :title_comment #, -> { includes author: :profile   }
   has_one :call_to_action_comment, -> { includes author: :profile   }
@@ -322,6 +324,19 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
 
     "updated conversation.details[#{key.to_sym}] = #{value}\n"
     Conversation.display_details(id)
+  end
+
+  def update_conversation(data)
+    #Rails.logger.debug "update_conversation with #{pp data}"
+    case
+      when data.has_key?(:title)
+        title_comment = self.title_comment
+        title_comment.post_process_disabled = true
+        title_comment.update_attribute(:text, data[:title])
+        {title: data[:title]}
+      else
+        {error: 'no update'}
+    end
   end
 
 end

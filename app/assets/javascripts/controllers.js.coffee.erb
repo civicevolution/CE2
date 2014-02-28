@@ -114,7 +114,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       })
 
-      .state( 'agenda-admin',
+    .state( 'agenda-admin',
         url: "/agenda-admin"
         templateUrl: '<%= path_to_asset "admin/agenda.html" %>'
         resolve:
@@ -123,6 +123,27 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               (response)->
                 response.data
             )
+          ]
+          agenda: ["$q", ($q) ->
+            defer = $q.defer()
+            defer.resolve(null)
+            defer.promise
+          ]
+        controller: agenda_admin_controller
+      )
+    .state( 'agenda-admin-code',
+        url: "/agenda-admin/{code}/{munged_title}"
+        templateUrl: '<%= path_to_asset "admin/agenda.html" %>'
+        resolve:
+          agendas: ["AgendaData", (AgendaData) ->
+            AgendaData.list_agendas().then(
+              (response)->
+                response.data
+            )
+          ]
+          agenda: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
+            AgendaData.get_agenda_admin_details($stateParams.code).then (response) ->
+              response.data
           ]
         controller: agenda_admin_controller
       )
@@ -2447,14 +2468,16 @@ ce2_app.controller('AlertCtrl', ['$scope',
       $scope.alerts.splice(index, 1);
 ] )
 
-agenda_admin_controller = ["$scope", "agendas", "AgendaData", "$dialog",
-  ($scope, agendas, AgendaData, $dialog) ->
+agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog", "$location",
+  ($scope, agendas, agenda, AgendaData, $dialog, $location) ->
+    agenda.url = "#{document.location.origin}/#/agenda/#{agenda.code}/#{agenda.munged_title}"
     $scope.agendas = agendas
     $scope.admin= {}
     $scope.new_agenda = {title: null}
-    $scope.agenda = null
+    $scope.agenda = agenda
+    $scope.new_conversation = {title: null}
     $scope.create_agenda = () ->
-      console.log "create_agenda with title: #{$scope.new_agenda.title}"
+      #console.log "create_agenda with title: #{$scope.new_agenda.title}"
       AgendaData.create_new_agenda($scope.new_agenda.title).then(
         (response)->
           # add the new agenda to the select set and activate it
@@ -2464,16 +2487,8 @@ agenda_admin_controller = ["$scope", "agendas", "AgendaData", "$dialog",
       )
     $scope.edit_agenda = () ->
       if $scope.select_agenda
-        console.log "edit_agenda: #{$scope.select_agenda.title}"
-        AgendaData.get_agenda_admin_details($scope.select_agenda.code).then (response) ->
-          agenda_data = response.data
-          $scope.agenda =
-            title: agenda_data.title
-            description: agenda_data.description
-            url: "#{document.location.origin}/#/agenda/#{agenda_data.code}/#{agenda_data.munged_title}"
-            test_mode: agenda_data.test_mode
-            list: agenda_data.list
-            code: agenda_data.code
+        #console.log "edit_agenda: #{$scope.select_agenda.title}"
+        $location.url( "/agenda-admin/#{$scope.select_agenda.code}/#{$scope.select_agenda.munged_title}" )
       else
         $dialog.messageBoxOk('Warning','You must select an agenda from the drop down list')
 
@@ -2483,11 +2498,11 @@ agenda_admin_controller = ["$scope", "agendas", "AgendaData", "$dialog",
       AgendaData.update_details($scope.agenda.code, 'test_mode', $scope.agenda.test_mode)
 
     $scope.update_list = ->
-      console.log "update_list"
+      #console.log "update_list"
       AgendaData.update_details($scope.agenda.code, 'list', $scope.agenda.list)
 
     $scope.refresh_agenda = ->
-      console.log "refresh_agenda"
+      #console.log "refresh_agenda"
       btn = angular.element(event.currentTarget)
       btn.addClass('busy')
       AgendaData.refresh_agenda($scope.agenda.code).then(
@@ -2496,7 +2511,7 @@ agenda_admin_controller = ["$scope", "agendas", "AgendaData", "$dialog",
       )
 
     $scope.reset_agenda = ->
-      console.log "reset_agenda"
+      #console.log "reset_agenda"
       btn = angular.element(event.currentTarget)
       btn.addClass('busy')
       msg = "Are you sure you want to RESET this agenda?"
@@ -2516,7 +2531,7 @@ agenda_admin_controller = ["$scope", "agendas", "AgendaData", "$dialog",
       $dialog.messageBox("Confirm", msg, btns, cb)
 
     $scope.delete_agenda = ->
-      console.log "delete_agenda"
+      #console.log "delete_agenda"
       btn = angular.element(event.currentTarget)
       btn.addClass('busy')
       msg = "Are you sure you want to DELETE this agenda?"
@@ -2534,5 +2549,39 @@ agenda_admin_controller = ["$scope", "agendas", "AgendaData", "$dialog",
         else
           btn.removeClass('busy')
       $dialog.messageBox("Confirm", msg, btns, cb)
+
+
+    $scope.add_conversation = ->
+      #console.log "add_conversation, title: #{$scope.new_conversation.title}"
+      btn = angular.element(event.currentTarget)
+      btn.addClass('busy')
+      AgendaData.add_conversation($scope.agenda.code, $scope.new_conversation.title).then(
+        (response)->
+          btn.removeClass('busy')
+          $scope.agenda.conversations.push(response.data)
+          $scope.new_conversation.title =  ''
+      )
+
+    $scope.update_agenda_title = (code, title) ->
+      #console.log "update_agenda_title  agenda: #{code} with #{title}"
+      AgendaData.update_agenda(code, {title: title}).then(
+        (response)->
+          response.data.title
+      )
+
+    $scope.update_agenda_description = (code, description) ->
+      #console.log "update_agenda_description agenda: #{code} with #{description}"
+      AgendaData.update_agenda(code, {description: description}).then(
+        (response)->
+          response.data.description
+      )
+
+    $scope.update_conversation_title = (code, title) ->
+      #console.log "update_conversation_title conversation: #{code} with #{title}"
+      AgendaData.update_conversation(code, {title: title}).then(
+        (response)->
+          response.data.title
+      )
+
 
 ]

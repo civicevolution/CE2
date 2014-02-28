@@ -43,6 +43,7 @@ Ce2::Application.routes.draw do
         get 'parked_comments', on: :member
         get 'group_data', on: :member
         get 'themes', on: :member
+        post 'update_conversation', on: :member
         resources :comments, shallow: true
       end
     end
@@ -197,6 +198,8 @@ Ce2::Application.routes.draw do
         post 'update_details', on: :member
         post 'refresh_agenda', on: :member
         delete 'delete_agenda', on: :member
+        post 'add_conversation', on: :member
+        post 'update_agenda', on: :member
       end
       get 'agendas/:id/link/:link_code/data_set(.:format)', to: 'agendas#data_set'
     end

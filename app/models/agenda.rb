@@ -1544,6 +1544,14 @@ class Agenda < ActiveRecord::Base
   def agenda_admin_details
     agenda_details = self.details
     menu_data = []
+    conversations = Conversation.where(id: self.conversation_ids ).map do |con|
+      {
+        code: con.code,
+        title: con.title,
+        privacy: con.privacy,
+        details: con.details
+      }
+    end
 
     details = {
         title: self.title,
@@ -1551,7 +1559,8 @@ class Agenda < ActiveRecord::Base
         description: self.description,
         test_mode: self.test_mode,
         list: self.list,
-        code: self.code
+        code: self.code,
+        conversations: conversations
     }
   end
 
@@ -1578,5 +1587,48 @@ class Agenda < ActiveRecord::Base
     {code: agenda.code, title: agenda.title, munged_title: agenda.munged_title, list: agenda.list }
   end
 
+  def add_conversation(title)
+
+    coordinator = self.coordinator
+    # create the new conversation needed for this agenda
+    privacy = {"list"=>"true", "invite"=>"true", "screen"=>"true", "summary"=>"true", "comments"=>"true", "unknown_users"=>"true"}
+    conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now, privacy: privacy, agenda_id: self.id
+    title_comment = conversation.build_title_comment user_id: coordinator.id, text: title, order_id: 0
+    title_comment.post_process_disabled = true
+    title_comment.save
+
+    self.participants.each do |participant|
+      role = participant.email.match(/agenda-\d+-(\w+)-/)[1]
+      if role == 'group'
+        role = :scribe
+      else
+        role = role.to_sym
+      end
+      puts role
+      participant.add_role role, conversation
+    end
+
+    conversation_ids = (self.conversation_ids || [] ) << conversation.id
+    self.update_attribute(:conversation_ids, [] )
+    self.update_attribute(:conversation_ids, conversation_ids.flatten )
+
+    conv_json = conversation.attributes
+    conv_json[:title] = conversation.title
+    conv_json
+  end
+
+  def update_agenda(data)
+    case
+      when data.has_key?(:title)
+        self.update_attribute(:title, data[:title])
+        {title: data[:title]}
+      when data.has_key?(:description)
+        self.update_attribute(:description, data[:description])
+        {description: data[:description]}
+      else
+        Rails.logger.debug "update_agenda error with #{pp data}"
+        {error: 'no update'}
+    end
+  end
 
 end
