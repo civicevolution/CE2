@@ -845,13 +845,30 @@ body{
   td { padding: 4px 10px;}
   .title {width: 500px;}
   textarea.edit{width: 500px;}
-  .drag-handle{ float: left; margin-right: 12px; font-size: 1.5em;}
   .row.list{
     padding: 8px 0;
   }
-  .conversation-admin .ce-sortable-item-pair {
-    padding: 0;
-    margin: 0;
+  .conversation-admin{
+    .ce-sortable-item-pair {
+      padding: 0;
+      margin: 0;
+      &:hover{
+        div.ce-sort-handle{ display: inline-block; }
+      }
+    }
+    .conversations.row.list{
+      position: relative;
+    }
+    .ce-sort-handle{
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: move;
+      float: left;
+      margin-right: 12px;
+      font-size: 1.5em;
+      display: none;
+    }
   }
   .ce-sortable-item-carrier{ border: 1px solid red;}
 }

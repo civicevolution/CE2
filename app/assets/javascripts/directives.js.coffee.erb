@@ -2754,10 +2754,8 @@ ce2_directives.directive('ceSort', [ "$document", "$timeout",
         item_carrier.wrap('<div class="ce-sortable-item-pair"></div>')
         item_pair = item_carrier.parent()
 
-      #handle = angular.element('<div class="ce-sortable-handle"><i class="fa fa-sort fa-2x"></i></div>')
-      #elm.append(handle)
-
-      handle = angular.element(elm.find('i')[0])
+      handle = angular.element('<div class="ce-sort-handle"><i class="fa fa-sort"></i></div>')
+      elm.append(handle)
 
       item_placeholder = angular.element('<div class="ce-sortable-placeholder ce-sortable-item"></div>')
       item_carrier.after(item_placeholder)
@@ -2768,51 +2766,12 @@ ce2_directives.directive('ceSort', [ "$document", "$timeout",
       $timeout ->
         handle.bind('mousedown', mousedown)
 
-      #handle.bind('mousedown', ($event) ->
-      #  angular.element(document.body).addClass('drag_in_process')
-      #  dims = elm[0].getBoundingClientRect()
-      #  initElmX = dims.left
-      #  initElmY = dims.top + document.body.scrollTop
-      #  width = dims.width
-      #
-      #  elm.css
-      #    position: 'absolute'
-      #    top:  "#{initElmY}px"
-      #    width: "#{width}px"
-      #    #left: "#{initElmX}px"
-      #
-      #  console.log "initElmX: #{initElmX}, initElmY: #{initElmY}" if debug
-      #  initialMouseX = $event.clientX
-      #  initialMouseY = $event.clientY
-      #  #console.log "initialMouseX: #{initialMouseX}, initialMouseY: #{initialMouseY}" if debug
-      #
-      #  $document.bind('mousemove', mousemove_throttle)
-      #  $document.bind('mouseup', mouseup)
-      #  record_current_place_holders()
-      #
-      #  elm.next().css
-      #    display: 'block'
-      #    height: "#{placeholder.h}px"
-      #    width: "#{placeholder.w}px"
-      #
-      #  adjust_dragged($event)
-      #
-      #  false
-      #
-      #)
-
       mousedown = ($event) ->
         angular.element(document.body).addClass('drag_in_process')
         dims = elm[0].getBoundingClientRect()
         initElmX = dims.left
         initElmY = dims.top + document.body.scrollTop
         width = dims.width
-
-        elm.css
-          position: 'absolute'
-          top:  "#{initElmY}px"
-          width: "#{width}px"
-        #left: "#{initElmX}px"
 
         console.log "initElmX: #{initElmX}, initElmY: #{initElmY}" if debug
         initialMouseX = $event.clientX
@@ -2823,17 +2782,21 @@ ce2_directives.directive('ceSort', [ "$document", "$timeout",
         $document.bind('mouseup', mouseup)
         record_current_place_holders()
 
+        elm.css
+          position: 'absolute'
+          top:  "#{initElmY}px"
+          width: "#{width}px"
+        elm.next().css
+          display: 'block'
+          height: "#{placeholder.h}px"
+          width: "#{placeholder.w}px"
+
+
         #$timeout ->
         #  $document.unbind('mousemove', mousemove_throttle)
         #  $document.unbind('mouseup', mouseup)
         #  console.log "drag interrupted"
         #, 8000
-
-
-        elm.next().css
-          display: 'block'
-          height: "#{placeholder.h}px"
-          width: "#{placeholder.w}px"
 
         adjust_dragged($event)
 
@@ -2888,6 +2851,9 @@ ce2_directives.directive('ceSort', [ "$document", "$timeout",
         $document.unbind('mousemove', mousemove_throttle)
         $document.unbind('mouseup', mouseup)
         elm.next().css({display: 'none'})
+        $timeout ->
+          angular.element(document.body).removeClass('drag_in_process')
+        , 1000
 
 
       get_scope_collection_for_dom_items_and_model = ->
@@ -2961,12 +2927,24 @@ ce2_directives.directive('ceSort', [ "$document", "$timeout",
           y: initElmY + $event.clientY - initialMouseY
           eventY: $event.clientY
         #elm.css { left: "#{dragged.x}px" }
+
+        # Is the new position allowed? Don't drag out of bounds
+        parent_box = elm.parent().parent()[0].getBoundingClientRect()
+        elm_height = elm[0].getBoundingClientRect().height
+        if dragged.y < parent_box.top + document.body.scrollTop
+          dragged.y = parent_box.top + document.body.scrollTop
+        else if dragged.y > parent_box.bottom + document.body.scrollTop - elm_height
+          dragged.y = parent_box.bottom + document.body.scrollTop - elm_height
+
+
+
         elm.css { top: "#{dragged.y}px" }
 
         scope = elm.scope()
         scope.pos.eY = dragged.eventY
         scope.pos.dragY = dragged.y
-
+        scope.pos.par_top = parent_box.top
+        scope.pos.par_bottom = parent_box.bottom
         scope.pos.scrollTop = document.body.scrollTop
         scope.$$phase || scope.$apply()
 
