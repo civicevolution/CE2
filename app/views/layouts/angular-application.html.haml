@@ -23,9 +23,7 @@
           %div(ng-controller="AlertCtrl")
             %alert(ng-cloak ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)")
               %div(ng-bind-html="alert.msg" )
-          .row
-            .col-sm-12
-              %div(ui-view)
+          %div(ui-view)
           %footer(ng-controller="ActivityMonitorController")
       / ! end of .container
       %script(type="text/ng-template" id="/assets/live/menu/theme-allocation.html")

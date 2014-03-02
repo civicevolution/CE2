@@ -87,15 +87,66 @@
               %i.fa.fa-spinner.fa-spin
           %span(ng-if="agenda.test_mode==false") Agenda cannot be deleted unless agenda is in test mode
 
-    %h3 Agenda's deliberations
     %table(border="1")
-      %tr(ng-repeat="conversation in agenda.conversations")
+      %tr
+        %th id
+        %th x
+        %th y
+        %th w
+        %th h
+      %tr
+        %td upper
+        %td {{placeholder_upper.x}}
+        %td {{placeholder_upper.y}}
+        %td {{placeholder_upper.w}}
+        %td {{placeholder_upper.h}}
+      %tr
+        %td middle
+        %td {{placeholder.x}}
+        %td {{placeholder.y}}
+        %td {{placeholder.w}}
+        %td {{placeholder.h}}
+      %tr
+        %td lower
+        %td {{placeholder_lower.x}}
+        %td {{placeholder_lower.y}}
+        %td {{placeholder_lower.w}}
+        %td {{placeholder_lower.h}}
+
+    %p Positioning: scrollTop: {{pos.scrollTop}}, mouseY: {{pos.eY}}, initialMouseY: {{pos.iMY}}, initElemY: {{pos.iEY}}, dragged.y: {{pos.dragY}}. offsetY: {{pos.offsetY}}
+
+    %h3 Agenda's deliberations
+    .conversation-admin
+      .conversations
+        .row.list(ng-repeat="conversation in agenda.conversations" ce-sort)
+          .col-sm-9(id="{{conversation.code}}")
+            %i.fa.fa-sort.drag-handle
+            %p(click-to-edit="conversation.title" code="conversation.code" inp-type="'text'" func="update_conversation_title(code, str)") code:   {{conversation.code}} {{conversation.title}}
+          .col-sm-3
+            Controls
+    .row
+      .col-sm-2 Add a new conversation
+      .col-sm-7
+        %input.title(ng-model="new_conversation.title"){placeholder: 'Enter title for new conversation (min 10 characters)'}
+      .col-sm-3
+        %button.btn-primary.btn(ng-click="add_conversation()" ng-disabled="!new_conversation.title || new_conversation.title.length<10"){type: 'button'}
+          %span.def-msg Add conversation
+          %span.busy-msg
+            Adding
+            %i.fa.fa-spinner.fa-spin
+
+
+
+    -#%table(border="1")
+      %tr(ng-repeat="conversation in agenda.conversations" ce-sort)
+        %td
+          %i.fa.fa-sort.fa-2x
         %td(colspan="2")
           %p(click-to-edit="conversation.title" code="conversation.code" inp-type="'text'" func="update_conversation_title(code, str)") {{conversation.title}}
 
         %td
       %tr
-        %td Add a new conversation
+        %td(colspan="2") Add a new conversation
         %td
           %input.title(ng-model="new_conversation.title"){placeholder: 'Enter title for new conversation (min 10 characters)'}
         %td
