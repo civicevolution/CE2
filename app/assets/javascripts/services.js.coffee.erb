@@ -585,9 +585,6 @@ services.factory "AgendaData", ["$http",
     get_agenda_admin_details: (agenda_code) ->
       $http.get("/api/agendas/#{agenda_code}/agenda_admin_details.json")
 
-    update_details: (agenda_code, key, value) ->
-      $http.post("/api/agendas/#{agenda_code}/update_details.json", {key: key, value: value})
-
     reset_agenda: (agenda_code) ->
       $http.post("/api/agendas/#{agenda_code}/reset_agenda.json")
 

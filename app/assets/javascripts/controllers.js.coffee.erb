@@ -17,7 +17,7 @@ bootstrap_CE2()
 
 
 ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', 'CE2.filters',
-  'ui.bootstrap', 'ui.router', 'ngSanitize'] )
+  'ui.bootstrap', 'ui.router', 'ngSanitize', 'ngGrid'] )
 #  'ui.bootstrap', 'ui.router', 'ngGrid', 'ngSanitize'] )
 
 ce2_app.config ($httpProvider) ->
@@ -2500,11 +2500,11 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog
 
     $scope.update_test = ->
       console.log "update_test"
-      AgendaData.update_details($scope.agenda.code, 'test_mode', $scope.agenda.test_mode)
+      AgendaData.update_agenda($scope.agenda.code, {test_mode: $scope.agenda.test_mode})
 
     $scope.update_list = ->
       #console.log "update_list"
-      AgendaData.update_details($scope.agenda.code, 'list', $scope.agenda.list)
+      AgendaData.update_agenda($scope.agenda.code, {list: $scope.agenda.list})
 
     $scope.refresh_agenda = ->
       #console.log "refresh_agenda"
@@ -2590,6 +2590,10 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog
       
     $scope.update_conversations_order = (code, ids) ->
       console.log "update_conversations_order with code: #{code} and ids: #{ids}"
+      AgendaData.update_agenda(code, {conversation_ids: ids}).then(
+        (response)->
+          response.data.ids
+      )
 
 
 ]

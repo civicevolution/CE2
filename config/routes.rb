@@ -195,7 +195,6 @@ Ce2::Application.routes.draw do
         get 'reports', on: :member
         get 'report_data_sets', on: :member
         get 'agenda_admin_details', on: :member
-        post 'update_details', on: :member
         post 'refresh_agenda', on: :member
         delete 'delete_agenda', on: :member
         post 'add_conversation', on: :member

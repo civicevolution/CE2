@@ -42,48 +42,48 @@
   user-select: none;
 }
 
-/* Ref: http://damiannicholson.com/2011/07/25/css-experiment-iphone-like-checkbox-using-only-css3.html */
-body {
-  font-family: "Lucida Grande", Verdana, Arial, sans-serif, Helvetica;
-  margin:1em;
-}
-
-.checkbox {
-  display: block;
-  width: 94px;
-  height: 27px;
-  overflow: hidden;
-  border-radius: 3px;
-}
-
-
-input[type=checkbox] {
-  display: none;
-}
-
-input[type=checkbox] + label {
-  text-indent: -9999px;
-  display: block;
-  width: 150px;
-  height: 27px;
-  line-height: 27px;
-  background: transparent url(http://dl.dropbox.com/u/391082/sprite2.png) no-repeat -56px 0;
-}
-
-input[type=checkbox]:checked + label {
-  -webkit-transition: background-position 0.01s ease-in-out;
-  -moz-transition: background-position 0.01s ease-in-out;
-  background-position: -3px 0;
-}
-
-input[type=checkbox], input[type=checkbox] + label, input[type=checkbox]:checked + label  {
-  cursor:pointer;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: -moz-none;
-  -o-user-select: none;
-  user-select: none;
-}
+///* Ref: http://damiannicholson.com/2011/07/25/css-experiment-iphone-like-checkbox-using-only-css3.html */
+//body {
+//  font-family: "Lucida Grande", Verdana, Arial, sans-serif, Helvetica;
+//  margin:1em;
+//}
+//
+//.checkbox {
+//  display: block;
+//  width: 94px;
+//  height: 27px;
+//  overflow: hidden;
+//  border-radius: 3px;
+//}
+//
+//
+//input[type=checkbox] {
+//  display: none;
+//}
+//
+//input[type=checkbox] + label {
+//  text-indent: -9999px;
+//  display: block;
+//  width: 150px;
+//  height: 27px;
+//  line-height: 27px;
+//  background: transparent url(http://dl.dropbox.com/u/391082/sprite2.png) no-repeat -56px 0;
+//}
+//
+//input[type=checkbox]:checked + label {
+//  -webkit-transition: background-position 0.01s ease-in-out;
+//  -moz-transition: background-position 0.01s ease-in-out;
+//  background-position: -3px 0;
+//}
+//
+//input[type=checkbox], input[type=checkbox] + label, input[type=checkbox]:checked + label  {
+//  cursor:pointer;
+//  -webkit-user-select: none;
+//  -khtml-user-select: none;
+//  -moz-user-select: -moz-none;
+//  -o-user-select: none;
+//  user-select: none;
+//}
 
 .btn.btn-slider{
   display:inline-block;

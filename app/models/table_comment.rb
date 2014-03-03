@@ -20,7 +20,7 @@ class TableComment < Comment
 
   def tag_to_purpose_theme
     @old_purpose = self.purpose_was
-    coordinator_user_id = Agenda.find_by("conversation_ids @> ARRAY[?]", self.conversation_id).details['coordinator_user_id']
+    coordinator_user_id = self.conversation.agenda.details['coordinator_user_id']
     theme_com = ThemeComment.where(purpose: self.purpose, conversation_id: self.conversation_id, user_id: coordinator_user_id ).first_or_create do |theme|
       theme.text = "Auto-generated theme for tag: #{self.purpose}"
       theme.status = 'auto-tag-theme'

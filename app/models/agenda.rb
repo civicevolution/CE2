@@ -151,7 +151,7 @@ class Agenda < ActiveRecord::Base
     agenda_roles = self.agenda_roles
     file.write( {"AgendaRoles" => agenda_roles.map{|c| c.attributes}}.to_yaml )
 
-    conversations = Conversation.where(id: self.conversation_ids.flatten.uniq)
+    conversations = Conversation.where(agenda_id: self.id)
 
     file.write( {"Conversations" => conversations.map{|c| c.attributes}}.to_yaml )
 
@@ -307,7 +307,6 @@ class Agenda < ActiveRecord::Base
       # Do the AgendaComponents after I have the new conversation ids
 
       conversations_details = {}
-      conversation_ids = []
       docs["Conversations"].each do |details|
         conversations_details[details['id']] = details
         conversation = Conversation.new
@@ -320,10 +319,7 @@ class Agenda < ActiveRecord::Base
         conversation.save
         details[:new_id] = conversation.id
         details[:new_code] = conversation.code
-        conversation_ids.push( conversation.id )
       end
-
-      agenda.update_attribute(:conversation_ids, conversation_ids)
 
       agenda_details['details'][:coordinator_user_id] = agenda_default_user_id
 
@@ -446,7 +442,7 @@ class Agenda < ActiveRecord::Base
       end
 
       # add_roles to the conversations for AUTH
-      conversations = Conversation.where(id: conversation_ids)
+      conversations = Conversation.where(agenda_id: agenda.id)
       conversations.each do |conversation|
         agenda.participants.each do |participant|
           role = participant.email.match(/agenda-\d+-(\w+)-/)[1]
@@ -599,7 +595,7 @@ class Agenda < ActiveRecord::Base
     # CommentThreads comment.id
     #
 
-    conversation_ids = self.conversation_ids.flatten.uniq
+    conversation_ids = Conversation.where(agenda_id: self.id).pluck(:id)
     comments = Comment.where(type: ['TableComment','ThemeComment'], conversation_id: conversation_ids)
     comment_ids = comments.map(&:id)
     comments.destroy_all
@@ -618,7 +614,7 @@ class Agenda < ActiveRecord::Base
     raise "CivicEvolution::AgendaCannotBeDeleted in PROD" unless Rails.env.development?
     Rails.logger.debug "Delete this Agenda"
 
-    conversation_ids = self.conversation_ids.flatten.uniq
+    conversation_ids = Conversation.where(agenda_id: self.id).pluck(:id)
     comments = Comment.where(type: ['TableComment','ThemeComment'], conversation_id: conversation_ids)
     comment_ids = comments.map(&:id)
     comments.destroy_all
@@ -661,7 +657,6 @@ class Agenda < ActiveRecord::Base
 
 
     conversations.each{|conversation| coordinator.add_role :coordinator, conversation }
-    agenda.update_attribute(:conversation_ids, conversations.map(&:id) )
 
     reporter = agenda.create_user('reporter', 1)
     conversations.each{|conversation| reporter.add_role :reporter, conversation }
@@ -695,7 +690,7 @@ class Agenda < ActiveRecord::Base
     conversations = []
     titles.each_index do |index|
       privacy = {"list"=>"true", "invite"=>"true", "screen"=>"true", "summary"=>"true", "comments"=>"true", "unknown_users"=>"true"}
-      conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now + index.hours, privacy: privacy
+      conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now + index.hours, privacy: privacy, agenda_id: agenda.id
       title_comment = conversation.build_title_comment user_id: coordinator.id, text: titles[index], order_id: index
       title_comment.post_process_disabled = true
       title_comment.save
@@ -715,8 +710,6 @@ class Agenda < ActiveRecord::Base
       end
     end
 
-    conversation_ids = agenda.conversation_ids << conversations.map(&:id)
-    agenda.update_attribute(:conversation_ids, conversation_ids.flatten )
     agenda.refresh_agenda_details_links_and_data_sets
   end
 
@@ -1488,7 +1481,6 @@ class Agenda < ActiveRecord::Base
     puts "Agenda details:"
     puts "Title: #{agenda.title}"
     puts "code: #{agenda.code}"
-    puts "raw conversation_ids: #{agenda.conversation_ids}"
     details.each do |name|
       puts "#{name}: #{agenda.details[name]}"
     end
@@ -1542,18 +1534,35 @@ class Agenda < ActiveRecord::Base
   end
 
   def agenda_admin_details
-    agenda_details = self.details
-    menu_data = []
-    conversations = Conversation.where(id: self.conversation_ids ).map do |con|
-      {
-        id: con.id,
-        code: con.code,
-        title: con.title,
-        privacy: con.privacy,
-        details: con.details
-      }
+    conversations = Conversation.where(agenda_id:  self.id )
+    ordered_conversations = []
+    self.details['conversation_ids'].flatten.each do |con_id|
+      con = conversations.detect{|c| c.id == con_id}
+      if con
+        ordered_conversations.push(
+          {
+            id: con.id,
+            code: con.code,
+            title: con.title,
+            privacy: con.privacy,
+            details: con.details
+          }
+        )
+      end
     end
-
+      conversations.each do |con|
+      if !ordered_conversations.detect{|oc| oc[:id] == con.id}
+        ordered_conversations.push(
+          {
+              id: con.id,
+              code: con.code,
+              title: con.title,
+              privacy: con.privacy,
+              details: con.details
+          }
+        )
+      end
+    end
     details = {
         title: self.title,
         munged_title: self.munged_title,
@@ -1561,25 +1570,13 @@ class Agenda < ActiveRecord::Base
         test_mode: self.test_mode,
         list: self.list,
         code: self.code,
-        conversations: conversations
+        conversations: ordered_conversations
     }
-  end
-
-  def update_details(key,value)
-
-    case key
-      when 'test_mode'
-        self.update_attribute(:test_mode, value)
-      when 'list'
-        self.update_attribute(:list, value)
-      else
-        Rails.logger.debug "Save to agenda details"
-    end
-    { key: key, value: value}
   end
 
   def self.create_agenda(title)
     agenda = Agenda.create title: title
+    agenda.update_attribute(:details, {})
 
     coordinator = agenda.create_user('coordinator', 1)
     coordinator.add_role :coordinator, agenda
@@ -1609,27 +1606,29 @@ class Agenda < ActiveRecord::Base
       participant.add_role role, conversation
     end
 
-    conversation_ids = (self.conversation_ids || [] ) << conversation.id
-    self.update_attribute(:conversation_ids, [] )
-    self.update_attribute(:conversation_ids, conversation_ids.flatten )
-
     conv_json = conversation.attributes
     conv_json[:title] = conversation.title
     conv_json
   end
 
   def update_agenda(data)
-    case
-      when data.has_key?(:title)
-        self.update_attribute(:title, data[:title])
-        {title: data[:title]}
-      when data.has_key?(:description)
-        self.update_attribute(:description, data[:description])
-        {description: data[:description]}
+    updates = []
+    agenda_details = nil
+    data.each_pair do |key, value|
+      if self.attributes.has_key? key.to_s
+        self.update_attribute(key, value)
+        updates.push({key: key, value: value})
       else
-        Rails.logger.debug "update_agenda error with #{pp data}"
-        {error: 'no update'}
+        agenda_details ||= self.details.symbolize_keys
+        agenda_details[key.to_sym] = value
+        updates.push({key: key, value: value})
+      end
     end
+    if agenda_details
+      self.update_attribute(:details, {})
+      self.update_attribute(:details, agenda_details)
+    end
+    updates
   end
 
 end

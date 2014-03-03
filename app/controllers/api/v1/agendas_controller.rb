@@ -117,12 +117,6 @@ module Api
         render json: agenda.agenda_admin_details
       end
 
-      def update_details
-        agenda = Agenda.find_by(code: params[:id])
-        authorize! :agenda_admin_details, agenda
-        render json: agenda.update_details(params[:key], params[:value])
-      end
-
       def refresh_agenda
         agenda = Agenda.find_by(code: params[:id])
         authorize! :refresh_agenda, agenda

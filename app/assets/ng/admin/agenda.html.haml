@@ -120,9 +120,9 @@
       .conversations
         .row.list(ng-repeat="conversation in agenda.conversations" ce-sort func="update_conversations_order(code, ids)" code="agenda.code"){id: "{{conversation.id}}"}
           .col-sm-9{id: "{{conversation.id}}"}
-            %p(click-to-edit="conversation.title" code="conversation.code" inp-type="'text'" func="update_conversation_title(code, str)") {{conversation.title}}
+            %p(click-to-edit="conversation.title" code="conversation.code" inp-type="'text'" func="update_conversation_title(code, str)")
           .col-sm-3
-            Controls
+            Controls {{conversation.id}}
     .row
       .col-sm-2 Add a new conversation
       .col-sm-7

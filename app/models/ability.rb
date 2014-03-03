@@ -20,7 +20,7 @@ class Ability
   @@conversation_actions_by_role[:coordinator] = %i( publish_themes).concat @@conversation_actions_by_role[:themer]
 
   @@agenda_actions_by_role = {}
-  @@agenda_actions_by_role[:admin] = %i( agenda_admin_details export_agenda delete_agenda refresh_agenda reset_agenda create_agenda add_conversation update_agenda update_conversation)
+  @@agenda_actions_by_role[:admin] = %i( agenda_admin_details export_agenda delete_agenda refresh_agenda reset_agenda create_agenda add_conversation update_agenda update_conversation )
 
 
   def initialize(user)
