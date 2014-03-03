@@ -17,7 +17,8 @@ bootstrap_CE2()
 
 
 ce2_app = angular.module("CE2", ["ngResource","CE2.services", 'CE2.directives', 'CE2.filters',
-  'ui.bootstrap', 'ui.router', 'ngGrid', 'ngSanitize'] )
+  'ui.bootstrap', 'ui.router', 'ngSanitize'] )
+#  'ui.bootstrap', 'ui.router', 'ngGrid', 'ngSanitize'] )
 
 ce2_app.config ($httpProvider) ->
 	$httpProvider.defaults.headers.common["X-CSRF-TOKEN"] =
@@ -2473,6 +2474,10 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog
     agenda.url = "#{document.location.origin}/#/agenda/#{agenda.code}/#{agenda.munged_title}"
     $scope.agendas = agendas
     $scope.admin= {}
+    $scope.placeholder= {x: 0, y: 0, w: 0, h: 0}
+    $scope.placeholder_lower= {x: 0, y: 0, w: 0, h: 0}
+    $scope.placeholder_upper= {x: 0, y: 0, w: 0, h: 0}
+    $scope.pos = {sY: 0, iMY: 0, mY: 0, dragY: 0}
     $scope.new_agenda = {title: null}
     $scope.agenda = agenda
     $scope.new_conversation = {title: null}
@@ -2582,6 +2587,9 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog
         (response)->
           response.data.title
       )
+      
+    $scope.update_conversations_order = (code, ids) ->
+      console.log "update_conversations_order with code: #{code} and ids: #{ids}"
 
 
 ]

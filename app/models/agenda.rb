@@ -1546,6 +1546,7 @@ class Agenda < ActiveRecord::Base
     menu_data = []
     conversations = Conversation.where(id: self.conversation_ids ).map do |con|
       {
+        id: con.id,
         code: con.code,
         title: con.title,
         privacy: con.privacy,
