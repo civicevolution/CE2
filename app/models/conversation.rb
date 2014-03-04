@@ -327,16 +327,27 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
   end
 
   def update_conversation(data)
-    #Rails.logger.debug "update_conversation with #{pp data}"
-    case
-      when data.has_key?(:title)
+    updates = []
+    details = nil
+    data.each_pair do |key, value|
+      if key.to_s == 'title'
         title_comment = self.title_comment
         title_comment.post_process_disabled = true
-        title_comment.update_attribute(:text, data[:title])
-        {title: data[:title]}
+        title_comment.update_attribute(:text, value)
+      elsif self.attributes.has_key? key.to_s
+        self.update_attribute(key, value)
+        updates.push({key: key, value: value})
       else
-        {error: 'no update'}
+        details ||= self.details.try{|details| details.symbolize_keys} || {}
+        details[key.to_sym] = value
+        updates.push({key: key, value: value})
+      end
     end
+    if details
+      self.update_attribute(:details, {})
+      self.update_attribute(:details, details)
+    end
+    updates
   end
 
 end

@@ -31,11 +31,11 @@
       %tr
         %td Title
         %td
-          %p(click-to-edit="agenda.title" code="agenda.code" inp-type="'text'" func="update_agenda_title(code, str)") {{agenda.title}}
+          %p(click-to-edit="agenda.title" code="agenda.code" inp-type="'text'" key="'title'" func="update_agenda(code, key, value)")
       %tr
         %td Description
         %td
-          %p(click-to-edit="agenda.description" code="agenda.code" inp-type="'textarea'" func="update_agenda_description(code, str)") {{agenda.description}}
+          %p(click-to-edit="agenda.description" code="agenda.code" inp-type="'textarea'" key="'description'" func="update_agenda(code, key, value)")
 
       %tr
         %td URL
@@ -45,11 +45,11 @@
       %tr
         %td Test mode
         %td
-          <div btn-switch ng-model="agenda.test_mode" onchange="update_test"></div>
+          %div(btn-switch ng-model="agenda.test_mode" code="agenda.code" key="'test_mode'" func="update_agenda(code,key,value)")
       %tr
         %td List publicly
         %td
-          <div btn-switch ng-model="agenda.list" onchange="update_list"></div>
+          %div(btn-switch ng-model="agenda.list" code="agenda.code" key="'list'" func="update_agenda(code,key,value)")
       %tr
         %td
           Actions
@@ -119,10 +119,36 @@
     .conversation-admin
       .conversations
         .row.list(ng-repeat="conversation in agenda.conversations" ce-sort func="update_conversations_order(code, ids)" code="agenda.code"){id: "{{conversation.id}}"}
-          .col-sm-9{id: "{{conversation.id}}"}
-            %p(click-to-edit="conversation.title" code="conversation.code" inp-type="'text'" func="update_conversation_title(code, str)")
-          .col-sm-3
-            Controls {{conversation.id}}
+          .col-sm-11{id: "{{conversation.id}}"}
+            %p.title(click-to-edit="conversation.title" code="conversation.code" inp-type="'text'" func="update_conversation_title(code, str)")
+            %div.conversation-options
+              %table
+                %tr
+                  %td Voting options
+                  %td Select:
+                  %td
+                    %div(btn-switch ng-model="conversation.details.select_voting" code="conversation.code" key="'select_voting'" func="update_conversation(code,key,value)")
+                  %td Allocate:
+                  %td
+                    %div(btn-switch ng-model="conversation.details.allocation_voting" code="conversation.code" key="'allocation_voting'" func="update_conversation(code,key,value)")
+                  %td Recommend:
+                  %td
+                    %div(btn-switch ng-model="conversation.details.recommend_voting" code="conversation.code" key="'recommend_voting'" func="update_conversation(code,key,value)")
+                %tr
+                  %td Misc options
+                  %td Display:
+                  %td
+                    %div(btn-switch ng-model="conversation.details.display" code="conversation.code" key="'display'" func="update_conversation(code,key,value)")
+                  %td Plenary only:
+                  %td
+                    %div(btn-switch ng-model="conversation.details.plenary_only" code="conversation.code" key="'plenary_only'" func="update_conversation(code,key,value)")
+                  %td Group with
+                  %td
+                    %select(ng-model="conversation.group_with" ng-options="agenda.title.substring(0,10) for agenda in agendas")
+                      %option(value="" disabled selected) No grouping
+
+          .col-sm-1
+
     .row
       .col-sm-2 Add a new conversation
       .col-sm-7

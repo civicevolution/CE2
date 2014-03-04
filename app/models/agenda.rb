@@ -1591,6 +1591,7 @@ class Agenda < ActiveRecord::Base
     # create the new conversation needed for this agenda
     privacy = {"list"=>"true", "invite"=>"true", "screen"=>"true", "summary"=>"true", "comments"=>"true", "unknown_users"=>"true"}
     conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now, privacy: privacy, agenda_id: self.id
+    conversation.update_attribute(:details, {display: true})
     title_comment = conversation.build_title_comment user_id: coordinator.id, text: title, order_id: 0
     title_comment.post_process_disabled = true
     title_comment.save

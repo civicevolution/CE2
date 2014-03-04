@@ -2646,17 +2646,20 @@ ce2_directives.directive('ngFocus', ->
 
 ce2_directives.directive('btnSwitch', ->
   restrict: 'A',
+  replace: true
   require:  'ngModel',
   templateUrl: (tElement, tAttrs) ->
     prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
     "<%= path_to_asset "misc/switcher.html" %>#{prefix}"
-  replace: true,
+  scope:
+    value: "=btnSwitch"
+    code: '='
+    key: '='
+    save_func: '&func'
   link: (scope, element, attrs, ngModel) ->
     # Specify how UI should be updated
     ngModel.$render = ->
       render()
-
-    onchange_func = attrs.onchange
 
     render = ->
       val = ngModel.$viewValue
@@ -2672,7 +2675,7 @@ ce2_directives.directive('btnSwitch', ->
     # Listen for the button click event to enable binding
     element.bind('click', ->
       scope.$apply(toggle)
-      scope[onchange_func]()
+      scope.save_func({code: scope.code, key: scope.key, value: ngModel.$viewValue})
     )
 
     # Toggle the model value
@@ -2701,6 +2704,7 @@ ce2_directives.directive("clickToEdit", ->
     code: '='
     save_func: '&func'
     inp_type: "=inpType"
+    key: "="
   controller: [ "$scope", ($scope) ->
     $scope.view =
       editableValue: $scope.value
@@ -2714,7 +2718,7 @@ ce2_directives.directive("clickToEdit", ->
       $scope.view.editorEnabled = false
 
     $scope.save = ->
-      $scope.value = $scope.save_func({code: $scope.code, str: $scope.view.editableValue})
+      $scope.value = $scope.save_func({code: $scope.code, key: $scope.key, value: $scope.view.editableValue})
       $scope.disableEditor()
   ]
 )

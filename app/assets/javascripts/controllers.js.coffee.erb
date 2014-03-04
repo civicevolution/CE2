@@ -2497,15 +2497,6 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog
       else
         $dialog.messageBoxOk('Warning','You must select an agenda from the drop down list')
 
-
-    $scope.update_test = ->
-      console.log "update_test"
-      AgendaData.update_agenda($scope.agenda.code, {test_mode: $scope.agenda.test_mode})
-
-    $scope.update_list = ->
-      #console.log "update_list"
-      AgendaData.update_agenda($scope.agenda.code, {list: $scope.agenda.list})
-
     $scope.refresh_agenda = ->
       #console.log "refresh_agenda"
       btn = angular.element(event.currentTarget)
@@ -2567,25 +2558,20 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog
           $scope.new_conversation.title =  ''
       )
 
-    $scope.update_agenda_title = (code, title) ->
-      #console.log "update_agenda_title  agenda: #{code} with #{title}"
-      AgendaData.update_agenda(code, {title: title}).then(
-        (response)->
-          response.data.title
+    $scope.update_agenda = (code, key, value) ->
+      data = {}
+      data[key] = value
+      AgendaData.update_agenda(code, data).then(
+       (response)->
+         response.data[0].value
       )
 
-    $scope.update_agenda_description = (code, description) ->
-      #console.log "update_agenda_description agenda: #{code} with #{description}"
-      AgendaData.update_agenda(code, {description: description}).then(
+    $scope.update_conversation = (code, key, value) ->
+      data = {}
+      data[key] = value
+      AgendaData.update_conversation(code, data ).then(
         (response)->
-          response.data.description
-      )
-
-    $scope.update_conversation_title = (code, title) ->
-      #console.log "update_conversation_title conversation: #{code} with #{title}"
-      AgendaData.update_conversation(code, {title: title}).then(
-        (response)->
-          response.data.title
+          response.data[0].value
       )
       
     $scope.update_conversations_order = (code, ids) ->
