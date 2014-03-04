@@ -137,13 +137,15 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         templateUrl: '<%= path_to_asset "admin/agenda.html" %>'
         resolve:
           agendas: ["AgendaData", (AgendaData) ->
-            AgendaData.list_agendas().then(
-              (response)->
-                response.data
-            )
+            AgendaData.list_agendas().then (response)->
+              response.data
           ]
           agenda: ["AgendaData", "$stateParams", (AgendaData, $stateParams) ->
             AgendaData.get_agenda_admin_details($stateParams.code).then (response) ->
+              response.data
+          ]
+          agenda_defaults: ["AgendaData", (AgendaData) ->
+            AgendaData.agenda_defaults().then (response)->
               response.data
           ]
         controller: agenda_admin_controller
@@ -1358,7 +1360,7 @@ conversation_group_controller = [ "$scope", "small_group_deliberation_data", "Re
     $scope.conversation = small_group_deliberation_data
     $scope.conversations = small_group_deliberation_data.conversations_list
     $scope.$root.timestamp = small_group_deliberation_data.current_timestamp
-    $scope.add_button_label = $scope.conversation.details?.add_button_label || 'Add a new comment'
+    $scope.add_comment_button_label = $scope.conversation.details?.add_comment_button_label || 'Add a new comment'
     $scope.conversation.show_comment_type = if $scope.conversation.details?.comment_types then true else false
 
     $scope.name = 'ceConversationGroup'
@@ -2469,8 +2471,8 @@ ce2_app.controller('AlertCtrl', ['$scope',
       $scope.alerts.splice(index, 1);
 ] )
 
-agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog", "$location",
-  ($scope, agendas, agenda, AgendaData, $dialog, $location) ->
+agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "AgendaData", "$dialog", "$location",
+  ($scope, agendas, agenda, agenda_defaults, AgendaData, $dialog, $location) ->
     agenda.url = "#{document.location.origin}/#/agenda/#{agenda.code}/#{agenda.munged_title}"
     $scope.agendas = agendas
     $scope.admin= {}
@@ -2480,6 +2482,8 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "AgendaData", "$dialog
     $scope.pos = {sY: 0, iMY: 0, mY: 0, dragY: 0}
     $scope.new_agenda = {title: null}
     $scope.agenda = agenda
+    $scope.agenda.defaults = agenda_defaults
+    $scope.agenda.labels = {}
     $scope.new_conversation = {title: null}
     $scope.create_agenda = () ->
       #console.log "create_agenda with title: #{$scope.new_agenda.title}"

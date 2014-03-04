@@ -606,6 +606,10 @@ services.factory "AgendaData", ["$http",
     update_conversation: (conversation_code, data) ->
       $http.post("/api/conversations/#{conversation_code}/update_conversation.json", {data: data})
 
+    agenda_defaults: (agenda_code) ->
+      $http.get("/api/agendas/agenda_defaults.json")
+
+
 ]
 services.factory "ComponentData", ["$http",
   ($http) ->

@@ -1,0 +1,16 @@
+%div.tags.ce-select-widget
+  %button.btn.btn-primary.btn-sm.dropdown-toggle(ng-click="open_widget()")
+    {{label}}
+    %b.caret
+  %ul.dropdown-menu(ng-click="menu_click()")
+    -#%li(ng-repeat="label in agenda.labels.add_comment_button_label" ng-class="{active: comment.tag_bools[theme.id] }")
+    %li(ng-repeat="label in label_options")
+      %a
+        %label.checkbox
+          -#%input(type='checkbox' value="{{theme.id}}" ng-checked="comment.tag_bools[theme.id]")
+            {{label}}
+          {{label}}
+    %li.no-wrap
+      %form(ng-submit="input_submitted()")
+        %input{type: 'text', placeholder: 'Add new label...'}
+        %button.btn.btn-primary.btn-sm{type: 'submit'} Ok

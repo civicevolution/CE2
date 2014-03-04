@@ -199,6 +199,7 @@ Ce2::Application.routes.draw do
         delete 'delete_agenda', on: :member
         post 'add_conversation', on: :member
         post 'update_agenda', on: :member
+        get 'agenda_defaults', on: :collection
       end
       get 'agendas/:id/link/:link_code/data_set(.:format)', to: 'agendas#data_set'
     end

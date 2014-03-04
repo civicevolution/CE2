@@ -113,7 +113,7 @@
         %td {{placeholder_lower.w}}
         %td {{placeholder_lower.h}}
 
-    %p Positioning: scrollTop: {{pos.scrollTop}}, mouseY: {{pos.eY}}, initialMouseY: {{pos.iMY}}, initElemY: {{pos.iEY}}, dragged.y: {{pos.dragY}}. offsetY: {{pos.offsetY}}, par_top: {{pos.par_top}}, par_bottom: {{pos.par_bottom}}
+    -#%p Positioning: scrollTop: {{pos.scrollTop}}, mouseY: {{pos.eY}}, initialMouseY: {{pos.iMY}}, initElemY: {{pos.iEY}}, dragged.y: {{pos.dragY}}. offsetY: {{pos.offsetY}}, par_top: {{pos.par_top}}, par_bottom: {{pos.par_bottom}}
 
     %h3 Agenda's deliberations
     .conversation-admin
@@ -142,10 +142,22 @@
                   %td Plenary only:
                   %td
                     %div(btn-switch ng-model="conversation.details.plenary_only" code="conversation.code" key="'plenary_only'" func="update_conversation(code,key,value)")
-                  %td Group with
                   %td
-                    %select(ng-model="conversation.group_with" ng-options="agenda.title.substring(0,10) for agenda in agendas")
+                    -#Group with
+                  %td
+                    -#%select(ng-model="conversation.group_with" ng-options="agenda.title.substring(0,10) for agenda in agendas")
                       %option(value="" disabled selected) No grouping
+                %tr
+                  %td Labels
+                  %td Add comment button
+                  %td
+                    %div(ce-select-widget conversation="conversation" agenda="agenda" key="'add_comment_button_label'" func="update_conversation(code,key,value)")
+                  %td Add comment form
+                  %td
+                    %div(ce-select-widget conversation="conversation" agenda="agenda" key="'reply_control_title'" func="update_conversation(code,key,value)")
+                  %td Edit comment form
+                  %td
+                    %div(ce-select-widget conversation="conversation" agenda="agenda" key="'edit_reply_control_title'" func="update_conversation(code,key,value)")
 
           .col-sm-1
 

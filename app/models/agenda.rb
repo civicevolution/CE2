@@ -1632,4 +1632,9 @@ class Agenda < ActiveRecord::Base
     updates
   end
 
+  def self.agenda_defaults
+    labels = UiLabel.select(:tag, :text).to_a.each_with_object({}){ |c,h| h[c.tag] = c.text }
+    {labels: labels}
+  end
+
 end
