@@ -43,12 +43,14 @@ class ConversationRecommendation < AgendaComponent
     total_votes = total_votes.to_f
 
     vote_options = conversation.details.try{|details| details['vote_options']}||[]
-
-    vote_options.each do |vo|
-      votes = option_votes[vo['key'].to_i] || 0
+    vote_option_objs = []
+    vote_options.each_index do |ind|
+      vo = {text: vote_options[ind] }
+      votes = option_votes[ind+1] || 0
       vo[:votes] = votes
       vo[:percentage] = total_votes > 0 ? (votes/total_votes*100).round : 0
       vo[:graph_percentage] = max_votes > 0 ? (votes/max_votes*100).round : 0
+      vote_option_objs.push(vo)
     end
 
     table_votes = {}
@@ -56,7 +58,7 @@ class ConversationRecommendation < AgendaComponent
       table_votes["g#{vote.group_id}-r#{vote.recommendation}"] = vote.num_of_votes
     end
 
-    {title: conversation.title, vote_options: vote_options, table_votes: table_votes}
+    {title: conversation.title, vote_options: vote_option_objs, table_votes: table_votes}
   end
 
 end

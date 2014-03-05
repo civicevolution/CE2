@@ -1551,7 +1551,7 @@ live_recommend_controller_count = [ "$scope", "recommendation_data", "LiveRecomm
     $scope.vote_status = "Your current vote"
     $scope.btn_lbl = "Save vote"
 
-    $scope.vote_options = $scope.conversation.vote_options || []
+    $scope.vote_options = ( { text: option, key: index + 1} for option, index in $scope.conversation.vote_options )
     for option in $scope.vote_options
       option.vote_count = $scope.conversation.votes[option.key] || 0
 

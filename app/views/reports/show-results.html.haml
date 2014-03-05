@@ -11,7 +11,7 @@
       %tr
         %td.option
           .theme{style: "width: #{option[:graph_percentage]}%"}
-          .text= option['text']
+          .text= option[:text]
         %td #{option[:percentage]}%
         %td   #{ option[:votes] || 0 }
 
@@ -22,7 +22,7 @@
       %tr
         %th Table
         - @vote_options.each do |option|
-          %th= option['text']
+          %th= option[:text]
         %th Total
         -#%th Members
         -#%th Check
