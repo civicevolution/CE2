@@ -1507,9 +1507,9 @@ class Agenda < ActiveRecord::Base
     self.details['conversation_ids'].flatten.each do |conversation_id|
       conversation = Conversation.find(conversation_id)
       reason_stats = {}
-      if conversation.details
-        conversation.details['reason_types'].each_value do |value|
-          reason_stats[value] = 0
+      if conversation.details && conversation.details['reason_types']
+        conversation.details['reason_types'].each do |name|
+          reason_stats[name] = 0
         end
         totals = reason_stats.clone if totals.nil?
         # I have initialized the reasons hash for each conversation that has reasons

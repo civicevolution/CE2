@@ -3,9 +3,9 @@
 
   %li#conversation-review-link(ng-if="conversation.filters")
     %span.label.label-info Filters
-    %li#conversation-review-link(ng-repeat="filter in conversation.filters" ng-class="{active: (conversation.purpose_filter == filter.key)}" )
-      %a(ng-click="change_filter(filter.key)")
-        {{filter.text}}
+    %li#conversation-review-link(ng-repeat="filter in conversation.filters" ng-class="{active: (conversation.purpose_filter == filter)}" )
+      %a(ng-click="change_filter(filter)")
+        {{filter}}
         %span.badge.badge-info {{theme_cnt.cnt}}
 
   -#%li#conversation-review-link
