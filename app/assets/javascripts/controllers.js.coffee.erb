@@ -127,7 +127,12 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           ]
           agenda: ["$q", ($q) ->
             defer = $q.defer()
-            defer.resolve(null)
+            defer.resolve({})
+            defer.promise
+          ]
+          agenda_defaults: ["$q", ($q) ->
+            defer = $q.defer()
+            defer.resolve({})
             defer.promise
           ]
         controller: agenda_admin_controller
@@ -2584,6 +2589,5 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
         (response)->
           response.data.ids
       )
-
 
 ]

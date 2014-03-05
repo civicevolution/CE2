@@ -339,7 +339,11 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
         updates.push({key: key, value: value})
       else
         details ||= self.details.try{|details| details.symbolize_keys} || {}
-        details[key.to_sym] = value
+        if value.nil?
+          details.delete(key.to_sym)
+        else
+          details[key.to_sym] = value
+        end
         updates.push({key: key, value: value})
       end
     end

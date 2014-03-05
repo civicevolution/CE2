@@ -124,7 +124,7 @@
           %div.reasons(ng-if="newComment.reasons")
             %div.table-comment-reason(ng-repeat="reason in newComment.reasons" ng-class="{highlight: reason.highlight}")
               %select(ng-model="reason.type" ng-options="option for option in conversation.details.reason_types" ng-change="select_reason_type()")
-                %option(value="" disabled selected) Select a reason...
+                %option(value="" disabled selected) {{conversation.details.reason_types_placeholder}}
               %textarea.noscrollbars(ng-model="reason.text"){placeholder: "Explain your reason..."}
               %a.delete(ng-click="delete_reason()")
                 %i.fa.fa-times
