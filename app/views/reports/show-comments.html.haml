@@ -4,10 +4,10 @@
 
 - @conversation.details['comment_types'].each do |type|
   .type-section
-    %h3.comment-type-title= type['text']
-    - theme = @conversation.theme_comments.detect{|t| t.purpose == type['key'] && t.status == 'auto-tag-theme'}
+    %h3.comment-type-title= type
+    - theme = @conversation.theme_comments.detect{|t| t.purpose == type && t.status == 'auto-tag-theme'}
     - child_comment_ids = theme.try{|theme| theme.child_targets.map(&:child_id).uniq} || []
-    -#%p theme_id: #{theme.id} has type: #{type['key']} has ids: #{child_comment_ids}
+    -#%p theme_id: #{theme.id} has type: #{type} has ids: #{child_comment_ids}
     - if child_comment_ids.size > 0
       %ol
         - child_comment_ids.each do |com_id|
@@ -24,7 +24,7 @@
     %h3.comment-type-title Additional Suggestions
     - theme = @additional_suggestions.theme_comments.detect{|t| t.status == 'auto-tag-theme'}
     - child_comment_ids = theme.try{|theme| theme.child_targets.map(&:child_id).uniq} || []
-    -#%p theme_id: #{theme.id} has type: #{type['key']} has ids: #{child_comment_ids}
+    -#%p theme_id: #{theme.id} has type: #{type} has ids: #{child_comment_ids}
     - if child_comment_ids.size > 0
       %ol
         - child_comment_ids.each do |com_id|

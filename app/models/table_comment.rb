@@ -14,7 +14,7 @@ class TableComment < Comment
   validates :con_votes, numericality: { only_integer: true, greater_than_or_equal_to: 0, message: 'Must enter a number for members opposed' }
 
   after_create  :record_pro_con_votes
-  after_update  :update_pro_con_votes
+  after_update  :update_pro_con_votes, unless: :post_process_disabled
 
   after_save :tag_to_purpose_theme, unless: :auto_tag_disabled
 

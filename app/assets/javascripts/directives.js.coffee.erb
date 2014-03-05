@@ -2932,8 +2932,8 @@ ce2_directives.directive('ceSort', [ "$document", "$timeout",
               record_current_place_holders()
 ])
 
-ce2_directives.directive('ceSelectWidget',[ "$compile", "$timeout", "ThemeData",
-  ($compile, $timeout, ThemeData) ->
+ce2_directives.directive('ceSelectWidget',[ "$compile", "$timeout",
+  ($compile, $timeout) ->
     restrict: 'A'
     templateUrl: (tElement, tAttrs) ->
       prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
@@ -2947,6 +2947,65 @@ ce2_directives.directive('ceSelectWidget',[ "$compile", "$timeout", "ThemeData",
     controller: [ "$scope", "$timeout", "$dialog",
       ($scope, $timeout, $dialog) ->
         $scope.label = $scope.conversation.details[$scope.key] || $scope.agenda.defaults.labels[$scope.key]
+        $scope.open_widget = ->
+          options = ( conversation.details[$scope.key] for conversation in $scope.agenda.conversations when conversation.details[$scope.key])
+          options.push($scope.agenda.defaults.labels[$scope.key])
+          $scope.label_options = _.uniq(options)
+        $scope.menu_click = ->
+          #console.log "menu_click"
+          if event.toElement.type == 'text'
+            #console.log "text"
+            event.stopPropagation()
+          else if event.toElement.nodeName == 'INPUT' || event.toElement.nodeName == 'LABEL'
+            #console.log "tag_click"
+            #event.stopPropagation()
+            el = event.toElement
+            el = angular.element( if el.nodeName == 'INPUT' then el.parentNode else el )
+            label = el.text().replace(/^\s*/,'').replace(/\s*$/,'')
+            $scope.save_func({code: $scope.conversation.code, key: $scope.key, value: label}).then(
+              (response) ->
+                $scope.conversation.details[$scope.key] = $scope.label = response
+            )
+
+        $scope.input_submitted = ->
+          el = tag_input = angular.element(event.currentTarget).parent().find('input')
+          new_tag = tag_input.val()
+          if new_tag
+            console.log "input_submitted: #{new_tag}"
+            # is new tag a unique new tag?
+            for label in $scope.label_options
+              if label is new_tag
+                console.log "the new tag must be unique"
+                return
+            console.log "Create a new tag and add it to this comment"
+            $scope.save_func({code: $scope.conversation.code, key: $scope.key, value: new_tag}).then(
+              (response) ->
+                $scope.conversation.details[$scope.key] = $scope.label = response
+            )
+
+    ]
+])
+
+ce2_directives.directive('ceOptionsAdmin',[ "$compile", "$timeout",
+  ($compile, $timeout) ->
+    restrict: 'A'
+    templateUrl: (tElement, tAttrs) ->
+      prefix = if tAttrs['dev'] == "true" then "?r=#{Math.random()}" else ""
+      "<%= path_to_asset "options-admin.html" %>#{prefix}"
+    replace: true
+    scope:
+      agenda: "="
+      conversation: '='
+      key: "="
+      save_func: '&func'
+    controller: [ "$scope", "$timeout", "$dialog",
+      ($scope, $timeout, $dialog) ->
+        $scope.options = $scope.conversation.details[$scope.key]
+        #if typeof options == "Array"
+        #  $scope.options = options
+        #else
+        #  $scope.options = ( {key: key, text: options[key]} for key of options)
+
         $scope.open_widget = ->
           options = ( conversation.details[$scope.key] for conversation in $scope.agenda.conversations when conversation.details[$scope.key])
           options.push($scope.agenda.defaults.labels[$scope.key])

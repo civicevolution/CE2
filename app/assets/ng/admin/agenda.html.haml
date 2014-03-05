@@ -149,16 +149,30 @@
                       %option(value="" disabled selected) No grouping
                 %tr
                   %td Labels
-                  %td Add comment button
-                  %td
+                  %td(colspan=2)
+                    Add comment button
+                    %br
                     %div(ce-select-widget conversation="conversation" agenda="agenda" key="'add_comment_button_label'" func="update_conversation(code,key,value)")
-                  %td Add comment form
-                  %td
+                  %td(colspan=2)
+                    Add comment form
+                    %br
                     %div(ce-select-widget conversation="conversation" agenda="agenda" key="'reply_control_title'" func="update_conversation(code,key,value)")
-                  %td Edit comment form
-                  %td
+                  %td(colspan=2)
+                    Edit comment form
+                    %br
                     %div(ce-select-widget conversation="conversation" agenda="agenda" key="'edit_reply_control_title'" func="update_conversation(code,key,value)")
 
+                %tr
+                  %td Options
+                  %td(colspan=2)
+                    %b Vote options
+                    %div(ce-options-admin conversation="conversation" agenda="agenda" key="'vote_options'" func="update_conversation(code,key,value)")
+                  %td(colspan=2)
+                    %b Comment types
+                    %div(ce-options-admin conversation="conversation" agenda="agenda" key="'comment_types'" func="update_conversation(code,key,value)")
+                  %td(colspan=2)
+                    %b Comment Reasons
+                    %div(ce-options-admin conversation="conversation" agenda="agenda" key="'reason_types'" func="update_conversation(code,key,value)")
           .col-sm-1
 
     .row

@@ -1,0 +1,17 @@
+%div.tags.ce-options-admin
+  %div(ng-if="conversation.details[key] && conversation.details[key].length>0")
+    %ul
+      %li(ng-repeat="option in conversation.details[key]")
+        {{option}}
+    %a(ng-click="edit_list()") Edit options
+  %div(ng-if="!conversation.details[key] || conversation.details[key].length==0")
+    %a(ng-click="edit_list()") Add options
+  -#%textarea
+
+  -#%button.btn.btn-primary.btn-sm.dropdown-toggle(ng-click="open_widget()")
+    {{label}}
+    %b.caret
+    %li.no-wrap
+      %form(ng-submit="input_submitted()")
+        %input{type: 'text', placeholder: 'Add new label...'}
+        %button.btn.btn-primary.btn-sm{type: 'submit'} Ok

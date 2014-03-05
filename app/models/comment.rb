@@ -102,8 +102,9 @@ class Comment < ActiveRecord::Base
       #puts "pairs #{key}: #{value}, type: #{value.class.to_s}"
       case key
         when 'recommendation_type'
-          value_string = details['comment_types'].detect{|com_type| com_type['key'] == value}.try{|com_type| com_type['text']} || 'unknown comment type'
-          strs.push( "**_#{value_string}_**\n\n" )
+          #value_string = details['comment_types'].detect{|com_type| com_type['key'] == value}.try{|com_type| com_type['text']} || 'unknown comment type'
+          #strs.push( "**_#{value_string}_**\n\n" )
+          strs.push( "**_#{value}_**\n\n" )
         when 'suggestion'
           strs.push( "**_Suggested change_**  \n" )
           strs.push( "#{value}\n\n" )
@@ -112,7 +113,7 @@ class Comment < ActiveRecord::Base
             strs.push( "**_Reasons_**\n\n" )
             value.each do |reason|
               #puts "reason: #{reason}"
-              strs.push( "* **_#{details['reason_types'][ reason['type'] ]}:_** #{reason[ 'text']}\n" )
+              strs.push( "* **_#{reason['type']}:_** #{reason[ 'text']}\n" )
             end
           else
             strs.push( "**_No reasons given_**\n\n" )

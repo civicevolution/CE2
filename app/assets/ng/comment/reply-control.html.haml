@@ -34,7 +34,8 @@
               {{newComment.reply_control_title}}
 
             %div(ng-if="newComment.comment_types")
-              %select(ng-model="newComment.purpose" ng-options="o.key as o.text for o in conversation.details.comment_types" ng-change="select_comment_purpose()")
+              -#%select(ng-model="newComment.purpose" ng-options="o.key as o.text for o in conversation.details.comment_types" ng-change="select_comment_purpose()")
+              %select(ng-model="newComment.purpose" ng-options="option for option in conversation.details.comment_types" ng-change="select_comment_purpose()")
                 %option(value="" disabled selected) {{conversation.details.comment_types_placeholder}}
 
             %div.form_errors
@@ -46,7 +47,8 @@
               {{newComment.reply_control_title}}
 
             %div(ng-if="newComment.comment_types")
-              %select(ng-model="newComment.purpose" ng-options="o.key as o.text for o in conversation.details.comment_types" ng-change="select_comment_purpose()")
+              -#%select(ng-model="newComment.purpose" ng-options="o.key as o.text for o in conversation.details.comment_types" ng-change="select_comment_purpose()")
+              %select(ng-model="newComment.purpose" ng-options="option for option in conversation.details.comment_types" ng-change="select_comment_purpose()")
                 %option(value="" disabled selected) {{conversation.details.comment_types_placeholder}}
 
             %input.tag_name(type="text" ng-model="newComment.tag_name" )
@@ -121,7 +123,7 @@
         %div.extras-form.clearfix
           %div.reasons(ng-if="newComment.reasons")
             %div.table-comment-reason(ng-repeat="reason in newComment.reasons" ng-class="{highlight: reason.highlight}")
-              %select(ng-model="reason.type" ng-options=" k as v for (k,v) in conversation.details.reason_types" ng-change="select_reason_type()")
+              %select(ng-model="reason.type" ng-options="option for option in conversation.details.reason_types" ng-change="select_reason_type()")
                 %option(value="" disabled selected) Select a reason...
               %textarea.noscrollbars(ng-model="reason.text"){placeholder: "Explain your reason..."}
               %a.delete(ng-click="delete_reason()")

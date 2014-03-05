@@ -261,7 +261,7 @@ class Agenda < ActiveRecord::Base
       agenda = Agenda.new
       agenda_details.each_pair do |key,value|
         #puts "#{key}: #{value}"
-        agenda[key] = value unless ['id','code'].include?(key)
+        agenda[key] = value unless ['id','code', 'conversation_ids'].include?(key)
       end
       #puts agenda.inspect
       agenda.save
@@ -1508,8 +1508,8 @@ class Agenda < ActiveRecord::Base
       conversation = Conversation.find(conversation_id)
       reason_stats = {}
       if conversation.details
-        conversation.details['reason_types'].each_pair do |key, value|
-          reason_stats[key] = 0
+        conversation.details['reason_types'].each_value do |value|
+          reason_stats[value] = 0
         end
         totals = reason_stats.clone if totals.nil?
         # I have initialized the reasons hash for each conversation that has reasons
