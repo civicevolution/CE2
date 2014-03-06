@@ -42,6 +42,8 @@
         %td
           %a(href="{{agenda.url}}" target="_blank") {{agenda.url}}
 
+    %a(ng-click="isCollapsed = !isCollapsed") Toggle details
+    %table(border="1" collapse="!isCollapsed")
       %tr
         %td Test mode
         %td
@@ -121,7 +123,7 @@
         .row.list(ng-repeat="conversation in agenda.conversations" ce-sort func="update_conversations_order(code, ids)" code="agenda.code"){id: "{{conversation.id}}"}
           .col-sm-11{id: "{{conversation.id}}"}
             %p.title(click-to-edit="conversation.title" code="conversation.code" inp-type="'text'" func="update_conversation_title(code, str)")
-            %div.conversation-options
+            %div.conversation-options(collapse="!isCollapsed")
               %table
                 %tr
                   %td Voting options
@@ -191,6 +193,7 @@
                     %div(ce-select-widget conversation="conversation" agenda="agenda" key="'report_header'" markdown="true" func="update_conversation(code,key,value)")
 
           .col-sm-1
+            %a(ng-click="isCollapsed = !isCollapsed") Details
 
     .row
       .col-sm-2 Add a new conversation
