@@ -181,6 +181,12 @@
                     %div(ce-options-admin conversation="conversation" agenda="agenda" key="'reason_types'" func="update_conversation(code,key,value)")
                     %div.inline-block Place holder label:
                     %div.inline-block(ce-select-widget conversation="conversation" agenda="agenda" key="'reason_types_placeholder'" func="update_conversation(code,key,value)")
+
+                %tr
+                  %td Report header
+                  %td(colspan="6")
+                    %div(ce-select-widget conversation="conversation" agenda="agenda" key="'report_header'" markdown="true" func="update_conversation(code,key,value)")
+
           .col-sm-1
 
     .row

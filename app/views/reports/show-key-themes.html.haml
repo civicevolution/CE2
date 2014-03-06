@@ -1,7 +1,8 @@
 .live-themes
-  - headers = @conversation.details.try{|details| details['report_headers']} || [ @theme_data[:title] ]
-  - headers.each do |header|
-    %h3.delib-title= header
+  - header = @conversation.details['report_header'] || @theme_data[:title]
+  %h3.delib-title
+    :markdown
+      #{header}
 
   %table
     - @theme_data[:themes].each do |theme|

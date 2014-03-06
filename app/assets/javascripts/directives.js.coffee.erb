@@ -2943,17 +2943,21 @@ ce2_directives.directive('ceSelectWidget',[ "$compile", "$timeout",
       agenda: "="
       conversation: '='
       key: "="
+      markdown: "="
       save_func: '&func'
     controller: [ "$scope", "$timeout", "$dialog",
       ($scope, $timeout, $dialog) ->
         $scope.label = $scope.conversation.details[$scope.key] || $scope.agenda.defaults.labels[$scope.key]
+        $scope.new_label = { text: ''}
         $scope.open_widget = ->
           options = ( conversation.details[$scope.key] for conversation in $scope.agenda.conversations when conversation.details[$scope.key])
           options.push($scope.agenda.defaults.labels[$scope.key])
+          if $scope.markdown
+            $scope.new_label.text = $scope.label
           $scope.label_options = _.uniq(options)
         $scope.menu_click = ->
           #console.log "menu_click"
-          if event.toElement.type == 'text'
+          if event.toElement.type == 'text' || event.toElement.type == 'textarea'
             #console.log "text"
             event.stopPropagation()
           else if event.toElement.nodeName == 'INPUT' || event.toElement.nodeName == 'LABEL'
@@ -2968,8 +2972,7 @@ ce2_directives.directive('ceSelectWidget',[ "$compile", "$timeout",
             )
 
         $scope.input_submitted = ->
-          el = tag_input = angular.element(event.currentTarget).parent().find('input')
-          new_tag = tag_input.val()
+          new_tag = $scope.new_label.text
           if new_tag
             console.log "input_submitted: #{new_tag}"
             # is new tag a unique new tag?

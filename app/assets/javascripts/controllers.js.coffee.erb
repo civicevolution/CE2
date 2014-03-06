@@ -2481,6 +2481,7 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
     agenda.url = "#{document.location.origin}/#/agenda/#{agenda.code}/#{agenda.munged_title}"
     $scope.agendas = agendas
     $scope.admin= {}
+    $scope.$root.initialize_markdown_system( {disable_editor: true} )
     $scope.placeholder= {x: 0, y: 0, w: 0, h: 0}
     $scope.placeholder_lower= {x: 0, y: 0, w: 0, h: 0}
     $scope.placeholder_upper= {x: 0, y: 0, w: 0, h: 0}

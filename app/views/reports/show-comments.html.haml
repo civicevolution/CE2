@@ -1,6 +1,7 @@
-- headers = @conversation.details['report_headers'] ||[ @conversation.title ]
-- headers.each do |header|
-  %h3.delib-title= header
+- header = @conversation.details['report_header'] || @conversation.title
+%h3.delib-title
+  :markdown
+    #{header}
 
 - @conversation.details['comment_types'].each do |type|
   .type-section

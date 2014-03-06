@@ -73,3 +73,4 @@ end
 
 gem 'wicked_pdf'
 gem 'rmagick', '2.13.2'
+gem 'redcarpet'

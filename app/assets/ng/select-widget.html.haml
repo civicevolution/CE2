@@ -1,6 +1,10 @@
 %div.tags.ce-select-widget
   %button.btn.btn-primary.btn-sm.dropdown-toggle(ng-click="open_widget()")
-    {{label}}
+    %div.inline-block(ng-switch="markdown==true")
+      %div.inline-block(ng-switch-when="false")
+        {{label}}
+      %div.inline-block(ng-switch-when="true")
+        %div.inline-block.left(ng-bind-html="$root.converter.makeHtml(label)")
     %b.caret
   %ul.dropdown-menu(ng-click="menu_click()")
     -#%li(ng-repeat="label in agenda.labels.add_comment_button_label" ng-class="{active: comment.tag_bools[theme.id] }")
@@ -12,5 +16,10 @@
           {{label}}
     %li.no-wrap
       %form(ng-submit="input_submitted()")
-        %input{type: 'text', placeholder: 'Add new label...'}
-        %button.btn.btn-primary.btn-sm{type: 'submit'} Ok
+        %div.inline-block(ng-switch="markdown==true")
+          %div.inline-block(ng-switch-when="false")
+            %input(ng-model="new_label.text"){type: 'text', placeholder: 'Add new label...'}
+            %button.btn.btn-primary.btn-sm{type: 'submit'} Ok
+          %div.inline-block(ng-switch-when="true")
+            %textarea.select-options(ng-model="new_label.text"){placeholder: "Add new label..."}
+            %button.btn.btn-primary.btn-sm{type: 'submit'} Ok
