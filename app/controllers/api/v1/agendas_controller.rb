@@ -142,6 +142,12 @@ module Api
         render json: agenda.add_conversation(params[:title])
       end
 
+      def add_mca
+        agenda = Agenda.find_by(code: params[:id])
+        authorize! :add_mca, agenda
+        render json: agenda.add_mca(params[:title])
+      end
+
       def update_agenda
         agenda = Agenda.find_by(code: params[:id])
         authorize! :update_agenda, agenda

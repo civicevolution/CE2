@@ -6,6 +6,7 @@ class Agenda < ActiveRecord::Base
   has_many :agenda_component_threads
 
   has_many :mca, class_name: 'MultiCriteriaAnalysis', foreign_key: :agenda_id
+  has_many :deliberations, class_name: 'Conversation', foreign_key: :agenda_id
 
   has_many :reports, primary_key: :code, foreign_key: :agenda_code
 
@@ -1480,6 +1481,7 @@ class Agenda < ActiveRecord::Base
     details = %w(coordinator_user_id conversation_ids select_conversations allocate_conversations allocate_top_themes_conversations allocate_multiple_conversations themes_only make_recommendation mca_ids mca_id_plenary mca_ids_coord_only theme_map)
     puts "Agenda details:"
     puts "Title: #{agenda.title}"
+    puts "id: #{agenda.id}"
     puts "code: #{agenda.code}"
     details.each do |name|
       puts "#{name}: #{agenda.details[name]}"
@@ -1536,7 +1538,8 @@ class Agenda < ActiveRecord::Base
   def agenda_admin_details
     conversations = Conversation.where(agenda_id:  self.id )
     ordered_conversations = []
-    self.details['conversation_ids'].flatten.each do |con_id|
+    ordered_conversation_ids = self.details['conversation_ids'] || []
+    ordered_conversation_ids.flatten.each do |con_id|
       con = conversations.detect{|c| c.id == con_id}
       if con
         ordered_conversations.push(
@@ -1550,7 +1553,7 @@ class Agenda < ActiveRecord::Base
         )
       end
     end
-      conversations.each do |con|
+    conversations.each do |con|
       if !ordered_conversations.detect{|oc| oc[:id] == con.id}
         ordered_conversations.push(
           {
@@ -1563,6 +1566,34 @@ class Agenda < ActiveRecord::Base
         )
       end
     end
+    access_codes = self.agenda_roles.to_a.each_with_object({}){ |r,h| h["#{r.name}-#{r.identifier}"] = r.access_code }
+
+    participants = self.participants.sort{|a,b| a.name <=> b.name}.map do |u|
+      {
+        id: u.id,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        name: u.name,
+        email: u.email,
+        access_code: access_codes[ "#{u.email.match(/(\w+-\d+)\@/)[1]}" ],
+        theme_team: "Theme team 2"
+      }
+    end
+
+    #get the mca data
+    mcas = MultiCriteriaAnalysis.where(agenda_id: self.id)
+    mcas_data = []
+    mcas.each do |mca|
+      mcas_data.push(
+        {
+          id: mca.id,
+          title: mca.title,
+          details: mca.details,
+          criteria: mca.criteria.as_json(except: [:multi_criteria_analysis_id, :created_at, :updated_at]),
+          options: mca.options.as_json(except: [:multi_criteria_analysis_id, :created_at, :updated_at])
+        }
+      )
+    end
     details = {
         title: self.title,
         munged_title: self.munged_title,
@@ -1570,7 +1601,12 @@ class Agenda < ActiveRecord::Base
         test_mode: self.test_mode,
         list: self.list,
         code: self.code,
-        conversations: ordered_conversations
+        conversations: ordered_conversations,
+        theme_map: self.details['theme_map'],
+        mca_ids: self.details['mca_ids'],
+        mca_id_plenary: self.details['mca_id_plenary'],
+        mcas: mcas_data,
+        participants: participants
     }
   end
 
@@ -1580,7 +1616,43 @@ class Agenda < ActiveRecord::Base
 
     coordinator = agenda.create_user('coordinator', 1)
     coordinator.add_role :coordinator, agenda
-    AgendaRole.where(agenda_id: agenda.id, name: 'coordinator', identifier: 1, access_code: 'coord').first_or_create
+    AgendaRole.where(agenda_id: agenda.id, name: 'coordinator', identifier: 1, access_code: 'coord7').first_or_create
+
+    details = {
+      coordinator_user_id: coordinator.id,
+      conversation_ids: [],
+      select_conversations: [],
+      allocate_conversations: [],
+      allocate_top_themes_conversations: [],
+      allocate_multiple_conversations: [],
+      themes_only: [],
+      make_recommendation: [],
+      mca_ids: [],
+      mca_id_plenary: [],
+      mca_ids_coord_only: [],
+      theme_map: {"1"=>[1, 2, 3, 4],
+                  "2"=>[5, 6, 7, 8],
+                  "3"=>[1, 2, 3, 4, 5, 6, 7, 8]}
+    }
+    agenda.update_attribute(:details, details)
+
+    reporter = agenda.create_user('reporter', 1)
+    reporter.add_role :reporter, agenda
+    AgendaRole.where( agenda_id: agenda.id, name: 'reporter', identifier: 1, access_code: 'reporter').first_or_create
+
+    (1..3).each do |i|
+      themer = agenda.create_user('themer', i)
+      themer.add_role :themer, agenda
+      AgendaRole.where( agenda_id: agenda.id, name: 'themer', identifier: i, access_code: "gpb").first_or_create
+    end
+
+    (1..10).each do |i|
+      scribe = agenda.create_user('scribe', i)
+      scribe.add_role :scribe, agenda
+      AgendaRole.where( agenda_id: agenda.id, name: 'group', identifier: i, access_code: "g#{i}").first_or_create
+    end
+
+    agenda.refresh_agenda_details_links_and_data_sets
 
     {code: agenda.code, title: agenda.title, munged_title: agenda.munged_title, list: agenda.list }
   end
@@ -1596,6 +1668,11 @@ class Agenda < ActiveRecord::Base
     title_comment.post_process_disabled = true
     title_comment.save
 
+    details = self.details
+    details['conversation_ids'].push(conversation.id)
+    self.update_attribute(:details, {})
+    self.update_attribute(:details, details)
+
     self.participants.each do |participant|
       role = participant.email.match(/agenda-\d+-(\w+)-/)[1]
       if role == 'group'
@@ -1607,9 +1684,23 @@ class Agenda < ActiveRecord::Base
       participant.add_role role, conversation
     end
 
+    self.refresh_agenda_details_links_and_data_sets
+
     conv_json = conversation.attributes
     conv_json[:title] = conversation.title
     conv_json
+  end
+
+  def add_mca(title)
+    # create the new mca needed for this agenda
+    mca = MultiCriteriaAnalysis.create title: title, agenda_id: self.id
+    details = self.details
+    details['mca_ids'].push(mca.id)
+    self.update_attribute(:details, {})
+    self.update_attribute(:details, details)
+
+    self.refresh_agenda_details_links_and_data_sets
+    mca.attributes
   end
 
   def update_agenda(data)
@@ -1621,7 +1712,11 @@ class Agenda < ActiveRecord::Base
         updates.push({key: key, value: value})
       else
         agenda_details ||= self.details.symbolize_keys
-        agenda_details[key.to_sym] = value
+        if key.match(/o:/)
+          agenda_details[key.sub('o:','').to_sym] = eval(value)
+        else
+          agenda_details[key.to_sym] = value
+        end
         updates.push({key: key, value: value})
       end
     end

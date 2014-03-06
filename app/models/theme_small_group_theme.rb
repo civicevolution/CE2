@@ -88,7 +88,8 @@ class ThemeSmallGroupTheme < AgendaComponent
         theme_comments: theme_comments,
         role: Ability.abilities(params["current_user"], 'Conversation', conversation.id),
         details: conversation.details,
-        current_timestamp: Time.new.to_i
+        current_timestamp: Time.new.to_i,
+        theme_map: conversation.agenda.details['theme_map']
     }
   end
 

@@ -2712,7 +2712,10 @@ ce2_directives.directive("clickToEdit", ->
 
     $scope.enableEditor = ->
       $scope.view.editorEnabled = true
-      $scope.view.editableValue = $scope.value
+      if typeof $scope.value == "object"
+        $scope.view.editableValue = JSON.stringify($scope.value).replace(/:/g,'=>')
+      else
+        $scope.view.editableValue = $scope.value
 
     $scope.disableEditor = ->
       $scope.view.editorEnabled = false

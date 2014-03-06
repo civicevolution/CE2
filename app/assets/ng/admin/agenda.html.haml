@@ -38,12 +38,27 @@
           %p(click-to-edit="agenda.description" code="agenda.code" inp-type="'textarea'" key="'description'" func="update_agenda(code, key, value)")
 
       %tr
+        %td Theme teams
+        %td
+          %p(click-to-edit="agenda.theme_map" code="agenda.code" inp-type="'textarea'" key="'o:theme_map'" func="update_agenda(code, key, value)")
+
+      %tr
+        %td MCA ids
+        %td
+          %p(click-to-edit="agenda.mca_ids" code="agenda.code" inp-type="'text'" key="'o:mca_ids'" func="update_agenda(code, key, value)")
+
+      %tr
+        %td Plenary ids
+        %td
+          %p(click-to-edit="agenda.mca_id_plenary" code="agenda.code" inp-type="'text'" key="'o:mca_id_plenary'" func="update_agenda(code, key, value)")
+
+      %tr
         %td URL
         %td
           %a(href="{{agenda.url}}" target="_blank") {{agenda.url}}
 
     %a(ng-click="isCollapsed = !isCollapsed") Toggle details
-    %table(border="1" collapse="!isCollapsed")
+    %table(border="1" collapse="isCollapsed")
       %tr
         %td Test mode
         %td
@@ -195,25 +210,60 @@
           .col-sm-1
             %a(ng-click="isCollapsed = !isCollapsed") Details
 
-    .row
-      .col-sm-2 Add a new conversation
-      .col-sm-7
-        %input.title(ng-model="new_conversation.title"){placeholder: 'Enter title for new conversation (min 10 characters)'}
-      .col-sm-3
-        %button.btn-primary.btn(ng-click="add_conversation()" ng-disabled="!new_conversation.title || new_conversation.title.length<10"){type: 'button'}
-          %span.def-msg Add conversation
-          %span.busy-msg
-            Adding
-            %i.fa.fa-spinner.fa-spin
+      .row
+        .col-sm-2 Add a new conversation
+        .col-sm-7
+          %input.title(ng-model="new_conversation.title"){placeholder: 'Enter title for new conversation (min 10 characters)'}
+        .col-sm-3
+          %button.btn-primary.btn(ng-click="add_conversation()" ng-disabled="!new_conversation.title || new_conversation.title.length<10"){type: 'button'}
+            %span.def-msg Add conversation
+            %span.busy-msg
+              Adding
+              %i.fa.fa-spinner.fa-spin
 
     %h3 Agenda MCA
-    %table(border="1")
-      %tr
-        %td Title
-        %td {{agenda.title}}
+    .conversations
+      .row.list(ng-repeat="mca in agenda.mcas" ce-sort func="update_mca_order(code, ids)" code="agenda.code"){id: "{{mca.id}}"}
+        .col-sm-11{id: "{{mca.id}}"}
+          %p.title(click-to-edit="mca.title" code="mca.id" inp-type="'text'" func="update_mca_title(code, str)")
+          %div.conversation-options(collapse="isCollapsed")
+          %p Criteria
+          .list(ng-repeat="criteria in mca.criteria" ce-sort level="2" func="update_criteria_order(code, ids)" code="criteria.id"){id: "{{agenda.id}}"}
+            %div{id: "{{criteria.id}}"}
+              %p.title(click-to-edit="criteria.title" code="criteria.id" inp-type="'text'" func="update_criteria_title(code, str)")
+
+          %p Options
+          .list(ng-repeat="option in mca.options" ce-sort level="2" func="update_option_order(code, ids)" code="option.id"){id: "{{option.id}}"}
+            %div{id: "{{option.id}}"}
+              %p.title(click-to-edit="option.title" code="option.id" inp-type="'text'" func="update_option_title(code, str)")
+
+      .row
+        .col-sm-2 Add a new MCA
+        .col-sm-7
+          %input.title(ng-model="new_mca.title"){placeholder: 'Enter title for new MCA (min 10 characters)'}
+        .col-sm-3
+          %button.btn-primary.btn(ng-click="add_mca()" ng-disabled="!new_mca.title || new_mca.title.length<10"){type: 'button'}
+            %span.def-msg Add MCA
+            %span.busy-msg
+              Adding
+              %i.fa.fa-spinner.fa-spin
+
 
     %h3 Agenda participants
     %table(border="1")
       %tr
-        %td Title
-        %td {{agenda.title}}
+        %th Type
+        %th Id
+        -#%th Report to
+        %th Access code
+        %th User id
+      %tr(ng-repeat="participant in agenda.participants")
+        %td {{participant.first_name}}
+        %td {{participant.last_name}}
+        -#%td
+          %select(ng-model="participant.theme_team" ng-options="team for team in agenda.themers" ng-if="participant.first_name=='Group'")
+            %option(value="" disabled selected) Select team
+        %td {{participant.access_code}}
+        %td {{participant.id}}
+        -#%td {{participant.email}}
+

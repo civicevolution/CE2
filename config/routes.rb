@@ -198,6 +198,7 @@ Ce2::Application.routes.draw do
         post 'refresh_agenda', on: :member
         delete 'delete_agenda', on: :member
         post 'add_conversation', on: :member
+        post 'add_mca', on: :member
         post 'update_agenda', on: :member
         get 'agenda_defaults', on: :collection
       end

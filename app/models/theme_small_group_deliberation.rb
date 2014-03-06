@@ -16,8 +16,11 @@ class ThemeSmallGroupDeliberation < AgendaComponent
 
   def self.data_theme_small_groups_page_data(params)
     current_user = params["current_user"]
-    group_user_ids = params["group_user_ids"].scan(/\d+/).map(&:to_i)
+    group_user_ids = params["group_user_ids"].scan(/\d+/).map(&:to_s)
+
     conversation = Conversation.includes(:title_comment).find_by(code: params["conversation_code"])
+    group_user_ids = conversation.agenda.participants.where(first_name: "Group", last_name: group_user_ids).pluck(:id)
+
     table_comments = []
     conversation.table_comments.where(user_id: group_user_ids ).each do|comment|
       comment_json = {}
@@ -64,7 +67,8 @@ class ThemeSmallGroupDeliberation < AgendaComponent
       theme_comments: theme_comments,
       role: Ability.abilities(params["current_user"], 'Conversation', conversation.id),
       details: conversation.details,
-      current_timestamp: Time.new.to_i
+      current_timestamp: Time.new.to_i,
+      theme_map: conversation.agenda.details['theme_map']
     }
   end
 
