@@ -42,7 +42,7 @@ module Api
         data[:evaluators] = evals
         participants = []
         option.multi_criteria_analysis.agenda.participants.select{|u| u.email.match(/group/)}.sort{|a,b| a.id <=> b.id}.each do |u|
-          participants.push( {user_id: u.id, name: "#{u.first_name} #{u.last_name}" }) unless u.last_name.to_i > 7
+          participants.push( {user_id: u.id, name: "#{u.first_name} #{u.last_name}" }) unless u.last_name.to_i > 8
         end
         data[:participants] = participants
         render json: data

@@ -61,7 +61,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
       if evaluation.status != 'deleted'
         evaluation_attrs = evaluation.attributes
         evaluation_attrs[:title] = evaluation.mca_option.title
-        evaluation_attrs[:project_id] = evaluation.mca_option.details['project_id']
+        #evaluation_attrs[:project_id] = evaluation.mca_option.details['project_id']
         evaluation_attrs[:ratings] = {}
         evaluation.ratings.each do |rating|
           evaluation_attrs[:ratings][rating.mca_criteria_id] = rating.rating

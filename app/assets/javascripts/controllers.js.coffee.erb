@@ -2018,11 +2018,11 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
         displayName: 'Grp'
         width: 40
       )
-      data_cols.push(
-        field: 'project_id'
-        displayName: 'Id'
-        width: 40
-      )
+      #data_cols.push(
+      #  field: 'project_id'
+      #  displayName: 'Id'
+      #  width: 40
+      #)
       data_cols.push(
         field: 'title'
         displayName: 'Project'
@@ -2102,15 +2102,15 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
       for option in $scope.options
         title = option.title
         option_id = option.id
-        project_id = option.details.project_id
-        city_rating = option.details.city_rating
+        #project_id = option.details.project_id
+        #city_rating = option.details.city_rating
         source_key = option.source_key
         if option.evaluations.length == 0
           option.evaluations = [ {category: 'unassigned', last_name: 'U', ratings: [] }]
         for evaluation in option.evaluations
           data =
             source_key: source_key
-            project_id: project_id
+            #project_id: project_id
             title: title
             option_id: option_id
             group: evaluation.last_name
@@ -2125,11 +2125,11 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
           data["score"] = sum_of_scores
           data["score_pct"] = Math.round(sum_of_scores/30 * 100 )+'%'
           data["score_wt_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight)+'%'
-          data["city_rating"] = city_rating
-          data["exec_pct"] = Math.round(city_rating/25 *100)+'%'
-          data["variance"] = Math.round( (sum_of_scores/30 - city_rating/25)/(city_rating/25) *100)+'%'
-          data["exec_wt_pct"] = Math.round(city_rating/25 * $scope.mca.exec_weight)+'%'
-          data["total_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight + city_rating/25 * $scope.mca.exec_weight )+'%'
+          #data["city_rating"] = city_rating
+          #data["exec_pct"] = Math.round(city_rating/25 *100)+'%'
+          #data["variance"] = Math.round( (sum_of_scores/30 - city_rating/25)/(city_rating/25) *100)+'%'
+          #data["exec_wt_pct"] = Math.round(city_rating/25 * $scope.mca.exec_weight)+'%'
+          #data["total_pct"] = Math.round(sum_of_scores/30 * $scope.mca.panel_weight + city_rating/25 * $scope.mca.exec_weight )+'%'
           my_data.push(data)
       my_data
 
@@ -2381,12 +2381,12 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService",
         $scope.$$phase || $scope.$apply()
 
     data_cols = []
-    data_cols.push(
-      field: 'project_id'
-      displayName: 'Id'
-      width: 40
-      enableCellEdit: false
-    )
+    #data_cols.push(
+    #  field: 'project_id'
+    #  displayName: 'Id'
+    #  width: 40
+    #  enableCellEdit: false
+    #)
     data_cols.push(
       field: 'title'
       displayName: 'Project'
@@ -2412,7 +2412,7 @@ group_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService",
     for evaluation in $scope.evaluations
       data =
         title: evaluation.title
-        project_id: evaluation.project_id
+        #project_id: evaluation.project_id
         type: "panel"
         evaluation_id: evaluation.id
       sum_of_scores = 0

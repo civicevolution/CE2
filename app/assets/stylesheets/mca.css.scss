@@ -9,9 +9,12 @@
   margin-right: 10px;
 }
 #coord-mca-table{
+  .mca-table-column-select{
+    .fl{ float: left; margin-right: 3em;}
+  }
   label{
-    margin-left: 10px;
-    padding-left: 10px;
+    margin-left: .5em;
+    //padding-left: 10px;
   }
     input.panel-weight{
     width: 30px;
