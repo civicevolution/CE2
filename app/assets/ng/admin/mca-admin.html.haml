@@ -1,0 +1,42 @@
+.mca-admin
+  %h3 MCA details for {{mca_details.title}}
+  %p Show details for mca id: {{mca_details.id}}
+  .conversations
+    .row.list
+      .col-sm-11{id: "{{mca_details.id}}"}
+        %p.title(click-to-edit="mca_details.title" code="mca_details.id" inp-type="'text'" func="update_mca('title', code, str)")
+        %div.conversation-options(collapse="isCollapsed")
+        %h4 Criteria
+        .list(ng-repeat="criteria in mca_details.criteria" ce-sort level="2" func="update_criteria_order(code, ids)" code="criteria.id"){id: "{{agenda.id}}"}
+          %div{id: "{{criteria.id}}"}
+            %p
+              %span.title(click-to-edit="criteria.title" code="criteria.id" inp-type="'text'" func="update_criteria('title', code, value)")
+
+        .row.add
+          .col-sm-2 Add criteria
+          .col-sm-7
+            %input.title(ng-model="new_mca.criteria"){placeholder: 'Enter criteria for MCA (min 10 characters)'}
+          .col-sm-3
+            %button.btn-primary.btn(ng-click="add_criteria()" ng-disabled="!new_mca.criteria || new_mca.criteria.length<10"){type: 'button'}
+              %span.def-msg Add Criteria
+              %span.busy-msg
+                Adding
+                %i.fa.fa-spinner.fa-spin
+
+        %h4 Options
+        .list(ng-repeat="option in mca_details.options" ce-sort level="2" func="update_option_order(code, ids)" code="option.id"){id: "{{option.id}}"}
+          %div{id: "{{option.id}}"}
+            %p
+              %span.title(click-to-edit="option.category" code="option.id" inp-type="'text'" func="update_option('category', code, value)")
+              %span.title(click-to-edit="option.title" code="option.id" inp-type="'text'" func="update_option('title', code, value)")
+
+        .row.add
+          .col-sm-2 Add option
+          .col-sm-7
+            %input.title(ng-model="new_mca.option"){placeholder: 'Enter Option for MCA (min 4 characters)'}
+          .col-sm-3
+            %button.btn-primary.btn(ng-click="add_option()" ng-disabled="!new_mca.option || new_mca.option.length<4"){type: 'button'}
+              %span.def-msg Add Option
+              %span.busy-msg
+                Adding
+                %i.fa.fa-spinner.fa-spin

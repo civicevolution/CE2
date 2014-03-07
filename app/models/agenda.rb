@@ -1591,8 +1591,8 @@ class Agenda < ActiveRecord::Base
           id: mca.id,
           title: mca.title,
           details: mca.details,
-          criteria: mca.criteria.as_json(except: [:multi_criteria_analysis_id, :created_at, :updated_at]),
-          options: mca.options.as_json(except: [:multi_criteria_analysis_id, :created_at, :updated_at])
+          criteria: mca.criteria.order("order_id").as_json(except: [:multi_criteria_analysis_id, :created_at, :updated_at]),
+          options: mca.options.order("order_id").as_json(except: [:multi_criteria_analysis_id, :created_at, :updated_at])
         }
       )
     end

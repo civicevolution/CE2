@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140304201209) do
+ActiveRecord::Schema.define(version: 20140307113324) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -387,6 +387,7 @@ ActiveRecord::Schema.define(version: 20140304201209) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.hstore   "details"
+    t.string   "category"
   end
 
   create_table "mca_ratings", force: true do |t|

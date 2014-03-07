@@ -3,6 +3,20 @@ module Api
     class McaOptionsController < Api::BaseController
       skip_authorization_check only: [:project_assignments, :assign_project]
 
+      def update
+        Rails.logger.debug "McaOptionsController::update"
+        option = McaOption.find(params[:option_id])
+        authorize! :add_mca, option.mca.agenda
+        render json: option.update(params[:key], params[:value])
+      end
+
+      def destroy
+        Rails.logger.debug "McaOptionsController::destroy"
+        option = McaOption.find(params[:option_id])
+        authorize! :add_mca, option.mca.agenda
+        render json: option
+      end
+
       def project_assignments
         option = McaOption.find(params[:id])
         evaluations = option.evaluations.includes(:user)

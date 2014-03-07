@@ -242,6 +242,16 @@ Ce2::Application.routes.draw do
   get "api/reports/:agenda_code/criteria_stats" => "api/v1/reports#criteria_stats"
 
 
+  post "/api/mca/:mca_id/update" => "api/v1/multi_criteria_analyses#update", format: :json
+
+  post "/api/mca/:mca_id/criteria" => "api/v1/multi_criteria_analyses#add_criteria", format: :json
+  post "/api/criteria/:criteria_id" => "api/v1/mca_criteria#update", format: :json
+  delete "/api/criteria/:criteria_id" => "api/v1/mca_criteria#destroy", format: :json
+
+  post "/api/mca/:mca_id/option" => "api/v1/multi_criteria_analyses#add_option", format: :json
+  post "/api/option/:option_id" => "api/v1/mca_options#update", format: :json
+  delete "/api/option/:option_id" => "api/v1/mca_options#destroy", format: :json
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

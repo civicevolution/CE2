@@ -222,20 +222,14 @@
               %i.fa.fa-spinner.fa-spin
 
     %h3 Agenda MCA
-    .conversations
-      .row.list(ng-repeat="mca in agenda.mcas" ce-sort func="update_mca_order(code, ids)" code="agenda.code"){id: "{{mca.id}}"}
-        .col-sm-11{id: "{{mca.id}}"}
-          %p.title(click-to-edit="mca.title" code="mca.id" inp-type="'text'" func="update_mca_title(code, str)")
-          %div.conversation-options(collapse="isCollapsed")
-          %p Criteria
-          .list(ng-repeat="criteria in mca.criteria" ce-sort level="2" func="update_criteria_order(code, ids)" code="criteria.id"){id: "{{agenda.id}}"}
-            %div{id: "{{criteria.id}}"}
-              %p.title(click-to-edit="criteria.title" code="criteria.id" inp-type="'text'" func="update_criteria_title(code, str)")
-
-          %p Options
-          .list(ng-repeat="option in mca.options" ce-sort level="2" func="update_option_order(code, ids)" code="option.id"){id: "{{option.id}}"}
-            %div{id: "{{option.id}}"}
-              %p.title(click-to-edit="option.title" code="option.id" inp-type="'text'" func="update_option_title(code, str)")
+    .conversation-admin
+      .conversations
+        .row.list(ng-repeat="mca in agenda.mcas" ce-sort func="update_mca_order(code, ids)" code="agenda.code"){id: "{{mca.id}}"}
+          .col-sm-11{id: "{{mca.id}}"}
+            -#%p.title(click-to-edit="mca.title" code="mca.id" inp-type="'text'" func="update_mca_title(code, str)")
+            %p.title
+              {{mca.title}}
+              %a(ng-click="edit_mca_details(mca.id)") View/edit details
 
       .row
         .col-sm-2 Add a new MCA
@@ -247,6 +241,8 @@
             %span.busy-msg
               Adding
               %i.fa.fa-spinner.fa-spin
+
+      %div(ng-include="'#{ path_to_asset("admin/mca-admin.html") }'" ng-if="mca_details.id")
 
 
     %h3 Agenda participants

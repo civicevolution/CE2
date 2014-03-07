@@ -1,8 +1,15 @@
 class McaOption < ActiveRecord::Base
-  attr_accessible :multi_criteria_analysis_id, :title, :text, :order_id
+  attr_accessible :multi_criteria_analysis_id, :title, :text, :order_id, :category
 
-  belongs_to :multi_criteria_analysis
+  belongs_to :mca, class_name: "MultiCriteriaAnalysis", foreign_key: 'multi_criteria_analysis_id', primary_key: 'id'
   has_many :evaluations, class_name: 'McaOptionEvaluation'
+
+  before_create :set_defaults
+
+  def set_defaults
+    self.text ||= self.title
+    self.order_id ||= self.mca.options.maximum(:order_id) + 1 || 1
+  end
 
   def add_evaluation(params)
     evaluation = nil
@@ -18,6 +25,14 @@ class McaOption < ActiveRecord::Base
       # add a plenary evaluation
     end
     evaluation
+  end
+
+  def update(key, value)
+    Rails.logger.debug "McaOption.update"
+    self.update_attribute(key,value)
+    json = self.attributes
+    json[:key] = key
+    json
   end
 
 

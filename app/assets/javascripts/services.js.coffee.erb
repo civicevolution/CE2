@@ -682,6 +682,29 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
 
     remove_evaluation_assignment: (evaluation_id) ->
       $http.post("/api/mca_option_evaluations/#{evaluation_id}/remove_evaluation_assignment.json")
+
+    update_mca: (mca_id, data) ->
+      $http.post("/api/mca/#{mca_id}/panel_weight.json", data )
+
+    add_mca_criteria: (mca_id, title) ->
+      $http.post("/api/mca/#{mca_id}/criteria.json", {title: title} )
+
+    update_mca_criteria: (criteria_id, data) ->
+      $http.post("/api/criteria/#{criteria_id}.json", data )
+
+    delete_mca_criteria: (criteria_id) ->
+      $http.delete("/api/criteria/#{criteria_id}.json" )
+
+    add_mca_option: (mca_id, title) ->
+      $http.post("/api/mca/#{mca_id}/option.json", {title: title} )
+
+    update_mca_option: (option_id, data) ->
+      $http.post("/api/option/#{option_id}.json", data )
+
+    delete_mca_option: (option_id) ->
+      $http.delete("/api/option/#{option_id}.json" )
+
+
 ]
 
 services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, $rootScope, $http) ->

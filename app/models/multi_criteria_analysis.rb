@@ -163,6 +163,21 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
     data
   end
 
+  def add_criteria(title)
+    criteria = self.criteria.create title: title
+    criteria.attributes
+  end
 
+  def add_option(title)
+    pcs = title.split('#',2)
+    if pcs.size == 1
+      category = ''
+    else
+      title = pcs[1]
+      category = pcs[0]
+    end
+    option = self.options.create title: title, category: category
+    option.attributes
+  end
 
 end

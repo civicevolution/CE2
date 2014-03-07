@@ -2484,8 +2484,8 @@ ce2_app.controller('AlertCtrl', ['$scope',
       $scope.alerts.splice(index, 1);
 ] )
 
-agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "AgendaData", "$dialog", "$location",
-  ($scope, agendas, agenda, agenda_defaults, AgendaData, $dialog, $location) ->
+agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "AgendaData", "$dialog", "$location", "McaData",
+  ($scope, agendas, agenda, agenda_defaults, AgendaData, $dialog, $location, McaData) ->
     agenda.url = "#{document.location.origin}/#/agenda/#{agenda.code}/#{agenda.munged_title}"
     $scope.agendas = agendas
     $scope.admin= {}
@@ -2500,6 +2500,7 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
     $scope.agenda.labels = {}
     $scope.new_conversation = {title: null}
     $scope.new_mca = {title: null}
+    $scope.mca_details = mca for mca in $scope.agenda.mcas when mca.id == 66
     if $scope.agenda.themers
       $scope.agenda.themers = ( "#{p.first_name} #{p.last_name}" for p in $scope.agenda.participants when p.first_name is "Theme team" )
     $scope.create_agenda = () ->
@@ -2609,5 +2610,59 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
           $scope.new_mca.title =  ''
       )
 
+    $scope.edit_mca_details = (mca_id) ->
+      console.log "edit_mca_details"
+      if $scope.mca_details.id == mca_id
+        $scope.mca_details = {}
+        return
+      $scope.mca_details = mca for mca in $scope.agenda.mcas when mca.id == mca_id
+      
+    $scope.update_mca = (type, code, str) ->
+      console.log "update_mca #{type}, code: #{code}, str: #{str}"
+      McaData.update_mca(mca_id, data)
+
+    $scope.add_criteria = ->
+      console.log "add_criteria"
+      btn = angular.element(event.currentTarget)
+      btn.addClass('busy')
+      McaData.add_mca_criteria($scope.mca_details.id, $scope.new_mca.criteria).then(
+        (response)->
+          btn.removeClass('busy')
+          $scope.mca_details.criteria.push(response.data)
+          $scope.new_mca.criteria =  ''
+      )
+
+    $scope.update_criteria = (key, criteria_id, value) ->
+      console.log "update_criteria"
+      McaData.update_mca_criteria(criteria_id, {key: key, value: value}).then(
+        (response)->
+          response.data[response.data.key]
+      )
+
+    $scope.delete_criteria = () ->
+      console.log "delete_criteria"
+      McaData.delete_mca_criteria(criteria_id)
+
+    $scope.add_option = ->
+      console.log "add_option"
+      btn = angular.element(event.currentTarget)
+      btn.addClass('busy')
+      McaData.add_mca_option($scope.mca_details.id, $scope.new_mca.option).then(
+        (response)->
+          btn.removeClass('busy')
+          $scope.mca_details.options.push(response.data)
+          $scope.new_mca.option =  ''
+      )
+
+    $scope.update_option = (key, option_id, value) ->
+      console.log "update_option"
+      McaData.update_mca_option(option_id, {key: key, value: value}).then(
+        (response)->
+          response.data[response.data.key]
+      )
+
+    $scope.delete_option = () ->
+      console.log "delete_option"
+      McaData.delete_mca_option(option_id) ->
 
 ]
