@@ -608,6 +608,8 @@ class Agenda < ActiveRecord::Base
     CommentThread.where(parent_id: comment_ids).destroy_all
     CommentVersion.where(item_id: comment_ids, item_type: 'Comment').destroy_all
     RecommendationVote.where(conversation_id: conversation_ids).destroy_all
+
+    self.mca.each{|m| m.options.each{|o| o.evaluations.each{|e| e.ratings.destroy_all}} }
   end
 
   def delete_agenda

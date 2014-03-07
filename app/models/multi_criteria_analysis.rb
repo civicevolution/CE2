@@ -6,10 +6,10 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   belongs_to :agenda
 
   def self.coord_evaluation_data(params)
-    if [5,51].include?(params['mca_id'].to_i)
-      return MultiCriteriaAnalysis.coord_combined_evaluation_data(params)
-
-    end
+    #if [5,51].include?(params['mca_id'].to_i)
+    #  return MultiCriteriaAnalysis.coord_combined_evaluation_data(params)
+    #
+    #end
 
 
     mca = MultiCriteriaAnalysis.find( params['mca_id'] )
