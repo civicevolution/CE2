@@ -166,6 +166,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   def add_criteria(title)
     criteria_stack = []
     title.split("\n").each do |criteria_title|
+      next unless criteria_title.match(/\w/)
       criteria = self.criteria.create title: criteria_title
       criteria_stack.push( criteria.attributes )
     end
@@ -175,6 +176,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   def add_option(title)
     options_stack = []
     title.split("\n").each do |criteria_title|
+      next unless criteria_title.match(/\w/)
       pcs = criteria_title.split('#',2)
       if pcs.size == 1
         category = ''
