@@ -19,6 +19,9 @@ class TableComment < Comment
   after_save :tag_to_purpose_theme, unless: :auto_tag_disabled
 
   def tag_to_purpose_theme
+    if self.purpose == 'table'
+      return
+    end
     @old_purpose = self.purpose_was
     coordinator_user_id = self.conversation.agenda.details['coordinator_user_id']
     theme_com = ThemeComment.where(purpose: self.purpose, conversation_id: self.conversation_id, user_id: coordinator_user_id ).first_or_create do |theme|

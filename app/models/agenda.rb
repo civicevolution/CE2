@@ -885,14 +885,14 @@ class Agenda < ActiveRecord::Base
     agenda_details[:conversation_ids].flatten.each do |id|
       ordered_conversations << conversations.detect{|c| c.id == id}
     end
-    conversations = ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title } }
+    conversations = ordered_conversations.map{|c| {id: c.id, code: c.code, title: c.title, munged_title: c.munged_title, details: c.details } }
 
     conversations.each_index do |conv_index|
       conversation = conversations[conv_index]
 
 
 
-      if agenda_details[:make_recommendation] && agenda_details[:make_recommendation].include?( conversation[:id] )
+      if conversation[:details]['recommend_voting']
         # link for group scribe select
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
@@ -930,7 +930,7 @@ class Agenda < ActiveRecord::Base
 
 
 
-      if !agenda_details[:themes_only].include?( conversation[:id] )
+      if !conversation[:details]['plenary_only']
         # link for group scribe
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
@@ -1009,7 +1009,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "reporter"
 
-      if agenda_details[:select_conversations].include?( conversation[:id] )
+      if conversation[:details]['select_voting']
         # link for group scribe select
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
@@ -1045,7 +1045,7 @@ class Agenda < ActiveRecord::Base
       end
 
 
-      if agenda_details[:allocate_conversations].include?( conversation[:id] )
+      if conversation[:details]['allocation_voting']
         # link for group scribe allocate
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
@@ -1537,6 +1537,7 @@ class Agenda < ActiveRecord::Base
 
   def agenda_admin_details
     conversations = Conversation.where(agenda_id:  self.id )
+    self.details ||= {}
     ordered_conversations = []
     ordered_conversation_ids = self.details['conversation_ids'] || []
     ordered_conversation_ids.flatten.each do |con_id|

@@ -2528,20 +2528,16 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
       )
 
     $scope.reset_agenda = ->
-      #console.log "reset_agenda"
       btn = angular.element(event.currentTarget)
-      btn.addClass('busy')
       msg = "Are you sure you want to RESET this agenda?"
       btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
       cb = (result) ->
         if result is "yes"
+          btn.addClass('busy')
           AgendaData.reset_agenda($scope.agenda.code).then(
             (response)->
               btn.removeClass('busy')
-              btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
-              cb = (result) ->
-                document.location.reload()
-              $dialog.messageBox("Agenda has been reset - all data has been cleared", response.data.ack, btns, cb)
+              $dialog.messageBoxOk("Agenda has been reset - all data has been cleared", response.data.ack)
           )
         else
           btn.removeClass('busy')
@@ -2550,17 +2546,17 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
     $scope.delete_agenda = ->
       #console.log "delete_agenda"
       btn = angular.element(event.currentTarget)
-      btn.addClass('busy')
       msg = "Are you sure you want to DELETE this agenda?"
       btns = [{result:'yes', label: 'Yes', cssClass: 'btn-primary'},{result:'no', label: 'No', cssClass: 'btn'} ]
       cb = (result) ->
         if result is "yes"
+          btn.addClass('busy')
           AgendaData.delete_agenda($scope.agenda.code).then(
             (response)->
               btn.removeClass('busy')
               btns = [{result:'ok', label: 'OK', cssClass: 'btn-primary'}]
               cb = (result) ->
-                document.location.reload()
+                $location.path('/agenda-admin')
               $dialog.messageBox("Agenda deleted", response.data.ack, btns, cb)
           )
         else
