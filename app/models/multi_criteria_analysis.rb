@@ -183,7 +183,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
         option_title = pcs[1]
         category = pcs[0]
       end
-      option = self.options.build title: option_title, category: category
+      option = self.options.create title: option_title, category: category
       Rails.logger.debug "#{pp option.attributes}"
       options_stack.push( option.attributes )
     end

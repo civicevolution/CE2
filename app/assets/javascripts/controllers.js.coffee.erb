@@ -2500,7 +2500,7 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
     $scope.agenda.labels = {}
     $scope.new_conversation = {title: null}
     $scope.new_mca = {title: null}
-    $scope.mca_details = mca for mca in $scope.agenda.mcas when mca.id == 66
+    $scope.mca_details = {}
     if $scope.agenda.themers
       $scope.agenda.themers = ( "#{p.first_name} #{p.last_name}" for p in $scope.agenda.participants when p.first_name is "Theme team" )
     $scope.create_agenda = () ->
