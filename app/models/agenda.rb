@@ -890,6 +890,7 @@ class Agenda < ActiveRecord::Base
     conversations.each_index do |conv_index|
       conversation = conversations[conv_index]
 
+      next unless conversation[:details]['display']
 
 
       if conversation[:details]['recommend_voting']
