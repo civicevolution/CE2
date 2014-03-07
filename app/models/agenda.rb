@@ -1050,7 +1050,7 @@ class Agenda < ActiveRecord::Base
         # link for group scribe allocate
         link_code = self.create_link_code( agenda_details[:links][:lookup] )
         link = {
-            title: %Q|Allocate points for ideas for "#{conversation[:title]}"|,
+            title: %Q|Allocate points for "#{conversation[:title]}"|,
             id: conversation[:id],
             link_code:  link_code,
             href: "/#/agenda/#{self.code}-#{link_code}/allocate/#{conversation[:munged_title]}",

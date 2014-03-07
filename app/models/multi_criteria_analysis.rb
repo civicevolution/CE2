@@ -164,20 +164,30 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   end
 
   def add_criteria(title)
-    criteria = self.criteria.create title: title
-    criteria.attributes
+    criteria_stack = []
+    title.split("\n").each do |criteria_title|
+      criteria = self.criteria.create title: criteria_title
+      criteria_stack.push( criteria.attributes )
+    end
+    criteria_stack
   end
 
   def add_option(title)
-    pcs = title.split('#',2)
-    if pcs.size == 1
-      category = ''
-    else
-      title = pcs[1]
-      category = pcs[0]
+    options_stack = []
+    title.split("\n").each do |criteria_title|
+      pcs = criteria_title.split('#',2)
+      if pcs.size == 1
+        category = ''
+        option_title = pcs[0]
+      else
+        option_title = pcs[1]
+        category = pcs[0]
+      end
+      option = self.options.build title: option_title, category: category
+      Rails.logger.debug "#{pp option.attributes}"
+      options_stack.push( option.attributes )
     end
-    option = self.options.create title: title, category: category
-    option.attributes
+    options_stack
   end
 
   def update(key, value)

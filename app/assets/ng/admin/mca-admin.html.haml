@@ -16,7 +16,7 @@
         .row.add
           .col-sm-2 Add criteria
           .col-sm-7
-            %input.title(ng-model="new_mca.criteria"){placeholder: 'Enter criteria for MCA (min 10 characters)'}
+            %textarea.title(ng-model="new_mca.criteria"){placeholder: 'Enter criteria for MCA (min 10 characters)'}
           .col-sm-3
             %button.btn-primary.btn(ng-click="add_criteria()" ng-disabled="!new_mca.criteria || new_mca.criteria.length<10"){type: 'button'}
               %span.def-msg Add Criteria
@@ -35,7 +35,7 @@
         .row.add
           .col-sm-2 Add option
           .col-sm-7
-            %input.title(ng-model="new_mca.option"){placeholder: 'Enter Option for MCA (min 4 characters)'}
+            %textarea.title(ng-model="new_mca.option"){placeholder: 'Enter option for MCA (min 4 characters)'}
           .col-sm-3
             %button.btn-primary.btn(ng-click="add_option()" ng-disabled="!new_mca.option || new_mca.option.length<4"){type: 'button'}
               %span.def-msg Add Option

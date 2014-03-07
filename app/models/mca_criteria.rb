@@ -11,7 +11,10 @@ class McaCriteria < ActiveRecord::Base
     self.category = ''
     self.range ||= "1..5"
     self.weight ||= 1
-    self.order_id ||= self.mca.criteria.maximum(:order_id) + 1 || 1
+    if self.order_id.nil?
+      max_id = self.mca.criteria.maximum(:order_id) || 0
+      self.order_id = max_id + 1
+    end
   end
   
   def update(key, value)

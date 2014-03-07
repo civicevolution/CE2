@@ -2630,7 +2630,8 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
       McaData.add_mca_criteria($scope.mca_details.id, $scope.new_mca.criteria).then(
         (response)->
           btn.removeClass('busy')
-          $scope.mca_details.criteria.push(response.data)
+          for criteria in response.data
+            $scope.mca_details.criteria.push(criteria)
           $scope.new_mca.criteria =  ''
       )
 
@@ -2659,7 +2660,8 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
       McaData.add_mca_option($scope.mca_details.id, $scope.new_mca.option).then(
         (response)->
           btn.removeClass('busy')
-          $scope.mca_details.options.push(response.data)
+          for option in response.data
+            $scope.mca_details.options.push(option)
           $scope.new_mca.option =  ''
       )
 

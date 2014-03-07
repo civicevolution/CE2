@@ -8,7 +8,10 @@ class McaOption < ActiveRecord::Base
 
   def set_defaults
     self.text ||= self.title
-    self.order_id ||= self.mca.options.maximum(:order_id) + 1 || 1
+    if self.order_id.nil?
+      max_id = self.mca.options.maximum(:order_id) || 0
+      self.order_id = max_id + 1
+    end
   end
 
   def add_evaluation(params)
