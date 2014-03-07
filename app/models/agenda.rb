@@ -1239,7 +1239,7 @@ class Agenda < ActiveRecord::Base
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
         title: "PDF & JPEG reports",
-        href: "/#/agenda/#{agenda_details[:code]}/report-pdf/#{self.munged_title}",
+        href: "/#/agenda/#{self.code}/report-pdf/#{self.munged_title}",
 
         disabled: false,
         role: 'reporter',
@@ -1248,24 +1248,24 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:coordinator][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "reporter"
 
-    # link for Reason/criteria stats
-    link_code = self.create_link_code( agenda_details[:links][:lookup] )
-    link = {
-        title: "Reason/criteria stats",
-        href: "/api/reports/#{agenda_details[:code]}/criteria_stats",
-        disabled: false,
-        role: 'reporter',
-    }
-    agenda_details[:links][:reporter][ link_code ] = link
-    agenda_details[:links][:coordinator][ link_code ] = link
-    agenda_details[:links][:lookup][link_code] = "reporter"
+    ## link for Reason/criteria stats
+    #link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    #link = {
+    #    title: "Reason/criteria stats",
+    #    href: "/api/reports/#{agenda_details[:code]}/criteria_stats",
+    #    disabled: false,
+    #    role: 'reporter',
+    #}
+    #agenda_details[:links][:reporter][ link_code ] = link
+    #agenda_details[:links][:coordinator][ link_code ] = link
+    #agenda_details[:links][:lookup][link_code] = "reporter"
 
 
     # link for report-generator
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
         title: "Report generator",
-        href: "/#/agenda/#{agenda_details[:code]}/report-generator/#{self.munged_title}",
+        href: "/#/agenda/#{self.code}/report-generator/#{self.munged_title}",
 
         disabled: false,
         role: 'reporter',
