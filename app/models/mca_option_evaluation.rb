@@ -3,7 +3,7 @@ class McaOptionEvaluation < ActiveRecord::Base
 
   belongs_to :mca_option
   belongs_to :user
-  has_many :ratings, class_name: McaRating
+  has_many :ratings, class_name: McaRating, dependent: :destroy
 
   before_validation :set_order_id, unless: Proc.new{|moe| moe.order_id}
 

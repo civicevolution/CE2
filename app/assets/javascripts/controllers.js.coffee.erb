@@ -2484,8 +2484,8 @@ ce2_app.controller('AlertCtrl', ['$scope',
       $scope.alerts.splice(index, 1);
 ] )
 
-agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "AgendaData", "$dialog", "$location", "McaData",
-  ($scope, agendas, agenda, agenda_defaults, AgendaData, $dialog, $location, McaData) ->
+agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "AgendaData", "$dialog", "$location", "McaData", "$filter",
+  ($scope, agendas, agenda, agenda_defaults, AgendaData, $dialog, $location, McaData, $filter) ->
     agenda.url = "#{document.location.origin}/#/agenda/#{agenda.code}/#{agenda.munged_title}"
     $scope.agendas = agendas
     $scope.admin= {}
@@ -2617,9 +2617,11 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
         return
       $scope.mca_details = mca for mca in $scope.agenda.mcas when mca.id == mca_id
       
-    $scope.update_mca = (type, code, str) ->
-      console.log "update_mca #{type}, code: #{code}, str: #{str}"
-      McaData.update_mca(mca_id, data)
+    $scope.update_mca = (type, mca_id, value) ->
+      McaData.update_mca(mca_id, type, value).then(
+        (response)->
+          response.data
+      )
 
     $scope.add_criteria = ->
       console.log "add_criteria"
@@ -2633,11 +2635,18 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
       )
 
     $scope.update_criteria = (key, criteria_id, value) ->
-      console.log "update_criteria"
-      McaData.update_mca_criteria(criteria_id, {key: key, value: value}).then(
-        (response)->
-          response.data[response.data.key]
-      )
+      if value is "~delete~"
+        console.log "delete_criteria NOW"
+        McaData.delete_mca_criteria(criteria_id).then(
+          (response)->
+            console.log "deleted criteria, remove option id: #{response.data.id}"
+            $scope.mca_details.criteria = $filter('filter')($scope.mca_details.criteria, (o) -> (o.id != response.data.id) )
+        )
+      else
+        McaData.update_mca_criteria(criteria_id, {key: key, value: value}).then(
+          (response)->
+            response.data[response.data.key]
+        )
 
     $scope.delete_criteria = () ->
       console.log "delete_criteria"
@@ -2655,14 +2664,19 @@ agenda_admin_controller = ["$scope", "agendas", "agenda", "agenda_defaults", "Ag
       )
 
     $scope.update_option = (key, option_id, value) ->
-      console.log "update_option"
-      McaData.update_mca_option(option_id, {key: key, value: value}).then(
-        (response)->
-          response.data[response.data.key]
-      )
-
-    $scope.delete_option = () ->
-      console.log "delete_option"
-      McaData.delete_mca_option(option_id) ->
+      if value is "~delete~"
+        console.log "delete_option NOW"
+        McaData.delete_mca_option(option_id).then(
+          (response)->
+            console.log "deleted option, remove option id: #{response.data.id}"
+            #response.data[response.data.key]
+            $scope.mca_details.options = $filter('filter')($scope.mca_details.options, (o) -> (o.id != response.data.id) )
+            #$filter('filter')($scope.mca_details.options, {id: response.data.id})
+        )
+      else
+        McaData.update_mca_option(option_id, {key: key, value: value}).then(
+          (response)->
+            response.data[response.data.key]
+        )
 
 ]

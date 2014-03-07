@@ -4,13 +4,14 @@
   .conversations
     .row.list
       .col-sm-11{id: "{{mca_details.id}}"}
-        %p.title(click-to-edit="mca_details.title" code="mca_details.id" inp-type="'text'" func="update_mca('title', code, str)")
+        %p.title(click-to-edit="mca_details.title" code="mca_details.id" inp-type="'text'" func="update_mca('title', code, value)")
         %div.conversation-options(collapse="isCollapsed")
         %h4 Criteria
-        .list(ng-repeat="criteria in mca_details.criteria" ce-sort level="2" func="update_criteria_order(code, ids)" code="criteria.id"){id: "{{agenda.id}}"}
-          %div{id: "{{criteria.id}}"}
-            %p
-              %span.title(click-to-edit="criteria.title" code="criteria.id" inp-type="'text'" func="update_criteria('title', code, value)")
+        %div
+          .list(ng-repeat="criteria in mca_details.criteria" ce-sort func="update_mca('criteria_order', code, ids)" code="mca_details.id"){id: "{{criteria.id}}"}
+            %div
+              %p
+                %span.title(click-to-edit="criteria.title" del="true" code="criteria.id" inp-type="'text'" func="update_criteria('title', code, value)")
 
         .row.add
           .col-sm-2 Add criteria
@@ -24,11 +25,12 @@
                 %i.fa.fa-spinner.fa-spin
 
         %h4 Options
-        .list(ng-repeat="option in mca_details.options" ce-sort level="2" func="update_option_order(code, ids)" code="option.id"){id: "{{option.id}}"}
-          %div{id: "{{option.id}}"}
-            %p
-              %span.title(click-to-edit="option.category" code="option.id" inp-type="'text'" func="update_option('category', code, value)")
-              %span.title(click-to-edit="option.title" code="option.id" inp-type="'text'" func="update_option('title', code, value)")
+        %div
+          .list(ng-repeat="option in mca_details.options" ce-sort func="update_mca('options_order', code, ids)" code="mca_details.id"){id: "{{option.id}}"}
+            %div
+              %p
+                %span.title(click-to-edit="option.category"  code="option.id" inp-type="'text'" func="update_option('category', code, value)")
+                %span.title(click-to-edit="option.title"  del="true" code="option.id" inp-type="'text'" func="update_option('title', code, value)")
 
         .row.add
           .col-sm-2 Add option

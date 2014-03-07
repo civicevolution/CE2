@@ -2,6 +2,8 @@
   %div(ng-hide="view.editorEnabled")
     {{value}}
     %a(ng-click="enableEditor()") Edit
+    %a.delete(ng-click="delete()" ng-if="del")
+      %i.fa.fa-times
   %div(ng-show="view.editorEnabled")
     %input.title(ng-if="inp_type=='text'" ng-model="view.editableValue")
     %textarea.edit(ng-if="inp_type=='textarea'" ng-model="view.editableValue")

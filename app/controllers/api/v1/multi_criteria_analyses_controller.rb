@@ -7,7 +7,7 @@ module Api
         Rails.logger.debug "MultiCriteriaAnalysesController::update"
         mca = MultiCriteriaAnalysis.find(params[:mca_id])
         authorize! :add_mca, mca.agenda
-        render json: mca
+        render json: mca.update(params[:key], params[:value])
       end
 
       def add_criteria

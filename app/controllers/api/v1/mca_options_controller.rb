@@ -14,6 +14,8 @@ module Api
         Rails.logger.debug "McaOptionsController::destroy"
         option = McaOption.find(params[:option_id])
         authorize! :add_mca, option.mca.agenda
+        raise "CivicEvolution::AgendaCannotBeReset Not in test mode" unless option.mca.agenda.test_mode
+        option.destroy
         render json: option
       end
 

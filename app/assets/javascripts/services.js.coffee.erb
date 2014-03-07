@@ -683,8 +683,8 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
     remove_evaluation_assignment: (evaluation_id) ->
       $http.post("/api/mca_option_evaluations/#{evaluation_id}/remove_evaluation_assignment.json")
 
-    update_mca: (mca_id, data) ->
-      $http.post("/api/mca/#{mca_id}/panel_weight.json", data )
+    update_mca: (mca_id, type, value) ->
+      $http.post("/api/mca/#{mca_id}/update.json", {key: type, value: value} )
 
     add_mca_criteria: (mca_id, title) ->
       $http.post("/api/mca/#{mca_id}/criteria.json", {title: title} )

@@ -2,7 +2,7 @@ class McaCriteria < ActiveRecord::Base
   attr_accessible :multi_criteria_analysis_id, :category, :title, :text, :order_id, :range, :weight
 
   belongs_to :mca, class_name: "MultiCriteriaAnalysis", foreign_key: 'multi_criteria_analysis_id', primary_key: 'id'
-  has_many :ratings, class_name: "McaRating"
+  has_many :ratings, class_name: "McaRating", dependent: :destroy
 
   before_create :set_defaults
 

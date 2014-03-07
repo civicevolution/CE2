@@ -1,8 +1,8 @@
 class MultiCriteriaAnalysis < ActiveRecord::Base
   attr_accessible :agenda_id, :title, :description
 
-  has_many :options, class_name: 'McaOption'
-  has_many :criteria, class_name: 'McaCriteria'
+  has_many :options, class_name: 'McaOption', dependent: :destroy
+  has_many :criteria, class_name: 'McaCriteria', dependent: :destroy
   belongs_to :agenda
 
   def self.coord_evaluation_data(params)
@@ -178,6 +178,68 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
     end
     option = self.options.create title: title, category: category
     option.attributes
+  end
+
+  def update(key, value)
+    Rails.logger.debug "MCA update key: #{key}, value: #{value}"
+    case key
+      when 'criteria_order'
+        self.update_criteria_order( value )
+        {ack: 'ok', key: key, value: value}
+      when 'options_order'
+        self.update_options_order( value )
+        {ack: 'ok', key: key, value: value}
+      when 'title'
+        self.update_attribute(:title, value)
+        value
+      else
+        Rails.logger.debug "MultiCriteriaAnalysis.update doesn't know what to do with key: #{key}"
+        {ack: 'FAIL-UNKNOWN', key: key, value: value}
+    end
+  end
+
+  def update_criteria_order( ordered_ids )
+    ordered_ids.reject!{|id| id.to_i == 0}
+
+    if !( ordered_ids.nil? || ordered_ids.empty?)
+      ctr = 0
+      order_string = ordered_ids.map{|o| "(#{ctr+=1},#{o})" }.join(',')
+
+      sql =
+          %Q|UPDATE mca_criteria SET order_id = new_order_id
+FROM ( SELECT * FROM (VALUES #{order_string}) vals (new_order_id,mca_criteria_id)	) t
+WHERE id = t.mca_criteria_id AND multi_criteria_analysis_id = #{self.id} |
+      Rails.logger.debug "update_criteria_order with sql: #{sql}"
+      ActiveRecord::Base.connection.update_sql(sql)
+
+      # return the ordered ids as a hash that allows me to look up the order_id by comment_id to resort on browser
+      ids_order_id = {}
+      # the order_ids start from 1, not 0
+      ordered_ids.each_index{ |i| ids_order_id[ordered_ids[i]] = i+1 }
+      ids_order_id
+    end
+  end
+
+  def update_options_order( ordered_ids )
+    ordered_ids.reject!{|id| id.to_i == 0}
+
+    if !( ordered_ids.nil? || ordered_ids.empty?)
+      ctr = 0
+      order_string = ordered_ids.map{|o| "(#{ctr+=1},#{o})" }.join(',')
+
+      sql =
+          %Q|UPDATE mca_options SET order_id = new_order_id
+FROM ( SELECT * FROM (VALUES #{order_string}) vals (new_order_id,mca_option_id)	) t
+WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
+      Rails.logger.debug "update_options_order with sql: #{sql}"
+      ActiveRecord::Base.connection.update_sql(sql)
+
+      # return the ordered ids as a hash that allows me to look up the order_id by comment_id to resort on browser
+      ids_order_id = {}
+      # the order_ids start from 1, not 0
+      ordered_ids.each_index{ |i| ids_order_id[ordered_ids[i]] = i+1 }
+      ids_order_id
+    end
   end
 
 end

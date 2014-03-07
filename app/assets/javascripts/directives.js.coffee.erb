@@ -2705,6 +2705,7 @@ ce2_directives.directive("clickToEdit", ->
     save_func: '&func'
     inp_type: "=inpType"
     key: "="
+    del: "="
   controller: [ "$scope", ($scope) ->
     $scope.view =
       editableValue: $scope.value
@@ -2723,6 +2724,10 @@ ce2_directives.directive("clickToEdit", ->
     $scope.save = ->
       $scope.value = $scope.save_func({code: $scope.code, key: $scope.key, value: $scope.view.editableValue})
       $scope.disableEditor()
+      
+    $scope.delete = ->
+      console.log "delete this item"
+      $scope.save_func({code: $scope.code, key: $scope.key, value: '~delete~'})
   ]
 )
 
