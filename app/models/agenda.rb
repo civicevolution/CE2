@@ -1325,6 +1325,23 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:lookup][link_code] = "group"
 
 
+    # link for coord-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|MCA Evaluation results for All Services|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+        data_set: "coord-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Sustainable Communities','Community Infrastructure', 'Corporate & Commercial', 'Creative Communities'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Multi Criteria Analysis Results for All Services",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "coordinator"
 
     #end
 
