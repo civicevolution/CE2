@@ -16,7 +16,7 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
     data = mca.attributes
     data[:page_title] = params['page_title']
     data[:options] = []
-    mca.options.includes(:evaluations => [:ratings, :user]).sort{|a,b| a.order_id <=> b.order_id}.each do |option|
+    mca.options.includes(:evaluations => [:ratings, :user]).where(category: eval(params['categories']) ).sort{|a,b| a.order_id <=> b.order_id}.each do |option|
       option_attrs = option.attributes
       option_attrs[:evaluations] = []
       option.evaluations.each do |evaluation|
