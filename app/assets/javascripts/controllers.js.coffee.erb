@@ -2157,7 +2157,7 @@ coord_mca_table = [ "$scope", "$timeout", "mca_data", "McaData", "FayeService", 
       last_option_id = -1
       add_average_option_id = null
       last_row = null
-      for row, index in data when row.type == 'group'
+      for row, index in data when row.type != 'group_average'
         #console.log "index: #{index}: option_id: #{row.option_id}, type: #{row.type}, group: #{row.group}"
         if last_option_id == row.option_id
           add_average_option_id = row.option_id
