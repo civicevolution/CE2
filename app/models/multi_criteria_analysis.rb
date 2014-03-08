@@ -45,7 +45,8 @@ class MultiCriteriaAnalysis < ActiveRecord::Base
   def self.group_evaluation_data(params)
     mca = MultiCriteriaAnalysis.find( params['mca_id'] )
 
-    option_ids = mca.options.pluck(:id)
+    #option_ids = mca.options.where(category: ['Community Infrastructure', 'Corporate & Commercial']).pluck(:id)
+    option_ids = mca.options.where(category: eval(params['categories']) ).pluck(:id)
 
     if params['mode'] == 'plenary'
       evaluations = McaOptionEvaluation.where(user_id: params["current_user"].id, mca_option_id: option_ids, status: 'plenary').includes(:mca_option, :ratings)

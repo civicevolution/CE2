@@ -1117,6 +1117,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:lookup][link_code] = "reporter"
     end
 
+=begin
     if agenda_details[:allocate_multiple_conversations] && agenda_details[:allocate_multiple_conversations].size > 0
       # link for allocate ideas from multiple deliberations
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
@@ -1149,8 +1150,14 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:coordinator][ link_code ] = link
       agenda_details[:links][:lookup][link_code] = "reporter"
     end
+=end
 
-    if agenda_details[:mca_id_plenary] && agenda_details[:mca_id_plenary].size > 0
+
+
+
+
+    if agenda_details[:mca_ids] && agenda_details[:mca_ids].size > 0
+
       # link for coord-mca-table
       link_code = self.create_link_code( agenda_details[:links][:lookup] )
       link = {
@@ -1160,8 +1167,9 @@ class Agenda < ActiveRecord::Base
           href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
           data_set: "coord-multi-criteria-analysis-table",
           mode: 'plenary',
-          mca_id: agenda_details[:mca_id_plenary][0],
-          page_title: 'Plenary: Multi Criteria Analysis Results for Infrastructure Projects',
+          categories: ['Sustainable Communities'],
+          mca_id: agenda_details[:mca_ids][0],
+          page_title: 'Plenary: Sustainable Communities',
           disabled: false,
           role: 'coordinator',
       }
@@ -1177,8 +1185,9 @@ class Agenda < ActiveRecord::Base
           href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
           data_set: "group-multi-criteria-analysis-table",
           mode: 'plenary',
-          mca_id: agenda_details[:mca_id_plenary][0],
-          page_title: 'Plenary: Group input for Multi Criteria Analysis for Infrastructure Projects',
+          categories: ['Sustainable Communities'],
+          mca_id: agenda_details[:mca_ids][0],
+          page_title: 'Plenary: Group input for Multi Criteria Analysis for Sustainable Communities',
           disabled: false,
           role: 'group',
       }
@@ -1187,53 +1196,139 @@ class Agenda < ActiveRecord::Base
     end
 
 
-    # Add links for MCA
 
-    mcas = MultiCriteriaAnalysis.where(id: agenda_details[:mca_ids])
-    ordered_mcas = []
-    agenda_details[:mca_ids].each do |id|
-      ordered_mcas << mcas.detect{|c| c.id == id}
-    end
 
-    ordered_mcas.each_index do |ind|
-      mca = ordered_mcas[ind]
+    ## Add links for MCA
+    #
+    #mcas = MultiCriteriaAnalysis.where(id: agenda_details[:mca_ids])
+    #ordered_mcas = []
+    #agenda_details[:mca_ids].each do |id|
+    #  ordered_mcas << mcas.detect{|c| c.id == id}
+    #end
+    #
+    #ordered_mcas.each_index do |ind|
+      #mca = ordered_mcas[ind]
+
 
       # link for coord-mca-table
-      link_code = self.create_link_code( agenda_details[:links][:lookup] )
-      link = {
-          title: %Q|MCA Evaluation results for #{mca.title}|,
-          id: 'mca',
-          link_code:  link_code,
-          href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
-          data_set: "coord-multi-criteria-analysis-table",
-          mode: 'projects',
-          mca_id: mca.id,
-          page_title: "Multi Criteria Analysis Results for #{mca.title}",
-          disabled: false,
-          role: 'coordinator',
-      }
-      agenda_details[:links][:coordinator][ link_code ] = link
-      agenda_details[:links][:lookup][link_code] = "coordinator"
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|MCA Evaluation results for Creative Communities|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+        data_set: "coord-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Creative Communities'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Multi Criteria Analysis Results for Creative Communities",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "coordinator"
 
-      if !agenda_details[:mca_ids_coord_only].include?( mca.id )
-        # link for group-mca-table
-        link_code = self.create_link_code( agenda_details[:links][:lookup] )
-        link = {
-            title: %Q|Evaluate #{mca.title}|,
-            id: 'mca',
-            link_code:  link_code,
-            href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
-            data_set: "group-multi-criteria-analysis-table",
-            mode: 'projects',
-            mca_id: mca.id,
-            page_title: "Group input for Multi Criteria Analysis for #{mca.title}",
-            disabled: false,
-            role: 'group',
-        }
-        agenda_details[:links][:group][ link_code ] = link
-        agenda_details[:links][:lookup][link_code] = "group"
-      end
-    end
+
+
+    # link for group-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Evaluate Creative Communities|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+        data_set: "group-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Creative Communities'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Group input for Multi Criteria Analysis for Creative Communities",
+        disabled: false,
+        role: 'group',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+
+
+
+    # link for coord-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|MCA Evaluation results for Sustainable Communities|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+        data_set: "coord-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Sustainable Communities'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Multi Criteria Analysis Results for Sustainable Communities",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "coordinator"
+
+    # link for group-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Evaluate Sustainable Communities|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+        data_set: "group-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Sustainable Communities'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Group input for Multi Criteria Analysis for Sustainable Communities",
+        disabled: false,
+        role: 'group',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+
+
+
+    # link for coord-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|MCA Evaluation results for Community Infrastructure, Corporate & Commercial|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/coord-mca-table/#{self.munged_title}",
+        data_set: "coord-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Community Infrastructure', 'Corporate & Commercial'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Multi Criteria Analysis Results for Community Infrastructure, Corporate & Commercial",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "coordinator"
+
+    # link for group-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Evaluate Community Infrastructure, Corporate & Commercial|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/agenda/#{self.code}-#{link_code}/group-mca-table/#{self.munged_title}",
+        data_set: "group-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Community Infrastructure', 'Corporate & Commercial'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Group input for Multi Criteria Analysis for Community Infrastructure, Corporate & Commercial",
+        disabled: false,
+        role: 'group',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+
+
+
+    #end
+
+
 
     # link for PDF/JPEG reports
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
@@ -1432,7 +1527,8 @@ class Agenda < ActiveRecord::Base
             parameters: {
                 mode: '#{link_details["mode"]}',
                 mca_id: '#{link_details["mca_id"]}',
-                page_title: '#{link_details["page_title"]}'
+                page_title: '#{link_details["page_title"]}',
+                categories: '#{link_details["categories"]}'
             }
         }
 
@@ -1443,7 +1539,8 @@ class Agenda < ActiveRecord::Base
             parameters: {
                 mode: '#{link_details["mode"]}',
                 mca_id: '#{link_details["mca_id"]}',
-                page_title: '#{link_details["page_title"]}'
+                page_title: '#{link_details["page_title"]}',
+                categories: '#{link_details["categories"]}'
             }
         }
 
