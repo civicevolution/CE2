@@ -11,7 +11,8 @@
           .list(ng-repeat="criteria in mca_details.criteria" ce-sort func="update_mca('criteria_order', code, ids)" code="mca_details.id"){id: "{{criteria.id}}"}
             %div
               %p
-                %span.title(click-to-edit="criteria.title" del="true" code="criteria.id" inp-type="'text'" func="update_criteria('title', code, value)")
+                %span.title(click-to-edit="criteria.title" code="criteria.id" inp-type="'text'" func="update_criteria('title', code, value)")
+                %span.title(click-to-edit="criteria.weight" del="true" code="criteria.id" inp-type="'text'" func="update_criteria('weight', code, value)")
 
         .row.add
           .col-sm-2 Add criteria

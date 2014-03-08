@@ -1,0 +1,61 @@
+.mca-detailed-report
+  %h4 Services Detailed Report
+  %div(ng-if="page.id")
+    %p(ng-click="page.id = null")
+      %b Return to list
+    %table
+      %tr
+        %td Service Name:
+        %td
+          %h3 {{service.title}}
+      %tr
+        %td Service ranking
+        %td
+          %h3 X of Y
+
+      %tr
+        %td Recommended level
+        %td
+          %select(ng-model="service.details.recommendation" ng-options="option for option in recommendation_options" ng-change="select_comment_purpose()")
+            %option(value="" disabled selected) Select your recommendation
+
+      %tr
+        %td(colspan="2")
+          %b Reason
+          %textarea(ng-model="service.details.reason")
+
+      %tr
+        %td(colspan="2")
+          %b Details
+          %textarea(ng-model="service.details.details")
+
+      %tr
+        %td(colspan="2")
+          %div.buttons
+            %span(ng-if="newComment.id == null")
+              %button.btn-primary.btn(ng-click="update_service()"){type: 'submit'}
+                %span.def-msg Save
+                %span.busy-msg
+                  Saving
+                  %i.fa.fa-spinner.fa-spin
+
+            %span(ng-click="page.id = null")
+              %b Return to list
+
+
+
+  %div(ng-if="page.id == null")
+    %table
+      %tr
+        %th Service
+        %th Recommendation
+        %th Reason(s)
+        %th Details
+      %tr(ng-repeat="service in report_data.options")
+        %td
+          %a(ng-click="show_service(service.id)")
+            {{service.title}}
+          -#%a(href="/#/detailed-report/{{service.id}}")
+        %td {{service.details.recommendation}}
+        %td {{service.details.reason}}
+        %td {{service.details.details}}

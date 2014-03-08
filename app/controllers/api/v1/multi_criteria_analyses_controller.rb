@@ -1,7 +1,7 @@
 module Api
   module V1
     class MultiCriteriaAnalysesController < Api::BaseController
-      skip_authorization_check only: [:update, :save_panel_weight]
+      skip_authorization_check only: [:update, :save_panel_weight,:detailed_report]
 
       def update
         Rails.logger.debug "MultiCriteriaAnalysesController::update"
@@ -34,6 +34,13 @@ module Api
         details['panel_weight'] = params[:panel_weight]
         mca.update_attribute(:details, details)
         render json: "saved panel_weight as #{details['panel_weight'] }"
+      end
+
+      def detailed_report
+        mca = MultiCriteriaAnalysis.find(params[:id])
+        #authorize! :detailed_report, conversation
+        #render json: mca.as_json( except: [:created_at, :updated_at] )
+        render json: mca.detailed_report
       end
 
     end

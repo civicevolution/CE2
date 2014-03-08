@@ -252,6 +252,12 @@ Ce2::Application.routes.draw do
   post "/api/option/:option_id" => "api/v1/mca_options#update", format: :json
   delete "/api/option/:option_id" => "api/v1/mca_options#destroy", format: :json
 
+  get "/api/mca/:id/detailed_report" => "api/v1/multi_criteria_analyses#detailed_report", format: :json
+
+  post "/api/mca_options/:id/report_data" => "api/v1/mca_options#report_data", format: :json
+
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

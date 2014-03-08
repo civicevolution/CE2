@@ -1,7 +1,7 @@
 module Api
   module V1
     class McaOptionsController < Api::BaseController
-      skip_authorization_check only: [:project_assignments, :assign_project]
+      skip_authorization_check only: [:project_assignments, :assign_project, :report_data]
 
       def update
         Rails.logger.debug "McaOptionsController::update"
@@ -54,6 +54,12 @@ module Api
         evaluation = option.add_evaluation( { user_id: [ params[:user_id] ], category: 'group' })
         evaluation.realtime_notification
         render json: {add_evalution: 'ok', option_id: option.id, user_id: params[:user_id] }
+      end
+
+      def report_data
+        option = McaOption.find(params[:id])
+        option.update_attribute(:details, params[:details])
+        render json: option
       end
 
     end

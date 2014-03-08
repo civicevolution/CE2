@@ -704,6 +704,11 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
     delete_mca_option: (option_id) ->
       $http.delete("/api/option/#{option_id}.json" )
 
+    report_data: (mca_id) ->
+      $http.get("/api/mca/#{mca_id}/detailed_report.json")
+
+    post_report: (service) ->
+      $http.post("/api/mca_options/#{service.id}/report_data.json", service)
 
 ]
 

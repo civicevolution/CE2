@@ -297,6 +297,38 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
+
+      .state( 'mca-detailed-report',
+        url: "/mca/{mca_id}/detailed-report"
+        templateUrl: '<%= path_to_asset "live/detailed-report.html" %>'
+        resolve:
+          report_data: ["McaData", "$stateParams", (McaData, $stateParams) ->
+            McaData.report_data($stateParams.mca_id)
+          ]
+        controller: [ "$scope", "report_data", "McaData",
+          ($scope, report_data, McaData) ->
+            $scope.report_data = report_data.data
+            $scope.page = {}
+            $scope.show_service = (service_id) ->
+              console.log "show_service id: #{service_id}"
+              $scope.page.id = service_id
+              $scope.service = service for service in $scope.report_data.options when service.id == service_id
+
+            $scope.recommendation_options = [
+              "Pay more for more/better",
+              "Pay the same for the same",
+              "Pay less for less",
+              "Split service-same",
+              "Other"
+            ]
+            $scope.update_service = ->
+              McaData.post_report($scope.service).then(
+                (response)->
+                  $scope.page.id = null
+              )
+        ]
+      )
+
       .state( 'coordinator-mca-table',
         url: "/agenda/{agenda_code}-{link_code}/coord-mca-table/{munged_title}"
         templateUrl: '<%= path_to_asset "live/coord-mca-table.html" %>'
