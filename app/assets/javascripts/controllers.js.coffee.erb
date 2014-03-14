@@ -309,8 +309,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           ($scope, report_data, McaData, $stateParams, $location, $dialog, $filter) ->
             $scope.report_data = report_data.data
             $scope.page = {}
-            $scope.page.id = $stateParams.option_id
-            $scope.service = service for service in $scope.report_data.options when service.id == Number($stateParams.option_id)
+            $scope.page.id = Number($stateParams.option_id)
+            if $scope.page.id != 0
+              $scope.service = service for service in $scope.report_data.options when service.id == Number($stateParams.option_id)
 
             reset_recommendation_form = (dir_package) ->
               dir_package.recommend_action.decrease = ""
@@ -366,10 +367,61 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                   service_suggestions_hash[budget_dir_id] = [] unless service_suggestions_hash[budget_dir_id]
                   service_suggestions_hash[budget_dir_id].push( service_suggestion )
 
-              $scope.service.data.service_level_recommendations.push( { service_level_recommendation: ''} )
+              if $scope.service.data.service_level_recommendations
+                $scope.service.data.service_level_recommendations.push( { service_level_recommendation: ''} )
+              else
+                $scope.service.data.service_level_recommendations = [ { service_level_recommendation: ''} ]
+
               for recommendation_package in $scope.service.data.service_level_recommendations
                 init_recommendation_package(recommendation_package)
 
+            else
+              console.log "organize data for report table"
+              report = []
+              for service in $scope.report_data.options
+                service_recommendations_hash = {}
+                if service.data?.service_recommendations
+                  for service_recommendation in service.data?.service_recommendations || []
+                    budget_dir_id = service_recommendation.budget_dir_id
+                    service_recommendations_hash[budget_dir_id] = [] unless service_recommendations_hash[budget_dir_id]
+                    service_recommendations_hash[budget_dir_id].push( service_recommendation )
+
+                service_suggestions_hash = {}
+                if service.data?.service_suggestions
+                  for service_suggestion in service.data?.service_suggestions || []
+                    budget_dir_id = service_suggestion.budget_dir_id
+                    service_suggestions_hash[budget_dir_id] = [] unless service_suggestions_hash[budget_dir_id]
+                    service_suggestions_hash[budget_dir_id].push( service_suggestion )
+
+                level_recommendations = service.data?.service_level_recommendations || [ {} ]
+                for level in level_recommendations
+                  actions = service_recommendations_hash[level?._id] || [  ]
+                  for action in actions
+                    row =
+                      service_id: service.id
+                      service_title: service.title
+                      category: service.category
+                      level: level?.service_level_recommendation
+                      specific_action: if action then { form: action.form, increase: action.increase, decrease: action.decrease, reason: action.reason} else {}
+                    report.push(row)
+                  suggestions = service_suggestions_hash[level?._id] || [ ]
+                  for suggestion in suggestions
+                    row =
+                      service_id: service.id
+                      service_title: service.title
+                      category: service.category
+                      level: level?.service_level_recommendation
+                      suggestion: if suggestion then { form: suggestion.form, text: suggestion.text} else {}
+                    report.push(row)
+                  if actions.length == 0 && suggestions.length == 0
+                    row =
+                      service_id: service.id
+                      service_title: service.title
+                      category: service.category
+                      level: level?.service_level_recommendation
+                    report.push(row)
+
+              $scope.report = report
 
             $scope.show_service = (service_id) ->
               console.log "show_service id: #{service_id}"
