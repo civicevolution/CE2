@@ -421,6 +421,27 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                       level: level?.service_level_recommendation
                     report.push(row)
 
+              # iterate through the report table and mark Service and direction "As above" when they repeat
+              service = ''
+              level = ''
+              for row in report
+                if service != row.service_title
+                  service = row.service_title
+                  row.title = service
+                  row.cat = row.category
+                  level = ''
+                else
+                  row.title = 'As above'
+                  row.cat = ''
+
+                if level != row.level
+                  level = row.level
+                  row.level_r = level
+                else
+                  row.level_r = 'As above'
+
+
+
               $scope.report = report
 
             $scope.show_service = (service_id) ->

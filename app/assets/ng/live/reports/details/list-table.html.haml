@@ -2,18 +2,26 @@
   %h4 Services list
   %table
     %tr
+      -#%th Service Name
       %th Service Name
+      -#%th Budget Direction
       %th Budget Direction
       %th Specific Actions
       %th Reason/Suggestion/Comment
       %th Vote
     %tr(ng-repeat="row in report")
-      %td
+      -#%td
         .category {{row.category}}
         %a(ng-click="show_service(row.service_id)")
           {{row.service_title}}
-        %a(href="/#/mca/{{report_data.id}}/detailed-report/{{row.service_id}}") link
-      %td {{row.level}}
+        -#%a(href="/#/mca/{{report_data.id}}/detailed-report/{{row.service_id}}") link
+      %td
+        .category {{row.cat}}
+        %a(ng-click="show_service(row.service_id)")
+          {{row.title}}
+        -#%a(href="/#/mca/{{report_data.id}}/detailed-report/{{row.service_id}}") link
+      -#%td {{row.level}}
+      %td {{row.level_r}}
       %td(ng-switch="row.specific_action.form")
         %div(ng-switch-when="mix")
           %div
