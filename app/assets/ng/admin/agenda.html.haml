@@ -57,6 +57,10 @@
         %td
           %a(href="{{agenda.url}}" target="_blank") {{agenda.url}}
 
+      %tr
+        %td id
+        %td {{agenda.id}}
+
     %a(ng-click="isCollapsed = !isCollapsed") Toggle details
     %table(border="1" collapse="isCollapsed")
       %tr

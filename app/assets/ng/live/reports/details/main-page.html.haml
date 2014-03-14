@@ -14,10 +14,10 @@
       %tab(select="set_tab('preliminary_recommendation')"){heading: "Preliminary Recommendation"}
         .tab-contents(ng-include="'#{ path_to_asset("live/reports/details/preliminary-recommendation.html") }'")
 
-      %tab(select="set_tab('community_feedback')"){heading: "Community Feedback"}
+      -#%tab(select="set_tab('community_feedback')"){heading: "Community Feedback"}
         .tab-contents(ng-include="'#{ path_to_asset("live/reports/details/community-feedback.html") }'")
 
-      %tab(select="set_tab('final_recommendation')"){heading: "Final Recommendation"}
+      -#%tab(select="set_tab('final_recommendation')"){heading: "Final Recommendation"}
         .tab-contents(ng-include="'#{ path_to_asset("live/reports/details/final-recommendation.html") }'")
 
 

@@ -1117,6 +1117,46 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:lookup][link_code] = "reporter"
     end
 
+
+    # link for Services report table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Services Report Table|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/mca/#{agenda_details[:mca_ids][0]}/detailed-report/0",
+        #data_set: "coord-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Creative Communities'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Services Report Table",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "coordinator"
+
+
+
+    # link for group-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Services Report Table|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/mca/#{agenda_details[:mca_ids][0]}/detailed-report/0",
+        #data_set: "group-multi-criteria-analysis-table",
+        mode: 'projects',
+        categories: ['Creative Communities'],
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Services Report Table",
+        disabled: false,
+        role: 'group',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+
+
 =begin
     if agenda_details[:allocate_multiple_conversations] && agenda_details[:allocate_multiple_conversations].size > 0
       # link for allocate ideas from multiple deliberations
@@ -1155,7 +1195,7 @@ class Agenda < ActiveRecord::Base
 
 
 
-
+=begin
     if agenda_details[:mca_ids] && agenda_details[:mca_ids].size > 0
 
       # link for coord-mca-table
@@ -1195,7 +1235,7 @@ class Agenda < ActiveRecord::Base
       agenda_details[:links][:lookup][link_code] = "group"
     end
 
-
+=end
 
 
     ## Add links for MCA
@@ -1209,7 +1249,7 @@ class Agenda < ActiveRecord::Base
     #ordered_mcas.each_index do |ind|
       #mca = ordered_mcas[ind]
 
-
+=begin
       # link for coord-mca-table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -1344,7 +1384,7 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:lookup][link_code] = "coordinator"
 
     #end
-
+=end
 
 
     # link for PDF/JPEG reports
@@ -1713,6 +1753,7 @@ class Agenda < ActiveRecord::Base
       )
     end
     details = {
+        id: self.id,
         title: self.title,
         munged_title: self.munged_title,
         description: self.description,
