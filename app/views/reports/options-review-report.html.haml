@@ -17,12 +17,12 @@
           = row[:service_title]
         %td
           .td-no-break
-            - if row[:cat] != ''
-              .category= row[:cat]
             - if row[:title] == 'As above'
               .as-above= row[:title]
             -else
               = row[:title]
+            - if row[:cat] != ''
+              .category= row[:cat]
         -#%td= row[:level]
         %td
           .td-no-break
@@ -30,7 +30,7 @@
               .as-above= row[:level_r]
             -else
               = row[:level_r]
-        %td
+        %td.action
           .td-no-break
             - case row[:specific_action][:form]
               - when 'mix'
@@ -44,7 +44,7 @@
                 = row[:specific_action][:increase]
               - when 'less'
                 = row[:specific_action][:decrease]
-        %td
+        %td.reason
           .td-no-break
             - case row[:suggestion][:form]
               - when 'suggestion'
