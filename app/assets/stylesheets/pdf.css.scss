@@ -82,3 +82,22 @@
   line-height: 1.2em;
   margin-top: 0;
 }
+
+
+.mca-detailed-report{
+  table{min-width:600px;}
+  //table,td, th{ border: 1px solid black;}
+  td{ text-align: left; vertical-align: top; padding:1em;}
+  th{ text-align: center; vertical-align: middle; padding:0 1em;}
+
+  .mixed-recs{
+    padding-left: 20px;
+    margin-top: -20px;
+    &.inc{ margin-bottom: 1em;}
+  }
+  .category{
+    font-style: italic;
+    line-height: 1.12em;
+    margin-bottom: 1.5em;
+  }
+}

@@ -2,7 +2,7 @@ module Api
   module V1
     class ReportsController < Api::BaseController
 
-      skip_authorization_check :only => [:upload_report, :destroy, :show, :show_comments, :criteria_stats, :results_graph, :show_key_themes]
+      skip_authorization_check :only => [:upload_report, :destroy, :show, :show_comments, :criteria_stats, :results_graph, :show_key_themes, :options_review_report]
 
       def upload_report
         logger.debug "upload_report user_id: #{current_user.id}"
@@ -212,6 +212,96 @@ module Api
         agenda = Agenda.find_by(code: params[:agenda_code])
         @totals, @conversation_stats = agenda.criteria_stats
         render template: 'reports/agenda-criteria-stats', layout: 'pdf-report'
+      end
+
+      def options_review_report
+        agenda = Agenda.find_by(code: params[:agenda_code])
+        mca = agenda.mca[0]
+        data = mca.detailed_report
+
+
+        @report = []
+        data['options'].each do |service|
+
+          service_recommendations_hash = {}
+          (service[:data].try{|data| data['service_recommendations'] } || []).each do |service_recommendation|
+            budget_dir_id = service_recommendation['budget_dir_id']
+            service_recommendations_hash[budget_dir_id] = [] unless service_recommendations_hash[budget_dir_id]
+            service_recommendations_hash[budget_dir_id].push( service_recommendation )
+          end
+
+          service_suggestions_hash = {}
+          (service[:data].try{|data| data['service_suggestions'] } || []).each do |service_suggestion|
+            budget_dir_id = service_suggestion['budget_dir_id']
+            service_suggestions_hash[budget_dir_id] = [] unless service_suggestions_hash[budget_dir_id]
+            service_suggestions_hash[budget_dir_id].push( service_suggestion )
+          end
+
+
+          (service[:data].try{|data| data['service_level_recommendations']} || [ {} ]).each do |level|
+            actions = service_recommendations_hash[level['_id']] || [  ]
+            actions.each do |action|
+              row = {
+                service_id: service[:id],
+                service_title: service[:title],
+                category: service[:category],
+                level: level['service_level_recommendation'],
+                specific_action: { form: action['form'], increase: action['increase'], decrease: action['decrease'], reason: action['reason']},
+                suggestion: {}
+              }
+              @report.push(row)
+            end
+
+            suggestions = service_suggestions_hash[level['_id']] || [  ]
+            suggestions.each do |suggestion|
+              row = {
+                service_id: service[:id],
+                service_title: service[:title],
+                category: service[:category],
+                level: level['service_level_recommendation'],
+                specific_action: {},
+                suggestion: { form: suggestion['form'], text: suggestion['text']}
+              }
+              @report.push(row)
+            end
+
+            if actions.length == 0 && suggestions.length == 0
+              row = {
+                service_id: service[:id],
+                service_title: service[:title],
+                category: service[:category],
+                level: level['service_level_recommendation'],
+                specific_action: {},
+                suggestion: {}
+              }
+              @report.push(row)
+            end
+          end
+        end
+
+        # iterate through the report table and mark Service and direction "As above" when they repeat
+        service = ''
+        level = ''
+        @report.each do |row|
+          if service != row[:service_title]
+            service = row[:service_title]
+            row[:title] = service
+            row[:cat] = row[:category]
+            level = ''
+          else
+            row[:title] = 'As above'
+            row[:cat] = ''
+          end
+
+          if level != row[:level]
+            level = row[:level]
+            row[:level_r] = level
+          else
+            row[:level_r] = 'As above'
+          end
+        end
+
+        render template: 'reports/options-review-report', layout: 'pdf-report'
       end
 
     end

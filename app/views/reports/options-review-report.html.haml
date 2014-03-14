@@ -1,0 +1,43 @@
+.mca-detailed-report
+  %h4 Services list
+  %table(border="1")
+    %tr
+      -#%th Service Name
+      %th Service Name
+      -#%th Budget Direction
+      %th Budget Direction
+      %th Specific Actions
+      %th Reason/Suggestion/Comment
+      %th Vote
+
+    - @report.each do |row|
+      %tr
+        -#%td
+          .category= row[:category]
+          = row[:service_title]
+        %td
+          .category= row[:cat]
+          = row[:title]
+        -#%td= row[:level]
+        %td= row[:level_r]
+        %td
+          - case row[:specific_action][:form]
+            - when 'mix'
+              %div
+                %i.fa.fa-plus
+                %div.mixed-recs.inc= row[:specific_action][:increase]
+              %div
+                %i.fa.fa-minus
+                %div.mixed-recs= row[:specific_action][:decrease]
+            - when 'more'
+              = row[:specific_action][:increase]
+            - when 'less'
+              = row[:specific_action][:decrease]
+        %td
+          - case row[:suggestion][:form]
+            - when 'suggestion'
+              %span= row[:suggestion][:text]
+            - else
+              %span= row[:specific_action][:reason]
+
+        %td
