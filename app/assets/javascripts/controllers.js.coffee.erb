@@ -403,6 +403,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                       category: service.category
                       level: level?.service_level_recommendation
                       specific_action: if action then { form: action.form, increase: action.increase, decrease: action.decrease, reason: action.reason} else {}
+                      group: if action then action.group else null
                     report.push(row)
                   suggestions = service_suggestions_hash[level?._id] || [ ]
                   for suggestion in suggestions
@@ -412,6 +413,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                       category: service.category
                       level: level?.service_level_recommendation
                       suggestion: if suggestion then { form: suggestion.form, text: suggestion.text} else {}
+                      group: if suggestion then suggestion.group else null
                     report.push(row)
                   if actions.length == 0 && suggestions.length == 0
                     row =

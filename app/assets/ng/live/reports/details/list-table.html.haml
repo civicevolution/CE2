@@ -13,7 +13,7 @@
       %th Budget Direction
       %th Specific Actions
       %th Reason/Suggestion/Comment
-      %th Vote
+      %th Grp
     %tr(ng-repeat="row in report")
       -#%td
         .category {{row.category}}
@@ -44,4 +44,4 @@
         %span(ng-switch-when="suggestion") {{row.suggestion.text}}
         %span(ng-switch-else) {{row.specific_action.reason}}
 
-      %td
+      %td {{row.group}}

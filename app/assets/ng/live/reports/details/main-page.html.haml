@@ -5,13 +5,13 @@
         %b Return to List of Services
 
     %tabset
-      %tab(select="set_tab('draft_recommendation')"){heading: "Draft Recommendation"}
+      %tab(select="set_tab('draft_recommendation')"){heading: "Draft Recommendation & Review"}
         .tab-contents(ng-include="'#{ path_to_asset("live/reports/details/draft-recommendation.html") }'")
 
-      %tab(select="set_tab('team_review')"){heading: "Team Review(s)"}
+      -#%tab(select="set_tab('team_review')"){heading: "Team Review(s)"}
         .tab-contents(ng-include="'#{ path_to_asset("live/reports/details/team-review.html") }'")
 
-      %tab(select="set_tab('preliminary_recommendation')"){heading: "Preliminary Recommendation"}
+      -#%tab(select="set_tab('preliminary_recommendation')"){heading: "Preliminary Recommendation"}
         .tab-contents(ng-include="'#{ path_to_asset("live/reports/details/preliminary-recommendation.html") }'")
 
       -#%tab(select="set_tab('community_feedback')"){heading: "Community Feedback"}
