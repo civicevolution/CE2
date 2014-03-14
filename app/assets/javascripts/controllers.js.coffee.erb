@@ -299,33 +299,262 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
 
       .state( 'mca-detailed-report',
-        url: "/mca/{mca_id}/detailed-report"
-        templateUrl: '<%= path_to_asset "live/detailed-report.html" %>'
+        url: "/mca/{mca_id}/detailed-report/{option_id}"
+        templateUrl: '<%= path_to_asset "live/reports/details/main-page.html" %>'
         resolve:
           report_data: ["McaData", "$stateParams", (McaData, $stateParams) ->
-            McaData.report_data($stateParams.mca_id)
+            McaData.report_data($stateParams.mca_id,$stateParams.option_id)
           ]
-        controller: [ "$scope", "report_data", "McaData",
-          ($scope, report_data, McaData) ->
+        controller: [ "$scope", "report_data", "McaData", "$stateParams", "$location", "$dialog", "$filter",
+          ($scope, report_data, McaData, $stateParams, $location, $dialog, $filter) ->
             $scope.report_data = report_data.data
             $scope.page = {}
+            $scope.page.id = $stateParams.option_id
+            $scope.service = service for service in $scope.report_data.options when service.id == Number($stateParams.option_id)
+
+            reset_recommendation_form = (dir_package) ->
+              dir_package.recommend_action.decrease = ""
+              dir_package.recommend_action.increase = ''
+              dir_package.recommend_action.reason = ''
+              dir_package.recommend_action._id = null
+
+            reset_suggestion_form = (dir_package) ->
+              dir_package.suggestion =
+                show_form: false
+                text: ''
+                _id: null
+
+            set_form_name = (dir_package) ->
+              switch dir_package.service_level_recommendation
+                when "Pay more for more/better"
+                  dir_package.recommend_action.form = "more"
+                  dir_package.recommend_action.type = "More for More"
+                when "Pay the same for the same"
+                  dir_package.recommend_action.form = "same"
+                  dir_package.recommend_action.type = "Same for Same"
+                when "Pay the same with different mix"
+                  dir_package.recommend_action.form = "mix"
+                  dir_package.recommend_action.type = "Same with Mix"
+                when "Pay less for less"
+                  dir_package.recommend_action.form = "less"
+                  dir_package.recommend_action.type = "Less for Less"
+
+            init_recommendation_package = (recommendation_package) ->
+              recommendation_package.recommend_action = {}
+              reset_recommendation_form(recommendation_package)
+              reset_suggestion_form(recommendation_package)
+              set_form_name(recommendation_package)
+              recommendation_package.service_recommendations = service_recommendations_hash[recommendation_package._id]
+              recommendation_package.service_suggestions = service_suggestions_hash[recommendation_package._id]
+
+            # Ensure that the extra select is displayed so groups can add another budget direction recommendation
+            if $scope.service
+              if not $scope.service.data
+                $scope.service.data = {service_level_recommendations:[]}
+
+              service_recommendations_hash = {}
+              if $scope.service.data.service_recommendations
+                for service_recommendation in $scope.service.data.service_recommendations
+                  budget_dir_id = service_recommendation.budget_dir_id
+                  service_recommendations_hash[budget_dir_id] = [] unless service_recommendations_hash[budget_dir_id]
+                  service_recommendations_hash[budget_dir_id].push( service_recommendation )
+
+              service_suggestions_hash = {}
+              if $scope.service.data.service_suggestions
+                for service_suggestion in $scope.service.data.service_suggestions
+                  budget_dir_id = service_suggestion.budget_dir_id
+                  service_suggestions_hash[budget_dir_id] = [] unless service_suggestions_hash[budget_dir_id]
+                  service_suggestions_hash[budget_dir_id].push( service_suggestion )
+
+              $scope.service.data.service_level_recommendations.push( { service_level_recommendation: ''} )
+              for recommendation_package in $scope.service.data.service_level_recommendations
+                init_recommendation_package(recommendation_package)
+
+
             $scope.show_service = (service_id) ->
               console.log "show_service id: #{service_id}"
-              $scope.page.id = service_id
-              $scope.service = service for service in $scope.report_data.options when service.id == service_id
+              $location.url( "/mca/#{$stateParams.mca_id}/detailed-report/#{service_id}" )
 
             $scope.recommendation_options = [
               "Pay more for more/better",
               "Pay the same for the same",
-              "Pay less for less",
-              "Split service-same",
-              "Other"
+              "Pay the same with different mix",
+              "Pay less for less"
             ]
-            $scope.update_service = ->
-              McaData.post_report($scope.service).then(
+
+            $scope.update_service_recommendation = ->
+              $scope = angular.element(event.currentTarget).scope()
+              # make sure this is a unique new service level
+              for recommendation in $scope.service.data.service_level_recommendations when recommendation._id
+                if recommendation.service_level_recommendation == $scope.recommendation_package.service_level_recommendation
+                  $dialog.messageBoxOk("Warning","#{$scope.recommendation_package.service_level_recommendation} has already been selected. Please use the form above.")
+                  $scope.recommendation_package.service_level_recommendation = ""
+                  return
+              set_form_name($scope.recommendation_package)
+
+              data =
+                id: $scope.service.id
+                type: 'service_level_recommendation'
+                data:
+                  'push:service_level_recommendations': {service_level_recommendation: $scope.recommendation_package.service_level_recommendation}
+              McaData.update_option( data ).then(
                 (response)->
-                  $scope.page.id = null
+                  console.log "update_service_recommendation return"
+                  if response.data[0].key.match('push:')
+                    key = response.data[0].key.split(':')[1]
+                    angular.extend($scope.service.data[key][$scope.service.data[key].length-1], response.data[0].value)
+                    $scope.service.data[key].push( { service_level_recommendation: ''} )
+                    init_recommendation_package($scope.service.data[key][ $scope.service.data[key].length - 1])
               )
+
+            $scope.set_tab = (tab_str) ->
+              console.log "set_tab: #{tab_str}"
+
+            $scope.recommend_action_form_incomplete = ->
+              return false if not event
+              $scope = angular.element(event.currentTarget).scope()
+              #return false if not $scope
+              recommend_action = $scope?.recommendation_package?.recommend_action
+              return false if not recommend_action
+              #console.log "check recommend_action.form: #{recommend_action.form}"
+              switch recommend_action.form
+                when "more"
+                  recommend_action.increase.length < 5 || recommend_action.reason.length < 5
+                when "less"
+                  recommend_action.decrease.length < 5 || recommend_action.reason.length < 5
+                when "mix"
+                  recommend_action.increase.length < 5 || recommend_action.decrease.length < 5 || recommend_action.reason.length < 5
+                else
+                  true
+
+            $scope.save_recommendation = () ->
+              $scope = angular.element(event.currentTarget).scope()
+              $scope.recommendation_package.recommend_action.budget_dir_id = $scope.recommendation_package._id
+              data =
+                id: $scope.service.id
+                type: 'service_recommendation'
+                data:
+                  'push:service_recommendations': $scope.recommendation_package.recommend_action
+              McaData.update_option( data ).then(
+                (response)->
+                  console.log "save_recommendation return"
+                  if response.data[0].key.match('push:')
+                    key = response.data[0].key.split(':')[1]
+                    if not $scope.recommendation_package[key]
+                      $scope.recommendation_package[key] = []
+                    $scope.recommendation_package[key].push(response.data[0].value)
+                  if response.data[0].key.match('replace:')
+                    key = response.data[0].key.split(':')[1]
+                    updated_id = Number(response.data[0].value._id)
+                    for recommendation in $scope.recommendation_package[key] when Number(recommendation._id) == updated_id
+                      angular.extend(recommendation, response.data[0].value)
+                  reset_recommendation_form($scope.recommendation_package)
+              )
+
+
+            $scope.clear_recommendation = () ->
+              reset_recommendation_form()
+
+            $scope.show_suggestion_form = () ->
+              if $scope.service.data.service_level_recommendation
+                $scope.suggestion.show_form = true
+
+            $scope.save_suggestion = ->
+              $scope = angular.element(event.currentTarget).scope()
+              data =
+                id: $scope.service.id
+                type: 'service_suggestion'
+                data:
+                  'push:service_suggestions':
+                    _id:  $scope.recommendation_package.suggestion._id
+                    text: $scope.recommendation_package.suggestion.text
+                    type: $scope.recommendation_package.recommend_action.type
+                    budget_dir_id: $scope.recommendation_package._id
+                    form: 'suggestion'
+              McaData.update_option( data ).then(
+                (response)->
+                  console.log "save_suggestion return"
+                  if response.data[0].key.match('push:')
+                    key = response.data[0].key.split(':')[1]
+                    if not $scope.recommendation_package[key]
+                      $scope.recommendation_package[key] = []
+                    $scope.recommendation_package[key].push(response.data[0].value)
+                  if response.data[0].key.match('replace:')
+                    key = response.data[0].key.split(':')[1]
+                    updated_id = Number(response.data[0].value._id)
+                    for suggestion in $scope.recommendation_package[key] when Number(suggestion._id) == updated_id
+                      angular.extend(suggestion, response.data[0].value)
+                  reset_suggestion_form($scope.recommendation_package)
+              )
+
+
+            $scope.clear_suggestion = ->
+              reset_suggestion_form()
+
+            $scope.edit_recommendation = ->
+              $scope = angular.element(event.currentTarget).scope();
+              $scope.recommendation_package.recommend_action._id = $scope.recommendation._id
+              $scope.recommendation_package.recommend_action.increase = $scope.recommendation.increase
+              $scope.recommendation_package.recommend_action.decrease = $scope.recommendation.decrease
+              $scope.recommendation_package.recommend_action.reason = $scope.recommendation.reason
+
+            $scope.delete_recommendation = ->
+              $scope = angular.element(event.currentTarget).scope();
+              data =
+                id: $scope.service.id
+                type: 'delete_recommendation'
+                data:
+                  'delete:service_recommendations':
+                    id: $scope.recommendation._id
+              McaData.update_option( data ).then(
+                (response)->
+                  console.log "delete_recommendation return"
+                  if response.data[0].key.match('delete:')
+                    key = response.data[0].key.split(':')[1]
+                  deleted_id = Number(response.data[0].value['id'])
+                  $scope.recommendation_package[key] = $filter('filter')($scope.recommendation_package[key], (o) -> (Number(o._id) != deleted_id) )
+              )
+
+            $scope.edit_suggestion = ->
+              $scope = angular.element(event.currentTarget).scope();
+              $scope.recommendation_package.suggestion._id = $scope.recommendation._id
+              $scope.recommendation_package.suggestion.text = $scope.recommendation.text
+
+            $scope.delete_suggestion = ->
+              $scope = angular.element(event.currentTarget).scope();
+              data =
+                id: $scope.service.id
+                type: 'delete_suggestion'
+                data:
+                  'delete:service_suggestions':
+                    id: $scope.recommendation._id
+              McaData.update_option( data ).then(
+                (response)->
+                  console.log "delete_suggestion return"
+                  if response.data[0].key.match('delete:')
+                    key = response.data[0].key.split(':')[1]
+                  deleted_id = Number(response.data[0].value['id'])
+                  $scope.recommendation_package[key] = $filter('filter')($scope.recommendation_package[key], (o) -> (Number(o._id) != deleted_id) )
+              )
+
+            $scope.delete_budget_direction = ->
+              console.log "delete_budget_direction"
+              $scope = angular.element(event.currentTarget).scope();
+              data =
+                id: $scope.service.id
+                type: 'delete_budget_direction'
+                data:
+                  'delete:service_level_recommendations':
+                    id: $scope.recommendation_package._id
+              McaData.update_option( data ).then(
+                (response)->
+                  if response.data[0].key.match('delete:')
+                    key = response.data[0].key.split(':')[1]
+                  deleted_id = Number(response.data[0].value['id'])
+                  $scope.service.data[key] = $filter('filter')($scope.service.data[key], (o) -> (Number(o._id) != deleted_id) )
+                  console.log "delete_budget_direction return"
+              )
+
         ]
       )
 

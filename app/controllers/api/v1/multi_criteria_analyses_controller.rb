@@ -37,7 +37,7 @@ module Api
       end
 
       def detailed_report
-        mca = MultiCriteriaAnalysis.find(params[:id])
+        mca = MultiCriteriaAnalysis.find(params[:mca_id])
         #authorize! :detailed_report, conversation
         #render json: mca.as_json( except: [:created_at, :updated_at] )
         render json: mca.detailed_report

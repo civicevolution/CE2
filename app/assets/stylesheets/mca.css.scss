@@ -82,11 +82,106 @@
 }
 
 .mca-detailed-report{
-  table{width:600px;}
-  table,td{ border: 1px solid black;}
+  table{min-width:600px;}
+  table,td, th{ border: 1px solid black;}
   td{ text-align: left; vertical-align: top; padding:1em;}
+  th{ text-align: center; vertical-align: middle; padding:0 1em;}
   textarea{
     width: 100%;
     height: 120px;
   }
+  .inactive-form{ display: none; opacity: 0.2;}
+
+  .tab-contents{
+    padding: 1em;
+    background-color: #f8f8f8;
+
+    border: 1px solid #ccc;
+    border-top: none;
+    word-wrap: break-word;
+    margin-bottom: 20px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    .title{margin-top: 0;}
+    //h4 .rec-budget {-webkit-appearance: none; font-size: 18px; border: 1px solid #9C9C9C;}
+    h4 .rec-budget {font-size: 18px; border: 1px solid #9C9C9C; margin-left: 1em;}
+    h4.rec{margin: 1.5em 0 1em 0;}
+    h5 {font-size: 1.12em; margin: 2em 0 1em 0;}
+    .specific-action-form{
+      border: 1px solid #ccc;
+      word-wrap: break-word;
+      margin-bottom: 20px;
+      -moz-border-radius: 3px;
+      -webkit-border-radius: 3px;
+      border-radius: 3px;
+      padding: 1em;
+      h5{ margin-top: 0em;}
+      .instr{
+        font-weight: bold;
+        font-size: 1em;
+      }
+      .steps{ margin-left: 40px;}
+      textarea {height: 60px; max-width: 500px;}
+      .explain {font-weight: bold; margin-bottom: .2em;}
+      .hide-textarea {display: none;}
+      .obscure-textarea {opacity: .1;}
+    }
+    td.icons {width: 5em; padding-left: .5em; padding-right: .5em;}
+    a.delete {
+      color: red;
+      margin-left: 1.5em;
+    }
+    a.edit{
+      font-size: 1.2em;
+    }
+    h4.addt-level{
+      margin-top: 120px;
+    }
+    .instr .instr-badge {font-size: 1.4em; margin-left: -40px;}
+    .mixed-recs{
+      padding-left: 20px;
+      margin-top: -20px;
+      &.inc{ margin-bottom: 1em;}
+    }
+  }
+  .nav-tabs>li.active>a { background-color: #f8f8f8;}
+  /*
+ * Tabs
+ *
+ * Tweaks to the Tabs.
+ */
+
+  .code .nav-tabs {
+    border-bottom: 1px solid #ccc;
+  }
+
+  .code pre, .code code {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .code .nav-tabs>li.active>a, .code .nav-tabs>li.active>a:hover, .code .nav-tabs>li.active>a:focus {
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    border-bottom-color: transparent;
+  }
 }
+.inline-block{
+  display: inline-block;
+}
+//.instr-badge{
+//  display: inline-block;
+//  min-width: 10px;
+//  padding: 3px 7px;
+//  font-size: 1em;
+//  font-weight: bold;
+//  color: #ffffff;
+//  line-height: 1;
+//  vertical-align: baseline;
+//  white-space: nowrap;
+//  text-align: center;
+//  background-color: #468847;
+//  border-radius: 1em;
+//}

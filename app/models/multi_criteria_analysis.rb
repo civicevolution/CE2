@@ -256,7 +256,7 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
 
   def detailed_report
     mca = self.as_json( except: [:created_at, :updated_at] )
-    mca["options"] = self.options.order(:title).map{|o| {id: o.id, title: o.title, details: o.details} }
+    mca["options"] = self.options.order(:title).map{|o| {id: o.id, title: o.title, details: o.details, data: o.data} }
     mca
   end
 

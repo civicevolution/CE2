@@ -1,0 +1,16 @@
+%div
+  %h4 Services list
+  %table
+    %tr
+      %th Service
+      %th Recommendation
+      %th Reason(s)
+      %th Details
+    %tr(ng-repeat="service in report_data.options")
+      %td
+        %a(ng-click="show_service(service.id)")
+          {{service.title}}
+        -#%a(href="/#/detailed-report/{{service.id}}")
+      %td {{service.data.service_level_recommendation}}
+      %td {{service.data.reason}}
+      %td {{service.data.details}}

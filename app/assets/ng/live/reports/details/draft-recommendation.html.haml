@@ -1,0 +1,132 @@
+.draft-recommendation
+
+  %h3.title Service Name: {{service.title}}
+
+  .group-budget-direction(ng-repeat="recommendation_package in service.data.service_level_recommendations")
+
+    -#%h4.rec(ng-class="{'add-another': $last && service.data.service_level_recommendations.length>1}")
+    %h4.rec(ng-class="{'addt-level': !$first}")
+      %span(ng-if="!$last || service.data.service_level_recommendations.length==1") Recommend a budgetary direction:
+      %span(ng-if="$last && service.data.service_level_recommendations.length>1") Recommend another budgetary direction:
+
+
+      %span(ng-switch="recommendation_package.service_recommendations.length>0 || recommendation_package.service_suggestions.length>0")
+        %span(ng-switch-when="true") {{recommendation_package.service_level_recommendation}}
+        %span(ng-switch-when="false")
+          %select.rec-budget(ng-model="recommendation_package.service_level_recommendation" ng-options="option for option in recommendation_options" ng-change="update_service_recommendation()")
+            %option(value="" disabled selected) Select your recommendation
+          %a.delete(ng-click="delete_budget_direction()" ng-if="!$last")
+            %i.fa.fa-times
+
+    .specific-action-form(ng-if="recommendation_package.recommend_action.form != null && recommendation_package.recommend_action.form != 'same'")
+      .row(ng-if="recommendation_package.recommend_action.form == 'more'")
+        .col-sm-6
+          %p.explain Recommend a specific action to increase the current service level
+          %textarea(ng-model="recommendation_package.recommend_action.increase")
+
+        .col-sm-6
+          %p.explain Reason
+          %textarea(ng-model="recommendation_package.recommend_action.reason")
+
+      .row(ng-if="recommendation_package.recommend_action.form == 'less'")
+        .col-sm-6
+          %p.explain Recommend a specific action to decrease the current service level
+          %textarea(ng-model="recommendation_package.recommend_action.decrease")
+
+        .col-sm-6
+          %p.explain Reason
+          %textarea(ng-model="recommendation_package.recommend_action.reason")
+
+      .row(ng-if="recommendation_package.recommend_action.form == 'mix'")
+        .col-sm-6
+          %p.explain Recommend a specific action to increase the current service level
+          %textarea(ng-model="recommendation_package.recommend_action.increase")
+
+          %p.explain Recommend a specific action to decrease the current service level to offset the increase
+          %textarea(ng-model="recommendation_package.recommend_action.decrease")
+
+        .col-sm-6
+          %p.explain Reason
+          %textarea(ng-model="recommendation_package.recommend_action.reason")
+
+      %div.buttons
+        %button.btn-primary.btn(ng-click="save_recommendation()" ng-disabled="recommend_action_form_incomplete()"){type: 'submit'}
+          %span.def-msg Save
+          %span.busy-msg
+            Saving
+            %i.fa.fa-spinner.fa-spin
+        %button.btn.btn-link(ng-click="clear_recommendation()") Cancel
+
+
+
+    %div(ng-class="{'inactive-form': recommendation_package.service_level_recommendation==''}")
+
+      %table(ng-if="recommendation_package.service_recommendations.length>0 || recommendation_package.service_suggestions.length>0")
+        %tr
+          %th Budget Rec
+          %th Specific Actions
+          %th Reason / Suggestion / Comment
+          %th Grp
+          %th
+        %tr(ng-repeat="recommendation in recommendation_package.service_recommendations track by $index")
+          %td {{recommendation.type}}
+          %td(ng-switch="recommendation.form")
+            %div(ng-switch-when="mix")
+              %div
+                %i.fa.fa-plus
+                %div.mixed-recs.inc
+                  {{recommendation.increase}}
+              %div
+                %i.fa.fa-minus
+                %div.mixed-recs
+                  {{recommendation.decrease}}
+            %span(ng-switch-when="more") {{recommendation.increase}}
+            %span(ng-switch-when="less") {{recommendation.decrease}}
+
+          %td(ng-switch="recommendation.form")
+            %span(ng-switch-when="suggestion") {{recommendation.text}}
+            %span(ng-switch-else) {{recommendation.reason}}
+          %td {{recommendation.group}}
+          %td.icons
+            %a.edit(ng-click="edit_recommendation()")
+              %i.fa.fa-edit
+            %a.delete(ng-click="delete_recommendation()")
+              %i.fa.fa-times
+
+        %tr(ng-repeat="recommendation in recommendation_package.service_suggestions track by $index")
+          %td {{recommendation.type}}
+          %td(ng-switch="recommendation.form")
+            %div(ng-switch-when="mix")
+              %div
+                %i.fa.fa-plus
+                %div.mixed-recs.inc
+                  {{recommendation.increase}}
+              %div
+                %i.fa.fa-minus
+                %div.mixed-recs
+                  {{recommendation.decrease}}
+            %span(ng-switch-when="more") {{recommendation.increase}}
+            %span(ng-switch-when="less") {{recommendation.decrease}}
+
+          %td(ng-switch="recommendation.form")
+            %span(ng-switch-when="suggestion") {{recommendation.text}}
+            %span(ng-switch-else) {{recommendation.reason}}
+          %td {{recommendation.group}}
+          %td.icons
+            %a.edit(ng-click="edit_suggestion()")
+              %i.fa.fa-edit
+            %a.delete(ng-click="delete_suggestion()")
+              %i.fa.fa-times
+
+      .specific-action-form
+        %h5 Add your suggestion or comment
+
+        %textarea(ng-model="recommendation_package.suggestion.text" name="suggestion")
+        %div.buttons
+          %button.btn-primary.btn(ng-click="save_suggestion()" ng-disabled="recommendation_package.suggestion.text.length < 5"){type: 'submit'}
+            %span.def-msg Save
+            %span.busy-msg
+              Saving
+              %i.fa.fa-spinner.fa-spin
+
+          %button.btn.btn-link(ng-click="clear_suggestion()") Cancel
