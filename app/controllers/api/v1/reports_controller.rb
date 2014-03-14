@@ -247,7 +247,8 @@ module Api
                 category: service[:category],
                 level: level['service_level_recommendation'],
                 specific_action: { form: action['form'], increase: action['increase'], decrease: action['decrease'], reason: action['reason']},
-                suggestion: {}
+                suggestion: {},
+                group: action['group']
               }
               @report.push(row)
             end
@@ -260,7 +261,8 @@ module Api
                 category: service[:category],
                 level: level['service_level_recommendation'],
                 specific_action: {},
-                suggestion: { form: suggestion['form'], text: suggestion['text']}
+                suggestion: { form: suggestion['form'], text: suggestion['text']},
+                group: suggestion['group']
               }
               @report.push(row)
             end
@@ -302,7 +304,7 @@ module Api
         end
 
         # or from your controller, using views & templates and all wicked_pdf options as normal
-        pdf_save_name = "options-report.pdf"
+        pdf_save_name = "CGG-Services-Report.pdf"
         pdf = render_to_string pdf:"#{pdf_save_name}",
                                template: 'reports/options-review-report.html.haml',
                                layout: 'pdf-report',

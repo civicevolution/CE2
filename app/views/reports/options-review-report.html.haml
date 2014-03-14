@@ -8,7 +8,7 @@
       %th Budget Direction
       %th Specific Actions
       %th Reason/Suggestion/Comment
-      %th Vote
+      %th Grp
 
     - @report.each do |row|
       %tr{class: cycle('','striped')}
@@ -53,4 +53,4 @@
                 %span= row[:specific_action][:reason]
 
         %td
-          .td-no-break
+          .td-no-break= row[:group]
