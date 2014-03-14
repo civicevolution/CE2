@@ -88,10 +88,11 @@
             %span(ng-switch-else) {{recommendation.reason}}
           %td {{recommendation.group}}
           %td.icons
-            %a.edit(ng-click="edit_recommendation()")
-              %i.fa.fa-edit
-            %a.delete(ng-click="delete_recommendation()")
-              %i.fa.fa-times
+            %div(ng-if="service.allow_edit_all || (recommendation.group == user.last_name)")
+              %a.edit(ng-click="edit_recommendation()")
+                %i.fa.fa-edit
+              %a.delete(ng-click="delete_recommendation()")
+                %i.fa.fa-times
 
         %tr(ng-repeat="recommendation in recommendation_package.service_suggestions track by $index")
           %td {{recommendation.type}}
@@ -113,10 +114,11 @@
             %span(ng-switch-else) {{recommendation.reason}}
           %td {{recommendation.group}}
           %td.icons
-            %a.edit(ng-click="edit_suggestion()")
-              %i.fa.fa-edit
-            %a.delete(ng-click="delete_suggestion()")
-              %i.fa.fa-times
+            %div(ng-if="service.allow_edit_all || (recommendation.group == user.last_name)")
+              %a.edit(ng-click="edit_suggestion()")
+                %i.fa.fa-edit
+              %a.delete(ng-click="delete_suggestion()")
+                %i.fa.fa-times
 
       .specific-action-form
         %h5 Add your suggestion or comment

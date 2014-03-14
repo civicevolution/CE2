@@ -86,9 +86,10 @@ class McaOption < ActiveRecord::Base
           data_will_change!
           if value[:_id]
             mode = "replace"
+            value.delete('group') # replace shouldn't update the group
             data[key.to_sym].each do |el|
               if el['_id'] == value[:_id]
-                el.replace(value)
+                el.replace(el.merge(value))
               end
             end
           else

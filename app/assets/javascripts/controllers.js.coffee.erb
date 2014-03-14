@@ -526,7 +526,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
 
             $scope.clear_recommendation = () ->
-              reset_recommendation_form()
+              reset_recommendation_form($scope.recommendation_package)
 
             $scope.show_suggestion_form = () ->
               if $scope.service.data.service_level_recommendation
@@ -562,7 +562,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
 
             $scope.clear_suggestion = ->
-              reset_suggestion_form()
+              reset_suggestion_form($scope.recommendation_package)
 
             $scope.edit_recommendation = ->
               $scope = angular.element(event.currentTarget).scope();
@@ -628,6 +628,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                   console.log "delete_budget_direction return"
               )
 
+            $scope.$on 'update-user-data', () ->
+              $scope.service.allow_edit_all = ($scope.user.first_name == 'Coordinator')
         ]
       )
 
