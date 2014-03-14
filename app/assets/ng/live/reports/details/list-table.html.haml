@@ -1,5 +1,10 @@
 %div
-  %h4 Services list
+  %h4 Services Links
+  %ul
+    %li(ng-repeat="service in report_data.options")
+      %a(ng-click="show_service(service.id)") {{service.title}}
+
+  %h4 Services Report
   %table
     %tr
       -#%th Service Name
