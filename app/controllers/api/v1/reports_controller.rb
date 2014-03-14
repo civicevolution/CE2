@@ -301,7 +301,56 @@ module Api
           end
         end
 
-        render template: 'reports/options-review-report', layout: 'pdf-report'
+        # or from your controller, using views & templates and all wicked_pdf options as normal
+        pdf_save_name = "options-report.pdf"
+        pdf = render_to_string pdf:"#{pdf_save_name}",
+                               template: 'reports/options-review-report.html.haml',
+                               layout: 'pdf-report',
+                               orientation: 'landscape',
+                               disposition: 'attachment',
+                               wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
+                               show_as_html: params[:debug].present?,
+                               dpi: 300,
+                               page_size: 'A3',
+                               margin: { top: 0,
+                                         bottom: 0,
+                                         left:0,
+                                         right: 0
+                               }
+
+        files = []
+        pdf_save_path = "./public/#{pdf_save_name}"
+        File.open(pdf_save_path, 'wb') do |file|
+          file << pdf
+        end
+        files.push( pdf_save_name )
+
+        begin
+          cmd = "identify #{pdf_save_path}"
+          num_pages = `#{cmd}`.split(/\n/).size
+
+          Rails.logger.debug "Create num_pages: #{num_pages} jpgs from this pdf: #{pdf_save_path}"
+
+          (0...num_pages).each do |page_num|
+            jpg_save_name = pdf_save_name.sub(/pdf$/,"#{page_num}.jpg")
+            jpg_save_path = "./public/#{jpg_save_name}"
+            Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
+            #pdf[page_num].write(jpg_save_path)
+            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
+            Rails.logger.debug "cmd: #{cmd}"
+            `#{cmd}`
+            files.push( jpg_save_name )
+          end
+        rescue Exception => e
+          Rails.logger.warn "^^^^^^^ XXXXXX  show_comments convert pdf to jpg error: #{e}"
+        end
+
+        respond_to do |format|
+          format.html { render template: 'reports/options-review-report', layout: 'pdf-report' }
+          format.json { render json: files }
+          format.pdf { send_file(pdf_save_path, :disposition => 'inline') }
+        end
+
       end
 
     end

@@ -2151,7 +2151,8 @@ pdf_report_controller = [ "$scope", "$timeout", "$state", "AgendaData", "convers
       if conversation.links
         for link in conversation.links
           $scope.report.options.push {value: "#{conversation.code}-#{link}", key: "#{link} for #{conversation.title.substring(0,50)}" }
-          
+    $scope.report.options.push {value: "xyz-Services report", key: "Services report" }
+
     $scope.build_report = ->
       btn = angular.element(event.currentTarget)
       return if btn.hasClass('busy')
@@ -2171,6 +2172,8 @@ pdf_report_controller = [ "$scope", "$timeout", "$state", "AgendaData", "convers
                         'results-graph'
                       else if $scope.report.selected.match(/Suggestions report/)
                         'comments'
+                      else if $scope.report.selected.match(/Services report/)
+                        'options-review-report'
                       else
                         null
         if report_type

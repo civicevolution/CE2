@@ -87,9 +87,8 @@
 .mca-detailed-report{
   table{min-width:600px;}
   //table,td, th{ border: 1px solid black;}
-  td{ text-align: left; vertical-align: top; padding:1em;}
+  td{ text-align: left; vertical-align: top; padding:0em;}
   th{ text-align: center; vertical-align: middle; padding:0 1em;}
-
   .mixed-recs{
     padding-left: 20px;
     margin-top: -20px;
@@ -100,4 +99,14 @@
     line-height: 1.12em;
     margin-bottom: 1.5em;
   }
+  .td-no-break{
+    //border: 1px solid blue;
+    page-break-inside: avoid;
+    padding: 1em;
+  }
+  .as-above, .fa-plus, .fa-minus{
+    font-style: italic;
+    color: #808080;
+  }
+  .striped{ background-color: #f5f5f5; }
 }

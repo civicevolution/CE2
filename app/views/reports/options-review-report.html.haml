@@ -1,6 +1,6 @@
 .mca-detailed-report
   %h4 Services list
-  %table(border="1")
+  %table(border="0")
     %tr
       -#%th Service Name
       %th Service Name
@@ -11,33 +11,46 @@
       %th Vote
 
     - @report.each do |row|
-      %tr
+      %tr{class: cycle('','striped')}
         -#%td
           .category= row[:category]
           = row[:service_title]
         %td
-          .category= row[:cat]
-          = row[:title]
+          .td-no-break
+            - if row[:cat] != ''
+              .category= row[:cat]
+            - if row[:title] == 'As above'
+              .as-above= row[:title]
+            -else
+              = row[:title]
         -#%td= row[:level]
-        %td= row[:level_r]
         %td
-          - case row[:specific_action][:form]
-            - when 'mix'
-              %div
-                %i.fa.fa-plus
-                %div.mixed-recs.inc= row[:specific_action][:increase]
-              %div
-                %i.fa.fa-minus
-                %div.mixed-recs= row[:specific_action][:decrease]
-            - when 'more'
-              = row[:specific_action][:increase]
-            - when 'less'
-              = row[:specific_action][:decrease]
+          .td-no-break
+            - if row[:level_r] == 'As above'
+              .as-above= row[:level_r]
+            -else
+              = row[:level_r]
         %td
-          - case row[:suggestion][:form]
-            - when 'suggestion'
-              %span= row[:suggestion][:text]
-            - else
-              %span= row[:specific_action][:reason]
+          .td-no-break
+            - case row[:specific_action][:form]
+              - when 'mix'
+                %div
+                  %i.fa.fa-plus
+                  %div.mixed-recs.inc= row[:specific_action][:increase]
+                %div
+                  %i.fa.fa-minus
+                  %div.mixed-recs= row[:specific_action][:decrease]
+              - when 'more'
+                = row[:specific_action][:increase]
+              - when 'less'
+                = row[:specific_action][:decrease]
+        %td
+          .td-no-break
+            - case row[:suggestion][:form]
+              - when 'suggestion'
+                %span= row[:suggestion][:text]
+              - else
+                %span= row[:specific_action][:reason]
 
         %td
+          .td-no-break

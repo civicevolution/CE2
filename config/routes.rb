@@ -241,7 +241,7 @@ Ce2::Application.routes.draw do
 
   get "api/reports/:agenda_code/criteria_stats" => "api/v1/reports#criteria_stats"
 
-  get "api/reports/:agenda_code/options-review-report" => "api/v1/reports#options_review_report"
+  get "api/reports/:agenda_code/options-review-report/:conversation_code" => "api/v1/reports#options_review_report"
 
 
   post "/api/mca/:mca_id/update" => "api/v1/multi_criteria_analyses#update", format: :json
