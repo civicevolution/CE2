@@ -489,6 +489,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 type: 'service_level_recommendation'
                 data:
                   'push:service_level_recommendations': {service_level_recommendation: $scope.recommendation_package.service_level_recommendation}
+
+              if $scope.recommendation_package._id
+                data.data['push:service_level_recommendations']._id = $scope.recommendation_package._id
               McaData.update_option( data ).then(
                 (response)->
                   console.log "update_service_recommendation return"
