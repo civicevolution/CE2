@@ -329,8 +329,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             $scope.page.id = Number($stateParams.option_id)
             if $scope.page.id != 0
               $scope.service = service for service in $scope.report_data.options when service.id == Number($stateParams.option_id)
+              $scope.service.allow_edit_all = true
 
-            $scope.service.allow_edit_all = true
 
             reset_recommendation_form = (dir_package) ->
               dir_package.recommend_action.decrease = ""
