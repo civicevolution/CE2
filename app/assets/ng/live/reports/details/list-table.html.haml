@@ -12,7 +12,8 @@
       -#%th Budget Direction
       %th Budget Direction
       %th Specific Actions
-      %th Reason/Suggestion/Comment
+      %th Reason
+      %th Suggestion
       %th Grp
     %tr(ng-repeat="row in report")
       -#%td
@@ -40,8 +41,11 @@
         %span(ng-switch-when="more") {{row.specific_action.increase}}
         %span(ng-switch-when="less") {{row.specific_action.decrease}}
 
-      %td.reason(ng-switch="row.suggestion.form")
+      -#%td.reason(ng-switch="row.suggestion.form")
         %span(ng-switch-when="suggestion") {{row.suggestion.text}}
         %span(ng-switch-else) {{row.specific_action.reason}}
+
+      %td.reason {{row.specific_action.reason}}
+      %td.suggestion {{row.suggestion.text}}
 
       %td {{row.group}}

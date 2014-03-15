@@ -71,7 +71,7 @@
           %th
         %tr(ng-repeat="recommendation in recommendation_package.service_recommendations track by $index")
           %td {{recommendation.type}}
-          %td(ng-switch="recommendation.form")
+          %td.action(ng-switch="recommendation.form")
             %div(ng-switch-when="mix")
               %div
                 %i.fa.fa-plus
@@ -88,8 +88,8 @@
             %span(ng-switch-when="suggestion") {{recommendation.text}}
             %span(ng-switch-else) {{recommendation.reason}}
 
-          %td {{recommendation.reason}}
-          %td {{recommendation.text}}
+          %td.reason {{recommendation.reason}}
+          %td.suggestion {{recommendation.text}}
 
           %td {{recommendation.group}}
           %td.icons
