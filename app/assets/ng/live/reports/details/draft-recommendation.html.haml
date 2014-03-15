@@ -65,7 +65,8 @@
         %tr
           %th Budget Rec
           %th Specific Actions
-          %th Reason / Suggestion / Comment
+          %th Reason
+          %th Suggestion
           %th Grp
           %th
         %tr(ng-repeat="recommendation in recommendation_package.service_recommendations track by $index")
@@ -83,9 +84,13 @@
             %span(ng-switch-when="more") {{recommendation.increase}}
             %span(ng-switch-when="less") {{recommendation.decrease}}
 
-          %td(ng-switch="recommendation.form")
+          -#%td(ng-switch="recommendation.form")
             %span(ng-switch-when="suggestion") {{recommendation.text}}
             %span(ng-switch-else) {{recommendation.reason}}
+
+          %td {{recommendation.reason}}
+          %td {{recommendation.text}}
+
           %td {{recommendation.group}}
           %td.icons
             %div(ng-if="service.allow_edit_all || (recommendation.group == user.last_name)")
@@ -109,9 +114,13 @@
             %span(ng-switch-when="more") {{recommendation.increase}}
             %span(ng-switch-when="less") {{recommendation.decrease}}
 
-          %td(ng-switch="recommendation.form")
+          -#%td(ng-switch="recommendation.form")
             %span(ng-switch-when="suggestion") {{recommendation.text}}
             %span(ng-switch-else) {{recommendation.reason}}
+
+          %td {{recommendation.reason}}
+          %td {{recommendation.text}}
+
           %td {{recommendation.group}}
           %td.icons
             %div(ng-if="service.allow_edit_all || (recommendation.group == user.last_name)")
