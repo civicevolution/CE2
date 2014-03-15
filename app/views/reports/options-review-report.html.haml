@@ -7,7 +7,8 @@
       -#%th Budget Direction
       %th Budget Direction
       %th Specific Actions
-      %th Reason/Suggestion/Comment
+      %th Reason
+      %th Suggestion
       %th Grp
 
     - @report.each do |row|
@@ -46,11 +47,11 @@
                 = row[:specific_action][:decrease]
         %td.reason
           .td-no-break
-            - case row[:suggestion][:form]
-              - when 'suggestion'
-                %span= row[:suggestion][:text]
-              - else
-                %span= row[:specific_action][:reason]
+            = row[:specific_action][:reason]
+
+        %td.suggestion
+          .td-no-break
+            = row[:suggestion][:text]
 
         %td
           .td-no-break= row[:group]
