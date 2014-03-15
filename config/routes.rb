@@ -258,6 +258,8 @@ Ce2::Application.routes.draw do
 
   post "/api/mca_options/:id/update_option" => "api/v1/mca_options#update_option", format: :json
 
+  get "/api/mca/:mca_id/service_list/:phase" => "api/v1/multi_criteria_analyses#service_list", format: :json
+
 
 
   # The priority is based upon order of creation: first created -> highest priority.

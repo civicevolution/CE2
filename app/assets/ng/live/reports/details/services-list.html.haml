@@ -1,0 +1,5 @@
+%div
+  %h4 Services assigned to your group
+  %ul
+    %li(ng-repeat="service in service_list")
+      %a(ng-click="show_service(service.id)") {{service.title}}

@@ -710,6 +710,9 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
     update_option: (data) ->
       $http.post("/api/mca_options/#{data.id}/update_option.json", data )
 
+    service_list: (mca_id, phase) ->
+      $http.get("/api/mca/#{mca_id}/service_list/#{phase}.json")
+
 ]
 
 services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, $rootScope, $http) ->

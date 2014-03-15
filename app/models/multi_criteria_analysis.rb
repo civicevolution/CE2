@@ -260,4 +260,16 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
     mca
   end
 
+  def service_list(user,phase)
+    data = self.data
+    ids = data[phase][user.last_name]
+    services = self.options.where(id: ids)
+    ordered_services = []
+    ids.each do |id|
+      service = services.detect{|s| s.id == id}
+      ordered_services.push({id: service.id, title: service.title}) unless service.nil?
+    end
+    ordered_services
+  end
+
 end

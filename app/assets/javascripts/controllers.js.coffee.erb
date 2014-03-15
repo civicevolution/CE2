@@ -297,6 +297,23 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
         ]
       )
 
+    .state( 'services-list',
+      url: "/mca/{mca_id}/review/{phase}"
+      templateUrl: '<%= path_to_asset "live/reports/details/services-list.html" %>'
+      resolve:
+        service_list: ["McaData", "$stateParams", (McaData, $stateParams) ->
+                      McaData.service_list($stateParams.mca_id,$stateParams.phase)
+        ]
+      controller: [ "$scope", "$stateParams", "service_list", "$location",
+        ($scope, $stateParams, service_list, $location ) ->
+          console.log "show services list for action #{$stateParams.phase}"
+          $scope.service_list = service_list.data
+          $scope.show_service = (service_id) ->
+            console.log "show_service id: #{service_id}"
+            $location.url( "/mca/#{$stateParams.mca_id}/detailed-report/#{service_id}" )
+
+        ]
+      )
 
       .state( 'mca-detailed-report',
         url: "/mca/{mca_id}/detailed-report/{option_id}"
@@ -461,7 +478,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               $scope = angular.element(event.currentTarget).scope()
               # make sure this is a unique new service level
               for recommendation in $scope.service.data.service_level_recommendations when recommendation._id
-                if recommendation.service_level_recommendation == $scope.recommendation_package.service_level_recommendation
+                if recommendation._id != $scope.recommendation_package._id && recommendation.service_level_recommendation == $scope.recommendation_package.service_level_recommendation
                   $dialog.messageBoxOk("Warning","#{$scope.recommendation_package.service_level_recommendation} has already been selected. Please use the form above.")
                   $scope.recommendation_package.service_level_recommendation = ""
                   return
