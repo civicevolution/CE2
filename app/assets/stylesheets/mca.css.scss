@@ -187,7 +187,7 @@
     td{ padding-left: 1em; }
   }
   tr.direction td{
-    padding: 1em 1em 1em 0;
+    padding: 1em 1em 1em 1em;
 
   }
   input{width: 30px; text-align: center;}
@@ -198,6 +198,7 @@
     }
   }
   th{ padding-left: .5em; padding-right: .5em;}
+  td{padding-left: .5em;}
   .grp-votes{
     text-align: center;
   }

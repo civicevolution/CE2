@@ -25,12 +25,14 @@
           %th Grp 6
           %th Grp 7
           %th Grp 8
+          %th Status
 
         %tr.title(ng-repeat-start="option in direction_options")
           %td(colspan="10") {{option.title}}
         %tr.direction(ng-repeat-end ng-repeat="direction_option in option.direction_options")
           %td {{direction_option.title}}
           %td.grp-votes(ng-repeat="vote in direction_option.all_votes track by $index") {{vote}}
+          %td {{direction_option.status}}
 
 
 

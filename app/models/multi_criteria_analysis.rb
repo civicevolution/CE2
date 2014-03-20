@@ -404,7 +404,10 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
       option['direction_options'] = direction_options
       options.push(option)
     end
-    options
+    {
+      report_thresholds: self.data['report_thresholds'],
+      options: options
+    }
   end
 
   def direction_votes(current_user, vote_data)
