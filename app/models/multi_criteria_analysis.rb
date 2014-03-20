@@ -1,4 +1,6 @@
 class MultiCriteriaAnalysis < ActiveRecord::Base
+  include ActiveModel::Dirty
+
   attr_accessible :agenda_id, :title, :description
 
   has_many :options, class_name: 'McaOption', dependent: :destroy
@@ -271,5 +273,165 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
     end
     ordered_services
   end
+
+  def processed_detailed_report_data
+    data = self.detailed_report
+
+    Rails.logger.debug "^^^^^^ services & levels"
+    @report = []
+    data['options'].each do |service|
+
+      service_recommendations_hash = {}
+      (service[:data].try{|data| data['service_recommendations'] } || []).each do |service_recommendation|
+        budget_dir_id = service_recommendation['budget_dir_id']
+        service_recommendations_hash[budget_dir_id] = [] unless service_recommendations_hash[budget_dir_id]
+        service_recommendations_hash[budget_dir_id].push( service_recommendation )
+      end
+
+      service_suggestions_hash = {}
+      (service[:data].try{|data| data['service_suggestions'] } || []).each do |service_suggestion|
+        budget_dir_id = service_suggestion['budget_dir_id']
+        service_suggestions_hash[budget_dir_id] = [] unless service_suggestions_hash[budget_dir_id]
+        service_suggestions_hash[budget_dir_id].push( service_suggestion )
+      end
+
+
+      (service[:data].try{|data| data['service_level_recommendations']} || [ {} ]).each do |level|
+        actions = service_recommendations_hash[level['_id']] || [  ]
+        actions.each do |action|
+          row = {
+              service_id: service[:id],
+              service_title: service[:title],
+              category: service[:category],
+              level: level['service_level_recommendation'],
+              specific_action: { form: action['form'], increase: action['increase'], decrease: action['decrease'], reason: action['reason']},
+              suggestion: {},
+              group: action['group']
+          }
+          @report.push(row)
+        end
+
+        suggestions = service_suggestions_hash[level['_id']] || [  ]
+        suggestions.each do |suggestion|
+          row = {
+              service_id: service[:id],
+              service_title: service[:title],
+              category: service[:category],
+              level: level['service_level_recommendation'],
+              specific_action: {},
+              suggestion: { form: suggestion['form'], text: suggestion['text']},
+              group: suggestion['group']
+          }
+          @report.push(row)
+        end
+
+        if actions.length == 0 && suggestions.length == 0
+          row = {
+              service_id: service[:id],
+              service_title: service[:title],
+              category: service[:category],
+              level: level['service_level_recommendation'],
+              specific_action: {},
+              suggestion: {}
+          }
+          @report.push(row)
+        end
+        #Rails.logger.debug "(#{level_ctr}) #{service[:title]} direction: #{level['service_level_recommendation']} # actions: #{actions.size}, # suggestions: #{suggestions.size}"
+        Rails.logger.debug "#{service[:title]}\t#{level['service_level_recommendation']}\t#{actions.size}\t#{suggestions.size}"
+      end
+    end
+
+    # iterate through the report table and mark Service and direction "As above" when they repeat
+    service = ''
+    level = ''
+    @report.each do |row|
+      if service != row[:service_title]
+        service = row[:service_title]
+        row[:title] = service
+        row[:cat] = row[:category]
+        level = ''
+      else
+        row[:title] = 'As above'
+        row[:cat] = ''
+      end
+
+      if level != row[:level]
+        level = row[:level]
+        row[:level_r] = level
+      else
+        row[:level_r] = 'As above'
+      end
+    end
+    @report
+  end
+
+  def direction_options(current_user)
+    directions_order =  [
+        "Pay less for less",
+        "Pay the same for the same",
+        "Pay the same with different mix",
+        "Pay more for more/better"
+    ]
+    if current_user.first_name == 'Group'
+      votes = self.data['votes'].try{|votes| votes[current_user.last_name]} || {}
+    else
+      votes = {}
+    end
+      # for coord, produce an array of votes
+      #votes = self.data['votes'].try{|votes| votes["1"]} || {}
+    options = []
+    self.options.order(:title).each do |o|
+      option = {title: o.title, id: o.id}
+      direction_options = [nil,nil,nil,nil]
+      o.data['service_level_recommendations'].each do |direction|
+        index = directions_order.index( direction["service_level_recommendation"] )
+        direction_options[index] = { id: direction['_id'], title: direction["service_level_recommendation"] }
+        if current_user.first_name == 'Group'
+          num_votes = votes.detect{|v| v['opt_id'] == o.id && v['dir_id'] == direction['_id']}.try{|rec| rec['votes']} || nil
+          direction_options[index][:pro_votes] = num_votes
+        elsif current_user.first_name == 'Coordinator'
+          direction_options[index][:all_votes] = [nil, nil, nil, nil, nil, nil, nil, nil]
+          votes = self.data['votes'].each_pair do |key,val|
+            cnt = val.detect{|v| v['opt_id'] == o.id && v['dir_id'] == direction['_id']}.try{|rec| rec['votes']} || nil
+            if cnt
+              direction_options[index][:all_votes][key.to_i - 1] = cnt
+            end
+          end
+        end
+
+      end
+      direction_options.reject! { |o| o.nil? }
+      option['direction_options'] = direction_options
+      options.push(option)
+    end
+    options
+  end
+
+  def direction_votes(current_user, vote_data)
+    Rails.logger.debug "Save this votes json to the mca data"
+    data_will_change!
+    data = self.data || {}
+    data['votes'] ||= {}
+    data['votes'][current_user.last_name.to_s] = vote_data
+    ActiveRecord::Base.transaction do
+      self.update_attribute(:data, {} )
+      self.update_attribute(:data, data)
+    end
+    self.realtime_notification(current_user.last_name.to_s, vote_data)
+
+  end
+
+  def realtime_notification(group_id, data)
+    data = {
+        mca_id: self.id,
+        group_id: group_id,
+        data: data,
+        updated_at: self.updated_at
+    }
+    message = { class: 'full_services_vote', action: "update", data: data, updated_at: Time.now.getutc, source: "RoR-RT-Notification" }
+    channel = "/mca/#{self.id}/votes"
+    Modules::FayeRedis::publish(message,channel)
+  end
+  handle_asynchronously :realtime_notification
 
 end

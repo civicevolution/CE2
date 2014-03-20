@@ -1,7 +1,7 @@
 module Api
   module V1
     class MultiCriteriaAnalysesController < Api::BaseController
-      skip_authorization_check only: [:update, :save_panel_weight,:detailed_report, :service_list]
+      skip_authorization_check only: [:update, :save_panel_weight,:detailed_report, :service_list, :direction_options, :direction_votes]
 
       def update
         Rails.logger.debug "MultiCriteriaAnalysesController::update"
@@ -48,6 +48,20 @@ module Api
         #authorize! :detailed_report, conversation
         #render json: mca.as_json( except: [:created_at, :updated_at] )
         render json: mca.service_list(current_user, params[:phase])
+      end
+
+      def direction_options
+        mca = MultiCriteriaAnalysis.find(params[:mca_id])
+        #authorize! :detailed_report, conversation
+        #render json: mca.as_json( except: [:created_at, :updated_at] )
+        render json: mca.direction_options(current_user)
+      end
+
+      def direction_votes
+        mca = MultiCriteriaAnalysis.find(params[:mca_id])
+        #authorize! :detailed_report, conversation
+        #render json: mca.as_json( except: [:created_at, :updated_at] )
+        render json: mca.direction_votes(current_user, params[:data])
       end
 
     end

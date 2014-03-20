@@ -259,6 +259,9 @@ Ce2::Application.routes.draw do
   post "/api/mca_options/:id/update_option" => "api/v1/mca_options#update_option", format: :json
 
   get "/api/mca/:mca_id/service_list/:phase" => "api/v1/multi_criteria_analyses#service_list", format: :json
+  get "/api/mca/:mca_id/direction_options" => "api/v1/multi_criteria_analyses#direction_options", format: :json
+
+  post "/api/mca/:mca_id/direction_votes" => "api/v1/multi_criteria_analyses#direction_votes", format: :json
 
 
 

@@ -179,6 +179,30 @@
     border-bottom-color: transparent;
   }
 }
+.directions-vote{
+  tr.title{
+    background-color: green;
+    color: white;
+    font-weight: bold;
+    td{ padding-left: 1em; }
+  }
+  tr.direction td{
+    padding: 1em 1em 1em 0;
+
+  }
+  input{width: 30px; text-align: center;}
+  .over-vote{
+    input{
+      border-color: red;
+      color: red;
+    }
+  }
+  th{ padding-left: .5em; padding-right: .5em;}
+  .grp-votes{
+    text-align: center;
+  }
+
+}
 .inline-block{
   display: inline-block;
 }

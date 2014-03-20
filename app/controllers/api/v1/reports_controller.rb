@@ -217,134 +217,56 @@ module Api
       def options_review_report
         agenda = Agenda.find_by(code: params[:agenda_code])
         mca = agenda.mca[0]
-        data = mca.detailed_report
+        @report = mca.processed_detailed_report_data
 
+        # only create pdf if format type is json or pdf
+        if params[:format] == 'json' || params[:format] == 'pdf'
+          # or from your controller, using views & templates and all wicked_pdf options as normal
+          pdf_save_name = "CGG-Services-Report.pdf"
+          pdf = render_to_string pdf:"#{pdf_save_name}",
+                                 template: 'reports/options-review-report.html.haml',
+                                 layout: 'pdf-report',
+                                 orientation: 'landscape',
+                                 disposition: 'attachment',
+                                 wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
+                                 show_as_html: params[:debug].present?,
+                                 dpi: 300,
+                                 page_size: 'A3',
+                                 margin: { top: 0,
+                                           bottom: 0,
+                                           left:0,
+                                           right: 0
+                                 }
 
-        @report = []
-        data['options'].each do |service|
-
-          service_recommendations_hash = {}
-          (service[:data].try{|data| data['service_recommendations'] } || []).each do |service_recommendation|
-            budget_dir_id = service_recommendation['budget_dir_id']
-            service_recommendations_hash[budget_dir_id] = [] unless service_recommendations_hash[budget_dir_id]
-            service_recommendations_hash[budget_dir_id].push( service_recommendation )
+          files = []
+          pdf_save_path = "./public/#{pdf_save_name}"
+          File.open(pdf_save_path, 'wb') do |file|
+            file << pdf
           end
+          files.push( pdf_save_name )
 
-          service_suggestions_hash = {}
-          (service[:data].try{|data| data['service_suggestions'] } || []).each do |service_suggestion|
-            budget_dir_id = service_suggestion['budget_dir_id']
-            service_suggestions_hash[budget_dir_id] = [] unless service_suggestions_hash[budget_dir_id]
-            service_suggestions_hash[budget_dir_id].push( service_suggestion )
-          end
+          # only create pdf images if format type is json
+          if params[:format] == 'json'
+            begin
+              cmd = "identify #{pdf_save_path}"
+              num_pages = `#{cmd}`.split(/\n/).size
 
+              Rails.logger.debug "Create num_pages: #{num_pages} jpgs from this pdf: #{pdf_save_path}"
 
-          (service[:data].try{|data| data['service_level_recommendations']} || [ {} ]).each do |level|
-            actions = service_recommendations_hash[level['_id']] || [  ]
-            actions.each do |action|
-              row = {
-                service_id: service[:id],
-                service_title: service[:title],
-                category: service[:category],
-                level: level['service_level_recommendation'],
-                specific_action: { form: action['form'], increase: action['increase'], decrease: action['decrease'], reason: action['reason']},
-                suggestion: {},
-                group: action['group']
-              }
-              @report.push(row)
-            end
-
-            suggestions = service_suggestions_hash[level['_id']] || [  ]
-            suggestions.each do |suggestion|
-              row = {
-                service_id: service[:id],
-                service_title: service[:title],
-                category: service[:category],
-                level: level['service_level_recommendation'],
-                specific_action: {},
-                suggestion: { form: suggestion['form'], text: suggestion['text']},
-                group: suggestion['group']
-              }
-              @report.push(row)
-            end
-
-            if actions.length == 0 && suggestions.length == 0
-              row = {
-                service_id: service[:id],
-                service_title: service[:title],
-                category: service[:category],
-                level: level['service_level_recommendation'],
-                specific_action: {},
-                suggestion: {}
-              }
-              @report.push(row)
+              (0...num_pages).each do |page_num|
+                jpg_save_name = pdf_save_name.sub(/pdf$/,"#{page_num}.jpg")
+                jpg_save_path = "./public/#{jpg_save_name}"
+                Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
+                #pdf[page_num].write(jpg_save_path)
+                cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
+                Rails.logger.debug "cmd: #{cmd}"
+                `#{cmd}`
+                files.push( jpg_save_name )
+              end
+            rescue Exception => e
+              Rails.logger.warn "^^^^^^^ XXXXXX  show_comments convert pdf to jpg error: #{e}"
             end
           end
-        end
-
-        # iterate through the report table and mark Service and direction "As above" when they repeat
-        service = ''
-        level = ''
-        @report.each do |row|
-          if service != row[:service_title]
-            service = row[:service_title]
-            row[:title] = service
-            row[:cat] = row[:category]
-            level = ''
-          else
-            row[:title] = 'As above'
-            row[:cat] = ''
-          end
-
-          if level != row[:level]
-            level = row[:level]
-            row[:level_r] = level
-          else
-            row[:level_r] = 'As above'
-          end
-        end
-
-        # or from your controller, using views & templates and all wicked_pdf options as normal
-        pdf_save_name = "CGG-Services-Report.pdf"
-        pdf = render_to_string pdf:"#{pdf_save_name}",
-                               template: 'reports/options-review-report.html.haml',
-                               layout: 'pdf-report',
-                               orientation: 'landscape',
-                               disposition: 'attachment',
-                               wkhtmltopdf: '/usr/local/bin/wkhtmltopdf',
-                               show_as_html: params[:debug].present?,
-                               dpi: 300,
-                               page_size: 'A3',
-                               margin: { top: 0,
-                                         bottom: 0,
-                                         left:0,
-                                         right: 0
-                               }
-
-        files = []
-        pdf_save_path = "./public/#{pdf_save_name}"
-        File.open(pdf_save_path, 'wb') do |file|
-          file << pdf
-        end
-        files.push( pdf_save_name )
-
-        begin
-          cmd = "identify #{pdf_save_path}"
-          num_pages = `#{cmd}`.split(/\n/).size
-
-          Rails.logger.debug "Create num_pages: #{num_pages} jpgs from this pdf: #{pdf_save_path}"
-
-          (0...num_pages).each do |page_num|
-            jpg_save_name = pdf_save_name.sub(/pdf$/,"#{page_num}.jpg")
-            jpg_save_path = "./public/#{jpg_save_name}"
-            Rails.logger.debug "jpg_save_path: #{jpg_save_path} for page: #{page_num}"
-            #pdf[page_num].write(jpg_save_path)
-            cmd = "convert #{pdf_save_path}[#{page_num}] #{jpg_save_path}"
-            Rails.logger.debug "cmd: #{cmd}"
-            `#{cmd}`
-            files.push( jpg_save_name )
-          end
-        rescue Exception => e
-          Rails.logger.warn "^^^^^^^ XXXXXX  show_comments convert pdf to jpg error: #{e}"
         end
 
         respond_to do |format|

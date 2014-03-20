@@ -329,9 +329,9 @@ class Agenda < ActiveRecord::Base
         agenda_details['details'][name] = Agenda.update_record_ids(conversations_details, agenda_details['details'][name])
       end
 
-      agenda_details['details']['theme_map'].each_pair do |key, value|
-        agenda_details['details']['theme_map'][key] = Agenda.update_record_ids(users, value)
-      end
+      #agenda_details['details']['theme_map'].each_pair do |key, value|
+      #  agenda_details['details']['theme_map'][key] = Agenda.update_record_ids(users, value)
+      #end
 
       votes = {}
       docs["ProConVotes"].each do |v|
@@ -510,7 +510,7 @@ class Agenda < ActiveRecord::Base
           evaluation[key] = value unless ['id','new_id','mca_option_id','user_id'].include?(key)
         end
         evaluation.mca_option_id = options_details[details["mca_option_id"]][:new_id]
-        evaluation.user_id = users[details["user_id"] ][:new_user_id] || agenda_default_user_id
+        evaluation.user_id = users[details["user_id"] ].try{|u| u[:new_user_id]} || agenda_default_user_id
         evaluation.save
         details[:new_id] = evaluation.id
       end

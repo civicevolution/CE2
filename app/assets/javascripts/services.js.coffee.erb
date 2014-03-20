@@ -713,6 +713,12 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
     service_list: (mca_id, phase) ->
       $http.get("/api/mca/#{mca_id}/service_list/#{phase}.json")
 
+    direction_options: (mca_id) ->
+      $http.get("/api/mca/#{mca_id}/direction_options.json")
+
+    direction_votes: (mca_id, data) ->
+      $http.post("/api/mca/#{mca_id}/direction_votes.json", {data: data})
+
 ]
 
 services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, $rootScope, $http) ->
