@@ -341,6 +341,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
                 else 'unknown'
 
+            if $scope.user
+              $scope.set_mode()
+
             $scope.$on 'update-user-data', () ->
               $scope.set_mode()
 

@@ -391,7 +391,7 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
           direction_options[index][:pro_votes] = num_votes
         elsif current_user.first_name == 'Coordinator'
           direction_options[index][:all_votes] = [nil, nil, nil, nil, nil, nil, nil, nil]
-          votes = self.data['votes'].each_pair do |key,val|
+          votes = (self.data['votes'] || {} ).each_pair do |key,val|
             cnt = val.detect{|v| v['opt_id'] == o.id && v['dir_id'] == direction['_id']}.try{|rec| rec['votes']} || nil
             if cnt
               direction_options[index][:all_votes][key.to_i - 1] = cnt
