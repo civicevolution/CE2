@@ -24,7 +24,7 @@
             %th Status
 
           %tr.title
-            %td(colspan="12") {{option.title}}
+            %td(colspan="10") {{option.title}}
           %tr.direction(ng-repeat="direction_option in option.direction_options")
             %td {{direction_option.title}}
             %td.grp-votes(ng-repeat="vote in direction_option.all_votes track by $index") {{vote}}
@@ -35,7 +35,7 @@
               %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page(-1)")
                 %i.fa.fa-angle-left
                 Previous
-            %td(colspan="10")
+            %td(colspan="8")
               %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page()")
                 Full list
                 %i.fa.fa-angle-up
@@ -86,7 +86,7 @@
           %th
 
         %tr.title(ng-repeat-start="option in direction_options")
-          %td(colspan="12") {{option.title}}
+          %td(colspan="10") {{option.title}}
         %tr.direction(ng-repeat-end ng-repeat="direction_option in option.direction_options")
           %td {{direction_option.title}}
           %td.grp-votes(ng-repeat="vote in direction_option.all_votes track by $index") {{vote}}
