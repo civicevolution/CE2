@@ -882,6 +882,60 @@ class Agenda < ActiveRecord::Base
         lookup: {}
     }
 
+
+    # link for group-mca-table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Review Recommendations for Community Feedback|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/mca/#{agenda_details[:mca_ids][0]}/review/com_feedback",
+        page_title: "Services Report Table",
+        disabled: false,
+        role: 'group',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+
+
+    # link for Services report table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Services Voting|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/mca/#{agenda_details[:mca_ids][0]}/directions-vote",
+        #data_set: "coord-multi-criteria-analysis-table",
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Plenary Services Review",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+
+
+    # link for Services report table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Service Actions and Suggestions Voting|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/mca/#{agenda_details[:mca_ids][0]}/directions-vote?mode=vote_actions_suggestions",
+        #data_set: "coord-multi-criteria-analysis-table",
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Plenary Services Review",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+
+
+
+
+
+
     conversations = Conversation.includes(:title_comment).where(id: agenda_details[:conversation_ids].flatten)
     ordered_conversations = []
     agenda_details[:conversation_ids].flatten.each do |id|
@@ -1138,6 +1192,23 @@ class Agenda < ActiveRecord::Base
     # link for Services report table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
+        title: %Q|Plenary Services Actions & Suggestions Review|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/mca/#{agenda_details[:mca_ids][0]}/directions-vote?mode=view_actions_suggestions",
+        #data_set: "coord-multi-criteria-analysis-table",
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Plenary Services Review",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:coordinator][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "coordinator"
+
+
+    # link for Services report table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
         title: %Q|Services Report Table|,
         id: 'mca',
         link_code:  link_code,
@@ -1168,7 +1239,7 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
 =end
-
+=begin
     # link for group-mca-table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -1182,7 +1253,7 @@ class Agenda < ActiveRecord::Base
     }
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
-
+=end
 
 =begin
     # link for group-mca-table
@@ -1199,7 +1270,7 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
 =end
-
+=begin
     # link for Services report table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -1216,6 +1287,23 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
 
+
+    # link for Services report table
+    link_code = self.create_link_code( agenda_details[:links][:lookup] )
+    link = {
+        title: %Q|Service Actions and Suggestions Voting|,
+        id: 'mca',
+        link_code:  link_code,
+        href: "/#/mca/#{agenda_details[:mca_ids][0]}/directions-vote?mode=vote_actions_suggestions",
+        #data_set: "coord-multi-criteria-analysis-table",
+        mca_id: agenda_details[:mca_ids][0],
+        page_title: "Plenary Services Review",
+        disabled: false,
+        role: 'coordinator',
+    }
+    agenda_details[:links][:group][ link_code ] = link
+    agenda_details[:links][:lookup][link_code] = "group"
+=end
 =begin
     # link for group-mca-table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
