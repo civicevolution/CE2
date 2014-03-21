@@ -10,6 +10,70 @@
 
 
   %div(ng-switch="direction_options.mode")
+    %div(ng-switch-when="view_one_service")
+      %div(ng-repeat="option in direction_options | filter: {id: direction_options.plenary_id}" )
+        %h4 View re-examined votes on {{option.title}} direction_options.plenary_id: {{direction_options.plenary_id}}
+
+        %table(border="1")
+          %tr
+            %th Budget direction
+            %th Grp 1
+            %th Grp 2
+            %th Grp 3
+            %th Grp 4
+            %th Grp 5
+            %th Grp 6
+            %th Grp 7
+            %th Grp 8
+            %th Status
+
+          %tr.title
+            %td(colspan="10") {{option.title}}
+          %tr.direction(ng-repeat="direction_option in option.direction_options")
+            %td {{direction_option.title}}
+            %td.grp-votes(ng-repeat="vote in direction_option.all_votes track by $index") {{vote}}
+            %td {{direction_option.status}}
+          %tr.nav-btns
+            %td
+              %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page(-1)")
+                %i.fa.fa-angle-left
+                Previous
+            %td(colspan="9")
+              %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page()")
+                Full list
+                %i.fa.fa-angle-up
+              %button.btn.btn-primary.btn-xs.right(ng-click="show_plenary_page(1)")
+                Next
+                %i.fa.fa-angle-right
+
+
+    %div(ng-switch-when="vote_one_service")
+      %div(ng-repeat="option in direction_options | filter: {id: direction_options.plenary_id}" )
+        %h4 Re-examine votes on {{option.title}} direction_options.plenary_id: {{direction_options.plenary_id}}
+        %p
+          %b Please enter the # of voters at your table
+          %input(ng-model="direction_options.num_voters" value="5")
+
+        %table
+          %tr.title
+            %td(colspan="2") {{option.title}}
+          %tr.direction(ng-repeat="direction_option in option.direction_options" ng-class="{'over-vote': option.over_vote}")
+            %td
+              %input(ng-model="direction_option.pro_votes" ng-change="on_change()" ng-disabled="!direction_options.num_voters")
+            %td {{direction_option.title}}
+
+          %tr
+            %td(colspan="2")
+              %div.buttons
+                %span(ng-if="newComment.id == null")
+                  %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="confirm_votes()"){type: 'submit'}
+                    %span.def-msg Confirm votes
+                    %span.busy-msg
+                      Confirming
+                      %i.fa.fa-spinner.fa-spin
+
+
+
     %div(ng-switch-when="list_all_votes")
 
       %h4 List all group votes with live update
@@ -26,6 +90,7 @@
           %th Grp 7
           %th Grp 8
           %th Status
+          %th
 
         %tr.title(ng-repeat-start="option in direction_options")
           %td(colspan="10") {{option.title}}
@@ -33,6 +98,8 @@
           %td {{direction_option.title}}
           %td.grp-votes(ng-repeat="vote in direction_option.all_votes track by $index") {{vote}}
           %td {{direction_option.status}}
+          %td
+            %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page(0)") Plenary
 
 
 

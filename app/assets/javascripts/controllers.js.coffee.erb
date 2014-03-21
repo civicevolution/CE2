@@ -327,7 +327,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             console.log "show direction_options"
             $scope.direction_options = direction_options.data.options
             $scope.budget_directions = []
+            $scope.service_ids = []
             for service in $scope.direction_options
+              $scope.service_ids.push(service.id)
               for direction in service.direction_options
                 $scope.budget_directions.push(direction)
             $scope.report_thresholds = direction_options.data.report_thresholds
@@ -339,21 +341,30 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                   $timeout ->
                     $scope.set_direction_status()
                   ,3000
-                  'list_all_votes'
+
+                  if $scope.direction_options.plenary_id
+                    'view_one_service'
+                  else
+                    'list_all_votes'
 
                 when $scope.user.first_name == 'Group'
                   $timeout ->
                     $scope.check_for_vote_update()
                   ,6000
-                  'enter_all_votes'
+
+                  if $scope.direction_options.plenary_id
+                    'vote_one_service'
+                  else
+                    'enter_all_votes'
 
                 else 'unknown'
+              $scope.$$phase || $scope.$apply()
 
             if $scope.user
               $scope.set_mode()
 
             $scope.set_direction_status = ->
-              return if $scope.direction_options.mode != 'list_all_votes'
+              return if $scope.direction_options.mode != 'list_all_votes' && $scope.direction_options.mode != 'view_one_service'
               for budget_direction in $scope.budget_directions
                 direction_votes = _.reduce budget_direction.all_votes, ((memo, vote) -> memo + Number(vote||0)), 0
                 budget_direction.status = switch
@@ -368,10 +379,11 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             $scope.$on 'update-user-data', () ->
               $scope.set_mode()
 
-            FayeService.subscribe( "/mca/#{$stateParams.mca_id}/votes" )
+            faye_channel =  "/mca/#{$stateParams.mca_id}/votes"
+            FayeService.subscribe( faye_channel )
             # register the listeners for the realtime updates
             $scope.$on 'full_services_vote_update', (event, data) ->
-              return unless $scope.direction_options.mode == 'list_all_votes'
+              return unless $scope.direction_options.mode == 'list_all_votes' || $scope.direction_options.mode == 'view_one_service'
               #console.log "received broadcast full_services_vote_update"
               for option in $scope.direction_options
                 for direction in option.direction_options
@@ -380,6 +392,10 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                     direction.all_votes[Number(data.data.group_id) - 1] = vote.votes
               $scope.$$phase || $scope.$apply()
 
+            $scope.$on 'set_plenary_id_update', (event, data) ->
+              #console.log "set_plenary_id_update to id: #{data.data.id}"
+              $scope.direction_options.plenary_id = data.data.id
+              $scope.set_mode()
 
             $scope.on_change = ->
               $scope = angular.element(event.currentTarget).scope()
@@ -392,7 +408,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               #console.log "update_votes id: #{$scope.direction_option.id}, #{$scope.direction_option.title}, votes: #{$scope.direction_option.pro_votes}"
               #console.log "#{num_voters}"
               service_votes = _.reduce $scope.option.direction_options, ((memo, opt) -> memo + Number(opt.pro_votes||0)), 0
-              service_votes = _.reduce $scope.budget_directions[1].all_votes, ((memo, vote) -> memo + Number(vote||0)), 0
               #$scope.option.service_votes = service_votes
               if service_votes > num_voters
                 #console.log "Too many votes: service_votes: #{service_votes} > num_voters #{num_voters}"
@@ -410,7 +425,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 console.log "All votes are set for this service: #{$scope.option.title}, transmit the votes for #{$scope.direction_option.title}"
 
             $scope.check_for_vote_update = ->
-              return if $scope.direction_options.mode != 'enter_all_votes'
+              return if $scope.direction_options.mode != 'enter_all_votes' && $scope.direction_options.mode != 'vote_one_service'
               if $scope.direction_options.vote_changed
                 $scope.direction_options.vote_changed = false
                 #console.log "periodic check_for_vote_update - send now"
@@ -465,6 +480,32 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 console.log "The votes have an error"
                 return errors
             
+            $scope.show_plenary_page = (nav_id) ->
+              $scope = angular.element(event.currentTarget).scope()
+              #console.log "show_plenary_page for service id: #{$scope.option.id}"
+              id = switch
+                when nav_id is null then null
+                when nav_id == 0 then $scope.option.id
+                when nav_id == 1
+                  ind = _.indexOf($scope.service_ids, $scope.option.id);
+                  if ind < $scope.service_ids.length
+                    $scope.service_ids[ind + 1]
+                  else
+                    $scope.service_ids[0]
+                when nav_id == -1
+                  ind = _.indexOf($scope.service_ids, $scope.option.id);
+                  if ind > 0
+                    $scope.service_ids[ind - 1]
+                  else
+                    $scope.service_ids[ $scope.service_ids.length - 1]
+              data =
+                action: "update"
+                class: "set_plenary_id"
+                data:
+                  id: id
+                source: "ng-cmd"
+              FayeService.publish_to_channel( faye_channel, data )
+
         ]
       )
 

@@ -202,7 +202,11 @@
   .grp-votes{
     text-align: center;
   }
-
+  .nav-btns{
+    td{ padding: 1em;}
+    .fa {font-weight: bold;}
+    .right{float: right;}
+  }
 }
 .inline-block{
   display: inline-block;
