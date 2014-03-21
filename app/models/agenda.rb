@@ -1175,7 +1175,7 @@ class Agenda < ActiveRecord::Base
         title: %Q|Review Recommendations for Community Feedback|,
         id: 'mca',
         link_code:  link_code,
-        href: "/#/mca/#{agenda_details[:mca_ids][0]}/review/review",
+        href: "/#/mca/#{agenda_details[:mca_ids][0]}/review/com_feedback",
         page_title: "Services Report Table",
         disabled: false,
         role: 'group',
@@ -1183,6 +1183,8 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
 
+
+=begin
     # link for group-mca-table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -1196,7 +1198,7 @@ class Agenda < ActiveRecord::Base
     }
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
-
+=end
 
     # link for Services report table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
