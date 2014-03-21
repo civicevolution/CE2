@@ -328,21 +328,23 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             $scope.direction_options = direction_options.data.options
             $scope.budget_directions = []
             $scope.service_ids = []
+            $scope.page_options = {}
             for service in $scope.direction_options
               $scope.service_ids.push(service.id)
               for direction in service.direction_options
                 $scope.budget_directions.push(direction)
             $scope.report_thresholds = direction_options.data.report_thresholds
+            $scope.group_voters = direction_options.data.group_voters
             $scope.view = {report_mode: false}
 
             $scope.set_mode = ->
-              $scope.direction_options.mode = switch
+              $scope.page_options.mode = switch
                 when $scope.user.first_name == 'Coordinator'
                   $timeout ->
                     $scope.set_direction_status()
                   ,3000
 
-                  if $scope.direction_options.plenary_id
+                  if $scope.page_options.plenary_id
                     'view_one_service'
                   else
                     'list_all_votes'
@@ -352,7 +354,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                     $scope.check_for_vote_update()
                   ,6000
 
-                  if $scope.direction_options.plenary_id
+                  if $scope.page_options.plenary_id
                     'vote_one_service'
                   else
                     'enter_all_votes'
@@ -361,29 +363,35 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               $scope.$$phase || $scope.$apply()
 
             if $scope.user
+              $scope.page_options.num_voters = $scope.group_voters[$scope.user.last_name]
               $scope.set_mode()
 
             $scope.set_direction_status = ->
-              return if $scope.direction_options.mode != 'list_all_votes' && $scope.direction_options.mode != 'view_one_service'
+              return if $scope.page_options.mode != 'list_all_votes' && $scope.page_options.mode != 'view_one_service'
+              split_high = 50 + (1 / $scope.report_thresholds['Voters'] * 100 )
+              split_low = 50 - (1 / $scope.report_thresholds['Voters'] * 100)
               for budget_direction in $scope.budget_directions
                 direction_votes = _.reduce budget_direction.all_votes, ((memo, vote) -> memo + Number(vote||0)), 0
+                percent = budget_direction.percent = Math.round(direction_votes/ $scope.report_thresholds['Voters'] * 100)
                 budget_direction.status = switch
-                  when direction_votes >= $scope.report_thresholds['Unanimous'] then 'Unanimous'
-                  when $scope.report_thresholds['Unanimous'] > direction_votes > $scope.report_thresholds['2/3_majority'] then 'Two-thirds Majority'
-                  when $scope.report_thresholds['2/3_majority'] > direction_votes > $scope.report_thresholds['minority'] then 'Evenly Split'
+                  when percent >= $scope.report_thresholds['Unanimous'] then 'Unanimous'
+                  when $scope.report_thresholds['Unanimous'] > percent >= $scope.report_thresholds['2/3_majority'] then 'Two-thirds Majority'
+                  when split_high >= percent >= split_low then 'Split'
+                  when $scope.report_thresholds['2/3_majority'] > percent >= $scope.report_thresholds['Majority'] then 'Majority'
                   else 'Minority'
               $timeout ->
                 $scope.set_direction_status()
               ,3000
 
             $scope.$on 'update-user-data', () ->
+              $scope.page_options.num_voters = $scope.group_voters[$scope.user.last_name]
               $scope.set_mode()
 
             faye_channel =  "/mca/#{$stateParams.mca_id}/votes"
             FayeService.subscribe( faye_channel )
             # register the listeners for the realtime updates
             $scope.$on 'full_services_vote_update', (event, data) ->
-              return unless $scope.direction_options.mode == 'list_all_votes' || $scope.direction_options.mode == 'view_one_service'
+              return unless $scope.page_options.mode == 'list_all_votes' || $scope.page_options.mode == 'view_one_service'
               #console.log "received broadcast full_services_vote_update"
               for option in $scope.direction_options
                 for direction in option.direction_options
@@ -394,17 +402,17 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
             $scope.$on 'set_plenary_id_update', (event, data) ->
               #console.log "set_plenary_id_update to id: #{data.data.id}"
-              $scope.direction_options.plenary_id = data.data.id
+              $scope.page_options.plenary_id = data.data.id
               $scope.set_mode()
 
             $scope.on_change = ->
               $scope = angular.element(event.currentTarget).scope()
-              $scope.direction_options.vote_changed = true
+              $scope.page_options.vote_changed = true
               if isNaN($scope.direction_option.pro_votes) || $scope.direction_option.pro_votes < 0
                 $scope.direction_option.pro_votes = 0
               else
                 $scope.direction_option.pro_votes = Number($scope.direction_option.pro_votes)
-              num_voters = $scope.direction_options.num_voters
+              num_voters = $scope.page_options.num_voters
               #console.log "update_votes id: #{$scope.direction_option.id}, #{$scope.direction_option.title}, votes: #{$scope.direction_option.pro_votes}"
               #console.log "#{num_voters}"
               service_votes = _.reduce $scope.option.direction_options, ((memo, opt) -> memo + Number(opt.pro_votes||0)), 0
@@ -418,16 +426,16 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             $scope.on_blur = ->
               $scope = angular.element(event.currentTarget).scope()
               service_votes = _.reduce $scope.option.direction_options, ((memo, opt) -> memo + Number(opt.pro_votes||0)), 0
-              if service_votes <= $scope.direction_options.num_voters
+              if service_votes <= $scope.page_options.num_voters
                 for direction in $scope.option.direction_options
                   if typeof direction.pro_votes == "undefined"
                     return
                 console.log "All votes are set for this service: #{$scope.option.title}, transmit the votes for #{$scope.direction_option.title}"
 
             $scope.check_for_vote_update = ->
-              return if $scope.direction_options.mode != 'enter_all_votes' && $scope.direction_options.mode != 'vote_one_service'
-              if $scope.direction_options.vote_changed
-                $scope.direction_options.vote_changed = false
+              return if $scope.page_options.mode != 'enter_all_votes' && $scope.page_options.mode != 'vote_one_service'
+              if $scope.page_options.vote_changed
+                $scope.page_options.vote_changed = false
                 #console.log "periodic check_for_vote_update - send now"
                 errors = $scope.check_votes_ok()
                 if errors == null
@@ -459,7 +467,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 $dialog.messageBoxOk("Error", "There is an error with the votes for service: #{services}")
 
             $scope.send_all_votes = ->
-              $scope.direction_options.vote_changed = false
+              $scope.page_options.vote_changed = false
               #console.log "send_all_votes"
               direction_votes = []
               for opt in $scope.direction_options
@@ -505,6 +513,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                   id: id
                 source: "ng-cmd"
               FayeService.publish_to_channel( faye_channel, data )
+
+            $scope.set_group_voters = ->
+              McaData.set_group_voters($stateParams.mca_id, $scope.page_options.num_voters)
 
         ]
       )

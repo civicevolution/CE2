@@ -406,7 +406,8 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
     end
     {
       report_thresholds: self.data['report_thresholds'],
-      options: options
+      options: options,
+      group_voters: self.data['group_voters'] || {}
     }
   end
 
@@ -436,5 +437,16 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
     Modules::FayeRedis::publish(message,channel)
   end
   handle_asynchronously :realtime_notification
+
+  def set_group_voters(current_user, num_voters)
+    data_will_change!
+    data = self.data || {}
+    data['group_voters'] ||= {}
+    data['group_voters'][current_user.last_name.to_s] = num_voters
+    ActiveRecord::Base.transaction do
+      self.update_attribute(:data, {} )
+      self.update_attribute(:data, data)
+    end
+  end
 
 end

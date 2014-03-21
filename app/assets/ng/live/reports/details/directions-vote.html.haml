@@ -5,40 +5,37 @@
     Report mode:
     %div(btn-switch ng-model="view.report_mode" code="agenda.code" key="'list'" func="toggle_report_mode(code,key,value)")
 
-    Report mode: {{direction_options.mode}}
+    Report mode: {{page_options.mode}}
 
 
 
-  %div(ng-switch="direction_options.mode")
+  %div(ng-switch="page_options.mode")
     %div(ng-switch-when="view_one_service")
-      %div(ng-repeat="option in direction_options | filter: {id: direction_options.plenary_id}" )
-        %h4 View re-examined votes on {{option.title}} direction_options.plenary_id: {{direction_options.plenary_id}}
+      %div(ng-repeat="option in direction_options | filter: {id: page_options.plenary_id}" )
+        %h4 View re-examined votes on {{option.title}}
 
         %table(border="1")
           %tr
             %th Budget direction
-            %th Grp 1
-            %th Grp 2
-            %th Grp 3
-            %th Grp 4
-            %th Grp 5
-            %th Grp 6
-            %th Grp 7
-            %th Grp 8
+            %th(ng-repeat="n in [1,2,3,4,5,6]")
+              Grp {{n}}
+              .voter_cnt ({{group_voters[n] || 0}})
+            %th %
             %th Status
 
           %tr.title
-            %td(colspan="10") {{option.title}}
+            %td(colspan="12") {{option.title}}
           %tr.direction(ng-repeat="direction_option in option.direction_options")
             %td {{direction_option.title}}
             %td.grp-votes(ng-repeat="vote in direction_option.all_votes track by $index") {{vote}}
+            %td {{direction_option.percent}}%
             %td {{direction_option.status}}
           %tr.nav-btns
             %td
               %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page(-1)")
                 %i.fa.fa-angle-left
                 Previous
-            %td(colspan="9")
+            %td(colspan="10")
               %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page()")
                 Full list
                 %i.fa.fa-angle-up
@@ -48,18 +45,18 @@
 
 
     %div(ng-switch-when="vote_one_service")
-      %div(ng-repeat="option in direction_options | filter: {id: direction_options.plenary_id}" )
-        %h4 Re-examine votes on {{option.title}} direction_options.plenary_id: {{direction_options.plenary_id}}
-        %p
+      %div(ng-repeat="option in direction_options | filter: {id: page_options.plenary_id}" )
+        %h4 Re-examine votes on {{option.title}}
+        -#%p
           %b Please enter the # of voters at your table
-          %input(ng-model="direction_options.num_voters" value="5")
+          %input(ng-model="page_options.num_voters" value="5")
 
         %table
           %tr.title
             %td(colspan="2") {{option.title}}
           %tr.direction(ng-repeat="direction_option in option.direction_options" ng-class="{'over-vote': option.over_vote}")
             %td
-              %input(ng-model="direction_option.pro_votes" ng-change="on_change()" ng-disabled="!direction_options.num_voters")
+              %input(ng-model="direction_option.pro_votes" ng-change="on_change()" ng-disabled="!page_options.num_voters")
             %td {{direction_option.title}}
 
           %tr
@@ -81,22 +78,19 @@
       %table(border="1")
         %tr
           %th Budget direction
-          %th Grp 1
-          %th Grp 2
-          %th Grp 3
-          %th Grp 4
-          %th Grp 5
-          %th Grp 6
-          %th Grp 7
-          %th Grp 8
+          %th(ng-repeat="n in [1,2,3,4,5,6]")
+            Grp {{n}}
+            .voter_cnt ({{group_voters[n] || 0}})
+          %th %
           %th Status
           %th
 
         %tr.title(ng-repeat-start="option in direction_options")
-          %td(colspan="10") {{option.title}}
+          %td(colspan="12") {{option.title}}
         %tr.direction(ng-repeat-end ng-repeat="direction_option in option.direction_options")
           %td {{direction_option.title}}
           %td.grp-votes(ng-repeat="vote in direction_option.all_votes track by $index") {{vote}}
+          %td {{direction_option.percent}}%
           %td {{direction_option.status}}
           %td
             %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page(0)") Plenary
@@ -109,14 +103,14 @@
 
       %p
         %b Please enter the # of voters at your table
-        %input(ng-model="direction_options.num_voters" value="5")
+        %input(ng-model="page_options.num_voters" ng-change="set_group_voters()")
 
       %table
         %tr.title(ng-repeat-start="option in direction_options")
           %td(colspan="2") {{option.title}}
         %tr.direction(ng-repeat-end ng-repeat="direction_option in option.direction_options" ng-class="{'over-vote': option.over_vote}")
           %td
-            %input(ng-model="direction_option.pro_votes" ng-change="on_change()" Xng-blur="on_blur()" ng-disabled="!direction_options.num_voters")
+            %input(ng-model="direction_option.pro_votes" ng-change="on_change()" ng-disabled="!page_options.num_voters")
           %td {{direction_option.title}}
 
         %tr

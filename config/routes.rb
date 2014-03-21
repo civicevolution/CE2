@@ -262,6 +262,7 @@ Ce2::Application.routes.draw do
   get "/api/mca/:mca_id/direction_options" => "api/v1/multi_criteria_analyses#direction_options", format: :json
 
   post "/api/mca/:mca_id/direction_votes" => "api/v1/multi_criteria_analyses#direction_votes", format: :json
+  post "/api/mca/:mca_id/set_group_voters" => "api/v1/multi_criteria_analyses#set_group_voters", format: :json
 
 
 

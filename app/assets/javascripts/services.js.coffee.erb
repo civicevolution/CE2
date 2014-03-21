@@ -719,6 +719,8 @@ services.factory "McaData", ["$http", "$timeout", "$dialog",
     direction_votes: (mca_id, data) ->
       $http.post("/api/mca/#{mca_id}/direction_votes.json", {data: data})
 
+    set_group_voters: (mca_id, num_voters) ->
+      $http.post("/api/mca/#{mca_id}/set_group_voters.json", {num_voters: num_voters})
 ]
 
 services.factory "FayeService", [ "$timeout", "$rootScope", "$http", ($timeout, $rootScope, $http) ->
