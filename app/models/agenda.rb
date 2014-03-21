@@ -1203,7 +1203,7 @@ class Agenda < ActiveRecord::Base
     # link for Services report table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
-        title: %Q|Plenary Services Review|,
+        title: %Q|Services Voting|,
         id: 'mca',
         link_code:  link_code,
         href: "/#/mca/#{agenda_details[:mca_ids][0]}/directions-vote",
