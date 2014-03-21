@@ -1216,7 +1216,7 @@ class Agenda < ActiveRecord::Base
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
 
-
+=begin
     # link for group-mca-table
     link_code = self.create_link_code( agenda_details[:links][:lookup] )
     link = {
@@ -1234,6 +1234,8 @@ class Agenda < ActiveRecord::Base
     }
     agenda_details[:links][:group][ link_code ] = link
     agenda_details[:links][:lookup][link_code] = "group"
+=end
+
 =begin
     if agenda_details[:allocate_multiple_conversations] && agenda_details[:allocate_multiple_conversations].size > 0
       # link for allocate ideas from multiple deliberations
