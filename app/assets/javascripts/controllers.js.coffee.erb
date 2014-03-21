@@ -496,7 +496,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 when nav_id == 0 then $scope.option.id
                 when nav_id == 1
                   ind = _.indexOf($scope.service_ids, $scope.option.id);
-                  if ind < $scope.service_ids.length
+                  if ind < ($scope.service_ids.length - 1)
                     $scope.service_ids[ind + 1]
                   else
                     $scope.service_ids[0]
