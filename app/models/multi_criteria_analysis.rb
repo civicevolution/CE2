@@ -380,7 +380,7 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
       # for coord, produce an array of votes
       #votes = self.data['votes'].try{|votes| votes["1"]} || {}
     options = []
-    self.options.order(:title).each do |o|
+    self.options.order(:id).each do |o|
       option = {title: o.title, id: o.id}
       direction_options = [nil,nil,nil,nil]
       o.data['service_level_recommendations'].each do |direction|
