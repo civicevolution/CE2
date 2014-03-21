@@ -271,7 +271,10 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
       service = services.detect{|s| s.id == id}
       ordered_services.push({id: service.id, title: service.title}) unless service.nil?
     end
-    ordered_services
+    {
+      ordered_services: ordered_services,
+      agenda_code: self.agenda.code
+    }
   end
 
   def processed_detailed_report_data
@@ -372,11 +375,9 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
         "Pay the same with different mix",
         "Pay more for more/better"
     ]
-    if current_user.first_name == 'Group'
-      votes = self.data['votes'].try{|votes| votes[current_user.last_name]} || {}
-    else
-      votes = {}
-    end
+
+    my_votes = self.data['votes'].try{|votes| votes[current_user.last_name]} || {}
+
       # for coord, produce an array of votes
       #votes = self.data['votes'].try{|votes| votes["1"]} || {}
     options = []
@@ -386,19 +387,17 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
       o.data['service_level_recommendations'].each do |direction|
         index = directions_order.index( direction["service_level_recommendation"] )
         direction_options[index] = { id: direction['_id'], title: direction["service_level_recommendation"] }
-        if current_user.first_name == 'Group'
-          num_votes = votes.detect{|v| v['opt_id'] == o.id && v['dir_id'] == direction['_id']}.try{|rec| rec['votes']} || nil
-          direction_options[index][:pro_votes] = num_votes
-        elsif current_user.first_name == 'Coordinator'
-          direction_options[index][:all_votes] = [nil, nil, nil, nil, nil, nil]
-          votes = (self.data['votes'] || {} ).each_pair do |key,val|
-            cnt = val.detect{|v| v['opt_id'] == o.id && v['dir_id'] == direction['_id']}.try{|rec| rec['votes']} || nil
-            if cnt
-              direction_options[index][:all_votes][key.to_i - 1] = cnt
-            end
+
+        num_votes = my_votes.detect{|v| v['opt_id'] == o.id && v['dir_id'] == direction['_id']}.try{|rec| rec['votes']} || nil
+        direction_options[index][:pro_votes] = num_votes
+
+        direction_options[index][:all_votes] = [nil, nil, nil, nil, nil, nil]
+        (self.data['votes'] || {} ).each_pair do |key,val|
+          cnt = val.detect{|v| v['opt_id'] == o.id && v['dir_id'] == direction['_id']}.try{|rec| rec['votes']} || nil
+          if cnt
+            direction_options[index][:all_votes][key.to_i - 1] = cnt
           end
         end
-
       end
       direction_options.reject! { |o| o.nil? }
       option['direction_options'] = direction_options
@@ -407,7 +406,8 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
     {
       report_thresholds: self.data['report_thresholds'],
       options: options,
-      group_voters: self.data['group_voters'] || {}
+      group_voters: self.data['group_voters'] || {},
+      agenda_code: self.agenda.code
     }
   end
 

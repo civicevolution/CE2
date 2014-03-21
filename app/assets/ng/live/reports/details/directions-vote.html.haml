@@ -10,6 +10,7 @@
 
 
   %div(ng-switch="page_options.mode")
+
     %div(ng-switch-when="view_one_service")
       %div(ng-repeat="option in direction_options | filter: {id: page_options.plenary_id}" )
         %h4 View re-examined votes on {{option.title}}
@@ -68,6 +69,50 @@
                     %span.busy-msg
                       Confirming
                       %i.fa.fa-spinner.fa-spin
+
+
+
+    %div(ng-switch-when="vote_actions_suggestions")
+      %h4 Vote on actions and suggestions to be included in report
+
+      %table(border="1")
+        %tr(ng-repeat="option in vote_actions_options" )
+          %td {{option.title}}
+          %td {{option.budget_title}}
+          %td {{option.percent}}%
+          %td {{option.status}}
+          %td
+            %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page(0)") Vote Actions
+
+
+        -#%table
+          %tr.direction(ng-repeat="direction_option in option.direction_options" )
+            %td {{option.title}}
+
+
+
+    %div(ng-switch-when="view_actions_suggestions")
+      %div(ng-repeat="option in direction_options | filter: {id: page_options.plenary_id}" )
+        %h4 Review actions and suggestions for {{option.title}}
+
+        %table
+          %tr.title
+            %td(colspan="2") {{option.title}}
+          %tr.direction(ng-repeat="direction_option in option.direction_options" ng-class="{'over-vote': option.over_vote}")
+            %td
+              %input(ng-model="direction_option.pro_votes" ng-change="on_change()" ng-disabled="!page_options.num_voters")
+            %td {{direction_option.title}}
+
+          %tr
+            %td(colspan="2")
+              %div.buttons
+                %span(ng-if="newComment.id == null")
+                  %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="confirm_votes()"){type: 'submit'}
+                    %span.def-msg Confirm votes
+                    %span.busy-msg
+                      Confirming
+                      %i.fa.fa-spinner.fa-spin
+
 
 
 

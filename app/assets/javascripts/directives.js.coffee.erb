@@ -244,7 +244,11 @@ ce2_directives.directive('ceUserBar', ->
           when $location.$$path.match(/\/home.*/)
             $location.path( "/home" )
           else
-            console.error "I don't know where to go for $location.$$path: #{$location.$$path}"
+            if $scope.$root.agenda_code
+              new_url = "/agenda/#{$scope.$root.agenda_code}/agenda-home"
+              $location.path( new_url)
+            else
+              console.error "I don't know where to go for $location.$$path: #{$location.$$path}"
   ]
 )
 

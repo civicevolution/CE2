@@ -307,7 +307,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
       controller: [ "$scope", "$stateParams", "service_list", "$location",
         ($scope, $stateParams, service_list, $location ) ->
           console.log "show services list for action #{$stateParams.phase}"
-          $scope.service_list = service_list.data
+          $scope.service_list = service_list.data.ordered_services
+          $scope.$root.agenda_code = service_list.data.agenda_code
           $scope.show_service = (service_id) ->
             console.log "show_service id: #{service_id}"
             $location.url( "/mca/#{$stateParams.mca_id}/detailed-report/#{service_id}" )
@@ -322,8 +323,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           direction_options: ["McaData", "$stateParams", (McaData, $stateParams) ->
             McaData.direction_options($stateParams.mca_id)
           ]
-        controller: [ "$scope", "$stateParams", "direction_options", "McaData", "FayeService", "$timeout", "$dialog",
-          ($scope, $stateParams, direction_options, McaData, FayeService, $timeout, $dialog ) ->
+        controller: [ "$scope", "$stateParams", "direction_options", "McaData", "FayeService", "$timeout", "$dialog", "$location",
+          ($scope, $stateParams, direction_options, McaData, FayeService, $timeout, $dialog, $location ) ->
             console.log "show direction_options"
             $scope.direction_options = direction_options.data.options
             $scope.budget_directions = []
@@ -335,29 +336,38 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 $scope.budget_directions.push(direction)
             $scope.report_thresholds = direction_options.data.report_thresholds
             $scope.group_voters = direction_options.data.group_voters
+
+            $scope.$root.agenda_code = direction_options.data.agenda_code
             $scope.view = {report_mode: false}
 
             $scope.set_mode = ->
               $scope.page_options.mode = switch
                 when $scope.user.first_name == 'Coordinator'
-                  $timeout ->
-                    $scope.set_direction_status()
-                  ,3000
-
-                  if $scope.page_options.plenary_id
-                    'view_one_service'
+                  if ($location.search()).mode == "view_actions_suggestions"
+                    ($location.search()).mode
                   else
-                    'list_all_votes'
+                    $timeout ->
+                      $scope.set_direction_status()
+                    ,3000
+
+                    if $scope.page_options.plenary_id
+                      'view_one_service'
+                    else
+                      'list_all_votes'
 
                 when $scope.user.first_name == 'Group'
-                  $timeout ->
-                    $scope.check_for_vote_update()
-                  ,6000
-
-                  if $scope.page_options.plenary_id
-                    'vote_one_service'
+                  if ($location.search()).mode == "vote_actions_suggestions"
+                    $scope.vote_actions_options = generate_vote_actions_options()
+                    ($location.search()).mode
                   else
-                    'enter_all_votes'
+                    $timeout ->
+                      $scope.check_for_vote_update()
+                    ,6000
+
+                    if $scope.page_options.plenary_id
+                      'vote_one_service'
+                    else
+                      'enter_all_votes'
 
                 else 'unknown'
               $scope.$$phase || $scope.$apply()
@@ -366,12 +376,12 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               $scope.page_options.num_voters = $scope.group_voters[$scope.user.last_name]
               $scope.set_mode()
 
-            $scope.set_direction_status = ->
-              return if $scope.page_options.mode != 'list_all_votes' && $scope.page_options.mode != 'view_one_service'
+            $scope.set_direction_status = (manual = false) ->
+              return if !manual && $scope.page_options.mode != 'list_all_votes' && $scope.page_options.mode != 'view_one_service'
               split_high = 50 + (1 / $scope.report_thresholds['Voters'] * 100 )
               split_low = 50 - (1 / $scope.report_thresholds['Voters'] * 100)
               for budget_direction in $scope.budget_directions
-                direction_votes = _.reduce budget_direction.all_votes, ((memo, vote) -> memo + Number(vote||0)), 0
+                direction_votes = budget_direction.total_votes = _.reduce budget_direction.all_votes, ((memo, vote) -> memo + Number(vote||0)), 0
                 percent = budget_direction.percent = Math.round(direction_votes/ $scope.report_thresholds['Voters'] * 100)
                 budget_direction.status = switch
                   when percent >= $scope.report_thresholds['Unanimous'] then 'Unanimous'
@@ -379,9 +389,25 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                   when split_high >= percent >= split_low then 'Split'
                   when $scope.report_thresholds['2/3_majority'] > percent >= $scope.report_thresholds['Majority'] then 'Majority'
                   else 'Minority'
+              return if manual
               $timeout ->
                 $scope.set_direction_status()
               ,3000
+
+            generate_vote_actions_options = ->
+              $scope.set_direction_status(true)
+              options = []
+              for service in $scope.direction_options
+                for direction in service.direction_options
+                  if direction.status != 'Minority'
+                    options.push(
+                      title: service.title
+                      budget_title: direction.title
+                      percent: direction.percent
+                      status: direction.status
+                    )
+              options
+
 
             $scope.$on 'update-user-data', () ->
               $scope.page_options.num_voters = $scope.group_voters[$scope.user.last_name]
