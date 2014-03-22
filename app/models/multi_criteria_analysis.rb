@@ -401,10 +401,10 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
         end
 
         direction_options[index]['actions'] = o.data['service_recommendations'].try{|actions| actions.select{|s| s['budget_dir_id'] == direction['_id'] } } ||[]
-        direction_options[index]['suggestions'] = o.data['service_suggestions'].try{|suggestions| suggestions.select{|s| s['budget_dir_id'] == direction['_id'] } } ||[]
 
       end
       direction_options.reject! { |o| o.nil? }
+      option['suggestions'] = o.data['service_suggestions'] || []
       option['direction_options'] = direction_options
       options.push(option)
     end

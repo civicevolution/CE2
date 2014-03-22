@@ -352,7 +352,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                       percent: direction.percent
                       status: direction.status
                       actions: direction.actions
-                      suggestions: direction.suggestions
+                      suggestions: service.suggestions
                     )
               options
 
@@ -545,6 +545,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
             $scope.set_group_voters = ->
               McaData.set_group_voters($stateParams.mca_id, $scope.page_options.num_voters)
+
+            $scope.save_action_votes = ->
+              console.log "save_action_votes"
 
         ]
       )

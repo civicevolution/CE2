@@ -76,25 +76,48 @@
       %h4 Vote on actions and suggestions to be included in report
 
       %table(border="1")
-        %tr(ng-repeat-start="option in vote_actions_options" )
+        %tr.directionX(ng-repeat-start="option in vote_actions_options" )
           %td {{option.title}}
           %td {{option.budget_title}}
           %td {{option.percent}}%
           %td {{option.status}}
-          %td
-            %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page(0)") Vote Actions
+          %td Votes for
+
+
         %tr(ng-repeat="action in option.actions")
           %td
-            %b Action
-          %td {{action.increase}}
-          %td {{action.decrease}}
-          %td {{action.reason}}
+            -#%b Action
+          %td.increase
+            .lbl Increase
+            {{action.increase}}
+          %td.decrease
+            .lbl Decrease
+            {{action.decrease}}
+          %td.reason
+            -#.lbl Reason
+            -#{{action.reason}}
+          %td.vote-input
+            %input(ng-model="action.pro_votes")
 
-        %tr(ng-repeat-end ng-repeat="suggestion in option.suggestions")
+        %tr.suggestion(ng-repeat-end ng-repeat="suggestion in option.suggestions")
           %td
-            %b Suggestion
-          %td {{suggestion.text}}
+            -#%b Suggestion
+          %td
+          %td
+          %td
+            .lbl Suggestion
+            {{suggestion.text}}
+          %td.vote-input
+            %input(ng-model="suggestion.pro_votes")
 
+        %tr
+          %td(colspan="5")
+            %div.buttons.save-action
+              %button.btn-primary.btn(ng-click="save_action_votes()"){type: 'submit'}
+                %span.def-msg Confirm votes
+                %span.busy-msg
+                  Confirming
+                  %i.fa.fa-spinner.fa-spin
 
 
 

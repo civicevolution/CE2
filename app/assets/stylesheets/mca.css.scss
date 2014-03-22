@@ -198,10 +198,28 @@
     }
   }
   th{ padding-left: .5em; padding-right: .5em;}
-  td{padding-left: .5em;}
+  td{
+    padding-left: .5em;
+    vertical-align: top;
+  }
+  td.vote-input input{
+    margin: 1em;
+  }
   .voter_cnt{
     font-weight: normal;
     color: #a0a0a0;
+  }
+  tr.directionX{
+    color: white;
+    background-color: green;
+    font-weight: bold;
+  }
+  tr.suggestion{
+    background-color: #ffe;
+  }
+  .lbl {
+    color: #a0a0a0;
+    font-style: italic;
   }
   .grp-votes{
     text-align: center;
@@ -210,6 +228,10 @@
     td{ padding: 1em;}
     .fa {font-weight: bold;}
     .right{float: right;}
+  }
+  div.buttons.save-action{
+    float: right;
+    margin: 1em 0 1em;
   }
 }
 .inline-block{
