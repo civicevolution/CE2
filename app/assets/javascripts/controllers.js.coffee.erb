@@ -340,6 +340,20 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
             $scope.$root.agenda_code = direction_options.data.agenda_code
             $scope.view = {report_mode: false}
 
+            $scope.generate_vote_actions_options = ->
+              $scope.set_direction_status(true)
+              options = []
+              for service in $scope.direction_options
+                for direction in service.direction_options
+                  if direction.status != 'Minority'
+                    options.push(
+                      title: service.title
+                      budget_title: direction.title
+                      percent: direction.percent
+                      status: direction.status
+                    )
+              options
+
             $scope.set_mode = ->
               $scope.page_options.mode = switch
                 when $scope.user.first_name == 'Coordinator'
@@ -357,7 +371,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
                 when $scope.user.first_name == 'Group'
                   if ($location.search()).mode == "vote_actions_suggestions"
-                    $scope.vote_actions_options = generate_vote_actions_options()
+                    $scope.vote_actions_options = $scope.generate_vote_actions_options()
                     ($location.search()).mode
                   else
                     $timeout ->
@@ -393,21 +407,6 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               $timeout ->
                 $scope.set_direction_status()
               ,3000
-
-            generate_vote_actions_options = ->
-              $scope.set_direction_status(true)
-              options = []
-              for service in $scope.direction_options
-                for direction in service.direction_options
-                  if direction.status != 'Minority'
-                    options.push(
-                      title: service.title
-                      budget_title: direction.title
-                      percent: direction.percent
-                      status: direction.status
-                    )
-              options
-
 
             $scope.$on 'update-user-data', () ->
               $scope.page_options.num_voters = $scope.group_voters[$scope.user.last_name]
