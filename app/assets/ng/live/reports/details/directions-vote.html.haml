@@ -76,18 +76,25 @@
       %h4 Vote on actions and suggestions to be included in report
 
       %table(border="1")
-        %tr(ng-repeat="option in vote_actions_options" )
+        %tr(ng-repeat-start="option in vote_actions_options" )
           %td {{option.title}}
           %td {{option.budget_title}}
           %td {{option.percent}}%
           %td {{option.status}}
           %td
             %button.btn.btn-primary.btn-xs(ng-click="show_plenary_page(0)") Vote Actions
+        %tr(ng-repeat="action in option.actions")
+          %td
+            %b Action
+          %td {{action.increase}}
+          %td {{action.decrease}}
+          %td {{action.reason}}
 
+        %tr(ng-repeat-end ng-repeat="suggestion in option.suggestions")
+          %td
+            %b Suggestion
+          %td {{suggestion.text}}
 
-        -#%table
-          %tr.direction(ng-repeat="direction_option in option.direction_options" )
-            %td {{option.title}}
 
 
 

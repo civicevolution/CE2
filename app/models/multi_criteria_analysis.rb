@@ -386,6 +386,7 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
       direction_options = [nil,nil,nil,nil]
       o.data['service_level_recommendations'].each do |direction|
         index = directions_order.index( direction["service_level_recommendation"] )
+
         direction_options[index] = { id: direction['_id'], title: direction["service_level_recommendation"] }
 
         num_votes = my_votes.detect{|v| v['opt_id'] == o.id && v['dir_id'] == direction['_id']}.try{|rec| rec['votes']} || nil
@@ -398,6 +399,10 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
             direction_options[index][:all_votes][key.to_i - 1] = cnt
           end
         end
+
+        direction_options[index]['actions'] = o.data['service_recommendations'].try{|actions| actions.select{|s| s['budget_dir_id'] == direction['_id'] } } ||[]
+        direction_options[index]['suggestions'] = o.data['service_suggestions'].try{|suggestions| suggestions.select{|s| s['budget_dir_id'] == direction['_id'] } } ||[]
+
       end
       direction_options.reject! { |o| o.nil? }
       option['direction_options'] = direction_options
