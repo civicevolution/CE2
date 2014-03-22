@@ -365,8 +365,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               # attach the votes
               options = []
               for service in $scope.direction_options
-                for sug in service.suggestions
-                  sug.vote_cnt = votes_hash["sug-#{service.title}-#{sug._id}"] || 0
+                if service.suggestions
+                  for sug in service.suggestions
+                    sug.vote_cnt = votes_hash["sug-#{service.title}-#{sug._id}"] || 0
                 for direction in service.direction_options
                   for action in direction.actions
                     action.vote_cnt = votes_hash["act-#{service.title}-#{direction.title}-#{action._id}"] || 0
