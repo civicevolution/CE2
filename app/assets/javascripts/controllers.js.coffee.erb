@@ -548,8 +548,15 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
             $scope.save_action_votes = ->
               console.log "save_action_votes"
+              btn = angular.element(event.currentTarget)
+              btn.addClass('busy')
               $scope = angular.element(event.currentTarget).scope()
-              McaData.save_action_votes($stateParams.mca_id, $scope.vote_actions_options)
+              McaData.save_action_votes($stateParams.mca_id, $scope.vote_actions_options).then(
+                (response)->
+                  btn.removeClass('busy')
+                  $dialog.messageBoxOk('Thank you','Your vote was stored')
+                )
+
 
         ]
       )
