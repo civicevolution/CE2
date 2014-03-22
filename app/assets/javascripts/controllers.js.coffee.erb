@@ -388,7 +388,9 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
             if $scope.user
               $scope.page_options.num_voters = $scope.group_voters[$scope.user.last_name]
-              $scope.set_mode()
+              $timeout ->
+                $scope.set_mode()
+              ,200
 
             $scope.set_direction_status = (manual = false) ->
               return if !manual && $scope.page_options.mode != 'list_all_votes' && $scope.page_options.mode != 'view_one_service'
