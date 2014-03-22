@@ -454,4 +454,16 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
     end
   end
 
+  def save_action_votes(current_user, vote_data)
+    Rails.logger.debug "Save this save_action_votes json to the mca data"
+    data_will_change!
+    data = self.data || {}
+    data['action_votes'] ||= {}
+    data['action_votes'][current_user.last_name.to_s] = vote_data
+    ActiveRecord::Base.transaction do
+      self.update_attribute(:data, {} )
+      self.update_attribute(:data, data)
+    end
+  end
+
 end

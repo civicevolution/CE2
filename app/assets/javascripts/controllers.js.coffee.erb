@@ -548,6 +548,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
             $scope.save_action_votes = ->
               console.log "save_action_votes"
+              $scope = angular.element(event.currentTarget).scope()
+              McaData.save_action_votes($stateParams.mca_id, $scope.vote_actions_options)
 
         ]
       )
