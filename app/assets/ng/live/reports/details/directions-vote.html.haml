@@ -122,26 +122,46 @@
 
 
     %div(ng-switch-when="view_actions_suggestions")
-      %div(ng-repeat="option in direction_options | filter: {id: page_options.plenary_id}" )
-        %h4 Review actions and suggestions for {{option.title}}
+      %h4 View action and suggestion votes
 
-        %table
-          %tr.title
-            %td(colspan="2") {{option.title}}
-          %tr.direction(ng-repeat="direction_option in option.direction_options" ng-class="{'over-vote': option.over_vote}")
-            %td
-              %input(ng-model="direction_option.pro_votes" ng-change="on_change()" ng-disabled="!page_options.num_voters")
-            %td {{direction_option.title}}
+      %table(border="1")
+        %tr.directionX(ng-repeat-start="option in vote_actions_options" )
+          %td {{option.title}}
+          %td {{option.budget_title}}
+          %td {{option.percent}}%
+          %td {{option.status}}
+          %td Total Votes
 
-          %tr
-            %td(colspan="2")
-              %div.buttons
-                %span(ng-if="newComment.id == null")
-                  %button.btn-primary.btn(ng-disabled="form_disabled" ng-click="confirm_votes()"){type: 'submit'}
-                    %span.def-msg Confirm votes
-                    %span.busy-msg
-                      Confirming
-                      %i.fa.fa-spinner.fa-spin
+
+        %tr(ng-repeat="action in option.actions")
+          %td
+            -#%b Action
+          %td.increase
+            .lbl Increase
+            {{action.increase}}
+          %td.decrease
+            .lbl Decrease
+            {{action.decrease}}
+          %td.reason
+            -#.lbl Reason
+            -#{{action.reason}}
+          %td.vote-input
+            %b
+              {{0}}
+
+        %tr.suggestion(ng-repeat-end ng-repeat="suggestion in option.suggestions")
+          %td
+            -#%b Suggestion
+          %td
+          %td
+          %td
+            .lbl Suggestion
+            {{suggestion.text}}
+          %td.vote-input
+            %b
+              {{0}}
+
+
 
 
 

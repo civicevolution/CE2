@@ -360,6 +360,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
               $scope.page_options.mode = switch
                 when $scope.user.first_name == 'Coordinator'
                   if ($location.search()).mode == "view_actions_suggestions"
+                    $scope.vote_actions_options = $scope.generate_vote_actions_options()
                     ($location.search()).mode
                   else
                     $timeout ->
