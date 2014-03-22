@@ -147,7 +147,7 @@
             -#{{action.reason}}
           %td.vote-input
             %b
-              {{0}}
+              {{action.vote_cnt}}
 
         %tr.suggestion(ng-repeat-end ng-repeat="suggestion in option.suggestions")
           %td
@@ -159,7 +159,7 @@
             {{suggestion.text}}
           %td.vote-input
             %b
-              {{0}}
+              {{suggestion.vote_cnt}}
 
 
 

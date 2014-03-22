@@ -412,7 +412,8 @@ WHERE id = t.mca_option_id AND multi_criteria_analysis_id = #{self.id} |
       report_thresholds: self.data['report_thresholds'],
       options: options,
       group_voters: self.data['group_voters'] || {},
-      agenda_code: self.agenda.code
+      agenda_code: self.agenda.code,
+      action_votes: self.data['action_votes'] || {}
     }
   end
 

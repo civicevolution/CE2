@@ -327,6 +327,7 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
           ($scope, $stateParams, direction_options, McaData, FayeService, $timeout, $dialog, $location ) ->
             console.log "show direction_options"
             $scope.direction_options = direction_options.data.options
+            $scope.action_votes = direction_options.data.action_votes
             $scope.budget_directions = []
             $scope.service_ids = []
             $scope.page_options = {}
@@ -342,9 +343,33 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
 
             $scope.generate_vote_actions_options = ->
               $scope.set_direction_status(true)
+              # crunch down the votes into a simple hash
+
+              votes_hash = {}
+              for voter of $scope.action_votes
+                #console.log "^^^^^^^ proccess voter #{voter}"
+                services = $scope.action_votes[voter]
+                for service in services
+                  #console.log "service: #{service.title}, budget #{service.budget_title}"
+                  for suggestion in service.suggestions
+                    votes = Number( suggestion.pro_votes || 0 )
+                    votes_hash["sug-#{service.title}-#{suggestion._id}"] || = 0
+                    votes_hash["sug-#{service.title}-#{suggestion._id}"] += votes
+                    #console.log "suggestion: #{suggestion._id}: vote = #{votes}"
+                  if service.actions
+                    for action in service.actions
+                      votes = Number( action.pro_votes || 0 )
+                      #console.log "action #{action._id}: vote = #{votes}"
+                      votes_hash["act-#{service.title}-#{service.budget_title}-#{action._id}"] || = 0
+                      votes_hash["act-#{service.title}-#{service.budget_title}-#{action._id}"] += votes
+              # attach the votes
               options = []
               for service in $scope.direction_options
+                for sug in service.suggestions
+                  sug.vote_cnt = votes_hash["sug-#{service.title}-#{sug._id}"] || 0
                 for direction in service.direction_options
+                  for action in direction.actions
+                    action.vote_cnt = votes_hash["act-#{service.title}-#{direction.title}-#{action._id}"] || 0
                   if direction.status != 'Minority'
                     options.push(
                       title: service.title
@@ -354,6 +379,10 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                       actions: direction.actions
                       suggestions: service.suggestions
                     )
+
+              # sort by the votes
+
+
               options
 
             $scope.set_mode = ->
