@@ -370,12 +370,12 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 if service.suggestions
                   for sug in service.suggestions
                     sug.vote_cnt = votes_hash["sug-#{service.title}-#{sug._id}"] || 0
-                  service.suggestions = _.sortBy( service.suggestions, (o) -> o.vote_cnt )
+                  service.suggestions = _.sortBy( service.suggestions, (o) -> o.vote_cnt ).reverse()
                 for direction in service.direction_options
                   console.log "direction.title: #{direction.title}, direction.status: #{direction.status}"
                   for action in direction.actions
                     action.vote_cnt = votes_hash["act-#{service.title}-#{direction.title}-#{action._id}"] || 0
-                    direction.actions = _.sortBy( direction.actions, (o) -> o.vote_cnt )
+                    direction.actions = _.sortBy( direction.actions, (o) -> o.vote_cnt ).reverse()
                   if direction.status != 'Minority'
                     options.push(
                       title: service.title
