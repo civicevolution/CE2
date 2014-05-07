@@ -74,7 +74,7 @@ Devise.setup do |config|
   # Notice that if you are skipping storage for all authentication paths, you
   # may want to disable generating routes to Devise's sessions controller by
   # passing :skip => :sessions to `devise_for` in your config/routes.rb
-  config.skip_session_storage = [:http_auth]
+  config.skip_session_storage = [:http_auth, :token_auth]
 
   # ==> Configuration for :database_authenticatable
   # For bcrypt, this is the cost for hashing the password and defaults to 10. If
@@ -241,6 +241,12 @@ Devise.setup do |config|
   # When using omniauth, Devise cannot automatically set Omniauth path,
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = "/my_engine/users/auth"
+
+
+
+  config.http_authenticatable_on_xhr = false
+  config.navigational_formats = ["*/*", :html, :json]
+
 end
 
 module Devise
@@ -262,4 +268,17 @@ end
 Warden::Manager.before_logout do |user,auth,opts|
   #Rails.logger.debug "^^^^^^ Warden::Manager.before_logout, session_id: #{auth.session_serializer.env['rack.session']['session_id']}"
   Modules::FayeRedis::delete_session_from_redis(auth.session_serializer.env['rack.session']['session_id'])
+  user.update_attribute(:authentication_token, nil) unless user.nil?
 end
+
+Warden::Manager.after_authentication do |user,auth,opts|
+  user.update_attribute(:authentication_token, generate_authentication_token)
+end
+
+def generate_authentication_token
+  loop do
+    token = Devise.friendly_token
+    break token unless User.where(authentication_token: token).first
+  end
+end
+

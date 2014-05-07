@@ -28,7 +28,7 @@ gem "factory_girl_rails", ">= 4.2.0", :group => [:development, :test]
 gem "spork", :github => 'sporkrb/spork', :group => [:development, :test]
 gem "spork-rails", :github => 'sporkrb/spork-rails', :group => [:development, :test]
 #gem "bootstrap-sass", ">= 2.3.0.0"
-gem 'devise' #, github: 'plataformatec/devise', branch: 'rails4'
+gem 'devise', '~> 3.2.0'
 gem "cancan", ">= 1.6.9"
 gem "rolify", ">= 3.2.0"
 gem "simple_form", github: 'plataformatec/simple_form', branch: 'master'
@@ -74,3 +74,8 @@ end
 gem 'wicked_pdf'
 gem 'rmagick', '2.13.2'
 gem 'redcarpet'
+
+gem 'rack-cors', :require => 'rack/cors'
+
+gem 'redis-rails'
+gem 'simple_token_authentication'

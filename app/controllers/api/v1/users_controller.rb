@@ -4,9 +4,11 @@ module Api
       skip_authorization_check only: [:user]
 
       def user
-        current_user
-        current_user.session_id = request.session_options[:id] unless current_user.nil?
-        respond_with current_user
+        user = current_user# || User.find(1)
+
+        user.session_id = request.session_options[:id] unless user.nil?
+        #user.csrf_token = form_authenticity_token unless user.nil?
+        respond_with user
       end
 
     end

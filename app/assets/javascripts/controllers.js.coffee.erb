@@ -125,6 +125,8 @@ ce2_app.config ( [ '$stateProvider', '$urlRouterProvider',
                 response.data
             )
           ]
+
+          # can I use $q.when for this?
           agenda: ["$q", ($q) ->
             defer = $q.defer()
             defer.resolve({})

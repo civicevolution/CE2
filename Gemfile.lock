@@ -97,7 +97,7 @@ GEM
       json (~> 1.4)
       nokogiri (>= 1.4.4)
       uuidtools (~> 2.1)
-    bcrypt-ruby (3.1.1)
+    bcrypt (3.1.7)
     better_errors (0.9.0)
       coderay (>= 1.0.0)
       erubis (>= 2.6.6)
@@ -147,10 +147,11 @@ GEM
     delayed_job_active_record (4.0.0)
       activerecord (>= 3.0, < 4.1)
       delayed_job (>= 3.0, < 4.1)
-    devise (3.0.0)
-      bcrypt-ruby (~> 3.0)
+    devise (3.2.4)
+      bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
       railties (>= 3.2.6, < 5)
+      thread_safe (~> 0.1)
       warden (~> 1.2.3)
     diff-lcs (1.2.4)
     differ (0.1.2)
@@ -203,7 +204,7 @@ GEM
     net-ssh (2.7.0)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
-    orm_adapter (0.4.0)
+    orm_adapter (0.5.0)
     pg (0.16.0)
     polyglot (0.3.3)
     protected_attributes (1.0.3)
@@ -211,6 +212,7 @@ GEM
     quiet_assets (1.0.2)
       railties (>= 3.1, < 5.0)
     rack (1.5.2)
+    rack-cors (0.2.9)
     rack-test (0.6.2)
       rack (>= 1.0)
     rails (4.0.0)
@@ -232,6 +234,22 @@ GEM
     rake (10.1.0)
     redcarpet (3.1.1)
     redis (3.0.6)
+    redis-actionpack (4.0.0)
+      actionpack (~> 4)
+      redis-rack (~> 1.5.0)
+      redis-store (~> 1.1.0)
+    redis-activesupport (4.0.0)
+      activesupport (~> 4)
+      redis-store (~> 1.1.0)
+    redis-rack (1.5.0)
+      rack (~> 1.5)
+      redis-store (~> 1.1.0)
+    redis-rails (4.0.0)
+      redis-actionpack (~> 4)
+      redis-activesupport (~> 4)
+      redis-store (~> 1.1.0)
+    redis-store (1.1.4)
+      redis (>= 2.2)
     responders (0.6.5)
     right_aws (3.1.0)
       right_http_connection (>= 1.2.5)
@@ -259,6 +277,10 @@ GEM
     sexp_processor (4.2.1)
     shoulda-matchers (2.2.0)
       activesupport (>= 3.0.0)
+    simple_token_authentication (1.2.1)
+      actionmailer (>= 3.2.6, < 5)
+      activerecord (>= 3.2.6, < 5)
+      devise (~> 3.2.0)
     sprockets (2.10.0)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -320,7 +342,7 @@ DEPENDENCIES
   daemons
   database_cleaner (>= 1.0.0.RC1)
   delayed_job_active_record
-  devise
+  devise (~> 3.2.0)
   differ
   factory_girl_rails (>= 4.2.0)
   figaro (>= 0.6.3)
@@ -333,10 +355,12 @@ DEPENDENCIES
   pg
   protected_attributes
   quiet_assets (>= 1.0.2)
+  rack-cors
   rails (= 4.0.0)
   rails-observers
   redcarpet
   redis
+  redis-rails
   responders
   right_aws
   rmagick (= 2.13.2)
@@ -345,6 +369,7 @@ DEPENDENCIES
   sass-rails (~> 4.0.0.rc2)
   shoulda-matchers
   simple_form!
+  simple_token_authentication
   spork!
   spork-rails!
   thin (>= 1.5.0)

@@ -6,8 +6,9 @@ services.factory 'User', [ "$http", "$window", ($http, $window) ->
   # a static method to retrieve current User
   name: "User"
   get: ->
-    $http.get('/api/users/user.json').then (response) ->
-      response.data
+    $http.get('/api/users/user.json')
+    #.then (response) ->
+    #  response.data
 
   sign_in: (user) ->
     #console.log "User.sign_in  with data: #{user.email}/#{user.password}"

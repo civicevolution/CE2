@@ -25,7 +25,8 @@
             %a.edit(ng-show="comment.version>1" ng-click="view_history(comment.id)")
               History v{{comment.version}}
 
-            %a.edit(ng-if="comment.editable_by_user" ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
+            -#%a.edit(ng-if="comment.editable_by_user" ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
+            %a.edit(ng-click="edit('theme-comment-edit')"){title: "Edit this theme"}
               -#%i.fa.fa-pencil
               Edit
 

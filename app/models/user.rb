@@ -1,7 +1,8 @@
 class User < ActiveRecord::Base
   rolify
+  acts_as_token_authenticatable
 
-  attr_accessor :session_id
+  attr_accessor :session_id, :csrf_token
 
   has_one :profile
   has_many :notification_requests

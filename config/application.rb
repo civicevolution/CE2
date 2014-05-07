@@ -93,5 +93,16 @@ module Ce2
 
     config.autoload_paths += %W(#{config.root}/presenters)
 
+    # Ensure Rack::Cors to run before Warden::Manager used by Devise
+    config.middleware.insert_before Warden::Manager, Rack::Cors do
+      allow do
+        origins '*'
+        resource '*',
+          :headers => ['Origin', 'Accept', 'Content-Type', 'x-requested-with', 'If-Modified-Since', 'If-None-Match', 'x-auth-token', 'x-auth-email'],
+          :expose  => ['X-AUTH-TOKEN', 'X-AUTH-EMAIL'],
+          :methods => [:get, :post, :options, :put, :patch, :delete, :head]
+      end
+    end
+
   end
 end
