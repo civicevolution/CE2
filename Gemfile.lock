@@ -234,22 +234,6 @@ GEM
     rake (10.1.0)
     redcarpet (3.1.1)
     redis (3.0.6)
-    redis-actionpack (4.0.0)
-      actionpack (~> 4)
-      redis-rack (~> 1.5.0)
-      redis-store (~> 1.1.0)
-    redis-activesupport (4.0.0)
-      activesupport (~> 4)
-      redis-store (~> 1.1.0)
-    redis-rack (1.5.0)
-      rack (~> 1.5)
-      redis-store (~> 1.1.0)
-    redis-rails (4.0.0)
-      redis-actionpack (~> 4)
-      redis-activesupport (~> 4)
-      redis-store (~> 1.1.0)
-    redis-store (1.1.4)
-      redis (>= 2.2)
     responders (0.6.5)
     right_aws (3.1.0)
       right_http_connection (>= 1.2.5)
@@ -360,7 +344,6 @@ DEPENDENCIES
   rails-observers
   redcarpet
   redis
-  redis-rails
   responders
   right_aws
   rmagick (= 2.13.2)

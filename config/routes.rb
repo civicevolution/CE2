@@ -131,8 +131,7 @@ Ce2::Application.routes.draw do
   #root :to => "home#index"
   #root to: "conversations#index"
   
-  #devise_for :users
-  devise_for :users, :controllers => {:sessions => 'sessions'}
+  devise_for :users
   resources :users
 
   post "api/users/photo" => "api/v1/profiles#upload_photo", format: :json

@@ -1,20 +1,8 @@
 module Api
   class BaseController < ApplicationController
-    #check_authorization :unless => :devise_controller?
-    #skip_before_filter :verify_authenticity_token, if: :json_request?
+    check_authorization :unless => :devise_controller?
     skip_before_filter :verify_authenticity_token
-
-    before_filter :cors_preflight_check
-
-    def cors_preflight_check
-      if request.method.to_s.downcase == "options"
-        headers['Access-Control-Allow-Origin'] = '*'
-        headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
-        headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-Prototype-Version, X-CSRF-TOKEN, Content-Type'
-        headers['Access-Control-Max-Age'] = '1728000'
-        render :text => '', :content_type => 'text/plain'
-      end
-    end
+    acts_as_token_authentication_handler_for User
 
     # Use custom responder to return 200 and object on update
     # Automatically returns the errors as JSON

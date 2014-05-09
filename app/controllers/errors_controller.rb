@@ -4,14 +4,24 @@ class ErrorsController < ApplicationController
 
   def show
     @exception = env["action_dispatch.exception"]
-
+    status_code = 500
+    error_message = @exception.message
     case @exception.class.to_s
       when "CanCan::AccessDenied"
-        Rails.logger.warn "Detected CanCan::AccessDenied - report to requesting agent"
+        if current_user.nil?
+          Rails.logger.warn "Detected CanCan::AccessDenied - report to requesting agent"
+          error_message = "You must be signed in to access this page"
+          status_code = 401
+        else
+          Rails.logger.warn "Detected CanCan::AccessDenied - report to requesting agent"
+          status_code = 403
+        end
       when "CanCan::AuthorizationNotPerformed"
         Rails.logger.warn "Detected CanCan::AuthorizationNotPerformed - report to requesting agent"
+        status_code = 500
       when "ActiveRecord::RecordNotFound"
         Rails.logger.warn "Detected ActiveRecord::RecordNotFound - report to requesting agent"
+        status_code = 404
         ## handles 404 when a record is not found.
         #def rescue_action_in_public(exception)
         #  case exception
@@ -52,8 +62,8 @@ class ErrorsController < ApplicationController
 
     respond_to do |format|
       format.html { render action: request.path[1..-1] }
-      format.json { render json: {status: request.path[1..-1], class: @exception.class.to_s, error: @exception.message,
-        controller: params[:controller], action: params[:action]}, status: request.path[1..-1] }
+      format.json { render json: {status: status_code, class: @exception.class.to_s, error: error_message,
+        controller: params[:controller], action: params[:action]}, status: status_code }
     end
   end
 end

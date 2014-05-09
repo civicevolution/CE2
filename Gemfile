@@ -77,5 +77,4 @@ gem 'redcarpet'
 
 gem 'rack-cors', :require => 'rack/cors'
 
-gem 'redis-rails'
 gem 'simple_token_authentication'
