@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      skip_authorization_check only: [:group_data, :parked_comments, :index]
+      skip_authorization_check only: [:group_data, :parked_comments]
       #def default_serializer_options
       #  {
       #      root: false
@@ -10,7 +10,7 @@ module Api
       #end
 
       def index
-        #authorize! :index, Conversation
+        authorize! :index, Conversation
         conversations = Conversation.all.includes(:title_comment)
         respond_with conversations, each_serializer: ConversationListAllSerializer
       end

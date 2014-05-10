@@ -1,4 +1,5 @@
 class CommentsController < ApplicationController
+  protect_from_forgery
   before_action :set_comment, only: [:show, :edit, :update, :destroy]
   skip_before_filter :verify_authenticity_token, if: :json_request?
   
