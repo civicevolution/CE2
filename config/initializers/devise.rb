@@ -265,14 +265,3 @@ Warden::Manager.before_logout do |user,auth,opts|
   user.update_attribute(:authentication_token, nil) unless user.nil?
 end
 
-Warden::Manager.after_authentication do |user,auth,opts|
-  user.update_attribute(:authentication_token, generate_authentication_token)
-end
-
-def generate_authentication_token
-  loop do
-    token = Devise.friendly_token
-    break token unless User.where(authentication_token: token).first
-  end
-end
-
