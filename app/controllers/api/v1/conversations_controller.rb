@@ -2,7 +2,7 @@ module Api
   module V1
 
     class ConversationsController < Api::BaseController
-      skip_authorization_check only: [:group_data, :parked_comments]
+      skip_authorization_check only: [:group_data, :parked_comments, :show]
       #def default_serializer_options
       #  {
       #      root: false
@@ -16,6 +16,10 @@ module Api
       end
 
       def show
+        if params[:include]
+          api_compound_document
+          return
+        end
         conversation = Conversation.find_by( code: params[:id] )
         session_id = request.session_options[:id]
         # determine if I can :show ()all comments) or try :show_summary_only
@@ -30,6 +34,42 @@ module Api
         end
 
         respond_with presenter.conversation
+      end
+
+      def api_compound_document
+        conversation = Conversation.find_by( code: params[:id] )
+        comments = conversation.api_comments
+        comment_ids = comments.map(&:id)
+        author_ids = comments.map(&:user_id)
+        author_ids.push conversation.user_id
+        replies = conversation.api_replies
+
+        authors = User.where(id: author_ids.uniq)
+        document = {
+          links:{
+            'conversations.comments' => {
+                type: 'comments'
+            },
+            'conversations.comments.author' => {
+                type: 'authors'
+            },
+            'conversations.author' => {
+                type: 'authors'
+            },
+            'conversations.comments.replies' => {
+                type: 'replies'
+            }
+          },
+          conversations:[
+            conversation.as_json
+          ],
+          linked:{
+            comments: comments.as_json,
+            authors: authors.as_json,
+            replies: replies.as_json
+          }
+        }
+        render json: document
       end
 
       def create

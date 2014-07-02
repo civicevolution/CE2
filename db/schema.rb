@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140315002849) do
+ActiveRecord::Schema.define(version: 20140702204929) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -475,8 +475,8 @@ ActiveRecord::Schema.define(version: 20140315002849) do
   end
 
   create_table "replies", force: true do |t|
-    t.integer  "comment_id",  null: false
-    t.integer  "reply_to_id", null: false
+    t.integer  "comment_id",      null: false
+    t.integer  "reply_to_id",     null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "version"
@@ -484,6 +484,7 @@ ActiveRecord::Schema.define(version: 20140315002849) do
     t.string   "author"
     t.string   "code"
     t.integer  "user_id"
+    t.integer  "conversation_id"
   end
 
   create_table "report_images", force: true do |t|

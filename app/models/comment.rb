@@ -6,6 +6,10 @@ class Comment < ActiveRecord::Base
     CommentSerializer
   end
 
+  def serializable_hash options=nil
+    super.merge "type" => type
+  end
+
   attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark, :auth_type,
                 :pro_votes, :con_votes, :post_process_disabled
 

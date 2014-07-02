@@ -13,6 +13,10 @@ module Modules
 
     def self.add_session_to_redis(session_id, user, subscribe_channels, publish_channels)
       expire_secs = 60 * 60 * 24 * 2
+
+      # use session_id or user.authentication_token
+      session_id ||= user.authentication_token
+
       # Use a set to assign channels to session subscribe acl
       $redis.sadd "ror_sessions:#{session_id}:subscribe.acl", subscribe_channels unless subscribe_channels.empty?
       $redis.expire "ror_sessions:#{session_id}:subscribe.acl", expire_secs

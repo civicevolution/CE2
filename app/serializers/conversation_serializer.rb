@@ -21,7 +21,8 @@ class ConversationSerializer < ActiveModel::Serializer
   end
 
   def title
-    object.displayed_comments.detect{|c| c.type == 'TitleComment'}.try{ |title_comment| title_comment.text}
+    object.displayed_comments.detect{|c| c.type == 'TitleComment'}.try{ |title_comment| title_comment.text}     ||
+        object.title_comment.text
   end
 
   def call_to_action

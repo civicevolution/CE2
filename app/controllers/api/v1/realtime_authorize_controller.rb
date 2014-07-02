@@ -7,7 +7,9 @@ module Api
       def authorize_realtime_channel
         channel = params[:channel]
         #Rails.logger.debug "authorize_realtime_channel: #{channel}"
-        Modules::FayeRedis::add_session_to_redis(request.session_options[:id], current_user, [channel], [])
+        if current_user
+          Modules::FayeRedis::add_session_to_redis(request.session_options[:id], current_user, [channel], [])
+        end
         render json: 'approved'
       end
 

@@ -9,6 +9,11 @@ class Conversation < ActiveRecord::Base
 
   belongs_to :agenda
 
+  has_many  :api_comments, class_name: "Comment"
+  has_many  :api_replies, class_name: "Reply"
+
+
+
   has_one :title_comment #, -> { includes author: :profile   }
   has_one :call_to_action_comment, -> { includes author: :profile   }
   has_many  :comments, -> { includes [{author: :profile}, :replies, :reply_to_targets, :child_targets, :parent_targets, :pro_con_vote] }
