@@ -156,6 +156,7 @@ module Modules
 
       reply_to_records.each do |rec|
         #puts "add new rec to reply_to_records #{rec.inspect}"
+        rec.conversation_id = comment.conversation_id
         comment.reply_to_targets << rec
       end
     end
