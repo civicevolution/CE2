@@ -27,6 +27,8 @@ class Comment < ActiveRecord::Base
 
   has_many :ratings, :as => :ratable
 
+  has_one :reply
+
   has_one :pro_con_vote
 
   has_many :reply_to_targets, class_name: 'Reply', foreign_key: :comment_id
@@ -263,9 +265,14 @@ class Comment < ActiveRecord::Base
   end
 
 
-  protected
+  #protected
   def as_json_for_notification( action = "create" )
-    data = self.active_model_serializer.new( self ).as_json
+    #data = self.active_model_serializer.new( self ).as_json
+    data = {
+      comment: self.as_json,
+      author: self.author.as_json,
+      reply: self.reply.as_json
+    }
     { class: self.class.to_s, action: action, data: data, updated_at: Time.now.getutc, source: "RoR-RT-Notification" }
   end
 
