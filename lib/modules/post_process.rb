@@ -71,15 +71,17 @@ module Modules
 
       # Now parse the comment text for embedded quotes
 
-      quote_regex = /\[quote=([^\]]*)\]((?:[\s\S](?!\[quote=[^\]]*\]))*?)\[\/quote\]/im
+      quote_regex = /<blockquote([^>]*)>((?:[\s\S](?!<blockquote=[^>]*>))*?)<\/blockquote>/im
 
       self.text.scan(quote_regex).each do |match|
-        #puts match[0]
-        data = JSON.parse( match[0] )
-        reply_to_records.push Reply.new comment_id: self.id, reply_to_id: data['id'], version: data['version'], quote: true
+        attrs = {}
+        match[0].scan(/(\w+)="([^"]*)"/).each do |attr|
+          attrs[attr[0]] = attr[1]
+        end
+        reply_to_records.push Reply.new comment_id: self.id, reply_to_id: attrs['id'], version: attrs['version'], quote: true
       end
 
-      # now remove duplicate records, but retain any record with quote = false
+      # now remove duplicate records, but retain any record with qself.textuote = false
       reply_to_records.uniq!{|r| r[:reply_to_id]}
 
 
