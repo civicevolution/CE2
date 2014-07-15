@@ -265,6 +265,11 @@ Ce2::Application.routes.draw do
   post "/api/mca/:mca_id/set_group_voters" => "api/v1/multi_criteria_analyses#set_group_voters", format: :json
   post "/api/mca/:mca_id/save_action_votes" => "api/v1/multi_criteria_analyses#save_action_votes", format: :json
 
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :draft_comments
+    end
+  end
 
 
   # The priority is based upon order of creation: first created -> highest priority.
