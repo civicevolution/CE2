@@ -6,9 +6,9 @@ module Api
 
       def index
         #authorize! :index, Conversation
-        draft_comments =
-          DraftComment.where(user_id: current_user.id) +
-          DraftComment.where(code: params[:draft_comment_codes].split(','))
+        userDraftComments = current_user.nil? ? [] : DraftComment.where(user_id: current_user.id)
+        anonymousDraftComments = params[:draft_comment_codes].nil? ? [] : DraftComment.where(code: params[:draft_comment_codes].split(','))
+        draft_comments = userDraftComments + anonymousDraftComments
         draft_comments.uniq!
         draft_comments.sort!{|a,b| a.id <=> b.id}
         respond_with draft_comments.as_json
