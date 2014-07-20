@@ -56,7 +56,7 @@ if Conversation.exists?(1).nil?
     comment.purpose = "experience"
   end
 
-  tag = Tag.where(name: "Testing").first_or_create do |tag|
+  tag = BrandTag.where(name: "Testing").first_or_create do |tag|
     tag.user_id = conversation.user_id
     tag.published = true
   end

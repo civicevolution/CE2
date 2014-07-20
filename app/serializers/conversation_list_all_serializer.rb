@@ -1,5 +1,5 @@
 class ConversationListAllSerializer < ActiveModel::Serializer
-  attributes :code, :title, :munged_title
+  attributes :id, :code, :title, :munged_title
 
 
   def title

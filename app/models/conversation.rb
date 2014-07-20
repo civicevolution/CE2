@@ -29,7 +29,7 @@ class Conversation < ActiveRecord::Base
 
   has_many :attachments, :as => :attachable
 
-  has_and_belongs_to_many :tags
+  has_and_belongs_to_many :brand_tags
 
   has_many :notification_requests
 
@@ -112,7 +112,7 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
       if current_tags.include? tag_name
         current_tags.delete(tag_name)
       else
-        tag = Tag.where(name: tag_name).first_or_create do |tag|
+        tag = BrandTag.where(name: tag_name).first_or_create do |tag|
           tag.user_id = user.id
         end
         self.tags << tag
@@ -120,7 +120,7 @@ WHERE id = t.comment_id AND conversation_id = (SELECT id FROM conversations WHER
     end
     # now check if any of the current tags need to be removed
     current_tags.each do |tag_name|
-      self.tags.delete( Tag.find_by(name: tag_name) )
+      self.tags.delete( BrandTag.find_by(name: tag_name) )
     end
 
   end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140714204556) do
+ActiveRecord::Schema.define(version: 20140719154550) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,6 +113,27 @@ ActiveRecord::Schema.define(version: 20140714204556) do
   end
 
   add_index "bookmarks", ["user_id"], name: "index_bookmarks_on_user_id", using: :btree
+
+  create_table "brand_tags", force: true do |t|
+    t.string   "name",                         null: false
+    t.boolean  "published",     default: true
+    t.integer  "user_id"
+    t.integer  "admin_user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "comment_tag_assignments", force: true do |t|
+    t.integer  "tag_id"
+    t.integer  "comment_id"
+    t.integer  "conversation_id"
+    t.integer  "user_id"
+    t.boolean  "star"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "comment_tag_assignments", ["tag_id", "comment_id", "user_id"], name: "index_comment_tag_assignments_on_tag_comment_and_user_id", unique: true, using: :btree
 
   create_table "comment_threads", force: true do |t|
     t.integer  "child_id",   null: false
@@ -533,13 +554,12 @@ ActiveRecord::Schema.define(version: 20140714204556) do
   add_index "roles", ["name"], name: "index_roles_on_name", using: :btree
 
   create_table "tags", force: true do |t|
-    t.string   "name",                         null: false
-    t.boolean  "published",     default: true
-    t.integer  "user_id"
-    t.integer  "admin_user_id"
+    t.string   "text"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "tags", ["text"], name: "index_tags_on_text", unique: true, using: :btree
 
   create_table "theme_points", force: true do |t|
     t.integer  "group_id"

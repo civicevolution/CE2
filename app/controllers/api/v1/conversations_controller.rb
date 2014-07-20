@@ -43,7 +43,9 @@ module Api
         author_ids = comments.map(&:user_id)
         author_ids.push conversation.user_id
         replies = conversation.api_replies
-
+        tag_assignments = CommentTagAssignment.where(conversation_id: conversation.id)
+        tag_ids = tag_assignments.map(&:tag_id).uniq!
+        tags = Tag.where(id: tag_ids)
         authors = User.where(id: author_ids.uniq)
         document = {
           links:{
@@ -58,6 +60,12 @@ module Api
             },
             'conversations.comments.replies' => {
                 type: 'replies'
+            },
+            'conversations.comments.tags' => {
+                type: 'tags'
+            },
+            'conversations.comments.tag_assignments' => {
+                type: 'tag_assignments'
             }
           },
           conversations:[
@@ -66,7 +74,9 @@ module Api
           linked:{
             comments: comments.as_json,
             authors: authors.as_json,
-            replies: replies.as_json
+            replies: replies.as_json,
+            tags: tags.as_json,
+            tag_assignments: tag_assignments.as_json
           }
         }
         render json: document

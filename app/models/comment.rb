@@ -45,6 +45,8 @@ class Comment < ActiveRecord::Base
 
   has_many :mentions, dependent: :delete_all
 
+  has_many :comment_tag_assignments, dependent: :delete_all
+
   after_initialize :read_previous_text_on_init
   before_update :increment_comment_version
   before_create :initialize_ratings_cache_to_zeros
