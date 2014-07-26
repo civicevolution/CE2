@@ -37,7 +37,8 @@ module Api
               tag_id: params[:tag_id],
               tag_text: params[:tag_text],
               user_id: current_user.id,
-              conversation_id: comment.conversation_id
+              conversation_id: comment.conversation_id,
+              conversation_code: comment.conversation.code
           )
           comment.comment_tag_assignments << tagAssignment
 

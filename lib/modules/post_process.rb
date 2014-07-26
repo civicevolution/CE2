@@ -182,7 +182,7 @@ module Modules
       if conversation_code
         action = @_is_new_record ? "create" : destroyed? ? "delete" : "update"
         message = self.as_json_for_notification( action )
-        channel = "/#{conversation_code}"
+        channel = "/#{conversation_code}/comments"
         FayeRedis::publish(message,channel)
       end
     end

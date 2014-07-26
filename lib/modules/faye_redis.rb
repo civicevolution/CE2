@@ -46,7 +46,7 @@ module Modules
     def self.publish(message, channels)
       if message[:data][:id].nil?
         $redis_msg_ctr += 1
-        message[:data][:id] = $redis_msg_ctr.to_s(36)
+        message[:id] = $redis_msg_ctr.to_s(36)
       end
 
       message = {'channel' => channels, 'data' => message }

@@ -117,7 +117,7 @@ module Api
         ids_with_order_id = Conversation.update_comment_order( params[:id], params[:ordered_ids] )
         if !ids_with_order_id.empty?
           message = { class: 'Conversation', action: 'update_comment_order', data: {conversation_code: params[:id], ordered_ids: ids_with_order_id }, updated_at: Time.now.getutc, source: "RT-Notification" }
-          channel = "/#{conversation.code}"
+          channel = "/#{conversation.code}/comment"
           Modules::FayeRedis::publish(message,channel)
         end
 
