@@ -35,9 +35,9 @@ class CommentTagAssignment < ActiveRecord::Base
     end
   end
 
-  #after_create do
-  #  realtimePublish(:create)
-  #end
+  after_create do
+    realtimePublish(:create)
+  end
 
   after_update do
     realtimePublish(:update)
