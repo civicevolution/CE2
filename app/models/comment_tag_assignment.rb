@@ -58,5 +58,34 @@ class CommentTagAssignment < ActiveRecord::Base
     Modules::FayeRedis::publish(message,channel)
   end
 
+  def self.updateCommentTagAssignments(comment)
+    tagAssignments = CommentTagAssignment.where(comment_id: comment.id) || []
+    tagAssignments.each do |assignment|
+      if ! comment.tag_ids.include?(assignment.tag_id)
+        assignment.destroy()
+      end
+    end
+
+    if comment.tag_ids
+      tagAssignmentTagIds = tagAssignments.map(&:tag_id) || []
+      comment.tag_ids.each do |tag_id|
+        Rails.logger.debug "check tag_id: #{tag_id}"
+        if ! tagAssignmentTagIds.include?(tag_id)
+
+          tagAssignment = CommentTagAssignment.create(
+              tag_id: tag_id,
+              #tag_text: params[:tag_text],
+              user_id: comment.user_id,
+              conversation_id: comment.conversation_id,
+              conversation_code: comment.conversation.code
+          )
+          comment.comment_tag_assignments << tagAssignment
+
+        end
+      end
+    end
+
+  end
+
 end
 

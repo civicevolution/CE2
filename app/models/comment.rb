@@ -11,11 +11,11 @@ class Comment < ActiveRecord::Base
   end
 
   attr_accessor :my_rating, :conversation_code, :in_reply_to_id, :in_reply_to_version, :bookmark, :auth_type,
-                :pro_votes, :con_votes, :post_process_disabled
+                :pro_votes, :con_votes, :post_process_disabled, :tag_ids
 
   attr_accessible :type, :user_id, :conversation_id, :text, :version, :status, :order_id, :purpose,
                   :conversation_code, :in_reply_to_id, :in_reply_to_version, :published, :auth_type, :tag_name,
-                  :pro_votes, :con_votes, :elements
+                  :pro_votes, :con_votes, :elements, :tag_ids
 
   has_paper_trail class_name: 'CommentVersion', on: [:update], only: [:text, :order_id], version: :paper_trail_version,
                   skip: [:type, :user_id, :conversation_id, :status, :order_id, :purpose, :references, :created_at, :updated_at, :ratings_cache]
@@ -50,7 +50,7 @@ class Comment < ActiveRecord::Base
   after_initialize :read_previous_text_on_init
   before_update :increment_comment_version
   before_create :initialize_ratings_cache_to_zeros
-
+  
   def read_previous_text_on_init
     @text = text
   end

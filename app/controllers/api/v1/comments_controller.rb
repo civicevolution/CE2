@@ -59,6 +59,8 @@ module Api
               comment.errors.delete(:auth_type)
 
             end
+          when "SynthesisComment"
+            comment = conversation.synthesis_comments.create params[:comment]
           when "SummaryComment"
             comment = conversation.summary_comments.create params[:comment]
           when "CallToActionComment"
@@ -270,6 +272,10 @@ module Api
                 published = false
                 status = 'pre-review'
             end
+          when "SynthesisComment"
+            auth_type = :edit_synthesis
+            published = true
+            status = 'ok'
           when "SummaryComment"
             auth_type = :edit_summary
             published = true
