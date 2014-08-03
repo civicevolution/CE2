@@ -6,9 +6,32 @@ module Api
                                          :export, :import, :agendas, :participant_report_data, :data_set, :conversations,
                                          :reports, :report_data_sets, :agenda_defaults ]
 
+      def agendas
+        #Rails.logger.debug "agendas current_user.first_name: #{current_user.first_name}"
+        render json: Agenda.agendas
+      end
+
       def agenda
-        agenda = Agenda.find_by(code: params[:id])
-        render json: agenda.agenda_data( current_user )
+        agenda = Agenda.find_by(code: params[:id]) || Agenda.find_by(id: params[:id])
+        if !params[:access_code].nil?
+          data = { access_code: params[:access_code], identifier: params[:identifier], role: params[:role]}
+          origUserId = current_user.try{|u| u.id} || nil
+          user = agenda.get_user_for_accept_role( data )
+          sign_in(user)
+          if !user.nil?
+            if origUserId != user.id
+              if user.ensure_authentication_token
+                user.update_attribute(:authentication_token, user.authentication_token)
+              end
+              headers['X-User-Token'] = user.authentication_token
+              headers['X-User-Email'] = user.email
+            end
+          end
+        else
+          user = current_user
+        end
+        data = agenda.agenda_data( user )
+        render json: data
       end
 
       def agenda_for_component
@@ -81,10 +104,6 @@ module Api
         authorize! :reset_agenda, agenda
         agenda.reset
         render json: {Acknowledge: "Agenda \"#{agenda.title}\" has been reset"}
-      end
-
-      def agendas
-        render json: Agenda.agendas
       end
 
       def data_set

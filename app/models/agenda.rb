@@ -64,7 +64,6 @@ class Agenda < ActiveRecord::Base
   def agenda_data(current_user)
     agenda_details = self.details
     menu_data = []
-
     # get the role for this user
     role, role_id = self.get_role(current_user)
     if role
@@ -80,7 +79,8 @@ class Agenda < ActiveRecord::Base
         description: self.description,
         test_mode: self.test_mode,
         code: self.code,
-        menu_data: menu_data
+        menu_data: menu_data,
+        role: role
     }
   end
 
