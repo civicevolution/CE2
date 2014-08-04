@@ -273,7 +273,8 @@ class Comment < ActiveRecord::Base
     data = {
       comment: self.as_json,
       author: self.author.as_json,
-      reply: self.reply.as_json
+      reply: self.reply.as_json,
+      pro_con_vote: self.pro_con_vote
     }
     { class: self.class.to_s, action: action, data: data, updated_at: Time.now.getutc, source: "RoR-RT-Notification" }
   end

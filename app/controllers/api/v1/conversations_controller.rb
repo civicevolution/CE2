@@ -47,6 +47,8 @@ module Api
         tag_ids = tag_assignments.map(&:tag_id).uniq!
         tags = Tag.where(id: tag_ids)
         authors = User.where(id: author_ids.uniq)
+        table_comment_ids = comments.map{|c| c.id if(c.type=='TableComment')}.compact
+        pro_con_votes = ProConVote.where(comment_id: table_comment_ids)
         document = {
           links:{
             'conversations.comments' => {
@@ -66,6 +68,9 @@ module Api
             },
             'conversations.comments.tag_assignments' => {
                 type: 'tag_assignments'
+            },
+            'conversations.comments.pro_con_votes' => {
+                type: 'pro_con_votes'
             }
           },
           conversations:[
@@ -76,7 +81,8 @@ module Api
             authors: authors.as_json,
             replies: replies.as_json,
             tags: tags.as_json,
-            tag_assignments: tag_assignments.as_json
+            tag_assignments: tag_assignments.as_json,
+            pro_con_votes: pro_con_votes.as_json
           }
         }
         render json: document

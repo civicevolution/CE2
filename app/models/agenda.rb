@@ -66,12 +66,12 @@ class Agenda < ActiveRecord::Base
     menu_data = []
     # get the role for this user
     role, role_id = self.get_role(current_user)
-    if role
-      # use agenda_details to construct the menu_data
-      agenda_details["links"][role].each_value do |link|
-        menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"], group_id: link["id"]})
-      end
-    end
+    #if role
+    #  # use agenda_details to construct the menu_data
+    #  agenda_details["links"][role].each_value do |link|
+    #    menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"], group_id: link["id"]})
+    #  end
+    #end
 
     details = {
         title: self.title,
@@ -80,7 +80,8 @@ class Agenda < ActiveRecord::Base
         test_mode: self.test_mode,
         code: self.code,
         menu_data: menu_data,
-        role: role
+        role: role,
+        details: self.details
     }
   end
 
@@ -651,7 +652,7 @@ class Agenda < ActiveRecord::Base
     conversations = []
     titles.each_index do |index|
       privacy = {"list"=>"true", "invite"=>"true", "screen"=>"true", "summary"=>"true", "comments"=>"true", "unknown_users"=>"true"}
-      conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now + index.hours, privacy: privacy
+      conversation = Conversation.create user_id: coordinator.id, starts_at: Time.now + index.hours, privacy: privacy, agenda_id: agenda.id
       title_comment = conversation.build_title_comment user_id: coordinator.id, text: titles[index], order_id: index
       title_comment.post_process_disabled = true
       title_comment.save
