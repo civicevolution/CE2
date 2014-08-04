@@ -66,12 +66,12 @@ class Agenda < ActiveRecord::Base
     menu_data = []
     # get the role for this user
     role, role_id = self.get_role(current_user)
-    #if role
-    #  # use agenda_details to construct the menu_data
-    #  agenda_details["links"][role].each_value do |link|
-    #    menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"], group_id: link["id"]})
-    #  end
-    #end
+    if role && agenda_details["links"]
+      # use agenda_details to construct the menu_data
+      agenda_details["links"][role].each_value do |link|
+        menu_data.push( {link_code: link["link_code"], title: link["title"], href: link["href"], group_id: link["id"]})
+      end
+    end
 
     details = {
         title: self.title,

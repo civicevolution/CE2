@@ -82,7 +82,8 @@ module Api
             replies: replies.as_json,
             tags: tags.as_json,
             tag_assignments: tag_assignments.as_json,
-            pro_con_votes: pro_con_votes.as_json
+            pro_con_votes: pro_con_votes.as_json,
+            role: Ability.abilities(current_user, 'Conversation', conversation.id)
           }
         }
         render json: document
