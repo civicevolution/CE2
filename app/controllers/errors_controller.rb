@@ -33,7 +33,7 @@ class ErrorsController < ApplicationController
         #end
 
       else
-        notify_airbrake(@exception) unless Rails.env == 'development' || @exception.message.match(/^CivicEvolution::/)
+        #notify_airbrake(@exception) unless Rails.env == 'development' || @exception.message.match(/^CivicEvolution::/)
         Rails.logger.error "\n\nError detected and reported to airbrake:\n #{@exception.class.to_s}: #{@exception.message}"
         @exception.backtrace[0..250].each_index do |ind|
           line = @exception.backtrace[ind]

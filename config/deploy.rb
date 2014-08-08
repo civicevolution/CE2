@@ -6,7 +6,7 @@ set :application, 'ce2_ver_1'
 # use the git@ version for repo for ssh agent forwarding
 set :repo_url, 'git@github.com:civicevolution/CE2.git'
 #set :branch, 'master'
-set :branch, 'master'
+set :branch, 'api-dev-1'
 
 
 # Default branch is :master
