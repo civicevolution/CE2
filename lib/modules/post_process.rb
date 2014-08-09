@@ -22,7 +22,7 @@ module Modules
       #AdminMailer.delay.follow_us("PostProcess2A-#{Time.now}@ce.org")
     end
     #handle_asynchronously :post_process, :priority => 20, :run_at => Proc.new { 10.seconds.from_now }
-    handle_asynchronously :post_process
+    #handle_asynchronously :post_process
 
     # When do I create a record
     # comment params has in_reply_to_id and in_reply_to_version keys
@@ -184,6 +184,7 @@ module Modules
         message = self.as_json_for_notification( action )
         channel = "/#{conversation_code}/comments"
         FayeRedis::publish(message,channel)
+        Rails.logger.debug "message: #{message} sent on channel: #{channel}"
       end
     end
 

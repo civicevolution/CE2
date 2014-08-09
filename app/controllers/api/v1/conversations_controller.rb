@@ -38,55 +38,59 @@ module Api
 
       def api_compound_document
         conversation = Conversation.find_by( code: params[:id] )
-        comments = conversation.api_comments
-        comment_ids = comments.map(&:id)
-        author_ids = comments.map(&:user_id)
-        author_ids.push conversation.user_id
-        replies = conversation.api_replies
-        tag_assignments = CommentTagAssignment.where(conversation_id: conversation.id)
-        tag_ids = tag_assignments.map(&:tag_id).uniq!
-        tags = Tag.where(id: tag_ids)
-        authors = User.where(id: author_ids.uniq)
-        table_comment_ids = comments.map{|c| c.id if(c.type=='TableComment')}.compact
-        pro_con_votes = ProConVote.where(comment_id: table_comment_ids)
-        document = {
-          links:{
-            'conversations.comments' => {
-                type: 'comments'
+        if conversation.nil?
+          head :not_found
+        else
+          comments = conversation.api_comments
+          comment_ids = comments.map(&:id)
+          author_ids = comments.map(&:user_id)
+          author_ids.push conversation.user_id
+          replies = conversation.api_replies
+          tag_assignments = CommentTagAssignment.where(conversation_id: conversation.id)
+          tag_ids = tag_assignments.map(&:tag_id).uniq!
+          tags = Tag.where(id: tag_ids)
+          authors = User.where(id: author_ids.uniq)
+          table_comment_ids = comments.map{|c| c.id if(c.type=='TableComment')}.compact
+          pro_con_votes = ProConVote.where(comment_id: table_comment_ids)
+          document = {
+            links:{
+              'conversations.comments' => {
+                  type: 'comments'
+              },
+              'conversations.comments.author' => {
+                  type: 'authors'
+              },
+              'conversations.author' => {
+                  type: 'authors'
+              },
+              'conversations.comments.replies' => {
+                  type: 'replies'
+              },
+              'conversations.comments.tags' => {
+                  type: 'tags'
+              },
+              'conversations.comments.tag_assignments' => {
+                  type: 'tag_assignments'
+              },
+              'conversations.comments.pro_con_votes' => {
+                  type: 'pro_con_votes'
+              }
             },
-            'conversations.comments.author' => {
-                type: 'authors'
-            },
-            'conversations.author' => {
-                type: 'authors'
-            },
-            'conversations.comments.replies' => {
-                type: 'replies'
-            },
-            'conversations.comments.tags' => {
-                type: 'tags'
-            },
-            'conversations.comments.tag_assignments' => {
-                type: 'tag_assignments'
-            },
-            'conversations.comments.pro_con_votes' => {
-                type: 'pro_con_votes'
+            conversations:[
+              conversation.as_json
+            ],
+            linked:{
+              comments: comments.as_json,
+              authors: authors.as_json,
+              replies: replies.as_json,
+              tags: tags.as_json,
+              tag_assignments: tag_assignments.as_json,
+              pro_con_votes: pro_con_votes.as_json,
+              role: Ability.abilities(current_user, 'Conversation', conversation.id)
             }
-          },
-          conversations:[
-            conversation.as_json
-          ],
-          linked:{
-            comments: comments.as_json,
-            authors: authors.as_json,
-            replies: replies.as_json,
-            tags: tags.as_json,
-            tag_assignments: tag_assignments.as_json,
-            pro_con_votes: pro_con_votes.as_json,
-            role: Ability.abilities(current_user, 'Conversation', conversation.id)
           }
-        }
-        render json: document
+          render json: document
+        end
       end
 
       def create
