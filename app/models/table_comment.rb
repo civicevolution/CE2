@@ -66,4 +66,24 @@ class TableComment < Comment
     self.order_id = TableComment.where(conversation_id: self.conversation_id).maximum(:order_id).try{ |max| max + 1 } || 1
   end
 
+
+  validate :check_tag_ids
+  after_save :update_tag_ids
+
+  def check_tag_ids
+    if !tag_ids || tag_ids.size == 0
+      errors.add(:tag_ids, "Comment must have at least one tag")
+      return false
+    end
+  end
+
+  def update_tag_ids
+    #Rails.logger.debug "check if tag_ids defined"
+    if !tag_ids.nil?
+      #Rails.logger.debug "process the tag_ids to make sure it is up-to-date"
+      CommentTagAssignment.updateCommentTagAssignments(self)
+    end
+  end
+
+
 end
