@@ -11,7 +11,7 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 
-//= require jquery-1.9.1
+//= require jquery-1.9.1.js
 //= require underscore-min.js
 //= require md5.js
 
