@@ -26,16 +26,31 @@ module Api
 
       def create
         comment = Comment.find_by(id: params[:com_id])
-        if comment.nil?
-          authorize! :user, User
+
+        if !params[:com_id].nil? && comment.nil?
+          authorize! :user, User # just to pretend something was authorized
           return render json: {errors: { base: ["Comment not found with id #{params[:com_id]}"] } }, status: :not_found
         end
 
+
+
+        if params[:tag_id].nil?
+          tag = Tag.where(text: params[:tag_text]).first_or_create
+        else
+          tag = Tag.find(params[:tag_id])
+        end
+
+        if comment.nil?
+          authorize! :user, User # just to pretend something was authorized
+          return render json: tag.as_json
+        end
+
         authorize! :tag_comment, comment.conversation
+
         begin
           tagAssignment = CommentTagAssignment.create(
-              tag_id: params[:tag_id],
-              tag_text: params[:tag_text],
+              tag_id: tag.id,
+              tag_text: tag.text,
               user_id: current_user.id,
               conversation_id: comment.conversation_id,
               conversation_code: comment.conversation.code
@@ -58,7 +73,9 @@ module Api
           return render json: {errors: tagAssignment.errors}, status: :not_found
         else
           Rails.logger.debug "no errors and is new record"
-          render json: tagAssignment.as_json
+          data = tagAssignment.as_json
+          data[:label] = tag.text
+          render json: data
 
         end
       end
