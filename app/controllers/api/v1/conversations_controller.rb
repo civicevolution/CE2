@@ -47,7 +47,7 @@ module Api
           author_ids.push conversation.user_id
           replies = conversation.api_replies
           tag_assignments = CommentTagAssignment.where(conversation_id: conversation.id)
-          tag_ids = tag_assignments.map(&:tag_id).uniq!
+          tag_ids = tag_assignments.map(&:tag_id).uniq
           tags = Tag.where(id: tag_ids)
           authors = User.where(id: author_ids.uniq)
           table_comment_ids = comments.map{|c| c.id if(c.type=='TableComment')}.compact
