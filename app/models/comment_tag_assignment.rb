@@ -74,7 +74,7 @@ class CommentTagAssignment < ActiveRecord::Base
 
           tagAssignment = CommentTagAssignment.create(
               tag_id: tag_id,
-              #tag_text: params[:tag_text],
+              tag_text: Tag.find(tag_id).text,
               user_id: comment.user_id,
               conversation_id: comment.conversation_id,
               conversation_code: comment.conversation.code

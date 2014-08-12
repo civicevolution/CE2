@@ -42,7 +42,9 @@ module Api
 
         if comment.nil?
           authorize! :user, User # just to pretend something was authorized
-          return render json: tag.as_json
+          data = tag.as_json
+          data[:tag_id] = tag.id
+          return render json: data
         end
 
         authorize! :tag_comment, comment.conversation
@@ -74,7 +76,7 @@ module Api
         else
           Rails.logger.debug "no errors and is new record"
           data = tagAssignment.as_json
-          data[:label] = tag.text
+          data[:text] = tag.text
           render json: data
 
         end
