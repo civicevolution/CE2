@@ -92,9 +92,9 @@ module Api
         tagAssignment = CommentTagAssignment.find_by(id: params[:id])
 
         if tagAssignment.nil?
-          head :not_found
+          render json: {message: "This tag assignment was not found"}, status: :not_found
         elsif tagAssignment.user_id && tagAssignment.user_id != current_user.id
-          head :unauthorized
+          render json: {message: "You are not authorized to delete this tag"}, status: :unauthorized
         else
           tagAssignment.destroy
           head :no_content

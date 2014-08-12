@@ -39,7 +39,7 @@ module Api
       def api_compound_document
         conversation = Conversation.find_by( code: params[:id] )
         if conversation.nil?
-          head :not_found
+          render json: {message: "Conversation with code #{params[:id]} could not be found"}, status :not_found
         else
           comments = conversation.api_comments
           comment_ids = comments.map(&:id)

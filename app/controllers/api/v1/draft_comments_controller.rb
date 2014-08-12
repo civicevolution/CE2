@@ -30,9 +30,9 @@ module Api
         draft = DraftComment.find_by( code: params[:id] )
 
         if draft.nil?
-          head :not_found
+          render json: {message: "Draft comment could not be found for destroy"}, status: :not_found
         elsif draft.user_id && draft.user_id != current_user.id
-          head :unauthorized
+          render json: {message: "You are not authorized to delete this draft comment"}, status: :unauthorized
         else
           draft.destroy
           head :no_content
