@@ -244,7 +244,7 @@ module Api
       end
 
 
-      def auth_comment( conversation, type, text, comment )
+      def auth_comment( conversation, type, text, comment=nil )
         case type
           when "ConversationComment"
             # should this comment be published automatically, or does it need to be reviewed by curator?
