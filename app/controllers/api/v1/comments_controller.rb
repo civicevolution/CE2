@@ -124,7 +124,7 @@ module Api
         comment = Comment.find(params[:id])
         conversation = comment.conversation
 
-        (auth_type, published, status ) = auth_comment(conversation, params[:type], params[:comment][:text])
+        (auth_type, published, status ) = auth_comment(conversation, params[:type], params[:comment][:text], comment)
         authorize! auth_type, conversation
 
         params[:comment][:conversation_code] = conversation.code
@@ -244,7 +244,7 @@ module Api
       end
 
 
-      def auth_comment( conversation, type, text )
+      def auth_comment( conversation, type, text, comment )
         case type
           when "ConversationComment"
             # should this comment be published automatically, or does it need to be reviewed by curator?
@@ -289,7 +289,11 @@ module Api
             published = true
             status = 'ok'
           when "TableComment"
-            auth_type = :edit_table_comment
+            if comment.user_id == current_user.id
+              auth_type = :edit_my_table_comment
+            else
+              auth_type = :edit_all_table_comments
+            end
             published = true
             status = 'ok'
           when "ThemeComment"
