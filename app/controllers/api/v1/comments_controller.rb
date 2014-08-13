@@ -289,7 +289,7 @@ module Api
             published = true
             status = 'ok'
           when "TableComment"
-            if comment.user_id == current_user.id
+            if comment.nil? || comment.user_id == current_user.id
               auth_type = :edit_my_table_comment
             else
               auth_type = :edit_all_table_comments
