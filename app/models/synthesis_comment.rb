@@ -9,7 +9,7 @@ class SynthesisComment < Comment
   before_validation :initialize_purpose_to_synthesis
 
   def initialize_purpose_to_synthesis
-    self.purpose = "Synthesis"
+    self.purpose = "Synthesis" unless purpose
   end
 
 

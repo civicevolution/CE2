@@ -15,7 +15,7 @@ class Ability
   @@conversation_actions_by_role[:curator] = %i( edit_synthesis edit_summary update_comment_order edit_cta group_message approve_posts approve_participants moderate_posts ).concat @@conversation_actions_by_role[:trusted_participant]
   @@conversation_actions_by_role[:conversation_admin] = %i( edit_title privacy tags schedule publish update_role ).concat @@conversation_actions_by_role[:curator]
 
-  @@conversation_actions_by_role[:scribe] = %i( tag_comment view_table_comments edit_table_comment post_prescreen history vote )
+  @@conversation_actions_by_role[:scribe] = %i( edit_synthesis tag_comment view_table_comments edit_table_comment post_prescreen history vote )
   @@conversation_actions_by_role[:themer] = %i( edit_synthesis edit_table_comment edit_theme_comment assign_comment_theme post_prescreen history update_comment_order destroy_theme_comment hide).concat @@conversation_actions_by_role[:scribe]
   @@conversation_actions_by_role[:coordinator] = %i( edit_synthesis publish_themes).concat @@conversation_actions_by_role[:themer]
 
