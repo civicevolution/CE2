@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140719154550) do
+ActiveRecord::Schema.define(version: 20140814121150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -186,6 +186,17 @@ ActiveRecord::Schema.define(version: 20140719154550) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "conversation_ratings", force: true do |t|
+    t.integer  "conversation_id"
+    t.integer  "user_id"
+    t.string   "rating_type"
+    t.json     "rating_data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "conversation_ratings", ["conversation_id", "user_id", "rating_type"], name: "index_conversation_ratings_on_con_type_and_user_id", unique: true, using: :btree
 
   create_table "conversations", force: true do |t|
     t.string   "code",                                null: false
