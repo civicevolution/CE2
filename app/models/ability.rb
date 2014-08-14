@@ -17,7 +17,7 @@ class Ability
 
   @@conversation_actions_by_role[:scribe] = %i( conversation_rating edit_my_table_comment edit_synthesis tag_comment view_table_comments edit_table_comment post_prescreen history vote )
   @@conversation_actions_by_role[:themer] = %i( delete_any_tag edit_all_table_comments edit_synthesis edit_table_comment edit_theme_comment assign_comment_theme post_prescreen history update_comment_order destroy_theme_comment hide).concat @@conversation_actions_by_role[:scribe]
-  @@conversation_actions_by_role[:coordinator] = %i( edit_synthesis publish_themes).concat @@conversation_actions_by_role[:themer]
+  @@conversation_actions_by_role[:coordinator] = %i( coordinate edit_synthesis publish_themes).concat @@conversation_actions_by_role[:themer]
 
   @@agenda_actions_by_role = {}
   @@agenda_actions_by_role[:admin] = %i( agenda_admin_details export_agenda delete_agenda refresh_agenda reset_agenda create_agenda add_conversation add_mca update_agenda update_conversation )
