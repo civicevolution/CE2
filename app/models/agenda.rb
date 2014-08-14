@@ -36,6 +36,8 @@ class Agenda < ActiveRecord::Base
         email = "agenda-#{self.id}-themer-#{data[:identifier]}@civicevolution.org"
       when "group"
         email = "agenda-#{self.id}-group-#{data[:identifier]}@civicevolution.org"
+      when "remote"
+        email = "agenda-#{self.id}-remote-#{data[:identifier]}@civicevolution.org"
       when "reporter"
         data[:identifier] = 1
         email = "agenda-#{self.id}-reporter-#{data[:identifier]}@civicevolution.org"
@@ -732,6 +734,10 @@ class Agenda < ActiveRecord::Base
         email_name = "group"
         first_name = "Group"
         role = :scribe
+      when "remote"
+        email_name = "remote"
+        first_name = "Online member"
+        role = :remote
       when "reporter"
         email_name = "reporter"
         first_name = "Reporter"
