@@ -40,6 +40,11 @@ module Api
           tag = Tag.find(params[:tag_id])
         end
 
+        if !tag.errors.empty?
+          authorize! :user, User # just to pretend something was authorized
+          return render json: {errors: tag.errors }, status: :forbidden
+        end
+
         if comment.nil?
           authorize! :user, User # just to pretend something was authorized
           data = tag.as_json
