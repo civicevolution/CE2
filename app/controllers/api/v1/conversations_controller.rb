@@ -244,6 +244,36 @@ module Api
         render json: conversation.update_conversation(params[:data])
       end
 
+      def summary_order_id
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :update_comment_order, conversation
+
+        ids_with_order_id = Conversation.update_comment_order( conversation.id, 'SummaryComment', params[:ordered_ids] )
+        if !ids_with_order_id.empty?
+          message = { class: 'Conversation', action: 'update_comment_order', data: {conversation_code: params[:id], ordered_ids: ids_with_order_id }, updated_at: Time.now.getutc, source: "RT-Notification" }
+          channel = "/#{conversation.code}/comments"
+          Modules::FayeRedis::publish(message,channel)
+        end
+
+        render json: 'ok'
+
+      end
+
+      def synthesis_order_id
+        conversation = Conversation.find_by(code: params[:id])
+        authorize! :update_comment_order, conversation
+
+        ids_with_order_id = Conversation.update_comment_order( conversation.id, 'SynthesisComment', params[:ordered_ids] )
+        if !ids_with_order_id.empty?
+          message = { class: 'Conversation', action: 'update_comment_order', data: {conversation_code: params[:id], ordered_ids: ids_with_order_id }, updated_at: Time.now.getutc, source: "RT-Notification" }
+          channel = "/#{conversation.code}/comments"
+          Modules::FayeRedis::publish(message,channel)
+        end
+
+        render json: 'ok'
+
+      end
+
     end
   end
 end

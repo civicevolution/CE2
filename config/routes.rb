@@ -44,6 +44,8 @@ Ce2::Application.routes.draw do
         get 'group_data', on: :member
         get 'themes', on: :member
         post 'update_conversation', on: :member
+        put 'summary_order_id', on: :member
+        put 'synthesis_order_id', on: :member
         resources :comments, shallow: true
       end
     end
