@@ -184,7 +184,7 @@ module Api
         rating = @comment.ratings.where(user_id: current_user.id).first_or_initialize
         rating.rating = params[:rating]
         rating.save
-        respond_with Comment.find(params[:comment_id]).ratings_cache
+        respond_with ratings_cache: Comment.find(params[:comment_id]).ratings_cache
       end
 
       def accept

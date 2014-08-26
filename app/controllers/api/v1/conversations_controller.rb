@@ -50,6 +50,7 @@ module Api
           tag_ids = tag_assignments.map(&:tag_id).uniq
           tags = Tag.where(id: tag_ids)
           authors = User.where(id: author_ids.uniq)
+          my_ratings = Rating.where( user_id: current_user.id, ratable_id: comment_ids, ratable_type: 'Comment' )
           table_comment_ids = comments.map{|c| c.id if(c.type=='TableComment')}.compact
           pro_con_votes = ProConVote.where(comment_id: table_comment_ids)
           document = {
@@ -74,6 +75,9 @@ module Api
               },
               'conversations.comments.pro_con_votes' => {
                   type: 'pro_con_votes'
+              },
+              'conversations.comments.my_ratings' => {
+                  type: 'my_ratings'
               }
             },
             conversations:[
@@ -86,7 +90,8 @@ module Api
               tags: tags.as_json,
               tag_assignments: tag_assignments.as_json,
               pro_con_votes: pro_con_votes.as_json,
-              role: Ability.abilities(current_user, 'Conversation', conversation.id)
+              role: Ability.abilities(current_user, 'Conversation', conversation.id),
+              my_ratings: my_ratings.as_json
             }
           }
           render json: document

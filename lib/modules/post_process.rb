@@ -244,11 +244,21 @@ module Modules
       { class: self.class.to_s, action: action, data: data, updated_at: Time.now.getutc, source: "RT-Notification" }
     end
 
-    #def send_ratings_update_to_realtime
-    #  realtime.base_uri = "https://civicevolution.realtimeio.com/conversations/#{self.conversation.code}/updates/"
-    #  data = { type: type, id: id, ratings_cache: ratings_cache, number_of_votes: ratings_cache.inject{|sum,x| sum + x } }
-    #  realtime.push '', { class: 'RatingsCache', action: 'update_ratings', data: data, updated_at: Time.now.getutc, source: "RoR-realtime" }
-    #end
+    def send_realtime_ratings_update
+      conversation_code ||= self.conversation.try{|con| con.code} || nil
+      Rails.logger.debug "post_process send_realtime_ratings_update for conversation_code: #{conversation_code}"
+      if conversation_code
+        message = {
+            action: 'update_ratings_cache',
+            data: { id: id, ratings_cache: ratings_cache, number_of_votes: ratings_cache.inject{|sum,x| sum + x } },
+            updated_at: Time.now.getutc,
+            source: "RT-Notification"
+        }
+        channel = "/#{conversation_code}/comments"
+        FayeRedis::publish(message,channel)
+        Rails.logger.debug "message: #{message} sent on channel: #{channel}"
+      end
+    end
 
   end
 end

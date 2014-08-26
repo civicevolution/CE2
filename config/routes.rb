@@ -113,7 +113,7 @@ Ce2::Application.routes.draw do
 
   #resources :comments
 
-  match "comments/:comment_id/rate/:rating" => "api/v1/comments#rate", constraints: {comment_id: /\d+/, rating: /\d+/}, via: [:post, :get], format: :json
+  match "api/comments/:comment_id/rate/:rating" => "api/v1/comments#rate", constraints: {comment_id: /\d+/, rating: /\d+/}, via: [:put, :post, :get], format: :json
 
   get "conversation/index"
 

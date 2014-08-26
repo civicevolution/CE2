@@ -22,7 +22,7 @@ class Rating < ActiveRecord::Base
       ratings_cache[index_for_new_rating] += 1
       ratable.update_column(:ratings_cache, "{#{ratings_cache.join(',')}}" )
       # using update_column to prevent update of updated_at field means callbacks are skipped
-      ratable.send_ratings_update_to_realtime if ratable.respond_to? :send_ratings_update_to_realtime
+      ratable.send_realtime_ratings_update if ratable.respond_to? :send_realtime_ratings_update
     end
   end
 end
