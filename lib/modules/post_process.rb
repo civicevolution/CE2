@@ -74,7 +74,9 @@ module Modules
       quote_regex = /<blockquote([^>]*)>((?:[\s\S](?!<blockquote=[^>]*>))*?)<\/blockquote>/im
 
       self.text.scan(quote_regex).each do |match|
-        attrs = eval(match[0].sub('type=\'','').sub(/'$/,'').gsub(':','=>'))
+        attrStr = match[0].match(/\{[^\}]*\}/).to_s
+        attrSet = attrStr.gsub(':', '=>')
+        attrs = eval(attrSet)
         reply_to_records.push Reply.new comment_id: self.id, reply_to_id: attrs['id'], version: attrs['version'], quote: true
       end
 

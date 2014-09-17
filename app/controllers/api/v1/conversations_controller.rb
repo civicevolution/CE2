@@ -100,10 +100,15 @@ module Api
 
       def create
         authorize! :create, Conversation
-        # create a new conversation with defaults from civicevolution.yml
+        # create a new conversation with placeholder title and cta comments
         conversation = Conversation.create( user_id: current_user.id )
         current_user.add_role :conversation_admin, conversation
-        respond_with conversation
+        data = { user_id: conversation.user_id, conversation_id: conversation.id, conversation_code: conversation.code, version: 0}
+        data[:text] = 'Call-to-action placeholder text'
+        conversation.create_call_to_action_comment data
+        data[:text] = 'Title placeholder text'
+        conversation.create_title_comment data
+        respond_with conversation.as_json
       end
 
       def title

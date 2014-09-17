@@ -73,7 +73,7 @@ class Comment < ActiveRecord::Base
   validates :user_id, :presence => true, unless: Proc.new { |c| c.auth_type == :post_unknown }
   validate :do_not_save_comment_for_post_unknown, on: :create
 
-  validate :check_the_reasons, unless: Proc.new { |c| c.type == 'TitleComment' }
+  validate :check_the_reasons, unless: Proc.new { |c| c.type == 'TitleComment' || c.type == 'CallToActionComment' }
 
   def check_the_reasons
     # make sure there are no empty reasons
