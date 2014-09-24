@@ -11,7 +11,7 @@
  * create customized bootstrap at http://getbootstrap.com/customize/
  *
  *= require_self
- *= require_tree
+ *= require_tree .
  *= stub pdf
  *= require pagedown
  *= require ng-grid.min.css
